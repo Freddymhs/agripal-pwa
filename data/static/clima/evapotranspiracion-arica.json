@@ -1,0 +1,25 @@
+{
+  "nota": "ETo mensual promedio para Arica costa (mm/día). Fuente: datos ERA5/Open-Meteo, INIA RedAgroclima.",
+  "eto_referencia_mm_dia": 4.8,
+  "mensual": {
+    "1": { "eto_mm_dia": 6.2, "label": "Enero" },
+    "2": { "eto_mm_dia": 5.8, "label": "Febrero" },
+    "3": { "eto_mm_dia": 5.0, "label": "Marzo" },
+    "4": { "eto_mm_dia": 4.0, "label": "Abril" },
+    "5": { "eto_mm_dia": 3.2, "label": "Mayo" },
+    "6": { "eto_mm_dia": 2.8, "label": "Junio" },
+    "7": { "eto_mm_dia": 2.9, "label": "Julio" },
+    "8": { "eto_mm_dia": 3.5, "label": "Agosto" },
+    "9": { "eto_mm_dia": 4.2, "label": "Septiembre" },
+    "10": { "eto_mm_dia": 5.0, "label": "Octubre" },
+    "11": { "eto_mm_dia": 5.6, "label": "Noviembre" },
+    "12": { "eto_mm_dia": 6.0, "label": "Diciembre" }
+  },
+  "camanchaca": {
+    "nota": "La camanchaca (neblina costera) aporta humedad en madrugadas. Reduce evaporación efectiva.",
+    "meses_presencia": [5, 6, 7, 8, 9, 10],
+    "aporte_estimado_mm_dia": 0.5,
+    "reduccion_eto_pct": 10,
+    "info": "Con atrapanieblas se puede captar 3-8 L/m²/día en meses de neblina."
+  }
+}

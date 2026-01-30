@@ -1,6 +1,6 @@
 # FASE 3: CRUD de Zonas
 
-**Status**: ⏸️ PENDIENTE
+**Status**: ✅ COMPLETADO
 **Prioridad**: 🔴 Alta
 **Dependencias**: FASE_2
 **Estimación**: 4-5 horas
@@ -13,6 +13,24 @@ Implementar CRUD completo de zonas: crear (click y arrastrar), editar, redimensi
 
 ---
 
+## Funcionalidades Implementadas (adicionales al plan original)
+
+### Sistema de Snap Automático
+Al crear zonas, el cursor se "pega" automáticamente a los bordes cuando está cerca (< 0.5m):
+- **Bordes del terreno**: x=0, x=ancho_m, y=0, y=alto_m
+- **Bordes de zonas existentes**: Todos los lados de cada zona
+- **Guías visuales**: Líneas naranjas punteadas que aparecen cuando el snap está activo
+- **Indicador en UI**: Badge "SNAP activo" con las coordenadas de alineación
+- **Beneficio**: Evita dejar espacios vacíos entre zonas y maximiza el uso del terreno
+
+### Etiquetas con Dimensiones
+Las etiquetas de las zonas ahora muestran:
+- **Formato**: `nombre · ancho×alto m` (antes solo mostraba área)
+- **Beneficio**: Permite al usuario calcular espacios disponibles fácilmente
+- **Zonas pequeñas (<10m²)**: Mini-label al costado con dimensiones
+
+---
+
 ## Reglas de Negocio
 
 1. **Zonas siempre son rectángulos** - No polígonos irregulares
@@ -20,8 +38,10 @@ Implementar CRUD completo de zonas: crear (click y arrastrar), editar, redimensi
 3. **Tamaño mínimo** - 1m × 1m
 4. **Dentro del terreno** - No pueden exceder límites
 5. **Redimensionar** - No puede achicar si hay plantas que quedarían fuera
-6. **Eliminar** - Requiere confirmación seria (nombre + fecha)
-7. **Eliminar con plantas** - Advertir que se eliminarán las plantas
+6. **Mover** - No puede mover si nueva posición causa superposición o sale del terreno
+7. **Mover con plantas** - Las plantas se mueven junto con la zona (mismas coordenadas relativas)
+8. **Eliminar** - Requiere confirmación seria (nombre + fecha)
+9. **Eliminar con plantas** - Advertir que se eliminarán las plantas
 
 ---
 
@@ -127,6 +147,38 @@ export function validarRedimensionarZona(
   return { valida: true }
 }
 
+// Validar mover zona a nueva posición
+export function validarMoverZona(
+  zona: Zona,
+  nuevaPosicion: { x: number; y: number },
+  zonasExistentes: Zona[],
+  terreno: Terreno
+): ValidationResult {
+  // Coordenadas no negativas
+  if (nuevaPosicion.x < 0 || nuevaPosicion.y < 0) {
+    return { valida: false, error: 'La posición no puede tener coordenadas negativas' }
+  }
+
+  // Dentro del terreno
+  if (nuevaPosicion.x + zona.ancho > terreno.ancho_m) {
+    return { valida: false, error: 'La zona excedería el ancho del terreno' }
+  }
+  if (nuevaPosicion.y + zona.alto > terreno.alto_m) {
+    return { valida: false, error: 'La zona excedería el alto del terreno' }
+  }
+
+  // No superposición con otras zonas
+  const zonaMovida = { ...zona, x: nuevaPosicion.x, y: nuevaPosicion.y }
+  for (const otraZona of zonasExistentes) {
+    if (otraZona.id === zona.id) continue
+    if (zonasSeSuperponen(zonaMovida, otraZona)) {
+      return { valida: false, error: `La zona se superpondría con "${otraZona.nombre}"` }
+    }
+  }
+
+  return { valida: true }
+}
+
 // Advertencia al eliminar zona con plantas
 export function advertenciaEliminarZona(
   zona: Zona,
@@ -151,7 +203,7 @@ export function advertenciaEliminarZona(
 import { useState, useCallback } from 'react'
 import { db } from '@/lib/db'
 import { generateUUID, getCurrentTimestamp } from '@/lib/utils'
-import { validarNuevaZona, validarRedimensionarZona } from '@/lib/validations/zona'
+import { validarNuevaZona, validarRedimensionarZona, validarMoverZona } from '@/lib/validations/zona'
 import type { Zona, Terreno, Planta, TipoZona, UUID } from '@/types'
 import { COLORES_ZONA } from '@/types'
 
@@ -170,6 +222,11 @@ interface UseZonas {
   redimensionarZona: (
     id: UUID,
     nuevoTamaño: { ancho: number; alto: number }
+  ) => Promise<{ error?: string }>
+
+  moverZona: (
+    id: UUID,
+    nuevaPosicion: { x: number; y: number }
   ) => Promise<{ error?: string }>
 
   eliminarZona: (id: UUID) => Promise<{ error?: string }>
@@ -264,6 +321,29 @@ export function useZonas(
     return {}
   }, [zonas, plantas, terreno, onRefetch])
 
+  const moverZona = useCallback(async (
+    id: UUID,
+    nuevaPosicion: { x: number; y: number }
+  ) => {
+    const zona = zonas.find(z => z.id === id)
+    if (!zona) {
+      return { error: 'Zona no encontrada' }
+    }
+
+    const validacion = validarMoverZona(zona, nuevaPosicion, zonas, terreno)
+    if (!validacion.valida) {
+      return { error: validacion.error }
+    }
+
+    await db.zonas.update(id, {
+      x: nuevaPosicion.x,
+      y: nuevaPosicion.y,
+      updated_at: getCurrentTimestamp(),
+    })
+    onRefetch()
+    return {}
+  }, [zonas, terreno, onRefetch])
+
   const eliminarZona = useCallback(async (id: UUID) => {
     // Eliminar plantas de la zona primero
     const plantasZona = plantas.filter(p => p.zona_id === id)
@@ -281,6 +361,7 @@ export function useZonas(
     crearZona,
     actualizarZona,
     redimensionarZona,
+    moverZona,
     eliminarZona,
   }
 }
@@ -418,16 +499,20 @@ export function CrearZonaOverlay({ onComplete, onCancel }: CrearZonaOverlayProps
 ### Tarea 4: Crear Modal de Edición de Zona
 **Archivo**: `src/components/mapa/EditorZona.tsx` (crear)
 
+> ⚠️ **IMPORTANTE**: Este componente DEBE incluir inputs editables para posición (x, y) y dimensiones (ancho, alto). NO solo mostrarlos como texto.
+
 ```typescript
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import type { Zona, TipoZona } from '@/types'
 import { COLORES_ZONA } from '@/types'
 
 interface EditorZonaProps {
   zona: Zona
   onSave: (cambios: Partial<Zona>) => void
+  onRedimensionar: (nuevoTamaño: { ancho: number; alto: number }) => Promise<{ error?: string }>
+  onMover: (nuevaPosicion: { x: number; y: number }) => Promise<{ error?: string }>
   onDelete: () => void
   onClose: () => void
   advertenciaEliminacion?: string | null
@@ -436,6 +521,8 @@ interface EditorZonaProps {
 export function EditorZona({
   zona,
   onSave,
+  onRedimensionar,
+  onMover,
   onDelete,
   onClose,
   advertenciaEliminacion,
@@ -444,21 +531,68 @@ export function EditorZona({
   const [tipo, setTipo] = useState<TipoZona>(zona.tipo)
   const [color, setColor] = useState(zona.color)
   const [notas, setNotas] = useState(zona.notas)
+
+  // Estados editables para posición y dimensiones
+  const [x, setX] = useState(zona.x)
+  const [y, setY] = useState(zona.y)
+  const [ancho, setAncho] = useState(zona.ancho)
+  const [alto, setAlto] = useState(zona.alto)
+
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  // Resetear estados cuando cambia la zona
+  useEffect(() => {
+    setNombre(zona.nombre)
+    setTipo(zona.tipo)
+    setColor(zona.color)
+    setNotas(zona.notas)
+    setX(zona.x)
+    setY(zona.y)
+    setAncho(zona.ancho)
+    setAlto(zona.alto)
+    setError(null)
+  }, [zona])
 
   const handleTipoChange = (nuevoTipo: TipoZona) => {
     setTipo(nuevoTipo)
     setColor(COLORES_ZONA[nuevoTipo])
   }
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    setError(null)
+
+    // Si cambió posición, mover
+    if (x !== zona.x || y !== zona.y) {
+      const result = await onMover({ x, y })
+      if (result.error) {
+        setError(result.error)
+        return
+      }
+    }
+
+    // Si cambió dimensiones, redimensionar
+    if (ancho !== zona.ancho || alto !== zona.alto) {
+      const result = await onRedimensionar({ ancho, alto })
+      if (result.error) {
+        setError(result.error)
+        return
+      }
+    }
+
+    // Guardar otros cambios (nombre, tipo, color, notas)
     onSave({ nombre, tipo, color, notas })
-    onClose()
   }
 
   return (
     <div className="p-4 space-y-4">
       <h3 className="text-lg font-bold">Editar Zona</h3>
+
+      {error && (
+        <div className="bg-red-50 text-red-700 p-3 rounded text-sm">
+          {error}
+        </div>
+      )}
 
       <div>
         <label className="block text-sm font-medium mb-1">Nombre</label>
@@ -509,11 +643,67 @@ export function EditorZona({
         />
       </div>
 
-      {/* Info de la zona (solo lectura) */}
-      <div className="bg-gray-50 p-3 rounded text-sm space-y-1">
-        <div><span className="text-gray-500">Área:</span> {zona.area_m2} m²</div>
-        <div><span className="text-gray-500">Dimensiones:</span> {zona.ancho}m × {zona.alto}m</div>
-        <div><span className="text-gray-500">Posición:</span> ({zona.x}, {zona.y})</div>
+      {/* Posición - EDITABLE */}
+      <div>
+        <label className="block text-sm font-medium mb-1">Posición (metros)</label>
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <label className="block text-xs text-gray-500">X</label>
+            <input
+              type="number"
+              value={x}
+              onChange={(e) => setX(Number(e.target.value))}
+              min={0}
+              step={0.5}
+              className="w-full px-3 py-2 border rounded"
+            />
+          </div>
+          <div>
+            <label className="block text-xs text-gray-500">Y</label>
+            <input
+              type="number"
+              value={y}
+              onChange={(e) => setY(Number(e.target.value))}
+              min={0}
+              step={0.5}
+              className="w-full px-3 py-2 border rounded"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Dimensiones - EDITABLE */}
+      <div>
+        <label className="block text-sm font-medium mb-1">Dimensiones (metros)</label>
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <label className="block text-xs text-gray-500">Ancho</label>
+            <input
+              type="number"
+              value={ancho}
+              onChange={(e) => setAncho(Number(e.target.value))}
+              min={1}
+              step={0.5}
+              className="w-full px-3 py-2 border rounded"
+            />
+          </div>
+          <div>
+            <label className="block text-xs text-gray-500">Alto</label>
+            <input
+              type="number"
+              value={alto}
+              onChange={(e) => setAlto(Number(e.target.value))}
+              min={1}
+              step={0.5}
+              className="w-full px-3 py-2 border rounded"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Área calculada (solo lectura) */}
+      <div className="bg-gray-50 p-3 rounded text-sm">
+        <span className="text-gray-500">Área:</span> {ancho * alto} m²
       </div>
 
       {/* Botones */}
@@ -522,7 +712,7 @@ export function EditorZona({
           onClick={handleSave}
           className="flex-1 bg-green-500 text-white py-2 rounded hover:bg-green-600 font-medium"
         >
-          Guardar
+          Guardar Cambios
         </button>
         <button
           onClick={onClose}
@@ -735,18 +925,93 @@ export function NuevaZonaModal({ rect, onConfirm, onCancel }: NuevaZonaModalProp
 
 ---
 
+### Tarea 6: INTEGRAR Zonas en Página Principal
+**Archivo**: `src/app/page.tsx` (actualizar)
+
+Esta tarea es CRÍTICA. Sin ella, los componentes existen pero el usuario no puede usarlos.
+
+**Cambios requeridos:**
+
+1. **Barra de herramientas** con botones:
+   - "Seleccionar" (modo ver)
+   - "+ Nueva Zona" (modo crear_zona)
+
+2. **Estado de modo** en el componente:
+   ```typescript
+   type Modo = 'ver' | 'crear_zona'
+   const [modo, setModo] = useState<Modo>('ver')
+   ```
+
+3. **Integrar MapaTerreno** con modo y callbacks:
+   ```typescript
+   <MapaTerreno
+     modo={modo}
+     onZonaClick={(zona) => setZonaSeleccionada(zona)}
+     onZonaCreada={(rect) => setRectNuevaZona(rect)}
+   />
+   ```
+
+4. **Cargar datos de IndexedDB** (NO datos demo):
+   ```typescript
+   const zonasData = await db.zonas.where('terreno_id').equals(TERRENO_ID).toArray()
+   ```
+
+5. **Mostrar EditorZona en sidebar** cuando zona seleccionada:
+   ```typescript
+   <EditorZona
+     zona={zonaSeleccionada}
+     onSave={handleGuardarZona}
+     onRedimensionar={(size) => zonasHook.redimensionarZona(zonaSeleccionada.id, size)}
+     onMover={(pos) => zonasHook.moverZona(zonaSeleccionada.id, pos)}
+     onDelete={handleEliminarZona}
+     onClose={() => setZonaSeleccionada(null)}
+     advertenciaEliminacion={advertenciaEliminarZona(zonaSeleccionada, plantas)}
+   />
+   ```
+
+6. **Mostrar NuevaZonaModal** cuando rectNuevaZona existe
+
+7. **Conectar useZonas** para operaciones CRUD (crear, actualizar, redimensionar, mover, eliminar)
+
+---
+
+## UX: Preview en Tiempo Real
+
+Al editar posición (X, Y) o dimensiones (ancho, alto) en el sidebar:
+1. **Preview visual en el mapa** - Mostrar rectángulo punteado con la nueva posición/tamaño
+2. **Indicador de validez** - Verde si es válido, rojo si hay superposición o sale del terreno
+3. **Solo guardar si es válido** - Botón Guardar deshabilitado si la preview es inválida
+
+Implementación:
+- `page.tsx` pasa `zonaPreview` al `MapaTerreno`
+- `MapaTerreno` renderiza un `<rect>` punteado con la preview
+- `EditorZona` valida en tiempo real y muestra estado
+
+---
+
 ## Criterios de Aceptación
 
-- [ ] Validación de superposición funciona correctamente
-- [ ] Validación de límites del terreno funciona
-- [ ] No se puede crear zona menor a 1m × 1m
-- [ ] Click y arrastrar crea zona con preview visual
-- [ ] Modal pide nombre y tipo antes de crear
-- [ ] Editor de zona permite cambiar nombre, tipo, color, notas
-- [ ] Color cambia automáticamente según tipo
-- [ ] No se puede achicar zona si plantas quedarían fuera
-- [ ] Eliminación requiere escribir nombre + fecha
-- [ ] Advertencia si zona tiene plantas al eliminar
+- [x] Validación de superposición funciona correctamente
+- [x] Validación de límites del terreno funciona
+- [x] No se puede crear zona menor a 1m × 1m
+- [x] Click y arrastrar crea zona con preview visual
+- [x] Modal pide nombre y tipo antes de crear
+- [x] Editor de zona permite cambiar nombre, tipo, color, notas
+- [x] **Editor permite cambiar posición (x, y) con inputs numéricos**
+- [x] **Editor permite cambiar dimensiones (ancho, alto) con inputs numéricos**
+- [x] **No se puede mover zona si causaría superposición**
+- [x] **No se puede mover zona fuera de los límites del terreno**
+- [x] Color cambia automáticamente según tipo
+- [x] No se puede achicar zona si plantas quedarían fuera
+- [x] Eliminación requiere escribir nombre + fecha
+- [x] Advertencia si zona tiene plantas al eliminar
+- [x] **Usuario puede crear zonas desde la UI** (botón + dibujar)
+- [x] **Usuario puede mover y redimensionar zonas desde el sidebar**
+- [x] **Datos se guardan en IndexedDB** (persisten al recargar)
+- [x] **Sistema de snap automático** a bordes de terreno y zonas existentes
+- [x] **Guías visuales** (líneas naranjas) cuando snap está activo
+- [x] **Etiquetas muestran dimensiones** (ancho×alto) en vez de solo área
+- [x] **Preview de zona en edición** con validación visual (verde/rojo)
 
 ---
 

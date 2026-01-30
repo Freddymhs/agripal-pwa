@@ -1,0 +1,52 @@
+[
+  {
+    "cultivo_id": "cultivo-tuna",
+    "nombre": "Tuna",
+    "precio_kg_actual_clp": 1000,
+    "tendencia": "estable",
+    "demanda_local": "alta",
+    "competencia_local": "media",
+    "mercado_exportacion": false,
+    "notas": "Venta directa en feria y a intermediarios. Temporada dic-mar. Demanda constante en zona norte."
+  },
+  {
+    "cultivo_id": "cultivo-olivo",
+    "nombre": "Olivo (aceite)",
+    "precio_kg_actual_clp": 3500,
+    "tendencia": "alza",
+    "demanda_local": "alta",
+    "competencia_local": "baja",
+    "mercado_exportacion": true,
+    "notas": "Aceite de oliva chileno con demanda creciente. Arica tiene potencial por bajo costo y clima. Aceitunas de mesa también."
+  },
+  {
+    "cultivo_id": "cultivo-higuera",
+    "nombre": "Higo",
+    "precio_kg_actual_clp": 2500,
+    "tendencia": "alza",
+    "demanda_local": "media",
+    "competencia_local": "baja",
+    "mercado_exportacion": true,
+    "notas": "Higo seco tiene mercado gourmet. Fresco se vende bien en ferias. Doble cosecha anual."
+  },
+  {
+    "cultivo_id": "cultivo-granada",
+    "nombre": "Granada",
+    "precio_kg_actual_clp": 4000,
+    "tendencia": "alza",
+    "demanda_local": "media",
+    "competencia_local": "baja",
+    "mercado_exportacion": true,
+    "notas": "Mercado gourmet y salud. Jugo de granada con alta demanda. Poca competencia nacional."
+  },
+  {
+    "cultivo_id": "cultivo-algarrobo",
+    "nombre": "Algarrobo",
+    "precio_kg_actual_clp": 1500,
+    "tendencia": "estable",
+    "demanda_local": "baja",
+    "competencia_local": "baja",
+    "mercado_exportacion": false,
+    "notas": "Nicho: harina de algarroba para repostería y alimento animal. Árbol rústico, bajo mantenimiento."
+  }
+]

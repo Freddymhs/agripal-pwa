@@ -1,0 +1,98 @@
+[
+  {
+    "id": "guano-vaca",
+    "nombre": "Guano de Vaca",
+    "tipo": "organico",
+    "npk": { "n": 2, "p": 1, "k": 2 },
+    "efecto_ph": 0,
+    "dosis_kg_m2": 3,
+    "frecuencia_meses": 6,
+    "tiempo_efecto_dias": 30,
+    "costo_kg_clp": 150,
+    "notas": "Mejora estructura del suelo y retención de agua. Disponible localmente en Arica."
+  },
+  {
+    "id": "guano-gallina",
+    "nombre": "Guano de Gallina",
+    "tipo": "organico",
+    "npk": { "n": 4, "p": 3, "k": 2 },
+    "efecto_ph": -0.2,
+    "dosis_kg_m2": 1.5,
+    "frecuencia_meses": 4,
+    "tiempo_efecto_dias": 15,
+    "costo_kg_clp": 200,
+    "notas": "Alto en nitrógeno. Aplicar compostado para evitar quemaduras en raíces."
+  },
+  {
+    "id": "compost",
+    "nombre": "Compost Orgánico",
+    "tipo": "organico",
+    "npk": { "n": 1.5, "p": 1, "k": 1 },
+    "efecto_ph": 0,
+    "dosis_kg_m2": 5,
+    "frecuencia_meses": 6,
+    "tiempo_efecto_dias": 30,
+    "costo_kg_clp": 100,
+    "notas": "Mejora estructura, retención de agua y vida microbiana del suelo."
+  },
+  {
+    "id": "humus-lombriz",
+    "nombre": "Humus de Lombriz",
+    "tipo": "organico",
+    "npk": { "n": 2, "p": 1, "k": 1.5 },
+    "efecto_ph": 0,
+    "dosis_kg_m2": 2,
+    "frecuencia_meses": 4,
+    "tiempo_efecto_dias": 7,
+    "costo_kg_clp": 350,
+    "notas": "Excelente estructura y nutrientes. Mejora actividad microbiana. Efecto rápido."
+  },
+  {
+    "id": "cal-agricola",
+    "nombre": "Cal Agrícola (Carbonato de Calcio)",
+    "tipo": "enmienda",
+    "npk": { "n": 0, "p": 0, "k": 0 },
+    "efecto_ph": 0.5,
+    "dosis_kg_m2": 0.3,
+    "frecuencia_meses": 12,
+    "tiempo_efecto_dias": 60,
+    "costo_kg_clp": 250,
+    "notas": "Sube pH de suelos ácidos. No usar si pH > 7.5."
+  },
+  {
+    "id": "azufre-agricola",
+    "nombre": "Azufre Agrícola",
+    "tipo": "enmienda",
+    "npk": { "n": 0, "p": 0, "k": 0 },
+    "efecto_ph": -1.0,
+    "dosis_kg_m2": 0.1,
+    "frecuencia_meses": 12,
+    "tiempo_efecto_dias": 90,
+    "costo_kg_clp": 500,
+    "notas": "Baja pH de suelos alcalinos. Efecto lento. Común en Arica donde suelos tienden a alcalinos."
+  },
+  {
+    "id": "yeso-agricola",
+    "nombre": "Yeso Agrícola (Sulfato de Calcio)",
+    "tipo": "enmienda",
+    "npk": { "n": 0, "p": 0, "k": 0 },
+    "efecto_ph": 0,
+    "dosis_kg_m2": 0.5,
+    "frecuencia_meses": 12,
+    "tiempo_efecto_dias": 30,
+    "costo_kg_clp": 200,
+    "notas": "Reduce salinidad sin cambiar pH. Mejora estructura en suelos sódicos. Recomendado para Arica."
+  },
+  {
+    "id": "npk-15-15-15",
+    "nombre": "NPK 15-15-15",
+    "tipo": "quimico",
+    "npk": { "n": 15, "p": 15, "k": 15 },
+    "efecto_ph": -0.1,
+    "dosis_kg_m2": 0.05,
+    "frecuencia_meses": 3,
+    "tiempo_efecto_dias": 7,
+    "costo_kg_clp": 800,
+    "notas": "Fertilizante balanceado. Efecto rápido. Usar con precaución en suelos salinos."
+  }
+]

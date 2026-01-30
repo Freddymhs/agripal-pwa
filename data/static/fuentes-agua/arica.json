@@ -1,0 +1,68 @@
+[
+  {
+    "id": "fuente-lluta",
+    "nombre": "Río Lluta",
+    "tipo": "rio",
+    "salinidad_dS_m": 2.5,
+    "boro_ppm": 11,
+    "arsenico_mg_l": 0.02,
+    "ph": 7.8,
+    "costo_m3_clp": 0,
+    "notas": "MUY ALTO BORO - No apto para mayoría de cultivos. Solo cultivos con tolerancia alta a boro (tuna, olivo)."
+  },
+  {
+    "id": "fuente-azapa",
+    "nombre": "Río Azapa (Subterránea)",
+    "tipo": "rio",
+    "salinidad_dS_m": 1.5,
+    "boro_ppm": 0.5,
+    "arsenico_mg_l": 0.01,
+    "ph": 7.2,
+    "costo_m3_clp": 0,
+    "notas": "Mejor calidad de la zona. Apta para frutales. Disponibilidad limitada."
+  },
+  {
+    "id": "fuente-aljibe",
+    "nombre": "Aljibe Municipal (Camión)",
+    "tipo": "aljibe",
+    "salinidad_dS_m": 0.5,
+    "boro_ppm": 0.1,
+    "arsenico_mg_l": 0.01,
+    "ph": 7.0,
+    "costo_m3_clp": 5000,
+    "notas": "Agua tratada, mejor calidad disponible. Depende de disponibilidad de camiones y horarios."
+  },
+  {
+    "id": "fuente-pozo-arica",
+    "nombre": "Pozo (Napa freática Arica)",
+    "tipo": "pozo",
+    "salinidad_dS_m": 1.8,
+    "boro_ppm": 3.5,
+    "arsenico_mg_l": 0.03,
+    "ph": 7.5,
+    "costo_m3_clp": 800,
+    "notas": "Calidad variable según profundidad y ubicación. Requiere análisis individual. Posible presencia de boro."
+  },
+  {
+    "id": "fuente-reciclada",
+    "nombre": "Agua Reciclada (Tratada)",
+    "tipo": "reciclada",
+    "salinidad_dS_m": 1.2,
+    "boro_ppm": 0.8,
+    "arsenico_mg_l": 0.02,
+    "ph": 7.3,
+    "costo_m3_clp": 2000,
+    "notas": "Agua residual tratada. Calidad aceptable para riego. Verificar normativa SAG."
+  },
+  {
+    "id": "fuente-desalada",
+    "nombre": "Agua Desalada",
+    "tipo": "otro",
+    "salinidad_dS_m": 0.3,
+    "boro_ppm": 0.05,
+    "arsenico_mg_l": 0.005,
+    "ph": 6.8,
+    "costo_m3_clp": 12000,
+    "notas": "Excelente calidad pero alto costo. Ideal para cultivos sensibles de alto valor."
+  }
+]

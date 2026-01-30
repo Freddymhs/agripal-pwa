@@ -1,0 +1,72 @@
+[
+  {
+    "id": "var-olivo-arbequina",
+    "cultivo_id": "cultivo-olivo",
+    "nombre": "Arbequina",
+    "origen": "España (Cataluña)",
+    "ventajas": ["Aceite de alta calidad", "Porte bajo (fácil cosecha)", "Producción temprana (año 3)"],
+    "desventajas": ["Sensible a mosca del olivo", "Fruto pequeño"],
+    "rendimiento_relativo": 1.0,
+    "precio_planta_clp": 8000
+  },
+  {
+    "id": "var-olivo-picual",
+    "cultivo_id": "cultivo-olivo",
+    "nombre": "Picual",
+    "origen": "España (Jaén)",
+    "ventajas": ["Alto rendimiento en aceite (22-25%)", "Resistente a frío", "Vigor medio-alto"],
+    "desventajas": ["Porte alto", "Sensible a suelo muy húmedo"],
+    "rendimiento_relativo": 1.15,
+    "precio_planta_clp": 7500
+  },
+  {
+    "id": "var-olivo-frantoio",
+    "cultivo_id": "cultivo-olivo",
+    "nombre": "Frantoio",
+    "origen": "Italia (Toscana)",
+    "ventajas": ["Excelente aceite virgen extra", "Buena adaptabilidad", "Polinizador universal"],
+    "desventajas": ["Producción más tardía", "Vecería marcada"],
+    "rendimiento_relativo": 0.95,
+    "precio_planta_clp": 9000
+  },
+  {
+    "id": "var-tuna-roja",
+    "cultivo_id": "cultivo-tuna",
+    "nombre": "Tuna Roja (Morada)",
+    "origen": "Chile / México",
+    "ventajas": ["Mayor precio de venta", "Alta demanda local", "Rico en betalaínas"],
+    "desventajas": ["Más sensible a cochinilla", "Menor producción que verde"],
+    "rendimiento_relativo": 0.85,
+    "precio_planta_clp": 3000
+  },
+  {
+    "id": "var-tuna-verde",
+    "cultivo_id": "cultivo-tuna",
+    "nombre": "Tuna Verde (Blanca)",
+    "origen": "Chile",
+    "ventajas": ["Mayor producción", "Más resistente", "Menor cuidado"],
+    "desventajas": ["Menor precio de venta", "Mercado más competido"],
+    "rendimiento_relativo": 1.1,
+    "precio_planta_clp": 2500
+  },
+  {
+    "id": "var-higuera-mission",
+    "cultivo_id": "cultivo-higuera",
+    "nombre": "Black Mission",
+    "origen": "España / California",
+    "ventajas": ["Higo seco de alta calidad", "Resistente a sequía", "Doble cosecha (breva + higo)"],
+    "desventajas": ["Porte alto", "Fruto mediano"],
+    "rendimiento_relativo": 1.0,
+    "precio_planta_clp": 6000
+  },
+  {
+    "id": "var-higuera-kadota",
+    "cultivo_id": "cultivo-higuera",
+    "nombre": "Kadota",
+    "origen": "Italia",
+    "ventajas": ["Higo verde claro dulce", "Excelente para conservas", "Piel delgada"],
+    "desventajas": ["Necesita más agua", "Menor resistencia a salinidad"],
+    "rendimiento_relativo": 0.9,
+    "precio_planta_clp": 7000
+  }
+]

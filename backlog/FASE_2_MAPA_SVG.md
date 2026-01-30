@@ -1,6 +1,6 @@
 # FASE 2: Mapa SVG Interactivo
 
-**Status**: ⏸️ PENDIENTE
+**Status**: ✅ COMPLETADO
 **Prioridad**: 🔴 Alta
 **Dependencias**: FASE_1
 **Estimación**: 5-6 horas
@@ -12,6 +12,16 @@
 Crear componente de mapa interactivo usando SVG puro con zoom, pan y renderizado de terreno/zonas.
 
 **IMPORTANTE**: Usamos SVG, NO Leaflet. Leaflet es demasiado complejo para este caso.
+
+---
+
+## Funcionalidades Implementadas (adicionales al plan original)
+
+### Panel de Información del Terreno
+- Muestra dimensiones totales del terreno (ancho × alto)
+- Muestra área total, área usada y área disponible
+- Colores diferenciados (naranja para usado, verde para disponible)
+- Incluye escala de referencia (1m)
 
 ---
 
@@ -203,6 +213,26 @@ export function useMapControls(
 ### Tarea 3: Crear Componente MapaTerreno
 **Archivo**: `src/components/mapa/MapaTerreno.tsx` (crear)
 
+> ⚠️ **NOTA CRÍTICA - Conversión de Coordenadas**
+>
+> El SVG usa `viewBox` que el navegador escala automáticamente para llenar el contenedor.
+> Por defecto (`preserveAspectRatio="xMidYMid meet"`), el contenido se centra y puede haber espacio vacío.
+>
+> **INCORRECTO** (no funciona):
+> ```typescript
+> const x = (e.clientX - rect.left) / scale - offset.x
+> ```
+>
+> **CORRECTO** (usar siempre):
+> ```typescript
+> const pt = svg.createSVGPoint()
+> pt.x = e.clientX
+> pt.y = e.clientY
+> const svgPoint = pt.matrixTransform(svg.getScreenCTM()?.inverse())
+> ```
+>
+> `getScreenCTM().inverse()` maneja automáticamente el escalado del viewBox al tamaño real del elemento.
+
 ```typescript
 'use client'
 
@@ -254,23 +284,44 @@ export function MapaTerreno({
     return () => svg.removeEventListener('wheel', controls.handleWheel)
   }, [controls.handleWheel])
 
+  // IMPORTANTE: Convertir coordenadas de pantalla a SVG viewBox
+  // Usar getScreenCTM() para manejar correctamente el escalado del viewBox
+  const getMousePosition = useCallback((e: React.MouseEvent<SVGSVGElement>): { x: number; y: number } | null => {
+    if (!svgRef.current) return null
+
+    const svg = svgRef.current
+    const pt = svg.createSVGPoint()
+    pt.x = e.clientX
+    pt.y = e.clientY
+
+    // getScreenCTM().inverse() convierte correctamente de pantalla a viewBox
+    const screenCTM = svg.getScreenCTM()
+    if (!screenCTM) return null
+
+    const svgPoint = pt.matrixTransform(screenCTM.inverse())
+
+    // Aplicar inversa del transform del grupo (offset y scale)
+    const xInGroup = (svgPoint.x - controls.offset.x) / controls.scale
+    const yInGroup = (svgPoint.y - controls.offset.y) / controls.scale
+
+    const xMetros = pixelsToMetros(xInGroup)
+    const yMetros = pixelsToMetros(yInGroup)
+
+    return {
+      x: Math.max(0, Math.min(terreno.ancho_m, xMetros)),
+      y: Math.max(0, Math.min(terreno.alto_m, yMetros)),
+    }
+  }, [controls.scale, controls.offset, terreno])
+
   // Convertir click a coordenadas en metros
   const handleSvgClick = useCallback((e: React.MouseEvent<SVGSVGElement>) => {
     if (!svgRef.current || !onMapClick || modo !== 'ver') return
 
-    const rect = svgRef.current.getBoundingClientRect()
-    const x = (e.clientX - rect.left - controls.offset.x) / controls.scale
-    const y = (e.clientY - rect.top - controls.offset.y) / controls.scale
-
-    const xMetros = pixelsToMetros(x)
-    const yMetros = pixelsToMetros(y)
-
-    // Verificar que está dentro del terreno
-    if (xMetros >= 0 && xMetros <= terreno.ancho_m &&
-        yMetros >= 0 && yMetros <= terreno.alto_m) {
-      onMapClick(xMetros, yMetros)
+    const pos = getMousePosition(e)
+    if (pos) {
+      onMapClick(pos.x, pos.y)
     }
-  }, [onMapClick, modo, controls.offset, controls.scale, terreno])
+  }, [onMapClick, modo, getMousePosition])
 
   // Obtener plantas de una zona
   const getPlantasDeZona = useCallback((zonaId: string) => {
@@ -549,16 +600,17 @@ export function MapaControls({
 
 ## Criterios de Aceptación
 
-- [ ] Sistema de coordenadas convierte metros ↔ píxeles correctamente
-- [ ] Hook `useMapControls` implementa zoom y pan
-- [ ] Zoom funciona con rueda del mouse
-- [ ] Pan funciona arrastrando con mouse
-- [ ] Componente `MapaTerreno` renderiza terreno con grid
-- [ ] Zonas se muestran con colores y etiquetas
-- [ ] Click en zona dispara `onZonaClick`
-- [ ] Zona seleccionada tiene borde diferente
-- [ ] Controles de zoom (+/-/reset) funcionan
-- [ ] Escala visual muestra "1m" correctamente
+- [x] Sistema de coordenadas convierte metros ↔ píxeles correctamente
+- [x] Hook `useMapControls` implementa zoom y pan
+- [x] Zoom funciona con rueda del mouse (hasta 20x para zonas pequeñas)
+- [x] Pan funciona arrastrando con mouse
+- [x] Componente `MapaTerreno` renderiza terreno con grid
+- [x] Zonas se muestran con colores y etiquetas
+- [x] Click en zona dispara `onZonaClick`
+- [x] Zona seleccionada tiene borde diferente
+- [x] Controles de zoom (+/-/reset) funcionan
+- [x] Escala visual muestra "1m" correctamente
+- [x] **Panel info terreno** muestra dimensiones y área usado/disponible
 
 ---
 

@@ -1,0 +1,653 @@
+[
+  {
+    "id": "cultivo-tuna",
+    "proyecto_id": "proyecto-arica-piloto",
+    "nombre": "Tuna",
+    "nombre_cientifico": "Opuntia ficus-indica",
+    "agua_m3_ha_año_min": 1500,
+    "agua_m3_ha_año_max": 4000,
+    "espaciado_min_m": 2.5,
+    "espaciado_recomendado_m": 3,
+    "ph_min": 6,
+    "ph_max": 8.5,
+    "salinidad_tolerancia_dS_m": 6,
+    "boro_tolerancia_ppm": 3,
+    "tolerancia_boro": "media",
+    "tolerancia_salinidad": "alta",
+    "clima": {
+      "temp_min_c": -5,
+      "temp_max_c": 40,
+      "tolerancia_heladas": "alta"
+    },
+    "viabilidad_proyecto": "mejor_opcion",
+    "calendario": {
+      "meses_siembra": [3, 4, 9, 10],
+      "meses_cosecha": [12, 1, 2, 3],
+      "meses_descanso": [5, 6, 7, 8, 11]
+    },
+    "produccion": {
+      "produccion_kg_ha_año2": 200,
+      "produccion_kg_ha_año3": 750,
+      "produccion_kg_ha_año4": 2000,
+      "vida_util_dias": 10
+    },
+    "precio_kg_min_clp": 800,
+    "precio_kg_max_clp": 1200,
+    "precio_planta_clp": 500,
+    "plagas": [
+      {
+        "nombre": "Cochinilla",
+        "nombre_cientifico": "Dactylopius coccus",
+        "grados_dia_base": 10,
+        "grados_dia_ciclo": 450,
+        "grados_dia_ovicida_ventana": 150,
+        "control_recomendado": "Aceite mineral, insecticida en ventana huevo-larva"
+      }
+    ],
+    "tiempo_produccion_meses": 36,
+    "vida_util_años": 25,
+    "tier": 1,
+    "riesgo": "bajo",
+    "notas": "Cultivo base recomendado para Arica. Bajo consumo agua, tolera salinidad alta.",
+    "notas_arica": "Ideal para piloto 0.3 ha. Requiere monitoreo cochinilla. Hospedero mosca fruta.",
+    "created_at": "2024-12-01T00:00:00Z",
+    "updated_at": "2024-12-01T00:00:00Z"
+  },
+  {
+    "id": "cultivo-higuera",
+    "proyecto_id": "proyecto-arica-piloto",
+    "nombre": "Higuera",
+    "nombre_cientifico": "Ficus carica",
+    "agua_m3_ha_año_min": 2000,
+    "agua_m3_ha_año_max": 3500,
+    "espaciado_min_m": 5,
+    "espaciado_recomendado_m": 6,
+    "ph_min": 6,
+    "ph_max": 8,
+    "salinidad_tolerancia_dS_m": 4,
+    "boro_tolerancia_ppm": 2,
+    "tolerancia_boro": "baja",
+    "tolerancia_salinidad": "media",
+    "clima": {
+      "temp_min_c": -10,
+      "temp_max_c": 40,
+      "tolerancia_heladas": "alta",
+      "horas_frio_requeridas": 200
+    },
+    "viabilidad_proyecto": "recomendado",
+    "calendario": {
+      "meses_siembra": [6, 7, 8],
+      "meses_cosecha": [11, 12, 1, 2, 3, 4, 5],
+      "meses_descanso": [9, 10]
+    },
+    "produccion": {
+      "produccion_kg_ha_año2": 75,
+      "produccion_kg_ha_año3": 500,
+      "produccion_kg_ha_año4": 6000,
+      "vida_util_dias": 3
+    },
+    "precio_kg_min_clp": 800,
+    "precio_kg_max_clp": 1400,
+    "precio_planta_clp": 3500,
+    "plagas": [
+      {
+        "nombre": "Mosca de la higuera",
+        "nombre_cientifico": "Lonchaea aristella",
+        "grados_dia_base": 7,
+        "grados_dia_ciclo": 350,
+        "grados_dia_ovicida_ventana": 200,
+        "control_recomendado": "Aplicar en primavera antes de cuaje"
+      }
+    ],
+    "tiempo_produccion_meses": 24,
+    "vida_util_años": 30,
+    "tier": 1,
+    "riesgo": "bajo",
+    "notas": "Dos cosechas anuales (breva nov-dic, higo ene-may). Vida útil muy corta.",
+    "notas_arica": "Recomendado 0.2 ha. Breva precio premium. Hospedero mosca fruta.",
+    "created_at": "2024-12-01T00:00:00Z",
+    "updated_at": "2024-12-01T00:00:00Z"
+  },
+  {
+    "id": "cultivo-pitahaya",
+    "proyecto_id": "proyecto-arica-piloto",
+    "nombre": "Pitahaya",
+    "nombre_cientifico": "Hylocereus spp.",
+    "agua_m3_ha_año_min": 2000,
+    "agua_m3_ha_año_max": 3500,
+    "espaciado_min_m": 1.5,
+    "espaciado_recomendado_m": 2,
+    "ph_min": 5.5,
+    "ph_max": 7.5,
+    "salinidad_tolerancia_dS_m": 3,
+    "boro_tolerancia_ppm": 2.5,
+    "tolerancia_boro": "media",
+    "tolerancia_salinidad": "media",
+    "clima": {
+      "temp_min_c": 5,
+      "temp_max_c": 35,
+      "tolerancia_heladas": "baja"
+    },
+    "viabilidad_proyecto": "mejor_opcion",
+    "calendario": {
+      "meses_siembra": [8, 9, 10],
+      "meses_cosecha": [1, 2, 3, 4, 5],
+      "meses_descanso": [6, 7, 12]
+    },
+    "produccion": {
+      "produccion_kg_ha_año2": 500,
+      "produccion_kg_ha_año3": 8000,
+      "produccion_kg_ha_año4": 15000,
+      "vida_util_dias": 14
+    },
+    "precio_kg_min_clp": 4000,
+    "precio_kg_max_clp": 6000,
+    "precio_planta_clp": 2000,
+    "plagas": [
+      {
+        "nombre": "Escama del cactus",
+        "nombre_cientifico": "Aspidiotus sp.",
+        "grados_dia_base": 10,
+        "grados_dia_ciclo": 300,
+        "grados_dia_ovicida_ventana": 120,
+        "control_recomendado": "Aceite mineral + insecticida sistémico"
+      }
+    ],
+    "tiempo_produccion_meses": 18,
+    "vida_util_años": 20,
+    "tier": 2,
+    "riesgo": "medio",
+    "notas": "Cultivo gourmet, alto precio. Produce en contra-estación.",
+    "notas_arica": "Área limitada (0.1 ha). Mejor rentabilidad/agua. Requiere protección viento.",
+    "created_at": "2024-12-01T00:00:00Z",
+    "updated_at": "2024-12-01T00:00:00Z"
+  },
+  {
+    "id": "cultivo-guayaba",
+    "proyecto_id": "proyecto-arica-piloto",
+    "nombre": "Guayaba Rosada",
+    "nombre_cientifico": "Psidium guajava",
+    "agua_m3_ha_año_min": 2000,
+    "agua_m3_ha_año_max": 3000,
+    "espaciado_min_m": 4,
+    "espaciado_recomendado_m": 5,
+    "ph_min": 5.5,
+    "ph_max": 8,
+    "salinidad_tolerancia_dS_m": 4,
+    "boro_tolerancia_ppm": 3,
+    "tolerancia_boro": "media",
+    "tolerancia_salinidad": "media",
+    "clima": {
+      "temp_min_c": 5,
+      "temp_max_c": 35,
+      "tolerancia_heladas": "baja"
+    },
+    "viabilidad_proyecto": "viable",
+    "calendario": {
+      "meses_siembra": [9, 10, 11],
+      "meses_cosecha": [1, 2, 3, 4],
+      "meses_descanso": [5, 6, 7, 8, 12]
+    },
+    "produccion": {
+      "produccion_kg_ha_año2": 100,
+      "produccion_kg_ha_año3": 1000,
+      "produccion_kg_ha_año4": 4000,
+      "vida_util_dias": 7
+    },
+    "precio_kg_min_clp": 1500,
+    "precio_kg_max_clp": 2500,
+    "precio_planta_clp": 2500,
+    "plagas": [
+      {
+        "nombre": "Mosca de la fruta",
+        "nombre_cientifico": "Ceratitis capitata",
+        "grados_dia_base": 10,
+        "grados_dia_ciclo": 300,
+        "grados_dia_ovicida_ventana": 150,
+        "control_recomendado": "⚠️ CRÍTICO SAG: monitoreo 2x/semana"
+      }
+    ],
+    "tiempo_produccion_meses": 24,
+    "vida_util_años": 25,
+    "tier": 2,
+    "riesgo": "bajo",
+    "notas": "Nicho mercado local creciente. Rústica.",
+    "notas_arica": "Alternativa para 0.05 ha. Mercado local. CRÍTICA: 14 brotes mosca fruta.",
+    "created_at": "2024-12-01T00:00:00Z",
+    "updated_at": "2024-12-01T00:00:00Z"
+  },
+  {
+    "id": "cultivo-datil-medjool",
+    "proyecto_id": "proyecto-arica-piloto",
+    "nombre": "Dátil Medjool",
+    "nombre_cientifico": "Phoenix dactylifera",
+    "agua_m3_ha_año_min": 12000,
+    "agua_m3_ha_año_max": 20000,
+    "espaciado_min_m": 7,
+    "espaciado_recomendado_m": 8,
+    "ph_min": 7,
+    "ph_max": 8.5,
+    "salinidad_tolerancia_dS_m": 6,
+    "boro_tolerancia_ppm": 4,
+    "tolerancia_boro": "media",
+    "tolerancia_salinidad": "alta",
+    "clima": {
+      "temp_min_c": -3,
+      "temp_max_c": 45,
+      "tolerancia_heladas": "baja"
+    },
+    "viabilidad_proyecto": "limitado",
+    "calendario": {
+      "meses_siembra": [2, 3, 4],
+      "meses_cosecha": [9, 10, 11],
+      "meses_descanso": [1, 5, 6, 7, 8, 12]
+    },
+    "produccion": {
+      "produccion_kg_ha_año2": 0,
+      "produccion_kg_ha_año3": 2000,
+      "produccion_kg_ha_año4": 8000,
+      "vida_util_dias": 180
+    },
+    "precio_kg_min_clp": 3000,
+    "precio_kg_max_clp": 6000,
+    "precio_planta_clp": 15000,
+    "plagas": [
+      {
+        "nombre": "Cochinilla de la palmera",
+        "nombre_cientifico": "Parlatoria blanchardi",
+        "grados_dia_base": 12,
+        "grados_dia_ciclo": 500,
+        "grados_dia_ovicida_ventana": 200,
+        "control_recomendado": "Aceite mineral + insecticida sistémico en brotación"
+      }
+    ],
+    "tiempo_produccion_meses": 48,
+    "vida_util_años": 60,
+    "tier": 2,
+    "riesgo": "medio",
+    "notas": "Palmera de alto valor; tolera salinidad y boro. Requiere larga espera para retorno y agua abundante.",
+    "notas_arica": "Escala muy chica por agua limitada (~1,040 m³/ha disponibles). Tolerante a sal y algo de boro de Lluta; ideal con agua Azapa/desalada.",
+    "created_at": "2024-12-02T00:00:00Z",
+    "updated_at": "2024-12-02T00:00:00Z"
+  },
+  {
+    "id": "cultivo-maracuya",
+    "proyecto_id": "proyecto-arica-piloto",
+    "nombre": "Maracuyá",
+    "nombre_cientifico": "Passiflora edulis",
+    "agua_m3_ha_año_min": 3500,
+    "agua_m3_ha_año_max": 5500,
+    "espaciado_min_m": 2,
+    "espaciado_recomendado_m": 3,
+    "ph_min": 5.5,
+    "ph_max": 6.5,
+    "salinidad_tolerancia_dS_m": 1.5,
+    "boro_tolerancia_ppm": 0.5,
+    "tolerancia_boro": "baja",
+    "tolerancia_salinidad": "baja",
+    "clima": {
+      "temp_min_c": 8,
+      "temp_max_c": 32,
+      "tolerancia_heladas": "nula"
+    },
+    "viabilidad_proyecto": "recomendado",
+    "calendario": {
+      "meses_siembra": [8, 9, 10],
+      "meses_cosecha": [2, 3, 4, 5, 6],
+      "meses_descanso": [7, 11, 12, 1]
+    },
+    "produccion": {
+      "produccion_kg_ha_año2": 5000,
+      "produccion_kg_ha_año3": 12000,
+      "produccion_kg_ha_año4": 15000,
+      "vida_util_dias": 14
+    },
+    "precio_kg_min_clp": 1000,
+    "precio_kg_max_clp": 2000,
+    "precio_planta_clp": 1500,
+    "plagas": [
+      {
+        "nombre": "Mosca de la fruta",
+        "nombre_cientifico": "Ceratitis capitata",
+        "grados_dia_base": 10,
+        "grados_dia_ciclo": 300,
+        "grados_dia_ovicida_ventana": 150,
+        "control_recomendado": "Monitoreo trampas + aplicación en ventana ovicida"
+      }
+    ],
+    "tiempo_produccion_meses": 10,
+    "vida_util_años": 8,
+    "tier": 1,
+    "riesgo": "medio",
+    "notas": "Retorno rápido y buen flujo de caja; sensible a salinidad y viento fuerte.",
+    "notas_arica": "Excelente para rotación corta en valles bajos. Requiere agua <2 dS/m y protección de viento.",
+    "created_at": "2024-12-02T00:00:00Z",
+    "updated_at": "2024-12-02T00:00:00Z"
+  },
+  {
+    "id": "cultivo-uva-mesa-primor",
+    "proyecto_id": "proyecto-arica-piloto",
+    "nombre": "Uva de Mesa Primor",
+    "nombre_cientifico": "Vitis vinifera",
+    "agua_m3_ha_año_min": 4500,
+    "agua_m3_ha_año_max": 6500,
+    "espaciado_min_m": 2.5,
+    "espaciado_recomendado_m": 3,
+    "ph_min": 6,
+    "ph_max": 8,
+    "salinidad_tolerancia_dS_m": 2.5,
+    "boro_tolerancia_ppm": 1.5,
+    "tolerancia_boro": "media",
+    "tolerancia_salinidad": "media",
+    "clima": {
+      "temp_min_c": -2,
+      "temp_max_c": 38,
+      "tolerancia_heladas": "media",
+      "horas_frio_requeridas": 100
+    },
+    "viabilidad_proyecto": "recomendado",
+    "calendario": {
+      "meses_siembra": [7, 8],
+      "meses_cosecha": [11, 12, 1],
+      "meses_descanso": [2, 3, 4, 5, 6, 9, 10]
+    },
+    "produccion": {
+      "produccion_kg_ha_año2": 3000,
+      "produccion_kg_ha_año3": 10000,
+      "produccion_kg_ha_año4": 20000,
+      "vida_util_dias": 30
+    },
+    "precio_kg_min_clp": 900,
+    "precio_kg_max_clp": 1600,
+    "precio_planta_clp": 3000,
+    "plagas": [
+      {
+        "nombre": "Polilla de la vid",
+        "nombre_cientifico": "Lobesia botrana",
+        "grados_dia_base": 10,
+        "grados_dia_ciclo": 600,
+        "grados_dia_ovicida_ventana": 250,
+        "control_recomendado": "Confusión sexual + larvicida en 1ª generación"
+      }
+    ],
+    "tiempo_produccion_meses": 24,
+    "vida_util_años": 20,
+    "tier": 2,
+    "riesgo": "medio",
+    "notas": "Necesita manejo técnico alto para primores tempranos.",
+    "notas_arica": "Ventaja de ventana temprana (nov-ene). Requiere riego preciso y manejo de salinidad.",
+    "created_at": "2024-12-02T00:00:00Z",
+    "updated_at": "2024-12-02T00:00:00Z"
+  },
+  {
+    "id": "cultivo-limon",
+    "proyecto_id": "proyecto-arica-piloto",
+    "nombre": "Limón",
+    "nombre_cientifico": "Citrus limon",
+    "agua_m3_ha_año_min": 5000,
+    "agua_m3_ha_año_max": 8000,
+    "espaciado_min_m": 5,
+    "espaciado_recomendado_m": 6,
+    "ph_min": 5.5,
+    "ph_max": 7.5,
+    "salinidad_tolerancia_dS_m": 1.8,
+    "boro_tolerancia_ppm": 1.0,
+    "tolerancia_boro": "media",
+    "tolerancia_salinidad": "media",
+    "clima": {
+      "temp_min_c": -2,
+      "temp_max_c": 40,
+      "tolerancia_heladas": "baja"
+    },
+    "viabilidad_proyecto": "limitado",
+    "calendario": {
+      "meses_siembra": [7, 8, 9],
+      "meses_cosecha": [4, 5, 6, 7, 8, 9, 10],
+      "meses_descanso": [1, 2, 3, 11, 12]
+    },
+    "produccion": {
+      "produccion_kg_ha_año2": 0,
+      "produccion_kg_ha_año3": 3000,
+      "produccion_kg_ha_año4": 12000,
+      "vida_util_dias": 30
+    },
+    "precio_kg_min_clp": 400,
+    "precio_kg_max_clp": 800,
+    "precio_planta_clp": 5000,
+    "plagas": [
+      {
+        "nombre": "Minador de los cítricos",
+        "nombre_cientifico": "Phyllocnistis citrella",
+        "grados_dia_base": 10,
+        "grados_dia_ciclo": 250,
+        "grados_dia_ovicida_ventana": 120,
+        "control_recomendado": "Aceite mineral + Bt en brotes tiernos"
+      }
+    ],
+    "tiempo_produccion_meses": 24,
+    "vida_util_años": 35,
+    "tier": 2,
+    "riesgo": "medio",
+    "notas": "Requiere riego y portainjerto tolerante a sales.",
+    "notas_arica": "Usar patrón tolerante (C-35/Swingle) por sales y boro. Ajustar riego presurizado; agua Lluta no recomendable.",
+    "created_at": "2024-12-02T00:00:00Z",
+    "updated_at": "2024-12-02T00:00:00Z"
+  },
+  {
+    "id": "cultivo-mandarina-w-murcott",
+    "proyecto_id": "proyecto-arica-piloto",
+    "nombre": "Mandarina W. Murcott",
+    "nombre_cientifico": "Citrus reticulata",
+    "agua_m3_ha_año_min": 5000,
+    "agua_m3_ha_año_max": 7500,
+    "espaciado_min_m": 4,
+    "espaciado_recomendado_m": 5,
+    "ph_min": 6,
+    "ph_max": 7.5,
+    "salinidad_tolerancia_dS_m": 1.8,
+    "boro_tolerancia_ppm": 1.0,
+    "tolerancia_boro": "media",
+    "tolerancia_salinidad": "media",
+    "clima": {
+      "temp_min_c": -2,
+      "temp_max_c": 38,
+      "tolerancia_heladas": "baja"
+    },
+    "viabilidad_proyecto": "limitado",
+    "calendario": {
+      "meses_siembra": [7, 8, 9],
+      "meses_cosecha": [6, 7, 8, 9],
+      "meses_descanso": [10, 11, 12, 1, 2, 3, 4, 5]
+    },
+    "produccion": {
+      "produccion_kg_ha_año2": 0,
+      "produccion_kg_ha_año3": 4000,
+      "produccion_kg_ha_año4": 15000,
+      "vida_util_dias": 21
+    },
+    "precio_kg_min_clp": 600,
+    "precio_kg_max_clp": 1200,
+    "precio_planta_clp": 5000,
+    "plagas": [
+      {
+        "nombre": "Mosca de la fruta",
+        "nombre_cientifico": "Ceratitis capitata",
+        "grados_dia_base": 10,
+        "grados_dia_ciclo": 300,
+        "grados_dia_ovicida_ventana": 150,
+        "control_recomendado": "Monitoreo + cosecha limpia y aplicaciones dirigidas"
+      }
+    ],
+    "tiempo_produccion_meses": 30,
+    "vida_util_años": 30,
+    "tier": 2,
+    "riesgo": "medio",
+    "notas": "Buena calidad tardía; exige manejo de riego uniforme.",
+    "notas_arica": "Usar portainjerto tolerante a sales; evitar Lluta sin mezcla. Proteger de viento durante floración.",
+    "created_at": "2024-12-02T00:00:00Z",
+    "updated_at": "2024-12-02T00:00:00Z"
+  },
+  {
+    "id": "cultivo-arandano-maceta",
+    "proyecto_id": "proyecto-arica-piloto",
+    "nombre": "Arándano en Maceta",
+    "nombre_cientifico": "Vaccinium corymbosum",
+    "agua_m3_ha_año_min": 3000,
+    "agua_m3_ha_año_max": 4000,
+    "espaciado_min_m": 0.8,
+    "espaciado_recomendado_m": 1,
+    "ph_min": 4.5,
+    "ph_max": 5.5,
+    "salinidad_tolerancia_dS_m": 0.8,
+    "boro_tolerancia_ppm": 0.2,
+    "tolerancia_boro": "muy_baja",
+    "tolerancia_salinidad": "baja",
+    "clima": {
+      "temp_min_c": 4,
+      "temp_max_c": 30,
+      "tolerancia_heladas": "media",
+      "horas_frio_requeridas": 200
+    },
+    "viabilidad_proyecto": "viable",
+    "calendario": {
+      "meses_siembra": [6, 7],
+      "meses_cosecha": [8, 9, 10, 11],
+      "meses_descanso": [12, 1, 2, 3, 4, 5]
+    },
+    "produccion": {
+      "produccion_kg_ha_año2": 2000,
+      "produccion_kg_ha_año3": 8000,
+      "produccion_kg_ha_año4": 12000,
+      "vida_util_dias": 21
+    },
+    "precio_kg_min_clp": 4000,
+    "precio_kg_max_clp": 7000,
+    "precio_planta_clp": 4000,
+    "plagas": [
+      {
+        "nombre": "Drosophila de alas manchadas",
+        "nombre_cientifico": "Drosophila suzukii",
+        "grados_dia_base": 10,
+        "grados_dia_ciclo": 400,
+        "grados_dia_ovicida_ventana": 150,
+        "control_recomendado": "Cosecha limpia + atrayentes proteicos"
+      }
+    ],
+    "tiempo_produccion_meses": 12,
+    "vida_util_años": 12,
+    "tier": 2,
+    "riesgo": "medio",
+    "notas": "Manejo intensivo en maceta; costo inicial alto pero control de pH y sales.",
+    "notas_arica": "Usar sustrato acidificado y riego con agua tratada/desalada (<0.8 dS/m, boro <0.2 ppm). Viable en patio/pequeña escala.",
+    "created_at": "2024-12-02T00:00:00Z",
+    "updated_at": "2024-12-02T00:00:00Z"
+  },
+  {
+    "id": "cultivo-lucuma",
+    "proyecto_id": "proyecto-arica-piloto",
+    "nombre": "Lúcuma",
+    "nombre_cientifico": "Pouteria lucuma",
+    "agua_m3_ha_año_min": 3500,
+    "agua_m3_ha_año_max": 5500,
+    "espaciado_min_m": 7,
+    "espaciado_recomendado_m": 8,
+    "ph_min": 6,
+    "ph_max": 8,
+    "salinidad_tolerancia_dS_m": 2,
+    "boro_tolerancia_ppm": 1.5,
+    "tolerancia_boro": "media",
+    "tolerancia_salinidad": "media",
+    "clima": {
+      "temp_min_c": 5,
+      "temp_max_c": 32,
+      "tolerancia_heladas": "baja"
+    },
+    "viabilidad_proyecto": "limitado",
+    "calendario": {
+      "meses_siembra": [8, 9],
+      "meses_cosecha": [2, 3, 4, 5, 6],
+      "meses_descanso": [7, 8, 9, 10, 11, 12, 1]
+    },
+    "produccion": {
+      "produccion_kg_ha_año2": 0,
+      "produccion_kg_ha_año3": 2000,
+      "produccion_kg_ha_año4": 8000,
+      "vida_util_dias": 14
+    },
+    "precio_kg_min_clp": 1200,
+    "precio_kg_max_clp": 2000,
+    "precio_planta_clp": 6000,
+    "plagas": [
+      {
+        "nombre": "Mosca de la fruta",
+        "nombre_cientifico": "Ceratitis capitata",
+        "grados_dia_base": 10,
+        "grados_dia_ciclo": 300,
+        "grados_dia_ovicida_ventana": 150,
+        "control_recomendado": "Monitoreo + barreras físicas en fruto"
+      }
+    ],
+    "tiempo_produccion_meses": 36,
+    "vida_util_años": 40,
+    "tier": 2,
+    "riesgo": "medio",
+    "notas": "Producto nicho; árbol lento en establecer.",
+    "notas_arica": "Rendimiento lento; probar en áreas con menor viento y buen drenaje. Mercado pequeño local.",
+    "created_at": "2024-12-02T00:00:00Z",
+    "updated_at": "2024-12-02T00:00:00Z"
+  },
+  {
+    "id": "cultivo-zapote-blanco",
+    "proyecto_id": "proyecto-arica-piloto",
+    "nombre": "Zapote Blanco",
+    "nombre_cientifico": "Casimiroa edulis",
+    "agua_m3_ha_año_min": 3500,
+    "agua_m3_ha_año_max": 5500,
+    "espaciado_min_m": 6,
+    "espaciado_recomendado_m": 7,
+    "ph_min": 6,
+    "ph_max": 8,
+    "salinidad_tolerancia_dS_m": 2.0,
+    "boro_tolerancia_ppm": 1.5,
+    "tolerancia_boro": "media",
+    "tolerancia_salinidad": "media",
+    "clima": {
+      "temp_min_c": 4,
+      "temp_max_c": 32,
+      "tolerancia_heladas": "media"
+    },
+    "viabilidad_proyecto": "limitado",
+    "calendario": {
+      "meses_siembra": [9, 10],
+      "meses_cosecha": [1, 2, 3, 4],
+      "meses_descanso": [5, 6, 7, 8, 9, 10, 11, 12]
+    },
+    "produccion": {
+      "produccion_kg_ha_año2": 0,
+      "produccion_kg_ha_año3": 1500,
+      "produccion_kg_ha_año4": 6000,
+      "vida_util_dias": 10
+    },
+    "precio_kg_min_clp": 1500,
+    "precio_kg_max_clp": 2500,
+    "precio_planta_clp": 5000,
+    "plagas": [
+      {
+        "nombre": "Mosca de la fruta",
+        "nombre_cientifico": "Ceratitis capitata",
+        "grados_dia_base": 10,
+        "grados_dia_ciclo": 300,
+        "grados_dia_ovicida_ventana": 150,
+        "control_recomendado": "Cebo proteico + manejo de piso"
+      }
+    ],
+    "tiempo_produccion_meses": 36,
+    "vida_util_años": 35,
+    "tier": 2,
+    "riesgo": "medio",
+    "notas": "Fruta exótica de mercado pequeño; árbol rústico.",
+    "notas_arica": "Experimental; probar en microparcelas. Agua moderada y cierta tolerancia a sales.",
+    "created_at": "2024-12-02T00:00:00Z",
+    "updated_at": "2024-12-02T00:00:00Z"
+  }
+]

@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "paypal": {
+      "type": "http",
+      "url": "https://mcp.paypal.com/mcp"
+    },
+    "pieces_ltm": {
+      "type": "http",
+      "url": "http://localhost:39300/model_context_protocol/2025-03-26/mcp"
+    }
+  }
+}

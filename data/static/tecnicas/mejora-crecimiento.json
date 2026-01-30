@@ -1,0 +1,68 @@
+[
+  {
+    "id": "tierra-liquida",
+    "nombre": "Tierra Líquida (Ácido Húmico)",
+    "categoria": "bioestimulante",
+    "efecto": "Duplica retención de agua en suelo arenoso. Mejora estructura y CIC.",
+    "dosis": "2-5 L/ha diluido en riego",
+    "frecuencia": "Mensual",
+    "costo_aplicacion_clp": 15000,
+    "evidencia": "Investigación UTA (Universidad de Tarapacá). Resultados positivos en olivo y tuna.",
+    "disponible_arica": true
+  },
+  {
+    "id": "extracto-algas",
+    "nombre": "Extracto de Algas Marinas",
+    "categoria": "bioestimulante",
+    "efecto": "Mejora crecimiento radicular, resistencia a estrés hídrico y salinidad.",
+    "dosis": "1-3 L/ha foliar o en riego",
+    "frecuencia": "Cada 15 días",
+    "costo_aplicacion_clp": 20000,
+    "evidencia": "Estudios universitarios. Algas de costa ariqueña disponibles.",
+    "disponible_arica": true
+  },
+  {
+    "id": "micorrizas",
+    "nombre": "Micorrizas (Hongos Benéficos)",
+    "categoria": "biológico",
+    "efecto": "Mejora absorción de fósforo y micronutrientes. Aumenta tolerancia a sequía.",
+    "dosis": "5-10 g/planta al plantar",
+    "frecuencia": "Única (al plantar)",
+    "costo_aplicacion_clp": 500,
+    "evidencia": "Ampliamente validado. INIA recomienda para frutales en suelos pobres.",
+    "disponible_arica": true
+  },
+  {
+    "id": "hidrogel",
+    "nombre": "Hidrogel (Raindrops / PlusAgro)",
+    "categoria": "retenedor",
+    "efecto": "Polímeros que absorben agua y la liberan lentamente. Reduce frecuencia de riego 50-74%.",
+    "dosis": "3-5 g/planta mezclado en hoyo de plantación",
+    "frecuencia": "Cada 3-5 años (se degrada)",
+    "costo_aplicacion_clp": 300,
+    "evidencia": "Validado por FIA Chile. Raindrops.cl especifica aplicación en seco.",
+    "disponible_arica": true
+  },
+  {
+    "id": "compost-te",
+    "nombre": "Té de Compost",
+    "categoria": "biológico",
+    "efecto": "Aporta microorganismos benéficos. Mejora salud del suelo y suprime patógenos.",
+    "dosis": "20-50 L/ha en riego",
+    "frecuencia": "Quincenal",
+    "costo_aplicacion_clp": 5000,
+    "evidencia": "Práctica tradicional validada. Preparación casera posible.",
+    "disponible_arica": true
+  },
+  {
+    "id": "mulch-organico",
+    "nombre": "Mulch Orgánico (Acolchado)",
+    "categoria": "cobertura",
+    "efecto": "Reduce evaporación 25-50%. Regula temperatura del suelo. Aporta materia orgánica.",
+    "dosis": "5-10 cm de espesor sobre suelo",
+    "frecuencia": "Renovar cada 6 meses",
+    "costo_aplicacion_clp": 8000,
+    "evidencia": "Práctica universal recomendada. Usar restos de poda, paja, hojas.",
+    "disponible_arica": true
+  }
+]

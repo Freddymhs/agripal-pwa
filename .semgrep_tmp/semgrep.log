@@ -1,0 +1,5 @@
+2026-02-02 02:41:37,517 - semgrep.app.auth - DEBUG - Getting API token from settings file
+2026-02-02 02:41:37,517 - semgrep.app.auth - DEBUG - No API token found in settings file
+2026-02-02 02:41:37,519 - semgrep.app.version - DEBUG - Version cache does not exist
+2026-02-02 02:42:01,546 - semgrep.app.version - DEBUG - Fetching latest version failed to connect: HTTPSConnectionPool(host='semgrep.dev', port=443): Max retries exceeded with url: /api/check-version (Caused by NameResolutionError("HTTPSConnection(host='semgrep.dev', port=443): Failed to resolve 'semgrep.dev' ([Errno -5] No address associated with hostname)"))
+2026-02-02 02:42:01,546 - semgrep.metrics - VERBOSE - Not sending pseudonymous metrics since metrics are configured to OFF, registry usage is False, and login status is False

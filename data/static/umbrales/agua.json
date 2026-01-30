@@ -1,0 +1,39 @@
+{
+  "UMBRALES_AGUA": {
+    "salinidad": { "max": 2, "unidad": "dS/m", "alerta": "Agua salina" },
+    "boro": { "max": 2, "unidad": "ppm", "alerta": "Tóxico para muchos cultivos" },
+    "arsenico": { "max": 0.05, "unidad": "mg/L", "alerta": "Riesgo para salud" }
+  },
+  "RIOS_ARICA": {
+    "lluta": { "salinidad": 2.5, "boro": 11, "arsenico": 0.02, "nota": "MUY ALTO BORO - No apto para mayoría de cultivos" },
+    "azapa": { "salinidad": 1.5, "boro": 0.5, "arsenico": 0.01, "nota": "Mejor calidad, apto para frutales" },
+    "aljibe": { "salinidad": 0.5, "boro": 0.1, "arsenico": 0.01, "nota": "Agua tratada, mejor opción si está disponible" }
+  },
+  "PROVEEDORES_HIDROGEL_CHILE": [
+    { "nombre": "Raindrops", "url": "raindrops.cl", "ventaja": "Aplica en SECO, 400L/kg" },
+    { "nombre": "PlusAgro", "url": "plusagro.cl", "ventaja": "Biodegradable, 85% ahorro" },
+    { "nombre": "Plantagel", "url": "plantagel.com", "ventaja": "Contacto: info@plantagel.com" }
+  ],
+  "TECNICAS_AHORRO_INFO": {
+    "riego_deficitario_controlado": {
+      "nombre": "RDC (Riego Deficitario Controlado)",
+      "ahorro": "20-60%",
+      "descripcion": "Reducir riego en etapas específicas sin perder producción. Validado por INIA/FIA."
+    },
+    "hidrogel": {
+      "nombre": "Hidrogel Raindrops",
+      "ahorro": "74% menos frecuencia",
+      "descripcion": "Polímeros que absorben agua y la liberan lentamente. Se aplica en seco."
+    },
+    "mulch": {
+      "nombre": "Mulch/Acolchado",
+      "ahorro": "25-50% evaporación",
+      "descripcion": "Capa de material orgánico o plástico que reduce evaporación del suelo."
+    },
+    "sensores_humedad": {
+      "nombre": "Sensores de Humedad",
+      "ahorro": "Variable",
+      "descripcion": "Miden humedad del suelo para regar solo cuando es necesario."
+    }
+  }
+}

@@ -1,65 +1,387 @@
-import Image from "next/image";
+'use client'
 
-export default function Home() {
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+import { useEffect, type ReactNode } from 'react'
+import { useRouter } from 'next/navigation'
+import { useProjectContext } from '@/contexts/project-context'
+import { MapProvider, useMapContext } from '@/contexts/map-context'
+import { PageLayout } from '@/components/layout'
+import { MapToolbar } from '@/components/mapa/map-toolbar'
+import { MapInfoBar } from '@/components/mapa/map-info-bar'
+import { MapSidebar } from '@/components/mapa/map-sidebar'
+import { PixiMapaTerreno } from '@/components/mapa/pixi/pixi-mapa-terreno'
+import { NuevaZonaModal } from '@/components/mapa/nueva-zona-modal'
+import { GridAutomaticoModal } from '@/components/plantas/grid-automatico-modal'
+import { AlertaBanner } from '@/components/alertas/alerta-banner'
+import { AlertasDropdown } from '@/components/alertas/alertas-dropdown'
+import { OfflineBanner, ConflictModal } from '@/components/sync'
+import { SyncIndicator } from '@/components/sync/sync-indicator'
+import {
+  SelectorTerreno,
+  CrearProyectoModal,
+  CrearTerrenoModal,
+  ConfiguracionAvanzadaModal,
+} from '@/components/terreno'
+import type { Alerta, Proyecto, Terreno } from '@/types'
+
+export default function HomePage() {
+  return <HomeContent />
+}
+
+function HomeContent() {
+  const router = useRouter()
+  const {
+    usuario,
+    authLoading,
+    isAuthenticated,
+    logout,
+    proyectoActual,
+    terrenoActual,
+    proyectos,
+    terrenos,
+    loading,
+    initialLoad,
+    showCrearProyecto,
+    setShowCrearProyecto,
+    showCrearTerreno,
+    setShowCrearTerreno,
+    showConfigAvanzada,
+    setShowConfigAvanzada,
+    handleGuardarConfigAvanzada,
+    alertasHook,
+    syncHook,
+    handleCrearProyecto,
+    handleCrearTerreno,
+    handleSelectProyecto,
+    handleSelectTerreno,
+  } = useProjectContext()
+
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      router.push('/auth/login')
+    }
+  }, [authLoading, isAuthenticated, router])
+
+  if (authLoading || initialLoad) {
+    return (
+      <PageLayout headerColor="green">
+        <div className="flex-1 flex items-center justify-center bg-gray-50">
+          <div className="text-center">
+            <div className="w-8 h-8 border-4 border-green-500 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+            <p className="text-gray-600">Cargando...</p>
+          </div>
+        </div>
+      </PageLayout>
+    )
+  }
+
+  if (!isAuthenticated) return null
+
+  let mainContent: ReactNode
+
+  if (proyectos.length === 0) {
+    mainContent = (
+      <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-green-50 to-green-100">
+        <div className="text-center max-w-md px-6">
+          <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+            </svg>
+          </div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Bienvenido a AgriPlan</h1>
+          <p className="text-gray-600 mb-8">
+            Planifica y gestiona tu producción agrícola de manera inteligente.
+            Comienza creando tu primer proyecto.
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            onClick={() => setShowCrearProyecto(true)}
+            className="bg-green-600 text-white px-8 py-3 rounded-lg font-medium hover:bg-green-700 transition-colors text-lg"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            Crear mi primer proyecto
+          </button>
         </div>
-      </main>
+      </div>
+    )
+  } else if (!terrenoActual && proyectoActual) {
+    mainContent = (
+      <div className="flex-1 flex items-center justify-center bg-gray-50">
+        <div className="text-center max-w-md px-6">
+          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Sin terrenos</h2>
+          <p className="text-gray-600 mb-6">
+            El proyecto &quot;{proyectoActual.nombre}&quot; aún no tiene terrenos.
+            Crea uno para comenzar a planificar.
+          </p>
+          <button
+            onClick={() => setShowCrearTerreno(true)}
+            className="bg-green-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-green-700 transition-colors"
+          >
+            Crear terreno
+          </button>
+        </div>
+      </div>
+    )
+  } else if (loading || !terrenoActual) {
+    mainContent = (
+      <div className="flex-1 flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-green-500 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+          <p className="text-gray-600">Cargando...</p>
+        </div>
+      </div>
+    )
+  } else {
+    mainContent = (
+      <MapProvider>
+        <MapView />
+      </MapProvider>
+    )
+  }
+
+  return (
+    <PageLayout
+      headerColor="green"
+      headerActions={
+        <HeaderActions
+          usuarioNombre={usuario?.nombre ?? ''}
+          logout={logout}
+          alertas={alertasHook.alertas}
+          alertasCriticas={alertasHook.alertasCriticas}
+          hasConflicts={syncHook.conflicts.length > 0}
+          proyectos={proyectos}
+          terrenos={terrenos}
+          proyectoActualId={proyectoActual?.id ?? null}
+          terrenoActualId={terrenoActual?.id ?? null}
+          onSelectProyecto={handleSelectProyecto}
+          onSelectTerreno={handleSelectTerreno}
+          onCrearProyecto={() => setShowCrearProyecto(true)}
+          onCrearTerreno={() => setShowCrearTerreno(true)}
+        />
+      }
+    >
+      {mainContent}
+
+      {showCrearProyecto && (
+        <CrearProyectoModal
+          onCreated={handleCrearProyecto}
+          onCancel={() => setShowCrearProyecto(false)}
+        />
+      )}
+
+      {showCrearTerreno && proyectoActual && (
+        <CrearTerrenoModal
+          proyectoId={proyectoActual.id}
+          proyectoNombre={proyectoActual.nombre}
+          onCreated={handleCrearTerreno}
+          onCancel={() => setShowCrearTerreno(false)}
+        />
+      )}
+
+      {showConfigAvanzada && terrenoActual && (
+        <ConfiguracionAvanzadaModal
+          terreno={terrenoActual}
+          isOpen={showConfigAvanzada}
+          onClose={() => setShowConfigAvanzada(false)}
+          onSave={handleGuardarConfigAvanzada}
+        />
+      )}
+    </PageLayout>
+  )
+}
+
+function MapView() {
+  const {
+    terrenoActual,
+    zonas,
+    plantas,
+    alertasHook,
+    syncHook,
+    CULTIVOS_ESPACIADO,
+    CULTIVOS_COLORES,
+  } = useProjectContext()
+
+  const {
+    modo,
+    zonaSeleccionada,
+    setZonaSeleccionada,
+    setPlantaSeleccionada,
+    plantasSeleccionadas,
+    setPlantasSeleccionadas,
+    rectNuevaZona,
+    setRectNuevaZona,
+    setModo,
+    showGridModal,
+    setShowGridModal,
+    zonaPreview,
+    cultivoSeleccionado,
+    gridParams,
+    posicionesOcupadas,
+    plantasZonaSeleccionada,
+    handleMapClick,
+    handlePlantaClick,
+    handleCrearZona,
+    handlePlantarGrid,
+    handleMoverPlantasSeleccionadas,
+  } = useMapContext()
+
+  if (!terrenoActual) return null
+
+  return (
+    <div className="flex-1 flex flex-col">
+      <AlertaBanner alertasCriticas={alertasHook.alertasCriticas} />
+      <OfflineBanner />
+
+      {syncHook.conflicts.length > 0 && (
+        <ConflictModal
+          conflicts={syncHook.conflicts}
+          onResolve={syncHook.resolveConflict}
+          onClose={() => {}}
+        />
+      )}
+
+      <MapToolbar />
+      <MapInfoBar />
+
+      <div className="flex-1 flex overflow-hidden relative">
+        <main className="flex-1 relative">
+          <PixiMapaTerreno
+            terreno={terrenoActual}
+            zonas={zonas}
+            plantas={plantas}
+            zonaSeleccionadaId={zonaSeleccionada?.id}
+            zonaPreview={zonaPreview}
+            modo={modo}
+            cultivosEspaciado={CULTIVOS_ESPACIADO}
+            cultivosColores={CULTIVOS_COLORES}
+            plantasSeleccionadasIds={plantasSeleccionadas}
+            gridParams={gridParams}
+            posicionesOcupadas={posicionesOcupadas}
+            onZonaClick={(zona) => {
+              if (modo === 'zonas' || modo === 'plantar') {
+                setZonaSeleccionada(zona)
+                setPlantaSeleccionada(null)
+                setPlantasSeleccionadas([])
+              }
+            }}
+            onZonaCreada={(rect) => {
+              if (modo === 'crear_zona') {
+                setRectNuevaZona(rect)
+              }
+            }}
+            onMapClick={handleMapClick}
+            onPlantaClick={handlePlantaClick}
+            onSeleccionMultiple={(ids) => {
+              setPlantasSeleccionadas(ids)
+              setPlantaSeleccionada(null)
+              setZonaSeleccionada(null)
+            }}
+            onMoverPlantasSeleccionadas={handleMoverPlantasSeleccionadas}
+          />
+        </main>
+
+        <MapSidebar />
+      </div>
+
+      {rectNuevaZona && (
+        <NuevaZonaModal
+          rect={rectNuevaZona}
+          onConfirm={handleCrearZona}
+          onCancel={() => {
+            setRectNuevaZona(null)
+            setModo('terreno')
+          }}
+        />
+      )}
+
+      {showGridModal && zonaSeleccionada && (
+        <GridAutomaticoModal
+          zona={zonaSeleccionada}
+          cultivo={cultivoSeleccionado}
+          plantasExistentes={plantasZonaSeleccionada}
+          onConfirm={handlePlantarGrid}
+          onCancel={() => setShowGridModal(false)}
+        />
+      )}
     </div>
-  );
+  )
+}
+
+interface HeaderActionsProps {
+  usuarioNombre: string
+  logout: () => void
+  proyectos: Proyecto[]
+  terrenos: Terreno[]
+  alertas: Alerta[]
+  alertasCriticas: number
+  proyectoActualId: string | null
+  terrenoActualId: string | null
+  onSelectProyecto: (p: Proyecto) => void
+  onSelectTerreno: (t: Terreno) => void
+  onCrearProyecto: () => void
+  onCrearTerreno: () => void
+  hasConflicts: boolean
+}
+
+function HeaderActions({
+  usuarioNombre,
+  logout,
+  proyectos,
+  terrenos,
+  alertas,
+  alertasCriticas,
+  proyectoActualId,
+  terrenoActualId,
+  onSelectProyecto,
+  onSelectTerreno,
+  onCrearProyecto,
+  onCrearTerreno,
+}: HeaderActionsProps) {
+  const router = useRouter()
+
+  const proyectoActual = proyectoActualId
+    ? proyectos.find(p => p.id === proyectoActualId) ?? null
+    : null
+
+  const terrenoActual = terrenoActualId
+    ? terrenos.find(t => t.id === terrenoActualId) ?? null
+    : null
+
+  return (
+    <>
+      <AlertasDropdown
+        alertas={alertas}
+        alertasCriticas={alertasCriticas}
+      />
+
+      <SyncIndicator />
+
+      <div className="border-l border-green-500 pl-3 ml-1">
+        <SelectorTerreno
+          proyectos={proyectos}
+          terrenos={terrenos}
+          proyectoActual={proyectoActual}
+          terrenoActual={terrenoActual}
+          onSelectProyecto={onSelectProyecto}
+          onSelectTerreno={onSelectTerreno}
+          onCrearProyecto={onCrearProyecto}
+          onCrearTerreno={onCrearTerreno}
+          onGestionarTerrenos={() => router.push('/terrenos')}
+        />
+      </div>
+
+      <div className="flex items-center gap-2 border-l border-green-500 pl-3">
+        <span className="text-xs text-white/80">{usuarioNombre}</span>
+        <button
+          onClick={logout}
+          className="text-xs text-green-100 hover:text-white"
+          title="Cerrar sesión"
+        >
+          Salir
+        </button>
+      </div>
+    </>
+  )
 }

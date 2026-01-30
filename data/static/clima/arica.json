@@ -1,0 +1,62 @@
+{
+  "region": "Arica y Parinacota",
+  "zona": "costa",
+  "lluvia": {
+    "anual_mm": 1,
+    "max_24h_mm": 10,
+    "meses_lluviosos": ["ene", "feb"],
+    "meses_secos": ["mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"]
+  },
+  "temperatura": {
+    "minima_historica_c": 11,
+    "maxima_verano_c": 32,
+    "promedio_anual_c": 19,
+    "horas_frio_aprox": 40
+  },
+  "heladas": {
+    "anuales": 0.2,
+    "meses_riesgo": ["jun", "jul"],
+    "plantas_sensibles": ["papaya", "mango", "pitahaya"]
+  },
+  "viento": {
+    "max_kmh": 25,
+    "direccion_predominante": "S-SW",
+    "meses_fuerte": ["ago", "sep"]
+  },
+  "humedad_radiacion": {
+    "humedad_relativa_pct": 70,
+    "radiacion_mj_m2_dia": 18
+  },
+  "evapotranspiracion": {
+    "et0_mm_dia": 4.8,
+    "nota": "Promedio costa/interior; en verano pampas puede subir a 5-6 mm/día (ERA5 Open-Meteo)"
+  },
+  "estacionalidad": {
+    "verano": {
+      "meses": ["dic", "ene", "feb"],
+      "caracteristica": "Caluroso, máxima evaporación",
+      "factor_agua": 1.4
+    },
+    "otoño": {
+      "meses": ["mar", "abr", "may"],
+      "caracteristica": "Templado, transición",
+      "factor_agua": 1
+    },
+    "invierno": {
+      "meses": ["jun", "jul", "ago"],
+      "caracteristica": "Fresco, menor demanda",
+      "factor_agua": 0.6
+    },
+    "primavera": {
+      "meses": ["sep", "oct", "nov"],
+      "caracteristica": "Templado, vientos",
+      "factor_agua": 1.2
+    }
+  },
+  "fuentes": [
+    "DMC / Red AgroMet",
+    "INIA RedAgroclima",
+    "NASA POWER",
+    "Open-Meteo"
+  ]
+}

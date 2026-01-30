@@ -1,0 +1,3 @@
+rules: []
+# Use registry rulesets via CLI:
+#   semgrep scan --config p/ci --config p/nextjs --config p/typescript

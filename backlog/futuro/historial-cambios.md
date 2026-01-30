@@ -1,54 +1,45 @@
 # Futuro: Historial de Cambios
 
 **Prioridad:** Post-MVP
-**Dependencias:** Sprint 1-4 completos
+**Dependencias:** Ninguna bloqueante
+**Feedback relacionado:** Ninguno directo
 
 ---
 
-## 🎯 Objetivo
+## Estado Actual del Codebase
 
-Vista completa del historial de todas las acciones realizadas en el proyecto.
-
----
-
-## 📋 Funcionalidades
-
-- Lista cronológica de cambios
-- Filtrar por: fecha, tipo, terreno, zona
-- Buscar en descripciones
-- Ver detalles de cada cambio
-- Exportar historial
-
----
-
-## 📄 Vista del Historial
-
-```
-📜 HISTORIAL - Proyecto Arica
-
-[Filtros: Fecha | Tipo | Terreno]
-
-─────────────────────────────────────
-28 ene 2026
-─────────────────────────────────────
-14:35  🟢 Creaste zona "Tuna Norte" (500 m²)
-14:40  🌱 Agregaste 150 plantas de tuna
-15:00  💧 Registraste entrada de agua (20 m³)
-15:30  ⚙️ Configuraste sistema de riego (400 L/h)
-
-─────────────────────────────────────
-27 ene 2026
-─────────────────────────────────────
-10:00  📁 Creaste proyecto "Proyecto Arica"
-10:05  🗺️ Creaste terreno "Lote Norte" (4200 m²)
+**Modelo YA existe** en `src/types/index.ts` (linea ~521):
+```typescript
+export interface HistorialEntrada {
+  id: string
+  usuario_id: string
+  accion: string
+  entidad: string
+  entidad_id: string
+  datos_anterior?: Record<string, unknown>
+  datos_nuevo?: Record<string, unknown>
+  created_at: string
+}
 ```
 
+**Tabla YA existe** en IndexedDB (`src/lib/db/index.ts`, linea 27):
+```
+historial: '++id, usuario_id, entidad, created_at, lastModified'
+```
+
+**Falta:** Solo la UI (pagina `/historial`, vista cronologica, filtros, busqueda).
+
 ---
 
-## ✅ Criterios de Éxito
+## Funcionalidades Pendientes (solo UI)
 
-- [ ] Lista de eventos cronológica
-- [ ] Filtros funcionales
-- [ ] Búsqueda por texto
-- [ ] Detalles expandibles
-- [ ] Exportar a PDF/CSV
+- [ ] Pagina `/historial` con lista cronologica
+- [ ] Filtrar por: fecha, tipo accion, terreno, zona
+- [ ] Buscar en descripciones
+- [ ] Ver detalles de cada cambio (diff datos_anterior vs datos_nuevo)
+- [ ] Agrupar por dia
+
+## Funcionalidades Post-Supabase
+
+- [ ] Exportar historial a PDF/CSV
+- [ ] Historial compartido entre usuarios del mismo proyecto

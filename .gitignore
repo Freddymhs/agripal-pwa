@@ -22,6 +22,7 @@
 
 # misc
 .DS_Store
+Thumbs.db
 *.pem
 
 # debug
@@ -59,3 +60,5 @@ public/fallback-*.js
 
 # Cache
 .cache/
+.sentry-native/
+testsprite_tests

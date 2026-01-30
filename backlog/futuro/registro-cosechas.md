@@ -1,66 +1,58 @@
 # Futuro: Registro de Cosechas
 
 **Prioridad:** Post-MVP
-**Dependencias:** Sprint 1-4 completos
+**Dependencias:** FASE_12 (Supabase) para fotos/exportar
+**Feedback relacionado:** FEAT-F07 (reportes/exportar)
 
 ---
 
-## 🎯 Objetivo
+## Estado Actual del Codebase
 
-Registrar cosechas con cantidad, calidad, destino y precio de venta.
-
----
-
-## 📋 Funcionalidades
-
-- Registrar cosecha por zona
-- Campos: fecha, cantidad (kg), calidad (A/B/C), destino, precio
-- Adjuntar fotos
-- Historial de cosechas
-- Gráficos de producción
-- Comparar vs proyección
-
----
-
-## 📄 Modelo de Datos
-
+**Modelo YA existe** en `src/types/index.ts` (linea ~451):
 ```typescript
-interface Cosecha {
-  id: UUID;
-  zona_id: UUID;
-  tipo_cultivo_id: UUID;
-
-  fecha: Timestamp;
-  cantidad_kg: Kilogramos;
-  calidad: 'A' | 'B' | 'C';
-
-  vendido: boolean;
-  precio_venta_clp?: PesosCLP;
-  destino?: string;
-
-  foto_url?: string;
-  notas: string;
-
-  created_at: Timestamp;
+export interface Cosecha {
+  id: string
+  zona_id: string
+  cultivo_id: string
+  fecha: string
+  cantidad_kg: number
+  calidad: 'A' | 'B' | 'C'
+  precio_venta_clp?: number
+  destino?: string
+  notas?: string
+  created_at: string
+  updated_at: string
 }
 ```
 
+**Tabla YA existe** en IndexedDB (`src/lib/db/index.ts`, linea 28):
+```
+cosechas: '++id, zona_id, cultivo_id, fecha, lastModified'
+```
+
+**Falta:** Solo la UI (pagina `/cosechas`, formulario registro, historial, graficos).
+
 ---
 
-## 📋 Métricas a Calcular
+## Funcionalidades Pendientes (solo UI)
 
-- kg/m² por zona
+- [ ] Pagina `/cosechas` con formulario de registro
+- [ ] Campos: fecha, cantidad (kg), calidad (A/B/C), destino, precio
+- [ ] Historial de cosechas por zona con filtros
+- [ ] Graficos de produccion (kg/mes, kg/zona)
+- [ ] Comparar cosecha real vs proyeccion ROI (`calcularROI()` en `roi.ts`)
+
+## Funcionalidades Post-Supabase
+
+- [ ] Adjuntar fotos (requiere storage)
+- [ ] Exportar reportes PDF/CSV
+
+---
+
+## Metricas a Calcular
+
+- kg/m2 por zona
 - kg/planta promedio
-- Ingresos totales
+- Ingresos totales vs proyectados
 - Precio promedio por kg
-- Comparación entre temporadas
-
----
-
-## ✅ Criterios de Éxito
-
-- [ ] Formulario de registro funcional
-- [ ] Historial con filtros
-- [ ] Gráficos de producción
-- [ ] Fotos adjuntas
-- [ ] Exportar reportes
+- Comparacion entre temporadas
