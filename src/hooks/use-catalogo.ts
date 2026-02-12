@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
-import { catalogoDAL } from '@/lib/dal'
+import { catalogoDAL, transaccionesDAL } from '@/lib/dal'
 import { generateUUID, getCurrentTimestamp } from '@/lib/utils'
 import { CULTIVOS_ARICA } from '@/lib/data/cultivos-arica'
 import type { CatalogoCultivo, UUID } from '@/types'
@@ -36,21 +36,17 @@ export function useCatalogo(proyectoId: UUID | null): UseCatalogo {
 
         if (data.length === 0) {
           const timestamp = getCurrentTimestamp()
-          const cultivosIniciales: CatalogoCultivo[] = []
-
-          for (const cultivo of CULTIVOS_ARICA) {
+          const cultivosIniciales: CatalogoCultivo[] = CULTIVOS_ARICA.map(cultivo => {
             const { id, proyecto_id, created_at, updated_at, ...cultivoData } = cultivo as CatalogoCultivo & { proyecto_id?: string }
-            const nuevoCultivo: CatalogoCultivo = {
+            return {
               ...cultivoData,
               id: generateUUID(),
               proyecto_id: proyectoId,
               created_at: timestamp,
               updated_at: timestamp,
-            }
-            await catalogoDAL.add(nuevoCultivo)
-            cultivosIniciales.push(nuevoCultivo)
-          }
-
+            } as CatalogoCultivo
+          })
+          await transaccionesDAL.seedCatalogo(cultivosIniciales)
           setCultivos(cultivosIniciales)
         } else {
           setCultivos(data)

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback } from "react";
-import { zonasDAL, plantasDAL } from "@/lib/dal";
+import { zonasDAL, transaccionesDAL } from "@/lib/dal";
 import { generateUUID, getCurrentTimestamp } from "@/lib/utils";
 import {
   validarNuevaZona,
@@ -188,12 +188,7 @@ export function useZonas(
   const eliminarZona = useCallback(
     async (id: UUID) => {
       try {
-        const plantasZona = plantas.filter((p) => p.zona_id === id);
-        for (const planta of plantasZona) {
-          await plantasDAL.delete(planta.id);
-        }
-
-        await zonasDAL.delete(id);
+        await transaccionesDAL.eliminarZonaCascade(id);
       } catch (err) {
         console.error("Error eliminando zona:", err);
         throw err;
@@ -201,7 +196,7 @@ export function useZonas(
       onRefetch();
       return {};
     },
-    [plantas, onRefetch],
+    [onRefetch],
   );
 
   return {

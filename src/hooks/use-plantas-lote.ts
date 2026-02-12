@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback } from "react";
-import { plantasDAL } from "@/lib/dal";
+import { plantasDAL, transaccionesDAL } from "@/lib/dal";
 import { getCurrentTimestamp } from "@/lib/utils";
 import type { EstadoPlanta } from "@/types";
 
@@ -15,14 +15,10 @@ export function usePlantasLote(onRefetch: () => void): UsePlantasLote {
     async (ids: string[], estado: EstadoPlanta) => {
       const timestamp = getCurrentTimestamp();
       try {
-        await Promise.all(
-          ids.map((id) =>
-            plantasDAL.update(id, {
-              estado,
-              updated_at: timestamp,
-            }),
-          ),
-        );
+        await transaccionesDAL.cambiarEstadoPlantasLote(ids, {
+          estado,
+          updated_at: timestamp,
+        });
       } catch (err) {
         console.error("Error actualizando plantas en lote:", err);
         throw err;

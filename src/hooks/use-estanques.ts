@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo, useCallback } from 'react'
-import { zonasDAL } from '@/lib/dal'
+import { zonasDAL, transaccionesDAL } from '@/lib/dal'
 import { getCurrentTimestamp } from '@/lib/utils'
 import { calcularStockEstanques } from '@/lib/utils/agua'
 import { emitZonaUpdated } from '@/lib/events/zona-events'
@@ -78,22 +78,24 @@ export function useEstanques(
     }
 
     const ts = getCurrentTimestamp()
-    await Promise.all([
-      zonasDAL.update(origenId, {
+    await transaccionesDAL.transferirAgua(
+      origenId,
+      {
         estanque_config: {
           ...origen.estanque_config,
           nivel_actual_m3: origen.estanque_config.nivel_actual_m3 - cantidadReal,
         },
         updated_at: ts,
-      }),
-      zonasDAL.update(destinoId, {
+      },
+      destinoId,
+      {
         estanque_config: {
           ...destino.estanque_config,
           nivel_actual_m3: destino.estanque_config.nivel_actual_m3 + cantidadReal,
         },
         updated_at: ts,
-      }),
-    ])
+      },
+    )
 
     onRefetch()
     return {}

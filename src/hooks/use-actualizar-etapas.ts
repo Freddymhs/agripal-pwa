@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { plantasDAL } from "@/lib/dal";
+import { transaccionesDAL } from "@/lib/dal";
 import { calcularEtapaActual } from "@/lib/data/duracion-etapas";
 import { getCurrentTimestamp } from "@/lib/utils";
 import type { Planta, CatalogoCultivo } from "@/types";
@@ -23,41 +23,51 @@ export function useActualizarEtapas(
     async function actualizar() {
       const ahora = Date.now();
       if (ahora - ultimaActualizacion.current < 1000 * 60 * 5) return;
+      if (cancelled) return;
 
-      let cambios = 0;
+      const timestamp = getCurrentTimestamp();
+      const actualizaciones: Array<{ id: string; cambios: Partial<Planta> }> = [];
+
+      for (const planta of plantas) {
+        if (planta.estado === "muerta" || !planta.fecha_plantacion) continue;
+
+        const cultivo = catalogoCultivos.find(
+          (c) => c.id === planta.tipo_cultivo_id,
+        );
+        if (!cultivo) continue;
+
+        const etapaCalculada = calcularEtapaActual(
+          cultivo.nombre,
+          new Date(planta.fecha_plantacion),
+        );
+
+        if (etapaCalculada !== planta.etapa_actual) {
+          actualizaciones.push({
+            id: planta.id,
+            cambios: {
+              etapa_actual: etapaCalculada,
+              fecha_cambio_etapa: timestamp,
+              updated_at: timestamp,
+            },
+          });
+        }
+      }
+
+      if (actualizaciones.length === 0) {
+        ultimaActualizacion.current = ahora;
+        return;
+      }
 
       try {
-        for (const planta of plantas) {
-          if (cancelled) return;
-          if (planta.estado === "muerta" || !planta.fecha_plantacion) continue;
-
-          const cultivo = catalogoCultivos.find(
-            (c) => c.id === planta.tipo_cultivo_id,
-          );
-          if (!cultivo) continue;
-
-          const etapaCalculada = calcularEtapaActual(
-            cultivo.nombre,
-            new Date(planta.fecha_plantacion),
-          );
-
-          if (etapaCalculada !== planta.etapa_actual) {
-            await plantasDAL.update(planta.id, {
-              etapa_actual: etapaCalculada,
-              fecha_cambio_etapa: getCurrentTimestamp(),
-              updated_at: getCurrentTimestamp(),
-            });
-            cambios++;
-          }
-        }
+        if (cancelled) return;
+        await transaccionesDAL.actualizarEtapasLote(actualizaciones);
       } catch (err) {
         console.error("Error actualizando etapas:", err);
         return;
       }
 
       ultimaActualizacion.current = ahora;
-
-      if (cambios > 0 && !cancelled) {
+      if (!cancelled) {
         onRefetch();
       }
     }

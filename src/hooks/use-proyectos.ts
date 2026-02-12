@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { proyectosDAL, terrenosDAL, zonasDAL, plantasDAL, catalogoDAL } from '@/lib/dal'
+import { proyectosDAL, terrenosDAL, zonasDAL, plantasDAL, catalogoDAL, transaccionesDAL } from '@/lib/dal'
 import { generateUUID, getCurrentTimestamp } from '@/lib/utils'
 import { CULTIVOS_ARICA } from '@/lib/data/cultivos-arica'
 import type { Proyecto, UUID, CatalogoCultivo } from '@/types'
@@ -60,19 +60,17 @@ export function useProyectos(): UseProyectos {
       updated_at: timestamp,
     }
 
-    await proyectosDAL.add(nuevoProyecto)
-
-    for (const cultivo of CULTIVOS_ARICA) {
+    const cultivosIniciales = CULTIVOS_ARICA.map(cultivo => {
       const { id, proyecto_id, created_at, updated_at, ...cultivoData } = cultivo as CatalogoCultivo & { proyecto_id?: string }
-      const nuevoCultivo: CatalogoCultivo = {
+      return {
         ...cultivoData,
         id: generateUUID(),
         proyecto_id: nuevoProyecto.id,
         created_at: timestamp,
         updated_at: timestamp,
-      }
-      await catalogoDAL.add(nuevoCultivo)
-    }
+      } as CatalogoCultivo
+    })
+    await transaccionesDAL.crearProyectoConCatalogo(nuevoProyecto, cultivosIniciales)
 
     await fetchData()
     return nuevoProyecto
@@ -118,25 +116,7 @@ export function useProyectos(): UseProyectos {
 
   const eliminarProyecto = useCallback(async (id: UUID): Promise<{ eliminados: EliminacionCascada }> => {
     const conteo = await contarContenido(id)
-
-    const terrenos = await terrenosDAL.getByProyectoId(id)
-    const terrenoIds = terrenos.map(t => t.id)
-
-    if (terrenoIds.length > 0) {
-      const zonas = await zonasDAL.getByTerrenoIds(terrenoIds)
-      const zonaIds = zonas.map(z => z.id)
-
-      if (zonaIds.length > 0) {
-        await plantasDAL.deleteByZonaIds(zonaIds)
-      }
-
-      await zonasDAL.deleteByTerrenoIds(terrenoIds)
-    }
-
-    await terrenosDAL.deleteByProyectoId(id)
-    await catalogoDAL.deleteByProyectoId(id)
-    await proyectosDAL.delete(id)
-
+    await transaccionesDAL.eliminarProyectoCascade(id)
     await fetchData()
     return { eliminados: conteo }
   }, [fetchData, contarContenido])

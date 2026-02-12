@@ -6,7 +6,7 @@ import {
   calcularDiasRestantes,
 } from "@/lib/utils/agua";
 import { getDiasTotalesCultivo } from "@/lib/data/duracion-etapas";
-import { alertasDAL } from "@/lib/dal";
+import { alertasDAL, transaccionesDAL } from "@/lib/dal";
 import { differenceInDays } from "date-fns";
 
 const ESPACIADO_MINIMO = 0.5;
@@ -281,6 +281,7 @@ export async function sincronizarAlertas(
     catalogoCultivos,
   );
 
+  const resolver: Array<{ id: string; cambios: Partial<Alerta> }> = [];
   for (const existente of alertasExistentes) {
     const sigueSiendo = nuevasAlertas.some(
       (n) =>
@@ -291,16 +292,19 @@ export async function sincronizarAlertas(
     );
 
     if (!sigueSiendo) {
-      await alertasDAL.update(existente.id, {
-        estado: "resuelta",
-        fecha_resolucion: timestamp,
-        como_se_resolvio: "Automático",
-        updated_at: timestamp,
+      resolver.push({
+        id: existente.id,
+        cambios: {
+          estado: "resuelta",
+          fecha_resolucion: timestamp,
+          como_se_resolvio: "Automático",
+          updated_at: timestamp,
+        },
       });
     }
   }
 
-  const alertasCreadas: Alerta[] = [];
+  const nuevas: Alerta[] = [];
   for (const nueva of nuevasAlertas) {
     const yaExiste = alertasExistentes.some(
       (e) =>
@@ -310,15 +314,17 @@ export async function sincronizarAlertas(
     );
 
     if (!yaExiste) {
-      const alerta: Alerta = {
+      nuevas.push({
         ...nueva,
         id: generateUUID(),
         created_at: timestamp,
         updated_at: timestamp,
-      };
-      await alertasDAL.add(alerta);
-      alertasCreadas.push(alerta);
+      });
     }
+  }
+
+  if (resolver.length > 0 || nuevas.length > 0) {
+    await transaccionesDAL.sincronizarAlertas(resolver, nuevas);
   }
 
   return alertasDAL.getActiveByTerrenoId(terreno.id);

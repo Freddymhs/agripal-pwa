@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { terrenosDAL, zonasDAL, plantasDAL } from '@/lib/dal'
+import { terrenosDAL, zonasDAL, plantasDAL, transaccionesDAL } from '@/lib/dal'
 import { generateUUID, getCurrentTimestamp } from '@/lib/utils'
 import type { Terreno, UUID } from '@/types'
 import { SUELO_DEFAULT_AZAPA } from '@/lib/data'
@@ -168,17 +168,7 @@ export function useTerrenos(proyectoId: UUID | null): UseTerrenos {
 
   const eliminarTerreno = useCallback(async (id: UUID): Promise<{ eliminados: EliminacionCascada }> => {
     const conteo = await contarContenido(id)
-
-    const zonas = await zonasDAL.getByTerrenoId(id)
-    const zonaIds = zonas.map(z => z.id)
-
-    if (zonaIds.length > 0) {
-      await plantasDAL.deleteByZonaIds(zonaIds)
-    }
-
-    await zonasDAL.deleteByTerrenoId(id)
-    await terrenosDAL.delete(id)
-
+    await transaccionesDAL.eliminarTerrenoCascade(id)
     await fetchData()
     return { eliminados: conteo }
   }, [fetchData, contarContenido])

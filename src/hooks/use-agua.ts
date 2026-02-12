@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, useMemo, useRef } from "react";
-import { aguaDAL, zonasDAL, terrenosDAL } from "@/lib/dal";
+import { aguaDAL, terrenosDAL, transaccionesDAL } from "@/lib/dal";
 import { generateUUID, getCurrentTimestamp } from "@/lib/utils";
 import {
   calcularConsumoRealTerreno,
@@ -127,25 +127,33 @@ export function useAgua(
           return;
         }
 
-        for (const d of resultado.descuentos) {
-          if (cancelled) return;
-          const estanque = estanques.find((e) => e.id === d.estanqueId);
-          if (!estanque || !estanque.estanque_config) continue;
-
-          await zonasDAL.update(d.estanqueId, {
-            estanque_config: {
-              ...estanque.estanque_config,
-              nivel_actual_m3: d.nivelNuevo,
-            },
-            updated_at: now,
-          });
-          emitZonaUpdated(d.estanqueId);
-        }
+        const descuentos = resultado.descuentos
+          .map((d) => {
+            const estanque = estanques.find((e) => e.id === d.estanqueId);
+            if (!estanque || !estanque.estanque_config) return null;
+            return {
+              estanqueId: d.estanqueId,
+              update: {
+                estanque_config: {
+                  ...estanque.estanque_config,
+                  nivel_actual_m3: d.nivelNuevo,
+                },
+                updated_at: now,
+              } as Partial<Zona>,
+            };
+          })
+          .filter((d): d is NonNullable<typeof d> => d !== null);
 
         if (cancelled) return;
-        await terrenosDAL.update(terrenoCapture.id, {
-          ultima_simulacion_agua: now,
-        });
+        await transaccionesDAL.aplicarDescuentosAgua(
+          descuentos,
+          terrenoCapture.id,
+          { ultima_simulacion_agua: now },
+        );
+
+        for (const d of descuentos) {
+          emitZonaUpdated(d.estanqueId);
+        }
         descuentoAplicado.current = true;
         if (!cancelled) onRefetch();
       } catch (err) {
@@ -207,8 +215,6 @@ export function useAgua(
         created_at: getCurrentTimestamp(),
       };
 
-      await aguaDAL.addEntrada(entrada);
-
       const nuevoNivel = nivel_actual_m3 + cantidadReal;
       const now = getCurrentTimestamp();
 
@@ -228,12 +234,13 @@ export function useAgua(
         };
       }
 
-      await zonasDAL.update(data.estanque_id, {
-        estanque_config: updatedConfig,
-        updated_at: now,
-      });
-
-      await terrenosDAL.update(terreno.id, { ultima_simulacion_agua: now });
+      await transaccionesDAL.registrarEntradaAgua(
+        entrada,
+        data.estanque_id,
+        { estanque_config: updatedConfig, updated_at: now },
+        terreno.id,
+        { ultima_simulacion_agua: now },
+      );
 
       emitZonaUpdated(data.estanque_id);
       setEntradas((prev) => [entrada, ...prev]);
