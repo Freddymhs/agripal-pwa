@@ -20,23 +20,6 @@ antes de llamar al DAL, o si hay writes sin validar"
 
 ---
 
-4. Consistencia de Datos Estáticos
-
-"Team de 2: uno que verifique que todos los cultivos en
-data/static/cultivos/arica.json tengan los campos requeridos por
-el código (agua_m3_ha_año_min/max, espaciado_recomendado_m,
-tiempo_produccion_meses, Kc) cruzando con los guards recién
-agregados en agua.ts; otro que verifique que kc-cultivos.ts y
-duracion-etapas.ts cubran los mismos cultivos del catálogo sin
-huecos"
-
-- Archivos: data/static/cultivos/arica.json,
-  src/lib/data/kc-cultivos.ts, src/lib/data/duracion-etapas.ts
-- Resultado: Lista de cultivos con campos faltantes o sin
-  cobertura Kc/duración.
-
----
-
 6. DAL Transaccional
 
 "Team de 2: uno que revise todos los archivos en src/lib/dal/

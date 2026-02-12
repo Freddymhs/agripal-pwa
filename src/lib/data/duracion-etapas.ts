@@ -97,6 +97,12 @@ export const DURACION_ETAPAS: Record<string, Record<EtapaCrecimiento, number>> =
     'adulta': 730,
     'madura': 1460,
   },
+  limon: {
+    'plántula': 365,
+    'joven': 730,
+    'adulta': 1095,
+    'madura': 2920,
+  },
   limonero: {
     'plántula': 365,
     'joven': 730,
@@ -156,6 +162,66 @@ export const DURACION_ETAPAS: Record<string, Record<EtapaCrecimiento, number>> =
     'joven': 45,
     'adulta': 365,
     'madura': 365,
+  },
+  tuna: {
+    'plántula': 180,
+    'joven': 365,
+    'adulta': 730,
+    'madura': 3650,
+  },
+  higuera: {
+    'plántula': 365,
+    'joven': 730,
+    'adulta': 730,
+    'madura': 1825,
+  },
+  pitahaya: {
+    'plántula': 180,
+    'joven': 365,
+    'adulta': 730,
+    'madura': 1460,
+  },
+  guayaba: {
+    'plántula': 180,
+    'joven': 365,
+    'adulta': 730,
+    'madura': 1460,
+  },
+  datil: {
+    'plántula': 365,
+    'joven': 730,
+    'adulta': 1460,
+    'madura': 3650,
+  },
+  maracuya: {
+    'plántula': 60,
+    'joven': 90,
+    'adulta': 180,
+    'madura': 365,
+  },
+  mandarina: {
+    'plántula': 365,
+    'joven': 730,
+    'adulta': 1095,
+    'madura': 2920,
+  },
+  arandano: {
+    'plántula': 60,
+    'joven': 90,
+    'adulta': 180,
+    'madura': 365,
+  },
+  lucuma: {
+    'plántula': 365,
+    'joven': 730,
+    'adulta': 1460,
+    'madura': 2920,
+  },
+  zapote: {
+    'plántula': 365,
+    'joven': 730,
+    'adulta': 1095,
+    'madura': 2920,
   },
 }
 

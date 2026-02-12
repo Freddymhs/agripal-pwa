@@ -97,7 +97,7 @@ export const KC_POR_CULTIVO: Record<string, Record<EtapaCrecimiento, number>> = 
     'adulta': 0.80,
     'madura': 0.50,
   },
-  limón: {
+  limon: {
     'plántula': 0.50,
     'joven': 0.70,
     'adulta': 0.85,
@@ -162,6 +162,66 @@ export const KC_POR_CULTIVO: Record<string, Record<EtapaCrecimiento, number>> = 
     'joven': 0.60,
     'adulta': 0.90,
     'madura': 0.80,
+  },
+  tuna: {
+    'plántula': 0.40,
+    'joven': 0.60,
+    'adulta': 0.75,
+    'madura': 0.65,
+  },
+  higuera: {
+    'plántula': 0.50,
+    'joven': 0.70,
+    'adulta': 0.85,
+    'madura': 0.75,
+  },
+  pitahaya: {
+    'plántula': 0.45,
+    'joven': 0.65,
+    'adulta': 0.90,
+    'madura': 0.70,
+  },
+  guayaba: {
+    'plántula': 0.50,
+    'joven': 0.80,
+    'adulta': 1.00,
+    'madura': 0.85,
+  },
+  datil: {
+    'plántula': 0.50,
+    'joven': 0.75,
+    'adulta': 1.00,
+    'madura': 0.90,
+  },
+  maracuya: {
+    'plántula': 0.45,
+    'joven': 0.70,
+    'adulta': 0.95,
+    'madura': 0.80,
+  },
+  mandarina: {
+    'plántula': 0.50,
+    'joven': 0.70,
+    'adulta': 0.85,
+    'madura': 0.80,
+  },
+  arandano: {
+    'plántula': 0.50,
+    'joven': 0.75,
+    'adulta': 0.95,
+    'madura': 0.85,
+  },
+  lucuma: {
+    'plántula': 0.50,
+    'joven': 0.70,
+    'adulta': 0.85,
+    'madura': 0.75,
+  },
+  zapote: {
+    'plántula': 0.50,
+    'joven': 0.70,
+    'adulta': 0.85,
+    'madura': 0.75,
   },
 }
 

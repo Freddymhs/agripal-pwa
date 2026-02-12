@@ -10,9 +10,20 @@ vi.mock("@/lib/utils/index.ts", () => ({
   formatPesos: vi.fn((clp: number) => `$${clp}`),
 }));
 
-vi.mock("@/lib/data/kc-cultivos.ts", () => ({
-  getKc: vi.fn(() => 1.15),
-}));
+vi.mock("@/lib/data/kc-cultivos.ts", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/data/kc-cultivos")>();
+  return {
+    ...actual,
+    getKc: vi.fn(() => 1.15),
+  };
+});
+
+vi.mock("@/lib/data/duracion-etapas.ts", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/data/duracion-etapas")>();
+  return {
+    ...actual,
+  };
+});
 
 vi.mock("@/lib/data/fuentes-agua.ts", () => ({
   obtenerFuente: vi.fn(() => null),
