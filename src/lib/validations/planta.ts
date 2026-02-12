@@ -1,10 +1,13 @@
-import type { Planta, Zona, CatalogoCultivo } from '@/types'
+import type { Planta, Zona, CatalogoCultivo, EstadoPlanta, EtapaCrecimiento } from '@/types'
 
 export interface ValidationResult {
   valida: boolean
   error?: string
   advertencia?: string
 }
+
+const ESTADOS_VALIDOS: EstadoPlanta[] = ['plantada', 'creciendo', 'produciendo', 'muerta']
+const ETAPAS_VALIDAS: EtapaCrecimiento[] = ['plántula', 'joven', 'adulta', 'madura']
 
 function distancia(p1: { x: number; y: number }, p2: { x: number; y: number }): number {
   return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2))
@@ -181,4 +184,54 @@ export function validarGridPlantas(
   }
 
   return { validas, invalidas }
+}
+
+export function validarEstadoPlanta(estado: unknown): estado is EstadoPlanta {
+  return ESTADOS_VALIDOS.includes(estado as EstadoPlanta)
+}
+
+export function validarEtapaPlanta(etapa: unknown): etapa is EtapaCrecimiento {
+  return ETAPAS_VALIDAS.includes(etapa as EtapaCrecimiento)
+}
+
+export function validarPosicionParaMover(
+  posicion: { x: number; y: number },
+  zona: Zona,
+  plantasExistentes: Planta[],
+  cultivo?: CatalogoCultivo
+): ValidationResult {
+  // Validar que la posición esté dentro de los límites de la zona
+  if (posicion.x < 0 || posicion.x > zona.ancho) {
+    return {
+      valida: false,
+      error: `Posición X fuera de rango: ${posicion.x}m no está entre 0 y ${zona.ancho}m`,
+    }
+  }
+
+  if (posicion.y < 0 || posicion.y > zona.alto) {
+    return {
+      valida: false,
+      error: `Posición Y fuera de rango: ${posicion.y}m no está entre 0 y ${zona.alto}m`,
+    }
+  }
+
+  // Si se proporciona cultivo con espaciado, validar distancia a otras plantas
+  if (cultivo?.espaciado_recomendado_m) {
+    const espaciado = cultivo.espaciado_recomendado_m
+    const margenBorde = espaciado / 2
+
+    for (const planta of plantasExistentes) {
+      if (planta.zona_id !== zona.id) continue
+
+      const dist = distancia(posicion, planta)
+      if (dist < espaciado) {
+        return {
+          valida: false,
+          error: `Demasiado cerca de otra planta: ${dist.toFixed(2)}m (mínimo: ${espaciado}m)`,
+        }
+      }
+    }
+  }
+
+  return { valida: true }
 }

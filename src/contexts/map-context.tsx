@@ -197,14 +197,24 @@ export function MapProvider({ children }: { children: ReactNode }) {
 
   const handleCambiarEstadoPlanta = async (estado: EstadoPlanta) => {
     if (!plantaSeleccionada) return
-    await plantasHook.cambiarEstado(plantaSeleccionada.id, estado)
+    const result = await plantasHook.cambiarEstado(plantaSeleccionada.id, estado)
+    if (result?.error) {
+      toast.error(result.error)
+      return
+    }
     setPlantaSeleccionada({ ...plantaSeleccionada, estado })
+    toast.success('Estado actualizado')
   }
 
   const handleCambiarEtapaPlanta = async (etapa: EtapaCrecimiento) => {
     if (!plantaSeleccionada) return
-    await plantasHook.cambiarEtapa(plantaSeleccionada.id, etapa)
+    const result = await plantasHook.cambiarEtapa(plantaSeleccionada.id, etapa)
+    if (result?.error) {
+      toast.error(result.error)
+      return
+    }
     setPlantaSeleccionada({ ...plantaSeleccionada, etapa_actual: etapa })
+    toast.success('Etapa actualizada')
   }
 
   const handleEliminarPlanta = async () => {
@@ -308,11 +318,19 @@ export function MapProvider({ children }: { children: ReactNode }) {
     const planta = plantas.find(p => p.id === plantaId)
     if (!planta) return
 
-    const nuevaX = Math.max(0, Math.min(terrenoActual?.ancho_m || 100, planta.x + deltaX))
-    const nuevaY = Math.max(0, Math.min(terrenoActual?.alto_m || 100, planta.y + deltaY))
+    const zona = zonas.find(z => z.id === planta.zona_id)
+    if (!zona) return
 
-    await plantasHook.moverPlanta(plantaId, { x: nuevaX, y: nuevaY })
-  }, [plantas, terrenoActual, plantasHook])
+    const nuevaX = Math.max(0, Math.min(zona.ancho, planta.x + deltaX))
+    const nuevaY = Math.max(0, Math.min(zona.alto, planta.y + deltaY))
+
+    const cultivo = catalogoCultivos.find(c => c.id === planta.tipo_cultivo_id)
+    const result = await plantasHook.moverPlanta(plantaId, { x: nuevaX, y: nuevaY }, zona, plantas, cultivo)
+
+    if (result?.error) {
+      toast.error(result.error)
+    }
+  }, [plantas, zonas, catalogoCultivos, plantasHook])
 
   const advertenciaEliminacionZona = zonaSeleccionada
     ? advertenciaEliminarZona(zonaSeleccionada, plantas)

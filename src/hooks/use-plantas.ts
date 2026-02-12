@@ -7,6 +7,9 @@ import {
   validarNuevaPlanta,
   validarGridPlantas,
   generarGridPlantas,
+  validarEstadoPlanta,
+  validarEtapaPlanta,
+  validarPosicionParaMover,
 } from "@/lib/validations/planta";
 import type {
   Planta,
@@ -38,11 +41,14 @@ interface UsePlantas {
   moverPlanta: (
     id: UUID,
     nuevaPosicion: { x: number; y: number },
+    zona: Zona,
+    plantasExistentes: Planta[],
+    cultivo?: CatalogoCultivo,
   ) => Promise<{ error?: string }>;
 
-  cambiarEstado: (id: UUID, estado: EstadoPlanta) => Promise<void>;
+  cambiarEstado: (id: UUID, estado: EstadoPlanta) => Promise<{ error?: string }>;
 
-  cambiarEtapa: (id: UUID, etapa: EtapaCrecimiento) => Promise<void>;
+  cambiarEtapa: (id: UUID, etapa: EtapaCrecimiento) => Promise<{ error?: string }>;
 
   eliminarPlanta: (id: UUID) => Promise<void>;
 
@@ -157,7 +163,24 @@ export function usePlantas(onRefetch: () => void): UsePlantas {
   );
 
   const moverPlanta = useCallback(
-    async (id: UUID, nuevaPosicion: { x: number; y: number }) => {
+    async (
+      id: UUID,
+      nuevaPosicion: { x: number; y: number },
+      zona: Zona,
+      plantasExistentes: Planta[],
+      cultivo?: CatalogoCultivo,
+    ) => {
+      const validacion = validarPosicionParaMover(
+        nuevaPosicion,
+        zona,
+        plantasExistentes,
+        cultivo,
+      );
+
+      if (!validacion.valida) {
+        return { error: validacion.error };
+      }
+
       try {
         await plantasDAL.update(id, {
           x: nuevaPosicion.x,
@@ -176,6 +199,10 @@ export function usePlantas(onRefetch: () => void): UsePlantas {
 
   const cambiarEstado = useCallback(
     async (id: UUID, estado: EstadoPlanta) => {
+      if (!validarEstadoPlanta(estado)) {
+        return { error: `Estado inválido: "${estado}". Debe ser uno de: plantada, creciendo, produciendo, muerta` };
+      }
+
       try {
         await plantasDAL.update(id, {
           estado,
@@ -186,12 +213,17 @@ export function usePlantas(onRefetch: () => void): UsePlantas {
         throw err;
       }
       onRefetch();
+      return {};
     },
     [onRefetch],
   );
 
   const cambiarEtapa = useCallback(
     async (id: UUID, etapa: EtapaCrecimiento) => {
+      if (!validarEtapaPlanta(etapa)) {
+        return { error: `Etapa inválida: "${etapa}". Debe ser una de: plántula, joven, adulta, madura` };
+      }
+
       try {
         await plantasDAL.update(id, {
           etapa_actual: etapa,
@@ -203,6 +235,7 @@ export function usePlantas(onRefetch: () => void): UsePlantas {
         throw err;
       }
       onRefetch();
+      return {};
     },
     [onRefetch],
   );

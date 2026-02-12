@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { zonasDAL } from '@/lib/dal'
 import { useTerrainData } from '@/hooks/use-terrain-data'
 import { useEstanques } from '@/hooks/use-estanques'
 import { useAgua } from '@/hooks/use-agua'
