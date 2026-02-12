@@ -75,12 +75,12 @@ export class PixiZonasLayer {
           onZonaClick(zona);
         });
         g.on("pointerover", () => {
-          this.hoverGraphics.clear();
-          this.hoverGraphics.rect(x, y, w, h);
-          this.hoverGraphics.stroke({ color: COLOR_ZONA_HOVER, width: 3 });
+          this.hoverGraphics?.clear();
+          this.hoverGraphics?.rect(x, y, w, h);
+          this.hoverGraphics?.stroke({ color: COLOR_ZONA_HOVER, width: 3 });
         });
         g.on("pointerout", () => {
-          this.hoverGraphics.clear();
+          this.hoverGraphics?.clear();
         });
       } else {
         g.eventMode = "none";
@@ -128,11 +128,11 @@ export class PixiZonasLayer {
   }
 
   clear(): void {
-    try {
-      this.hoverGraphics?.clear();
-    } catch (e) {
-      console.warn("[PixiZonasLayer] Error clearing hoverGraphics:", e);
+    // Remover hoverGraphics ANTES de removeChildren() para que no sea destruido
+    if (this.hoverGraphics && this.container.children.includes(this.hoverGraphics)) {
+      this.container.removeChild(this.hoverGraphics);
     }
+
     this.container.removeChildren();
     this.zonaGraphics.forEach((g) => {
       g.off("pointertap");
@@ -143,7 +143,13 @@ export class PixiZonasLayer {
     this.zonaLabels.forEach((t) => t.destroy());
     this.zonaGraphics.clear();
     this.zonaLabels.clear();
-    this.hoverGraphics.clear();
+
+    // Recrear hoverGraphics si fue destruido
+    if (!this.hoverGraphics || (this.hoverGraphics as any).destroyed) {
+      this.hoverGraphics = new Graphics();
+    } else {
+      this.hoverGraphics.clear();
+    }
   }
 
   destroy(): void {
