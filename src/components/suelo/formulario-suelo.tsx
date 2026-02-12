@@ -15,8 +15,25 @@ function getIndicador(valor: number | undefined, umbral: { max?: number; min?: n
   if (valor === undefined) return 'neutral'
   if (umbral.max !== undefined && valor > umbral.max) return 'critico'
   if (umbral.min !== undefined && valor < umbral.min) return 'critico'
+  if (umbral.max !== undefined && umbral.min !== undefined) {
+    const rango = umbral.max - umbral.min
+    if (valor < umbral.min + rango * 0.15 || valor > umbral.max - rango * 0.15) return 'advertencia'
+    return 'ok'
+  }
   if (umbral.max !== undefined && valor > umbral.max * 0.75) return 'advertencia'
   return 'ok'
+}
+
+function safeParseFloat(val: string): number | undefined {
+  if (val === '') return undefined
+  const num = parseFloat(val)
+  return Number.isNaN(num) ? undefined : num
+}
+
+function safeParseInt(val: string): number | undefined {
+  if (val === '') return undefined
+  const num = parseInt(val)
+  return Number.isNaN(num) ? undefined : num
 }
 
 const coloresIndicador: Record<NivelIndicador, string> = {
@@ -89,10 +106,11 @@ export function FormularioSuelo({ suelo, onChange }: FormularioSueloProps) {
             <input
               type="number"
               step="0.1"
+              min={0}
+              max={14}
               value={fisico.ph ?? ''}
               onChange={e => {
-                const val = e.target.value.trim()
-                setFisico({ ...fisico, ph: val === '' ? undefined : parseFloat(val) })
+                setFisico({ ...fisico, ph: safeParseFloat(e.target.value.trim()) })
               }}
               placeholder="6.5 - 7.5"
               className={`w-full px-3 py-2 border rounded text-gray-900 ${
@@ -107,10 +125,11 @@ export function FormularioSuelo({ suelo, onChange }: FormularioSueloProps) {
             <input
               type="number"
               step="0.1"
+              min={0}
+              max={100}
               value={fisico.materia_organica_pct ?? ''}
               onChange={e => {
-                const val = e.target.value.trim()
-                setFisico({ ...fisico, materia_organica_pct: val === '' ? undefined : parseFloat(val) })
+                setFisico({ ...fisico, materia_organica_pct: safeParseFloat(e.target.value.trim()) })
               }}
               placeholder="2 - 5%"
               className="w-full px-3 py-2 border rounded text-gray-900"
@@ -149,10 +168,11 @@ export function FormularioSuelo({ suelo, onChange }: FormularioSueloProps) {
             <label className="block text-sm font-medium text-gray-700 mb-1">Profundidad efectiva (cm)</label>
             <input
               type="number"
+              min={0}
+              max={500}
               value={fisico.profundidad_efectiva_cm ?? ''}
               onChange={e => {
-                const val = e.target.value.trim()
-                setFisico({ ...fisico, profundidad_efectiva_cm: val === '' ? undefined : parseInt(val) })
+                setFisico({ ...fisico, profundidad_efectiva_cm: safeParseInt(e.target.value.trim()) })
               }}
               placeholder="Mín. 60cm para frutales"
               className={`w-full px-3 py-2 border rounded text-gray-900 ${
@@ -213,10 +233,11 @@ export function FormularioSuelo({ suelo, onChange }: FormularioSueloProps) {
             <input
               type="number"
               step="0.1"
+              min={0}
+              max={50}
               value={quimico.salinidad_dS_m ?? ''}
               onChange={e => {
-                const val = e.target.value.trim()
-                setQuimico({ ...quimico, salinidad_dS_m: val === '' ? undefined : parseFloat(val) })
+                setQuimico({ ...quimico, salinidad_dS_m: safeParseFloat(e.target.value.trim()) })
               }}
               placeholder={`< ${UMBRALES_SUELO.salinidad.max}`}
               className={`w-full px-3 py-2 border rounded text-gray-900 ${
@@ -234,10 +255,11 @@ export function FormularioSuelo({ suelo, onChange }: FormularioSueloProps) {
             <input
               type="number"
               step="0.1"
+              min={0}
+              max={100}
               value={quimico.boro_mg_l ?? ''}
               onChange={e => {
-                const val = e.target.value.trim()
-                setQuimico({ ...quimico, boro_mg_l: val === '' ? undefined : parseFloat(val) })
+                setQuimico({ ...quimico, boro_mg_l: safeParseFloat(e.target.value.trim()) })
               }}
               placeholder={`< ${UMBRALES_SUELO.boro.max}`}
               className={`w-full px-3 py-2 border rounded text-gray-900 ${
@@ -255,10 +277,11 @@ export function FormularioSuelo({ suelo, onChange }: FormularioSueloProps) {
             <input
               type="number"
               step="0.01"
+              min={0}
+              max={10}
               value={quimico.arsenico_mg_l ?? ''}
               onChange={e => {
-                const val = e.target.value.trim()
-                setQuimico({ ...quimico, arsenico_mg_l: val === '' ? undefined : parseFloat(val) })
+                setQuimico({ ...quimico, arsenico_mg_l: safeParseFloat(e.target.value.trim()) })
               }}
               placeholder={`< ${UMBRALES_SUELO.arsenico.max}`}
               className={`w-full px-3 py-2 border rounded text-gray-900 ${
@@ -275,10 +298,11 @@ export function FormularioSuelo({ suelo, onChange }: FormularioSueloProps) {
             <label className="block text-xs text-gray-600 mb-1">N (ppm)</label>
             <input
               type="number"
+              min={0}
+              max={500}
               value={quimico.nitrogeno_ppm ?? ''}
               onChange={e => {
-                const val = e.target.value.trim()
-                setQuimico({ ...quimico, nitrogeno_ppm: val === '' ? undefined : parseFloat(val) })
+                setQuimico({ ...quimico, nitrogeno_ppm: safeParseFloat(e.target.value.trim()) })
               }}
               className="w-full px-2 py-1 border rounded text-sm text-gray-900"
             />
@@ -287,10 +311,11 @@ export function FormularioSuelo({ suelo, onChange }: FormularioSueloProps) {
             <label className="block text-xs text-gray-600 mb-1">P (ppm)</label>
             <input
               type="number"
+              min={0}
+              max={500}
               value={quimico.fosforo_ppm ?? ''}
               onChange={e => {
-                const val = e.target.value.trim()
-                setQuimico({ ...quimico, fosforo_ppm: val === '' ? undefined : parseFloat(val) })
+                setQuimico({ ...quimico, fosforo_ppm: safeParseFloat(e.target.value.trim()) })
               }}
               className="w-full px-2 py-1 border rounded text-sm text-gray-900"
             />
@@ -299,10 +324,11 @@ export function FormularioSuelo({ suelo, onChange }: FormularioSueloProps) {
             <label className="block text-xs text-gray-600 mb-1">K (ppm)</label>
             <input
               type="number"
+              min={0}
+              max={5000}
               value={quimico.potasio_ppm ?? ''}
               onChange={e => {
-                const val = e.target.value.trim()
-                setQuimico({ ...quimico, potasio_ppm: val === '' ? undefined : parseFloat(val) })
+                setQuimico({ ...quimico, potasio_ppm: safeParseFloat(e.target.value.trim()) })
               }}
               className="w-full px-2 py-1 border rounded text-sm text-gray-900"
             />
@@ -311,10 +337,11 @@ export function FormularioSuelo({ suelo, onChange }: FormularioSueloProps) {
             <label className="block text-xs text-gray-600 mb-1">Ca (ppm)</label>
             <input
               type="number"
+              min={0}
+              max={10000}
               value={quimico.calcio_ppm ?? ''}
               onChange={e => {
-                const val = e.target.value.trim()
-                setQuimico({ ...quimico, calcio_ppm: val === '' ? undefined : parseFloat(val) })
+                setQuimico({ ...quimico, calcio_ppm: safeParseFloat(e.target.value.trim()) })
               }}
               className="w-full px-2 py-1 border rounded text-sm text-gray-900"
             />
@@ -323,10 +350,11 @@ export function FormularioSuelo({ suelo, onChange }: FormularioSueloProps) {
             <label className="block text-xs text-gray-600 mb-1">Mg (ppm)</label>
             <input
               type="number"
+              min={0}
+              max={5000}
               value={quimico.magnesio_ppm ?? ''}
               onChange={e => {
-                const val = e.target.value.trim()
-                setQuimico({ ...quimico, magnesio_ppm: val === '' ? undefined : parseFloat(val) })
+                setQuimico({ ...quimico, magnesio_ppm: safeParseFloat(e.target.value.trim()) })
               }}
               className="w-full px-2 py-1 border rounded text-sm text-gray-900"
             />

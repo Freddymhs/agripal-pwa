@@ -54,7 +54,7 @@ export function ConflictModal({ conflicts, onResolve, onClose }: ConflictModalPr
           <div className="border-2 border-green-200 rounded-lg p-4 bg-green-50">
             <h4 className="font-medium mb-2 text-green-700">Versión servidor</h4>
             <pre className="text-xs bg-white p-2 rounded overflow-auto max-h-40 text-gray-800">
-              {JSON.stringify(current.datos_servidor, null, 2)}
+              {current.datos_servidor ? JSON.stringify(current.datos_servidor, null, 2) : 'Sin datos del servidor'}
             </pre>
           </div>
         </div>

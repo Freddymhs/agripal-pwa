@@ -15,6 +15,11 @@ export interface RiesgoPlaga {
 function getTempActualMes(): number {
   const mes = new Date().getMonth()
   const temps = CLIMA_ARICA.temperatura
+
+  if (temps.maxima_verano_c == null || temps.minima_historica_c == null) {
+    return 19
+  }
+
   const maxPorMes = [
     temps.maxima_verano_c, temps.maxima_verano_c,
     temps.maxima_verano_c - 2, temps.maxima_verano_c - 5,
@@ -59,9 +64,9 @@ export function evaluarRiesgoPlagas(
       'alta': 15,
       'critica': 20,
     }
-    if (plaga.severidad) {
-      score += severidadScore[plaga.severidad] ?? 0
-    }
+    score += plaga.severidad
+      ? (severidadScore[plaga.severidad] ?? 0)
+      : 10
 
     const alertaNivel: RiesgoPlaga['alertaNivel'] =
       score >= 80 ? 'critico' :

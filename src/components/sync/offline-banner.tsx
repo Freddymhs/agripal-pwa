@@ -1,11 +1,11 @@
 'use client'
 
-import { useOnlineStatus } from '@/hooks/use-online-status'
+import { useProjectContext } from '@/contexts/project-context'
 
 export function OfflineBanner() {
-  const isOnline = useOnlineStatus()
+  const { syncHook } = useProjectContext()
 
-  if (isOnline) return null
+  if (syncHook.isOnline) return null
 
   return (
     <div className="bg-yellow-500 text-yellow-900 px-4 py-2 text-center text-sm font-medium">

@@ -83,7 +83,7 @@ export function PanelSuelo({ suelo }: PanelSueloProps) {
         <h4 className="font-medium text-gray-900 mb-3">Parámetros Críticos</h4>
         <div className="space-y-3">
           {parametros.map(param => {
-            const porcentaje = param.valor !== undefined ? Math.min(100, (param.valor / param.max) * 100) : 0
+            const porcentaje = param.valor !== undefined ? Math.min(100, Math.max(0, (param.valor / param.max) * 100)) : 0
             const excede = param.valor !== undefined && param.valor > param.max
 
             return (

@@ -19,6 +19,11 @@ interface SyncState {
   error: string | null;
 }
 
+const SYNC_INTERVAL_MS = 30_000;
+const RECONNECT_DELAY_MS = 1_000;
+const INITIAL_SYNC_DELAY_MS = 2_000;
+const ONLINE_DEBOUNCE_MS = 2_000;
+
 export function useSync() {
   const [state, setState] = useState<SyncState>({
     isOnline: typeof navigator !== "undefined" ? navigator.onLine : true,
@@ -31,6 +36,9 @@ export function useSync() {
 
   const isMountedRef = useRef(true);
   const isSyncingRef = useRef(false);
+  const isOnlineRef = useRef(
+    typeof navigator !== "undefined" ? navigator.onLine : true
+  );
 
   const updateCounts = useCallback(async () => {
     if (!isMountedRef.current) return;
@@ -45,8 +53,10 @@ export function useSync() {
     }
   }, []);
 
+  const doSyncRef = useRef<(() => Promise<void>) | undefined>(undefined);
+
   const doSync = useCallback(async () => {
-    if (!isMountedRef.current || isSyncingRef.current || !state.isOnline)
+    if (!isMountedRef.current || isSyncingRef.current || !isOnlineRef.current)
       return;
 
     isSyncingRef.current = true;
@@ -74,31 +84,58 @@ export function useSync() {
     } finally {
       isSyncingRef.current = false;
     }
-  }, [state.isOnline, updateCounts]);
+  }, [updateCounts]);
+
+  doSyncRef.current = doSync;
 
   const resolveConflict = useCallback(
     async (id: UUID, decision: "local" | "servidor") => {
-      await resolverConflictoQueue(id, decision);
-      await updateCounts();
-      if (decision === "local") {
-        doSync();
+      try {
+        await resolverConflictoQueue(id, decision);
+        await updateCounts();
+        if (decision === "local") {
+          doSyncRef.current?.();
+        }
+      } catch (error) {
+        console.error("Error resolving conflict:", error);
+        setState((prev) => ({
+          ...prev,
+          error:
+            error instanceof Error
+              ? error.message
+              : "Error al resolver conflicto",
+        }));
       }
     },
-    [updateCounts, doSync],
+    [updateCounts]
   );
 
   useEffect(() => {
     isMountedRef.current = true;
     setAdapter(mockAdapter);
 
-    const timers: ReturnType<typeof setTimeout>[] = [];
+    const timeouts: ReturnType<typeof setTimeout>[] = [];
+    let intervalId: ReturnType<typeof setInterval> | null = null;
+    let onlineDebounceTimer: ReturnType<typeof setTimeout> | null = null;
 
     const handleOnline = () => {
-      setState((prev) => ({ ...prev, isOnline: true }));
-      timers.push(setTimeout(() => doSync(), 1000));
+      isOnlineRef.current = true;
+
+      if (onlineDebounceTimer) clearTimeout(onlineDebounceTimer);
+      onlineDebounceTimer = setTimeout(() => {
+        setState((prev) => ({ ...prev, isOnline: true }));
+        timeouts.push(
+          setTimeout(() => doSyncRef.current?.(), RECONNECT_DELAY_MS)
+        );
+      }, ONLINE_DEBOUNCE_MS);
     };
 
     const handleOffline = () => {
+      isOnlineRef.current = false;
+      if (onlineDebounceTimer) {
+        clearTimeout(onlineDebounceTimer);
+        onlineDebounceTimer = null;
+      }
       setState((prev) => ({ ...prev, isOnline: false }));
     };
 
@@ -108,25 +145,27 @@ export function useSync() {
     updateCounts();
 
     if (navigator.onLine) {
-      timers.push(setTimeout(() => doSync(), 2000));
-
-      timers.push(
-        setInterval(() => {
-          if (navigator.onLine && !isSyncingRef.current) {
-            doSync();
-          }
-          updateCounts();
-        }, 30000),
+      timeouts.push(
+        setTimeout(() => doSyncRef.current?.(), INITIAL_SYNC_DELAY_MS)
       );
     }
+
+    intervalId = setInterval(() => {
+      if (isOnlineRef.current && !isSyncingRef.current) {
+        doSyncRef.current?.();
+      }
+      updateCounts();
+    }, SYNC_INTERVAL_MS);
 
     return () => {
       isMountedRef.current = false;
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
-      timers.forEach((t) => clearTimeout(t));
+      timeouts.forEach((t) => clearTimeout(t));
+      if (onlineDebounceTimer) clearTimeout(onlineDebounceTimer);
+      if (intervalId) clearInterval(intervalId);
     };
-  }, [doSync, updateCounts]);
+  }, [updateCounts]);
 
   return {
     ...state,

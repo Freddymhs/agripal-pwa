@@ -20,6 +20,10 @@ function clamp(v: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, v))
 }
 
+function isValidNum(v: unknown): v is number {
+  return typeof v === 'number' && !Number.isNaN(v) && Number.isFinite(v)
+}
+
 function calcScoreAgua(fuente: FuenteAgua | null, cultivo: CatalogoCultivo): { score: number; problemas: string[]; mejoras: string[] } {
   if (!fuente) return { score: 50, problemas: ['Sin fuente de agua asignada'], mejoras: ['Asignar fuente de agua al estanque'] }
 
@@ -27,7 +31,7 @@ function calcScoreAgua(fuente: FuenteAgua | null, cultivo: CatalogoCultivo): { s
   const problemas: string[] = []
   const mejoras: string[] = []
 
-  if (fuente.boro_ppm != null && cultivo.boro_tolerancia_ppm > 0) {
+  if (isValidNum(fuente.boro_ppm) && fuente.boro_ppm >= 0 && cultivo.boro_tolerancia_ppm > 0) {
     const ratio = fuente.boro_ppm / cultivo.boro_tolerancia_ppm
     if (ratio > 2) {
       score -= 60
@@ -40,7 +44,7 @@ function calcScoreAgua(fuente: FuenteAgua | null, cultivo: CatalogoCultivo): { s
     }
   }
 
-  if (fuente.salinidad_dS_m != null && cultivo.salinidad_tolerancia_dS_m > 0) {
+  if (isValidNum(fuente.salinidad_dS_m) && fuente.salinidad_dS_m >= 0 && cultivo.salinidad_tolerancia_dS_m > 0) {
     const ratio = fuente.salinidad_dS_m / cultivo.salinidad_tolerancia_dS_m
     if (ratio > 1.5) {
       score -= 40
@@ -68,25 +72,25 @@ function calcScoreSuelo(suelo: SueloTerreno | null, cultivo: CatalogoCultivo): {
   const problemas: string[] = []
   const mejoras: string[] = []
 
-  if (suelo.fisico?.ph != null) {
-    if (suelo.fisico.ph < cultivo.ph_min) {
+  if (isValidNum(suelo.fisico?.ph) && suelo.fisico!.ph >= 0 && suelo.fisico!.ph <= 14) {
+    if (suelo.fisico!.ph < cultivo.ph_min) {
       score -= 25
-      problemas.push(`pH suelo ${suelo.fisico.ph} bajo (mín ${cultivo.ph_min})`)
+      problemas.push(`pH suelo ${suelo.fisico!.ph} bajo (mín ${cultivo.ph_min})`)
       mejoras.push('Aplicar cal agrícola para subir pH')
-    } else if (suelo.fisico.ph > cultivo.ph_max) {
+    } else if (suelo.fisico!.ph > cultivo.ph_max) {
       score -= 25
-      problemas.push(`pH suelo ${suelo.fisico.ph} alto (máx ${cultivo.ph_max})`)
+      problemas.push(`pH suelo ${suelo.fisico!.ph} alto (máx ${cultivo.ph_max})`)
       mejoras.push('Aplicar azufre agrícola para bajar pH')
     }
   }
 
-  if (suelo.quimico?.salinidad_dS_m != null && suelo.quimico.salinidad_dS_m > cultivo.salinidad_tolerancia_dS_m) {
+  if (isValidNum(suelo.quimico?.salinidad_dS_m) && suelo.quimico!.salinidad_dS_m >= 0 && suelo.quimico!.salinidad_dS_m > cultivo.salinidad_tolerancia_dS_m) {
     score -= 30
     problemas.push(`Salinidad suelo ${suelo.quimico.salinidad_dS_m} dS/m`)
     mejoras.push('Aplicar yeso agrícola y lavado de sales')
   }
 
-  if (suelo.fisico?.materia_organica_pct != null && suelo.fisico.materia_organica_pct < 2) {
+  if (isValidNum(suelo.fisico?.materia_organica_pct) && suelo.fisico!.materia_organica_pct >= 0 && suelo.fisico!.materia_organica_pct < 2) {
     score -= 10
     mejoras.push('Aumentar materia orgánica con compost o humus')
   }
@@ -102,8 +106,8 @@ export function calcularFactorSuelo(
 
   let factor = 1.0
 
-  if (suelo.fisico?.ph != null) {
-    const ph = suelo.fisico.ph
+  if (isValidNum(suelo.fisico?.ph) && suelo.fisico!.ph >= 0 && suelo.fisico!.ph <= 14) {
+    const ph = suelo.fisico!.ph
     if (ph < cultivo.ph_min || ph > cultivo.ph_max) {
       const desviacion = Math.max(cultivo.ph_min - ph, ph - cultivo.ph_max)
       const penalizacion = Math.min(0.5, desviacion * 0.2)
@@ -111,23 +115,23 @@ export function calcularFactorSuelo(
     }
   }
 
-  if (suelo.quimico?.salinidad_dS_m != null && cultivo.salinidad_tolerancia_dS_m > 0) {
-    const ratio = suelo.quimico.salinidad_dS_m / cultivo.salinidad_tolerancia_dS_m
+  if (isValidNum(suelo.quimico?.salinidad_dS_m) && suelo.quimico!.salinidad_dS_m >= 0 && cultivo.salinidad_tolerancia_dS_m > 0) {
+    const ratio = suelo.quimico!.salinidad_dS_m / cultivo.salinidad_tolerancia_dS_m
     if (ratio > 1.0) {
       const penalizacion = Math.min(0.6, (ratio - 1) * 0.3)
       factor *= (1 - penalizacion)
     }
   }
 
-  if (suelo.quimico?.boro_mg_l != null && cultivo.boro_tolerancia_ppm > 0) {
-    const ratio = suelo.quimico.boro_mg_l / cultivo.boro_tolerancia_ppm
+  if (isValidNum(suelo.quimico?.boro_mg_l) && suelo.quimico!.boro_mg_l >= 0 && cultivo.boro_tolerancia_ppm > 0) {
+    const ratio = suelo.quimico!.boro_mg_l / cultivo.boro_tolerancia_ppm
     if (ratio > 1.0) {
       const penalizacion = Math.min(0.7, (ratio - 1) * 0.4)
       factor *= (1 - penalizacion)
     }
   }
 
-  if (suelo.fisico?.materia_organica_pct != null && suelo.fisico.materia_organica_pct < 2.0) {
+  if (isValidNum(suelo.fisico?.materia_organica_pct) && suelo.fisico!.materia_organica_pct >= 0 && suelo.fisico!.materia_organica_pct < 2.0) {
     factor *= 0.9
   }
 

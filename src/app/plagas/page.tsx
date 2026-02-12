@@ -36,36 +36,41 @@ export default function PlagasPage() {
 
   useEffect(() => {
     async function fetchData() {
-      const terrenos = await terrenosDAL.getAll()
-      if (terrenos.length > 0) {
-        const t = terrenos[0]
-        const [z, c] = await Promise.all([
-          zonasDAL.getByTerrenoId(t.id),
-          catalogoDAL.getByProyectoId(t.proyecto_id),
-        ])
-        setZonas(z)
-        setCatalogoCultivos(c)
-        const zonaIds = z.map(zona => zona.id)
-        if (zonaIds.length > 0) {
-          const p = await plantasDAL.getByZonaIds(zonaIds)
-          setPlantas(p)
-          const zonaCultivo = z.find(zona => zona.tipo === 'cultivo')
-          if (zonaCultivo) setZonaId(zonaCultivo.id)
+      try {
+        const terrenos = await terrenosDAL.getAll()
+        if (terrenos.length > 0) {
+          const t = terrenos[0]
+          const [z, c] = await Promise.all([
+            zonasDAL.getByTerrenoId(t.id),
+            catalogoDAL.getByProyectoId(t.proyecto_id),
+          ])
+          setZonas(z)
+          setCatalogoCultivos(c)
+          const zonaIds = z.map(zona => zona.id)
+          if (zonaIds.length > 0) {
+            const p = await plantasDAL.getByZonaIds(zonaIds)
+            setPlantas(p)
+            const zonaCultivo = z.find(zona => zona.tipo === 'cultivo')
+            if (zonaCultivo) setZonaId(zonaCultivo.id)
+          }
         }
+      } catch (err) {
+        console.error('[PlagasPage] Error loading data:', err)
+      } finally {
+        setLoading(false)
       }
-      setLoading(false)
     }
     fetchData()
   }, [])
 
   const zonasCultivo = zonas.filter(z => z.tipo === 'cultivo')
-  const plantasZona = plantas.filter(p => p.zona_id === zonaId && p.estado !== 'muerta')
 
   const riesgos = useMemo<{ cultivo: CatalogoCultivo; etapa: EtapaCrecimiento; plagas: RiesgoPlaga[] }[]>(() => {
-    if (!zonaId || plantasZona.length === 0) return []
+    const plantasZonaFiltradas = plantas.filter(p => p.zona_id === zonaId && p.estado !== 'muerta')
+    if (!zonaId || plantasZonaFiltradas.length === 0) return []
 
     const cultivosPorTipo = new Map<string, { cultivo: CatalogoCultivo; etapa: EtapaCrecimiento }>()
-    for (const p of plantasZona) {
+    for (const p of plantasZonaFiltradas) {
       if (!cultivosPorTipo.has(p.tipo_cultivo_id)) {
         const cultivo = catalogoCultivos.find(c => c.id === p.tipo_cultivo_id)
         if (cultivo) {
@@ -79,7 +84,7 @@ export default function PlagasPage() {
       etapa,
       plagas: evaluarRiesgoPlagas(cultivo, etapa),
     }))
-  }, [zonaId, plantasZona, catalogoCultivos])
+  }, [zonaId, plantas, catalogoCultivos])
 
   const totalAlertas = riesgos.reduce((sum, r) => sum + r.plagas.filter(p => p.alertaNivel !== 'bajo').length, 0)
 
@@ -201,7 +206,7 @@ export default function PlagasPage() {
                 )}
 
                 <div className="text-xs text-gray-600 bg-white bg-opacity-50 p-2 rounded">
-                  <strong>Control:</strong> {riesgo.plaga.control_recomendado}
+                  <strong>Control:</strong> {riesgo.plaga.control_recomendado || 'No especificado'}
                 </div>
               </div>
             ))}

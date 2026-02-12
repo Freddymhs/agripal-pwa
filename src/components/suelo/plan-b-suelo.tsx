@@ -23,7 +23,7 @@ interface ProblemaConSoluciones {
 export function PlanBSuelo({ suelo }: PlanBSueloProps) {
   const problemas: ProblemaConSoluciones[] = []
 
-  if (suelo?.quimico?.salinidad_dS_m && suelo.quimico.salinidad_dS_m > UMBRALES_SUELO.salinidad.max) {
+  if (suelo?.quimico?.salinidad_dS_m != null && suelo.quimico.salinidad_dS_m > UMBRALES_SUELO.salinidad.max) {
     problemas.push({
       problema: `Salinidad muy alta: ${suelo.quimico.salinidad_dS_m} dS/m (máx ${UMBRALES_SUELO.salinidad.max} dS/m)`,
       severidad: 'alta',
@@ -56,7 +56,7 @@ export function PlanBSuelo({ suelo }: PlanBSueloProps) {
     })
   }
 
-  if (suelo?.quimico?.boro_mg_l && suelo.quimico.boro_mg_l > UMBRALES_SUELO.boro.max) {
+  if (suelo?.quimico?.boro_mg_l != null && suelo.quimico.boro_mg_l > UMBRALES_SUELO.boro.max) {
     const esExtremadamenteAlto = suelo.quimico.boro_mg_l > 5
     problemas.push({
       problema: `Boro ${esExtremadamenteAlto ? 'EXTREMADAMENTE' : ''} alto: ${suelo.quimico.boro_mg_l} mg/L (máx ${UMBRALES_SUELO.boro.max} mg/L)`,
@@ -89,7 +89,7 @@ export function PlanBSuelo({ suelo }: PlanBSueloProps) {
     })
   }
 
-  if (suelo?.quimico?.arsenico_mg_l && suelo.quimico.arsenico_mg_l > UMBRALES_SUELO.arsenico.max) {
+  if (suelo?.quimico?.arsenico_mg_l != null && suelo.quimico.arsenico_mg_l > UMBRALES_SUELO.arsenico.max) {
     problemas.push({
       problema: `Arsénico elevado: ${suelo.quimico.arsenico_mg_l} mg/L (máx ${UMBRALES_SUELO.arsenico.max} mg/L)`,
       severidad: 'critica',

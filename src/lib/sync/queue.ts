@@ -9,39 +9,47 @@ export async function agregarACola(
   accion: SyncAccion,
   datos: Record<string, unknown>
 ): Promise<SyncItem> {
-  const existente = await db.sync_queue
-    .where('[entidad+entidad_id]')
-    .equals([entidad, entidadId])
-    .first()
+  return db.transaction('rw', db.sync_queue, async () => {
+    const existente = await db.sync_queue
+      .where('[entidad+entidad_id]')
+      .equals([entidad, entidadId])
+      .first()
 
-  if (existente && existente.estado !== 'conflicto') {
-    const newAccion = accion === 'delete' ? 'delete' : existente.accion === 'create' ? 'create' : accion
+    if (existente && existente.estado !== 'conflicto') {
+      const newAccion = accion === 'delete' ? 'delete' : existente.accion === 'create' ? 'create' : accion
+      const updatedAt = getCurrentTimestamp()
 
-    await db.sync_queue.update(existente.id, {
-      accion: newAccion,
-      datos: { ...existente.datos, ...datos },
+      await db.sync_queue.update(existente.id, {
+        accion: newAccion,
+        datos: { ...existente.datos, ...datos },
+        estado: 'pendiente',
+        updated_at: updatedAt,
+      })
+
+      return {
+        ...existente,
+        accion: newAccion,
+        datos: { ...existente.datos, ...datos },
+        estado: 'pendiente' as const,
+        updated_at: updatedAt,
+      }
+    }
+
+    const item: SyncItem = {
+      id: generateUUID(),
+      entidad,
+      entidad_id: entidadId,
+      accion,
+      datos,
       estado: 'pendiente',
+      intentos: 0,
+      created_at: getCurrentTimestamp(),
       updated_at: getCurrentTimestamp(),
-    })
+    }
 
-    const updated = await db.sync_queue.get(existente.id)
-    return updated!
-  }
-
-  const item: SyncItem = {
-    id: generateUUID(),
-    entidad,
-    entidad_id: entidadId,
-    accion,
-    datos,
-    estado: 'pendiente',
-    intentos: 0,
-    created_at: getCurrentTimestamp(),
-    updated_at: getCurrentTimestamp(),
-  }
-
-  await db.sync_queue.add(item)
-  return item
+    await db.sync_queue.add(item)
+    return item
+  })
 }
 
 export async function obtenerPendientes(): Promise<SyncItem[]> {
@@ -49,7 +57,10 @@ export async function obtenerPendientes(): Promise<SyncItem[]> {
   return db.sync_queue
     .where('estado')
     .anyOf(['pendiente', 'error'])
-    .filter(item => !item.nextRetryAt || item.nextRetryAt <= ahora)
+    .filter(item => {
+      if (item.estado === 'error' && item.intentos >= MAX_RETRY_ATTEMPTS) return false
+      return !item.nextRetryAt || item.nextRetryAt <= ahora
+    })
     .toArray()
 }
 
@@ -60,7 +71,11 @@ export async function obtenerConflictos(): Promise<SyncItem[]> {
 export async function contarPendientes(): Promise<number> {
   return db.sync_queue
     .where('estado')
-    .anyOf(['pendiente', 'error', 'sincronizando'])
+    .anyOf(['pendiente', 'error'])
+    .filter(item => {
+      if (item.estado === 'error' && item.intentos >= MAX_RETRY_ATTEMPTS) return false
+      return true
+    })
     .count()
 }
 
@@ -86,13 +101,15 @@ export async function marcarError(id: UUID, error: string): Promise<void> {
       estado: 'error',
       error: `Max intentos alcanzado: ${error}`,
       intentos,
+      nextRetryAt: undefined,
       updated_at: getCurrentTimestamp(),
     })
     return
   }
 
-  const delay = RETRY_DELAYS[Math.min(intentos - 1, RETRY_DELAYS.length - 1)]
-  const nextRetryAt = new Date(Date.now() + delay).toISOString()
+  const baseDelay = RETRY_DELAYS[Math.min(intentos - 1, RETRY_DELAYS.length - 1)]
+  const jitter = Math.random() * baseDelay * 0.3
+  const nextRetryAt = new Date(Date.now() + baseDelay + jitter).toISOString()
 
   await db.sync_queue.update(id, {
     estado: 'error',
@@ -133,11 +150,16 @@ export async function resolverConflicto(
     if (item.datos_servidor) {
       const tabla = getTabla(item.entidad)
       if (tabla) {
-        const updateData = {
-          ...item.datos_servidor,
-          lastModified: getCurrentTimestamp(),
+        try {
+          const updateData = {
+            ...item.datos_servidor,
+            id: item.entidad_id,
+            lastModified: getCurrentTimestamp(),
+          }
+          await tabla.put(updateData as never)
+        } catch (err) {
+          console.error('Error applying server data during conflict resolution:', err)
         }
-        await tabla.update(item.entidad_id, updateData as never)
       }
     }
     await db.sync_queue.delete(id)

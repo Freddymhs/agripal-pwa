@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, type ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
 import { useProjectContext } from '@/contexts/project-context'
 import { MapProvider, useMapContext } from '@/contexts/map-context'
@@ -150,7 +150,6 @@ function HomeContent() {
           logout={logout}
           alertas={alertasHook.alertas}
           alertasCriticas={alertasHook.alertasCriticas}
-          hasConflicts={syncHook.conflicts.length > 0}
           proyectos={proyectos}
           terrenos={terrenos}
           proyectoActualId={proyectoActual?.id ?? null}
@@ -227,6 +226,12 @@ function MapView() {
     handleMoverPlantasSeleccionadas,
   } = useMapContext()
 
+  const [conflictModalOpen, setConflictModalOpen] = useState(true)
+
+  useEffect(() => {
+    if (syncHook.conflicts.length > 0) setConflictModalOpen(true)
+  }, [syncHook.conflicts.length])
+
   if (!terrenoActual) return null
 
   return (
@@ -234,12 +239,21 @@ function MapView() {
       <AlertaBanner alertasCriticas={alertasHook.alertasCriticas} />
       <OfflineBanner />
 
-      {syncHook.conflicts.length > 0 && (
+      {syncHook.conflicts.length > 0 && conflictModalOpen && (
         <ConflictModal
           conflicts={syncHook.conflicts}
           onResolve={syncHook.resolveConflict}
-          onClose={() => {}}
+          onClose={() => setConflictModalOpen(false)}
         />
+      )}
+
+      {syncHook.conflicts.length > 0 && !conflictModalOpen && (
+        <button
+          onClick={() => setConflictModalOpen(true)}
+          className="bg-orange-500 text-white px-4 py-1.5 text-sm font-medium text-center"
+        >
+          {syncHook.conflicts.length} conflicto(s) sin resolver — Abrir
+        </button>
       )}
 
       <MapToolbar />
@@ -322,7 +336,6 @@ interface HeaderActionsProps {
   onSelectTerreno: (t: Terreno) => void
   onCrearProyecto: () => void
   onCrearTerreno: () => void
-  hasConflicts: boolean
 }
 
 function HeaderActions({
