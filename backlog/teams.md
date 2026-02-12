@@ -5,39 +5,6 @@ complejidad y gaps.
 
 ---
 
-1. Refactor Componentes Gigantes
-
-"Crea un team de 2: un teammate que analice
-pixi-mapa-terreno-inner.tsx (850 líneas) e identifique cómo
-dividirlo en subcomponentes/hooks manteniendo la lógica PixiJS,
-y otro que haga lo mismo con map-sidebar.tsx (530 líneas)
-extrayendo los paneles de ROI, agua y zonas en componentes
-independientes"
-
-- Archivos:
-  src/components/mapa/pixi/pixi-mapa-terreno-inner.tsx,
-  src/components/mapa/map-sidebar.tsx
-- Resultado: Plan de refactor con cortes propuestos, props
-  interfaces, y hooks a extraer.
-
----
-
-2. Auditoría Sync Engine + Queue
-
-"Team de 2: uno que revise src/lib/sync/engine.ts y
-src/lib/sync/queue.ts buscando race conditions, retry sin
-backoff, operaciones perdidas en offline, y error handling
-incompleto; otro que revise use-sync.ts y los componentes sync/
-(offline-banner, sync-indicator, conflict-modal) verificando que
-los estados de sync se reflejen correctamente en la UI"
-
-- Archivos: src/lib/sync/engine.ts, src/lib/sync/queue.ts,
-  src/hooks/use-sync.ts, src/components/sync/
-- Resultado: Lista de bugs potenciales en sync offline, gaps en
-  UX de conflictos.
-
----
-
 3. Validaciones vs Realidad
 
 "Crea un team de 2: un teammate que mapee TODAS las validaciones
@@ -67,24 +34,6 @@ huecos"
   src/lib/data/kc-cultivos.ts, src/lib/data/duracion-etapas.ts
 - Resultado: Lista de cultivos con campos faltantes o sin
   cobertura Kc/duración.
-
----
-
-5. Plagas + Suelo Edge Cases
-
-"Crea un team de 2: un teammate que audite
-src/lib/utils/riesgo-plagas.ts y src/app/plagas/page.tsx
-buscando los mismos patrones de NaN/undefined/empty que
-encontramos en agua.ts, y otro que revise
-src/lib/utils/calidad.ts y src/components/suelo/ verificando que
-inputs de suelo con valores extremos (pH 0, CE 100, boro
-negativo) no produzcan factores fuera de rango"
-
-- Archivos: src/lib/utils/riesgo-plagas.ts,
-  src/app/plagas/page.tsx, src/lib/utils/calidad.ts,
-  src/components/suelo/
-- Resultado: Lista de edge cases y valores extremos no
-  guardados.
 
 ---
 
