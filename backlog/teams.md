@@ -37,7 +37,7 @@ src/lib/utils/comparador-cultivos.ts"
 
 ---
 
-8. Pages Data Loading Dedup
+lo hice pero quizas denuevo seria bueno! 8. Pages Data Loading Dedup
 
 "Team de 2: uno que identifique el patrón repetido de carga de
 datos en las páginas (terreno → zonas → cultivos → plantas en

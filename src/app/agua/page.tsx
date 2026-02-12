@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
-import { terrenosDAL, zonasDAL, catalogoDAL, plantasDAL } from '@/lib/dal'
+import { useTerrainData } from '@/hooks/use-terrain-data'
 import { useEstanques } from '@/hooks/use-estanques'
 import { useAgua } from '@/hooks/use-agua'
 import { PageLayout } from '@/components/layout'
@@ -19,54 +19,24 @@ import { emitZonaUpdated } from '@/lib/events/zona-events'
 import type { Terreno, Zona, Planta, CatalogoCultivo } from '@/types'
 
 export default function AguaPage() {
-  const [terreno, setTerreno] = useState<Terreno | null>(null)
-  const [zonas, setZonas] = useState<Zona[]>([])
-  const [plantas, setPlantas] = useState<Planta[]>([])
-  const [catalogoCultivos, setCatalogoCultivos] = useState<CatalogoCultivo[]>([])
-  const [loading, setLoading] = useState(true)
+  const { terreno, zonas, plantas, catalogoCultivos, loading, refetch } = useTerrainData()
   const [showEntradaForm, setShowEntradaForm] = useState(false)
   const [showConfigRecarga, setShowConfigRecarga] = useState(false)
   const [estanqueSeleccionadoId, setEstanqueSeleccionadoId] = useState<string | null>(null)
-
-  const fetchData = async () => {
-    const terrenos = await terrenosDAL.getAll()
-    if (terrenos.length > 0) {
-      const t = terrenos[0]
-      setTerreno(t)
-
-      const [z, c] = await Promise.all([
-        zonasDAL.getByTerrenoId(t.id),
-        catalogoDAL.getByProyectoId(t.proyecto_id),
-      ])
-      setZonas(z)
-      setCatalogoCultivos(c)
-
-      const zonaIds = z.map(zona => zona.id)
-      if (zonaIds.length > 0) {
-        const p = await plantasDAL.getByZonaIds(zonaIds)
-        setPlantas(p)
-      }
-    }
-    setLoading(false)
-  }
-
-  useEffect(() => {
-    fetchData()
-  }, [])
 
   const {
     estanques,
     aguaTotalDisponible,
     aguaTotalActual,
     agregarAgua,
-  } = useEstanques(zonas, fetchData)
+  } = useEstanques(zonas, refetch)
 
   const {
     entradas,
     consumoSemanal,
     estadoAgua,
     registrarEntrada,
-  } = useAgua(terreno, zonas, plantas, catalogoCultivos, fetchData)
+  } = useAgua(terreno, zonas, plantas, catalogoCultivos, refetch)
 
   useEffect(() => {
     if (estanques.length === 0) {
@@ -235,7 +205,7 @@ export default function AguaPage() {
             })
 
             emitZonaUpdated(estanqueActual.id)
-            await fetchData()
+            await refetch()
             setShowConfigRecarga(false)
           }}
           onCerrar={() => setShowConfigRecarga(false)}
