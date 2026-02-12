@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useCallback } from 'react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { terrenosDAL, zonasDAL, plantasDAL, transaccionesDAL } from '@/lib/dal'
 import { generateUUID, getCurrentTimestamp } from '@/lib/utils'
 import type { Terreno, UUID } from '@/types'
@@ -38,118 +39,121 @@ interface UseTerrenos {
 }
 
 export function useTerrenos(proyectoId: UUID | null): UseTerrenos {
-  const [terrenos, setTerrenos] = useState<Terreno[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<Error | null>(null)
+  const queryClient = useQueryClient()
 
-  const fetchData = useCallback(async () => {
-    if (!proyectoId) {
-      setTerrenos([])
-      setLoading(false)
-      return
-    }
+  const {
+    data: terrenos = [],
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ['terrenos', proyectoId],
+    queryFn: () => proyectoId ? terrenosDAL.getByProyectoId(proyectoId) : Promise.resolve([]),
+    enabled: !!proyectoId,
+  })
 
-    try {
-      setLoading(true)
-      setError(null)
-      const data = await terrenosDAL.getByProyectoId(proyectoId)
-      setTerrenos(data)
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error('Error cargando terrenos'))
-    } finally {
-      setLoading(false)
-    }
-  }, [proyectoId])
+  const crearTerrenoMutation = useMutation({
+    mutationFn: async (data: {
+      proyecto_id: UUID
+      nombre: string
+      ancho_m: number
+      alto_m: number
+    }): Promise<Terreno> => {
+      const timestamp = getCurrentTimestamp()
+      const nuevoTerreno: Terreno = {
+        id: generateUUID(),
+        proyecto_id: data.proyecto_id,
+        nombre: data.nombre,
+        ancho_m: data.ancho_m,
+        alto_m: data.alto_m,
+        area_m2: data.ancho_m * data.alto_m,
+        agua_disponible_m3: 0,
+        agua_actual_m3: 0,
+        sistema_riego: {
+          litros_hora: 0,
+          descuento_auto: false,
+          ultima_actualizacion: timestamp,
+        },
+        suelo: SUELO_DEFAULT_AZAPA,
+        ultima_simulacion_agua: timestamp,
+        created_at: timestamp,
+        updated_at: timestamp,
+      }
 
-  useEffect(() => {
-    fetchData()
-  }, [fetchData])
+      await terrenosDAL.add(nuevoTerreno)
+      return nuevoTerreno
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['terrenos', proyectoId] })
+    },
+  })
 
-  const crearTerreno = useCallback(async (data: {
-    proyecto_id: UUID
-    nombre: string
-    ancho_m: number
-    alto_m: number
-  }): Promise<Terreno> => {
-    const timestamp = getCurrentTimestamp()
-    const nuevoTerreno: Terreno = {
-      id: generateUUID(),
-      proyecto_id: data.proyecto_id,
-      nombre: data.nombre,
-      ancho_m: data.ancho_m,
-      alto_m: data.alto_m,
-      area_m2: data.ancho_m * data.alto_m,
-      agua_disponible_m3: 0,
-      agua_actual_m3: 0,
-      sistema_riego: {
-        litros_hora: 0,
-        descuento_auto: false,
-        ultima_actualizacion: timestamp,
-      },
-      suelo: SUELO_DEFAULT_AZAPA,
-      ultima_simulacion_agua: timestamp,
-      created_at: timestamp,
-      updated_at: timestamp,
-    }
+  const editarTerrenoMutation = useMutation({
+    mutationFn: async (params: { id: UUID; data: { nombre?: string; ancho_m?: number; alto_m?: number } }): Promise<{ error?: string }> => {
+      const terreno = await terrenosDAL.getById(params.id)
+      if (!terreno) {
+        return { error: 'Terreno no encontrado' }
+      }
 
-    await terrenosDAL.add(nuevoTerreno)
-    await fetchData()
-    return nuevoTerreno
-  }, [fetchData])
+      const nuevoAncho = params.data.ancho_m ?? terreno.ancho_m
+      const nuevoAlto = params.data.alto_m ?? terreno.alto_m
 
-  const editarTerreno = useCallback(async (
-    id: UUID,
-    data: { nombre?: string; ancho_m?: number; alto_m?: number }
-  ): Promise<{ error?: string }> => {
-    const terreno = await terrenosDAL.getById(id)
-    if (!terreno) {
-      return { error: 'Terreno no encontrado' }
-    }
-
-    const nuevoAncho = data.ancho_m ?? terreno.ancho_m
-    const nuevoAlto = data.alto_m ?? terreno.alto_m
-
-    if (data.ancho_m !== undefined || data.alto_m !== undefined) {
-      const zonas = await zonasDAL.getByTerrenoId(id)
-      for (const zona of zonas) {
-        if (zona.x + zona.ancho > nuevoAncho) {
-          return { error: `La zona "${zona.nombre}" excedería el nuevo ancho del terreno` }
-        }
-        if (zona.y + zona.alto > nuevoAlto) {
-          return { error: `La zona "${zona.nombre}" excedería el nuevo alto del terreno` }
+      if (params.data.ancho_m !== undefined || params.data.alto_m !== undefined) {
+        const zonas = await zonasDAL.getByTerrenoId(params.id)
+        for (const zona of zonas) {
+          if (zona.x + zona.ancho > nuevoAncho) {
+            return { error: `La zona "${zona.nombre}" excedería el nuevo ancho del terreno` }
+          }
+          if (zona.y + zona.alto > nuevoAlto) {
+            return { error: `La zona "${zona.nombre}" excedería el nuevo alto del terreno` }
+          }
         }
       }
-    }
 
-    const updates: Partial<Terreno> = {
-      ...data,
-      updated_at: getCurrentTimestamp(),
-    }
+      const updates: Partial<Terreno> = {
+        ...params.data,
+        updated_at: getCurrentTimestamp(),
+      }
 
-    if (data.ancho_m !== undefined || data.alto_m !== undefined) {
-      updates.area_m2 = nuevoAncho * nuevoAlto
-    }
+      if (params.data.ancho_m !== undefined || params.data.alto_m !== undefined) {
+        updates.area_m2 = nuevoAncho * nuevoAlto
+      }
 
-    await terrenosDAL.update(id, updates)
-    await fetchData()
-    return {}
-  }, [fetchData])
+      await terrenosDAL.update(params.id, updates)
+      return {}
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['terrenos', proyectoId] })
+    },
+  })
 
-  const actualizarTerreno = useCallback(async (
-    id: UUID,
-    data: Partial<Terreno>
-  ): Promise<void> => {
-    const updates = {
-      ...data,
-      updated_at: getCurrentTimestamp(),
-    }
-    delete updates.id
-    delete updates.proyecto_id
-    delete updates.created_at
+  const actualizarTerrenoMutation = useMutation({
+    mutationFn: async (params: { id: UUID; data: Partial<Terreno> }) => {
+      const updates = {
+        ...params.data,
+        updated_at: getCurrentTimestamp(),
+      }
+      delete updates.id
+      delete updates.proyecto_id
+      delete updates.created_at
 
-    await terrenosDAL.update(id, updates)
-    await fetchData()
-  }, [fetchData])
+      await terrenosDAL.update(params.id, updates)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['terrenos', proyectoId] })
+    },
+  })
+
+  const eliminarTerrenoMutation = useMutation({
+    mutationFn: async (id: UUID) => {
+      const conteo = await contarContenido(id)
+      await transaccionesDAL.eliminarTerrenoCascade(id)
+      return { eliminados: conteo }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['terrenos', proyectoId] })
+    },
+  })
 
   const contarContenido = useCallback(async (id: UUID): Promise<EliminacionCascada> => {
     const zonas = await zonasDAL.getByTerrenoId(id)
@@ -166,22 +170,15 @@ export function useTerrenos(proyectoId: UUID | null): UseTerrenos {
     }
   }, [])
 
-  const eliminarTerreno = useCallback(async (id: UUID): Promise<{ eliminados: EliminacionCascada }> => {
-    const conteo = await contarContenido(id)
-    await transaccionesDAL.eliminarTerrenoCascade(id)
-    await fetchData()
-    return { eliminados: conteo }
-  }, [fetchData, contarContenido])
-
   return {
     terrenos,
-    loading,
-    error,
-    refetch: fetchData,
-    crearTerreno,
-    editarTerreno,
-    actualizarTerreno,
-    eliminarTerreno,
+    loading: isLoading,
+    error: error instanceof Error ? error : null,
+    refetch: () => refetch().then(() => Promise.resolve()),
+    crearTerreno: (data) => crearTerrenoMutation.mutateAsync(data),
+    editarTerreno: (id, data) => editarTerrenoMutation.mutateAsync({ id, data }),
+    actualizarTerreno: (id, data) => actualizarTerrenoMutation.mutateAsync({ id, data }),
+    eliminarTerreno: (id) => eliminarTerrenoMutation.mutateAsync(id),
     contarContenido,
   }
 }

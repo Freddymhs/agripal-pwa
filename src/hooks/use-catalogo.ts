@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useCallback } from 'react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { catalogoDAL, transaccionesDAL } from '@/lib/dal'
 import { generateUUID, getCurrentTimestamp } from '@/lib/utils'
 import { CULTIVOS_ARICA } from '@/lib/data/cultivos-arica'
@@ -18,82 +19,82 @@ interface UseCatalogo {
 }
 
 export function useCatalogo(proyectoId: UUID | null): UseCatalogo {
-  const [cultivos, setCultivos] = useState<CatalogoCultivo[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<Error | null>(null)
+  const queryClient = useQueryClient()
 
-  useEffect(() => {
-    async function cargar() {
+  const {
+    data: cultivos = [],
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ['catalogo', proyectoId],
+    queryFn: async () => {
+      if (!proyectoId) return []
+
+      const data = await catalogoDAL.getByProyectoId(proyectoId)
+
+      if (data.length === 0) {
+        const timestamp = getCurrentTimestamp()
+        const cultivosIniciales: CatalogoCultivo[] = CULTIVOS_ARICA.map(cultivo => {
+          const { id, proyecto_id, created_at, updated_at, ...cultivoData } = cultivo as CatalogoCultivo & { proyecto_id?: string }
+          return {
+            ...cultivoData,
+            id: generateUUID(),
+            proyecto_id: proyectoId,
+            created_at: timestamp,
+            updated_at: timestamp,
+          } as CatalogoCultivo
+        })
+        await transaccionesDAL.seedCatalogo(cultivosIniciales)
+        return cultivosIniciales
+      }
+
+      return data
+    },
+    enabled: !!proyectoId,
+  })
+
+  const agregarCultivoMutation = useMutation({
+    mutationFn: async (data: Omit<CatalogoCultivo, 'id' | 'proyecto_id' | 'created_at' | 'updated_at'>) => {
       if (!proyectoId) {
-        setCultivos([])
-        setLoading(false)
-        return
+        throw new Error('No hay proyecto seleccionado')
       }
 
-      try {
-        setLoading(true)
-        const data = await catalogoDAL.getByProyectoId(proyectoId)
-
-        if (data.length === 0) {
-          const timestamp = getCurrentTimestamp()
-          const cultivosIniciales: CatalogoCultivo[] = CULTIVOS_ARICA.map(cultivo => {
-            const { id, proyecto_id, created_at, updated_at, ...cultivoData } = cultivo as CatalogoCultivo & { proyecto_id?: string }
-            return {
-              ...cultivoData,
-              id: generateUUID(),
-              proyecto_id: proyectoId,
-              created_at: timestamp,
-              updated_at: timestamp,
-            } as CatalogoCultivo
-          })
-          await transaccionesDAL.seedCatalogo(cultivosIniciales)
-          setCultivos(cultivosIniciales)
-        } else {
-          setCultivos(data)
-        }
-      } catch (err) {
-        setError(err instanceof Error ? err : new Error('Error al cargar catálogo'))
-      } finally {
-        setLoading(false)
+      const nuevo: CatalogoCultivo = {
+        ...data,
+        id: generateUUID(),
+        proyecto_id: proyectoId,
+        created_at: getCurrentTimestamp(),
+        updated_at: getCurrentTimestamp(),
       }
-    }
-    cargar()
-  }, [proyectoId])
 
-  const agregarCultivo = useCallback(async (
-    data: Omit<CatalogoCultivo, 'id' | 'proyecto_id' | 'created_at' | 'updated_at'>
-  ) => {
-    if (!proyectoId) {
-      throw new Error('No hay proyecto seleccionado')
-    }
+      await catalogoDAL.add(nuevo)
+      return nuevo
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['catalogo', proyectoId] })
+    },
+  })
 
-    const nuevo: CatalogoCultivo = {
-      ...data,
-      id: generateUUID(),
-      proyecto_id: proyectoId,
-      created_at: getCurrentTimestamp(),
-      updated_at: getCurrentTimestamp(),
-    }
+  const actualizarCultivoMutation = useMutation({
+    mutationFn: async (params: { id: UUID; cambios: Partial<CatalogoCultivo> }) => {
+      await catalogoDAL.update(params.id, {
+        ...params.cambios,
+        updated_at: getCurrentTimestamp(),
+      })
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['catalogo', proyectoId] })
+    },
+  })
 
-    await catalogoDAL.add(nuevo)
-    setCultivos(prev => [...prev, nuevo])
-    return nuevo
-  }, [proyectoId])
-
-  const actualizarCultivo = useCallback(async (id: UUID, cambios: Partial<CatalogoCultivo>) => {
-    await catalogoDAL.update(id, {
-      ...cambios,
-      updated_at: getCurrentTimestamp(),
-    })
-    setCultivos(prev => prev.map(c =>
-      c.id === id ? { ...c, ...cambios, updated_at: getCurrentTimestamp() } : c
-    ))
-  }, [])
-
-  const eliminarCultivo = useCallback(async (id: UUID) => {
-    await catalogoDAL.delete(id)
-    setCultivos(prev => prev.filter(c => c.id !== id))
-  }, [])
+  const eliminarCultivoMutation = useMutation({
+    mutationFn: async (id: UUID) => {
+      await catalogoDAL.delete(id)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['catalogo', proyectoId] })
+    },
+  })
 
   const obtenerCultivo = useCallback((id: UUID) => {
     return cultivos.find(c => c.id === id)
@@ -101,11 +102,11 @@ export function useCatalogo(proyectoId: UUID | null): UseCatalogo {
 
   return {
     cultivos,
-    loading,
-    error,
-    agregarCultivo,
-    actualizarCultivo,
-    eliminarCultivo,
+    loading: isLoading,
+    error: error instanceof Error ? error : null,
+    agregarCultivo: (data) => agregarCultivoMutation.mutateAsync(data),
+    actualizarCultivo: (id, cambios) => actualizarCultivoMutation.mutateAsync({ id, cambios }),
+    eliminarCultivo: (id) => eliminarCultivoMutation.mutateAsync(id),
     obtenerCultivo,
   }
 }

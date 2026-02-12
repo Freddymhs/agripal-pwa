@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useCallback } from 'react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { proyectosDAL, terrenosDAL, zonasDAL, plantasDAL, catalogoDAL, transaccionesDAL } from '@/lib/dal'
 import { generateUUID, getCurrentTimestamp } from '@/lib/utils'
 import { CULTIVOS_ARICA } from '@/lib/data/cultivos-arica'
@@ -28,65 +29,77 @@ interface UseProyectos {
 const USUARIO_ID = 'usuario-demo'
 
 export function useProyectos(): UseProyectos {
-  const [proyectos, setProyectos] = useState<Proyecto[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<Error | null>(null)
+  const queryClient = useQueryClient()
 
-  const fetchData = useCallback(async () => {
-    try {
-      setLoading(true)
-      setError(null)
-      const data = await proyectosDAL.getByUsuarioId(USUARIO_ID)
-      setProyectos(data)
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error('Error cargando proyectos'))
-    } finally {
-      setLoading(false)
-    }
-  }, [])
+  // Query para obtener proyectos
+  const {
+    data: proyectos = [],
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ['proyectos', USUARIO_ID],
+    queryFn: () => proyectosDAL.getByUsuarioId(USUARIO_ID),
+  })
 
-  useEffect(() => {
-    fetchData()
-  }, [fetchData])
-
-  const crearProyecto = useCallback(async (data: { nombre: string; ubicacion: string }): Promise<Proyecto> => {
-    const timestamp = getCurrentTimestamp()
-    const nuevoProyecto: Proyecto = {
-      id: generateUUID(),
-      usuario_id: USUARIO_ID,
-      nombre: data.nombre,
-      ubicacion_referencia: data.ubicacion,
-      created_at: timestamp,
-      updated_at: timestamp,
-    }
-
-    const cultivosIniciales = CULTIVOS_ARICA.map(cultivo => {
-      const { id, proyecto_id, created_at, updated_at, ...cultivoData } = cultivo as CatalogoCultivo & { proyecto_id?: string }
-      return {
-        ...cultivoData,
+  // Mutation para crear proyecto
+  const crearProyectoMutation = useMutation({
+    mutationFn: async (data: { nombre: string; ubicacion: string }) => {
+      const timestamp = getCurrentTimestamp()
+      const nuevoProyecto: Proyecto = {
         id: generateUUID(),
-        proyecto_id: nuevoProyecto.id,
+        usuario_id: USUARIO_ID,
+        nombre: data.nombre,
+        ubicacion_referencia: data.ubicacion,
         created_at: timestamp,
         updated_at: timestamp,
-      } as CatalogoCultivo
-    })
-    await transaccionesDAL.crearProyectoConCatalogo(nuevoProyecto, cultivosIniciales)
+      }
 
-    await fetchData()
-    return nuevoProyecto
-  }, [fetchData])
+      const cultivosIniciales = CULTIVOS_ARICA.map(cultivo => {
+        const { id, proyecto_id, created_at, updated_at, ...cultivoData } = cultivo as CatalogoCultivo & { proyecto_id?: string }
+        return {
+          ...cultivoData,
+          id: generateUUID(),
+          proyecto_id: nuevoProyecto.id,
+          created_at: timestamp,
+          updated_at: timestamp,
+        } as CatalogoCultivo
+      })
 
-  const editarProyecto = useCallback(async (
-    id: UUID,
-    data: { nombre?: string; ubicacion_referencia?: string }
-  ): Promise<void> => {
-    await proyectosDAL.update(id, {
-      ...data,
-      updated_at: getCurrentTimestamp(),
-    })
-    await fetchData()
-  }, [fetchData])
+      await transaccionesDAL.crearProyectoConCatalogo(nuevoProyecto, cultivosIniciales)
+      return nuevoProyecto
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['proyectos', USUARIO_ID] })
+    },
+  })
 
+  // Mutation para editar proyecto
+  const editarProyectoMutation = useMutation({
+    mutationFn: async (params: { id: UUID; data: { nombre?: string; ubicacion_referencia?: string } }) => {
+      await proyectosDAL.update(params.id, {
+        ...params.data,
+        updated_at: getCurrentTimestamp(),
+      })
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['proyectos', USUARIO_ID] })
+    },
+  })
+
+  // Mutation para eliminar proyecto
+  const eliminarProyectoMutation = useMutation({
+    mutationFn: async (id: UUID) => {
+      const conteo = await contarContenido(id)
+      await transaccionesDAL.eliminarProyectoCascade(id)
+      return { eliminados: conteo }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['proyectos', USUARIO_ID] })
+    },
+  })
+
+  // Función auxiliar para contar contenido
   const contarContenido = useCallback(async (id: UUID): Promise<EliminacionCascada> => {
     const terrenos = await terrenosDAL.getByProyectoId(id)
     const terrenoIds = terrenos.map(t => t.id)
@@ -114,21 +127,15 @@ export function useProyectos(): UseProyectos {
     }
   }, [])
 
-  const eliminarProyecto = useCallback(async (id: UUID): Promise<{ eliminados: EliminacionCascada }> => {
-    const conteo = await contarContenido(id)
-    await transaccionesDAL.eliminarProyectoCascade(id)
-    await fetchData()
-    return { eliminados: conteo }
-  }, [fetchData, contarContenido])
-
   return {
     proyectos,
-    loading,
-    error,
-    refetch: fetchData,
-    crearProyecto,
-    editarProyecto,
-    eliminarProyecto,
+    loading: isLoading,
+    error: error instanceof Error ? error : null,
+    refetch: () => refetch().then(() => Promise.resolve()),
+
+    crearProyecto: (data) => crearProyectoMutation.mutateAsync(data),
+    editarProyecto: (id, data) => editarProyectoMutation.mutateAsync({ id, data }),
+    eliminarProyecto: (id) => eliminarProyectoMutation.mutateAsync(id),
     contarContenido,
   }
 }
