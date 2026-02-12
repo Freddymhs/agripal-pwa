@@ -20,22 +20,6 @@ antes de llamar al DAL, o si hay writes sin validar"
 
 ---
 
-6. DAL Transaccional
-
-"Team de 2: uno que revise todos los archivos en src/lib/dal/
-verificando si las operaciones multi-tabla (ej: eliminar zona +
-sus plantas) usan transacciones Dexie o pueden quedar en estado
-inconsistente; otro que busque en los hooks todos los patrones
-de 'múltiples awaits secuenciales al DAL' que deberían ser
-atómicos"
-
-- Archivos: src/lib/dal/\*.ts, src/hooks/use-zonas.ts (cascade
-  delete), use-plantas.ts
-- Resultado: Mapa de operaciones que necesitan transacciones
-  Dexie.
-
----
-
 7. Test Foundation
 
 "Crea un team de 2: un teammate que diseñe la configuración

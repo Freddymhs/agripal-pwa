@@ -120,4 +120,13 @@ export const transaccionesDAL = {
         await db.alertas.add(n)
       }
     }),
+
+  eliminarPlantasMuertas: (zonaId: string) =>
+    db.transaction('rw', db.plantas, async () => {
+      await db.plantas
+        .where('zona_id')
+        .equals(zonaId)
+        .filter((p) => p.estado === 'muerta')
+        .delete()
+    }),
 }

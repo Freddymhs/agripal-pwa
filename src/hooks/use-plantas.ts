@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback } from "react";
-import { plantasDAL } from "@/lib/dal";
+import { plantasDAL, transaccionesDAL } from "@/lib/dal";
 import { generateUUID, getCurrentTimestamp } from "@/lib/utils";
 import {
   validarNuevaPlanta,
@@ -223,13 +223,9 @@ export function usePlantas(onRefetch: () => void): UsePlantas {
   const eliminarPlantasMuertas = useCallback(
     async (zonaId: UUID) => {
       try {
-        const muertas = await plantasDAL.getByZonaIdFiltered(
-          zonaId,
-          (p) => p.estado === "muerta",
-        );
-        await plantasDAL.bulkDelete(muertas.map((p) => p.id));
+        await transaccionesDAL.eliminarPlantasMuertas(zonaId);
         onRefetch();
-        return muertas.length;
+        return 0;
       } catch (err) {
         console.error("Error eliminando plantas muertas:", err);
         throw err;
