@@ -6,6 +6,7 @@ import { terrenosDAL, zonasDAL, plantasDAL, transaccionesDAL } from '@/lib/dal'
 import { generateUUID, getCurrentTimestamp } from '@/lib/utils'
 import type { Terreno, UUID } from '@/types'
 import { SUELO_DEFAULT_AZAPA } from '@/lib/data'
+import { QUERY_KEYS } from '@/lib/constants/query-keys'
 
 interface EliminacionCascada {
   zonas: number
@@ -47,8 +48,8 @@ export function useTerrenos(proyectoId: UUID | null): UseTerrenos {
     error,
     refetch,
   } = useQuery({
-    queryKey: ['terrenos', proyectoId],
-    queryFn: () => proyectoId ? terrenosDAL.getByProyectoId(proyectoId) : Promise.resolve([]),
+    queryKey: QUERY_KEYS.terrenos(proyectoId!),
+    queryFn: async () => proyectoId ? await terrenosDAL.getByProyectoId(proyectoId) : [],
     enabled: !!proyectoId,
   })
 
@@ -84,7 +85,7 @@ export function useTerrenos(proyectoId: UUID | null): UseTerrenos {
       return nuevoTerreno
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['terrenos', proyectoId] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.terrenos(proyectoId!) })
     },
   })
 
@@ -123,7 +124,7 @@ export function useTerrenos(proyectoId: UUID | null): UseTerrenos {
       return {}
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['terrenos', proyectoId] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.terrenos(proyectoId!) })
     },
   })
 
@@ -140,7 +141,7 @@ export function useTerrenos(proyectoId: UUID | null): UseTerrenos {
       await terrenosDAL.update(params.id, updates)
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['terrenos', proyectoId] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.terrenos(proyectoId!) })
     },
   })
 
@@ -151,7 +152,7 @@ export function useTerrenos(proyectoId: UUID | null): UseTerrenos {
       return { eliminados: conteo }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['terrenos', proyectoId] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.terrenos(proyectoId!) })
     },
   })
 
@@ -159,10 +160,9 @@ export function useTerrenos(proyectoId: UUID | null): UseTerrenos {
     const zonas = await zonasDAL.getByTerrenoId(id)
     const zonaIds = zonas.map(z => z.id)
 
-    let plantasCount = 0
-    if (zonaIds.length > 0) {
-      plantasCount = await plantasDAL.countByZonaIds(zonaIds)
-    }
+    const plantasCount = zonaIds.length > 0
+      ? await plantasDAL.countByZonaIds(zonaIds)
+      : 0
 
     return {
       zonas: zonas.length,

@@ -1,10 +1,12 @@
-import type { Terreno, Zona, Planta, CatalogoCultivo } from "@/types";
-import type { Temporada } from "@/types";
+import type { Terreno, Zona, Planta, CatalogoCultivo, Temporada } from "@/types";
+import { ESTADO_PLANTA, TEMPORADA } from "@/lib/constants/entities";
 import { calcularConsumoTerreno, calcularStockEstanques } from "./agua";
 import { obtenerCostoAguaPromedio } from "./roi";
 import { getDiasTotalesCultivo } from "@/lib/data/duracion-etapas";
 import { addMonths, addDays, format, getMonth } from "date-fns";
 import { es } from "date-fns/locale";
+import { SEMANAS_POR_MES, DIAS_LAVADO_SALINO } from "@/lib/constants/conversiones";
+import { filtrarEstanques, obtenerStockAgua } from "@/lib/utils/helpers-cultivo";
 
 export interface ProyeccionMensual {
   mes: number;
@@ -37,10 +39,10 @@ export interface ProyeccionAnual {
 }
 
 function getTemporadaPorMes(mes: number): Temporada {
-  if (mes >= 11 || mes <= 1) return "verano";
-  if (mes >= 2 && mes <= 4) return "otoño";
-  if (mes >= 5 && mes <= 7) return "invierno";
-  return "primavera";
+  if (mes >= 11 || mes <= 1) return TEMPORADA.VERANO;
+  if (mes >= 2 && mes <= 4) return TEMPORADA.OTOÑO;
+  if (mes >= 5 && mes <= 7) return TEMPORADA.INVIERNO;
+  return TEMPORADA.PRIMAVERA;
 }
 
 export function generarProyeccionAnual(
@@ -53,11 +55,9 @@ export function generarProyeccionAnual(
   const meses: ProyeccionMensual[] = [];
   const eventos: EventoFuturo[] = [];
 
-  const estanques = zonas.filter(
-    (z) => z.tipo === "estanque" && z.estanque_config,
-  );
+  const estanques = filtrarEstanques(zonas);
   const { aguaTotal } = calcularStockEstanques(estanques);
-  let nivelActual = estanques.length > 0 ? aguaTotal : terreno.agua_actual_m3;
+  let nivelActual = obtenerStockAgua(estanques, terreno.agua_actual_m3, aguaTotal);
   let consumoTotalAnual = 0;
   let recargasTotales = 0;
   let mesesDeficit = 0;
@@ -71,7 +71,7 @@ export function generarProyeccionAnual(
 
     const consumoSemanal =
       calcularConsumoTerreno(zonas, plantas, catalogoCultivos, temporada) || 0;
-    const consumoMensual = (isNaN(consumoSemanal) ? 0 : consumoSemanal) * 4.33;
+    const consumoMensual = (isNaN(consumoSemanal) ? 0 : consumoSemanal) * SEMANAS_POR_MES;
 
     let recargasMes = 0;
     for (const est of estanques) {
@@ -140,7 +140,7 @@ export function generarProyeccionAnual(
   }
 
   for (const planta of plantas) {
-    if (planta.estado === "muerta" || !planta.fecha_plantacion) continue;
+    if (planta.estado === ESTADO_PLANTA.MUERTA || !planta.fecha_plantacion) continue;
 
     const cultivo = catalogoCultivos.find(
       (c) => c.id === planta.tipo_cultivo_id,
@@ -178,7 +178,7 @@ export function generarProyeccionAnual(
   for (const est of estanques) {
     if (!est.estanque_config?.recarga?.ultima_recarga) continue;
     const ultimaRecarga = new Date(est.estanque_config.recarga.ultima_recarga);
-    let fechaLavado = addDays(ultimaRecarga, 30);
+    let fechaLavado = addDays(ultimaRecarga, DIAS_LAVADO_SALINO);
     const finProyeccion = addMonths(hoy, 12);
 
     while (fechaLavado < finProyeccion) {
@@ -190,7 +190,7 @@ export function generarProyeccionAnual(
           descripcion: "Riego extra 20% para lixiviar sales",
         });
       }
-      fechaLavado = addDays(fechaLavado, 30);
+      fechaLavado = addDays(fechaLavado, DIAS_LAVADO_SALINO);
     }
   }
 

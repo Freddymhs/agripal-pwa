@@ -1,4 +1,5 @@
 import type { Temporada } from '@/types'
+import { TEMPORADA } from '@/lib/constants/entities'
 import climaData from '../../../data/static/clima/arica.json'
 import etoData from '../../../data/static/clima/evapotranspiracion-arica.json'
 
@@ -55,10 +56,10 @@ export const CLIMA_ARICA: DatosClimaticos = climaData as DatosClimaticos
 
 export function getTemporadaActual(): Temporada {
   const mes = new Date().getMonth()
-  if (mes === 11 || mes === 0 || mes === 1) return 'verano'
-  if (mes >= 2 && mes <= 4) return 'otoño'
-  if (mes >= 5 && mes <= 7) return 'invierno'
-  return 'primavera'
+  if (mes === 11 || mes === 0 || mes === 1) return TEMPORADA.VERANO
+  if (mes >= 2 && mes <= 4) return TEMPORADA.OTOÑO
+  if (mes >= 5 && mes <= 7) return TEMPORADA.INVIERNO
+  return TEMPORADA.PRIMAVERA
 }
 
 export interface EtoMensual {

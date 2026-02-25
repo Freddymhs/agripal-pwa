@@ -1,6 +1,7 @@
 'use client'
 
 import type { DashboardTerreno } from '@/types'
+import { ESTADO_AGUA } from '@/lib/constants/entities'
 
 interface TerrenoDashboardProps {
   dashboard: DashboardTerreno
@@ -20,7 +21,7 @@ export function TerrenoDashboard({ dashboard }: TerrenoDashboardProps) {
           label="Agua disponible"
           value={`${dashboard.agua_disponible_m3.toFixed(1)} m³`}
           detail={`Consumo: ${dashboard.agua_necesaria_m3.toFixed(1)} m³/sem`}
-          color={dashboard.estado_agua === 'ok' ? 'green' : dashboard.estado_agua === 'ajustado' ? 'yellow' : 'red'}
+          color={dashboard.estado_agua === ESTADO_AGUA.OK ? 'green' : dashboard.estado_agua === ESTADO_AGUA.AJUSTADO ? 'yellow' : 'red'}
         />
         <MetricaCard
           label="Días de agua"

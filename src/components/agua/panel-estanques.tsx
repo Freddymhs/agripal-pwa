@@ -1,6 +1,7 @@
 'use client'
 
 import type { Zona, UUID } from '@/types'
+import { clamp } from '@/lib/utils/math'
 
 interface PanelEstanquesProps {
   estanques: Zona[]
@@ -39,7 +40,7 @@ export function PanelEstanques({
         <div className="h-3 bg-cyan-200 rounded-full overflow-hidden">
           <div
             className="h-full bg-cyan-600 transition-all"
-            style={{ width: `${Math.min(100, porcentajeTotal)}%` }}
+            style={{ width: `${clamp(porcentajeTotal, 0, 100)}%` }}
           />
         </div>
         <div className="text-center text-xs text-cyan-600 mt-1">
@@ -68,7 +69,7 @@ export function PanelEstanques({
               <div className="h-2 bg-gray-200 rounded-full overflow-hidden mb-1">
                 <div
                   className="h-full bg-cyan-500 transition-all"
-                  style={{ width: `${Math.min(100, porcentaje)}%` }}
+                  style={{ width: `${clamp(porcentaje, 0, 100)}%` }}
                 />
               </div>
 

@@ -1,6 +1,7 @@
 'use client'
 
 import type { Alerta, UUID } from '@/types'
+import { SEVERIDAD_CONFIG } from '@/lib/constants/alertas'
 
 interface AlertasListProps {
   alertas: Alerta[]
@@ -45,28 +46,7 @@ function AlertaCard({
   onResolver: (id: UUID, como: string) => void
   onIgnorar: (id: UUID) => void
 }) {
-  const severidadConfig = {
-    critical: {
-      bg: 'bg-red-50',
-      border: 'border-red-200',
-      icon: '🚨',
-      color: 'text-red-800',
-    },
-    warning: {
-      bg: 'bg-yellow-50',
-      border: 'border-yellow-200',
-      icon: '⚠️',
-      color: 'text-yellow-800',
-    },
-    info: {
-      bg: 'bg-blue-50',
-      border: 'border-blue-200',
-      icon: 'ℹ️',
-      color: 'text-blue-800',
-    },
-  }
-
-  const config = severidadConfig[alerta.severidad]
+  const config = SEVERIDAD_CONFIG[alerta.severidad]
 
   return (
     <div className={`${config.bg} ${config.border} border rounded-lg p-4`}>

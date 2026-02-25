@@ -6,6 +6,7 @@ import { zonasDAL } from '@/lib/dal'
 import { useTerrainData } from '@/hooks/use-terrain-data'
 import { useEstanques } from '@/hooks/use-estanques'
 import { useAgua } from '@/hooks/use-agua'
+import { logger } from '@/lib/logger'
 import { PageLayout } from '@/components/layout'
 import {
   PanelEstanques,
@@ -18,6 +19,7 @@ import { addDays } from 'date-fns'
 import { getCurrentTimestamp } from '@/lib/utils'
 import { emitZonaUpdated } from '@/lib/events/zona-events'
 import type { Terreno, Zona, Planta, CatalogoCultivo } from '@/types'
+import { TIPO_ZONA } from '@/lib/constants/entities'
 
 export default function AguaPage() {
   const { terreno, zonas, plantas, catalogoCultivos, loading, refetch } = useTerrainData()
@@ -103,7 +105,7 @@ export default function AguaPage() {
           configRecarga={estanqueActual?.estanque_config?.recarga}
         />
 
-{zonas.some(z => z.tipo === 'estanque' && !z.estanque_config) && (
+{zonas.some(z => z.tipo === TIPO_ZONA.ESTANQUE && !z.estanque_config) && (
           <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
             <p className="text-sm text-yellow-800">
               ⚠️ Detectamos zonas marcadas como &quot;estanque&quot; pero sin configuración.
@@ -188,6 +190,16 @@ export default function AguaPage() {
           estanque={estanqueActual}
           onGuardar={async (config) => {
             if (!estanqueActual?.estanque_config) return
+
+            if (typeof config.frecuencia_dias !== 'number' || config.frecuencia_dias <= 0) {
+              logger.error('Validación recarga fallida: frecuencia_dias debe ser mayor a 0')
+              return
+            }
+            if (typeof config.cantidad_litros !== 'number' || config.cantidad_litros <= 0) {
+              logger.error('Validación recarga fallida: cantidad_litros debe ser mayor a 0')
+              return
+            }
+
             const now = getCurrentTimestamp()
             const proximaRecarga = addDays(new Date(), config.frecuencia_dias).toISOString()
 

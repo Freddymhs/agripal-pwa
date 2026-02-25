@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import Link from 'next/link'
+import { useProjectContext } from '@/contexts/project-context'
 import {
   FormularioCalidadAgua,
   ProveedoresAgua,
@@ -25,6 +26,7 @@ const TABS: { id: TabId; label: string }[] = [
 ]
 
 export default function AguaConfiguracionPage() {
+  const { terrenoActual } = useProjectContext()
   const [activeTab, setActiveTab] = useState<TabId>('calidad')
 
   const [calidad, setCalidad] = useState<CalidadAguaTerreno>({})
@@ -35,6 +37,11 @@ export default function AguaConfiguracionPage() {
     plan_si_no_llega: [],
   })
   const [tecnicas, setTecnicas] = useState<TecnicasAhorroAgua>({})
+
+  const aguaActualPct = useMemo(() => {
+    if (!terrenoActual || terrenoActual.agua_disponible_m3 <= 0) return 100
+    return (terrenoActual.agua_actual_m3 / terrenoActual.agua_disponible_m3) * 100
+  }, [terrenoActual])
 
   const handleCalidadChange = useCallback((c: CalidadAguaTerreno) => {
     setCalidad(c)
@@ -93,7 +100,7 @@ export default function AguaConfiguracionPage() {
             <ContingenciasAguaPanel
               contingencias={contingencias}
               proveedores={proveedores}
-              aguaActualPct={75}
+              aguaActualPct={aguaActualPct}
               onChange={setContingencias}
             />
           )}

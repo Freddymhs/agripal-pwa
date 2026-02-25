@@ -1,49 +1,12 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { terrenosDAL, zonasDAL, catalogoDAL, plantasDAL } from '@/lib/dal'
-import { useAlertas } from '@/hooks/use-alertas'
+import { useProjectContext } from '@/contexts/project-context'
 import { AlertasList } from '@/components/alertas/alertas-list'
-import type { Terreno, Zona, Planta, CatalogoCultivo } from '@/types'
 
 export default function AlertasPage() {
   const router = useRouter()
-  const [terreno, setTerreno] = useState<Terreno | null>(null)
-  const [zonas, setZonas] = useState<Zona[]>([])
-  const [plantas, setPlantas] = useState<Planta[]>([])
-  const [catalogoCultivos, setCatalogoCultivos] = useState<CatalogoCultivo[]>([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    async function cargar() {
-      const terrenoId = localStorage.getItem('terreno_actual')
-      if (!terrenoId) {
-        router.push('/')
-        return
-      }
-
-      const t = await terrenosDAL.getById(terrenoId)
-      if (!t) {
-        router.push('/')
-        return
-      }
-
-      const [z, p, c] = await Promise.all([
-        zonasDAL.getByTerrenoId(terrenoId),
-        plantasDAL.getAll(),
-        catalogoDAL.getByProyectoId(t.proyecto_id),
-      ])
-
-      setTerreno(t)
-      setZonas(z)
-      setPlantas(p)
-      setCatalogoCultivos(c)
-      setLoading(false)
-    }
-
-    cargar()
-  }, [router])
+  const { terrenoActual, loading, alertasHook } = useProjectContext()
 
   const {
     alertas,
@@ -51,9 +14,9 @@ export default function AlertasPage() {
     loading: alertasLoading,
     resolverAlerta,
     ignorarAlerta,
-  } = useAlertas(terreno, zonas, plantas, catalogoCultivos)
+  } = alertasHook
 
-  if (loading || alertasLoading) {
+  if (loading || alertasLoading || !terrenoActual) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-gray-500">Cargando alertas...</div>

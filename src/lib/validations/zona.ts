@@ -1,9 +1,7 @@
 import type { Zona, Terreno, Planta } from '@/types'
+import type { ValidationResult } from './types'
 
-export interface ValidationResult {
-  valida: boolean
-  error?: string
-}
+export type { ValidationResult }
 
 export function zonasSeSuperponen(
   zona1: { x: number; y: number; ancho: number; alto: number },

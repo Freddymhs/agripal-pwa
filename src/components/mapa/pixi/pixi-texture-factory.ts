@@ -1,4 +1,5 @@
 import { Graphics, Texture, type Renderer } from "pixi.js";
+import { ESTADO_PLANTA } from "@/lib/constants/entities";
 
 export class PixiTextureFactory {
   private textures: Map<string, Texture> = new Map();
@@ -58,9 +59,9 @@ export class PixiTextureFactory {
   }
 
   getTexture(estado: string, isSelected: boolean): Texture {
-    if (estado === "muerta" && isSelected)
+    if (estado === ESTADO_PLANTA.MUERTA && isSelected)
       return this.textures.get("muerta-selected")!;
-    if (estado === "muerta") return this.textures.get("muerta")!;
+    if (estado === ESTADO_PLANTA.MUERTA) return this.textures.get("muerta")!;
     if (isSelected) return this.textures.get("selected")!;
     return this.textures.get("normal")!;
   }

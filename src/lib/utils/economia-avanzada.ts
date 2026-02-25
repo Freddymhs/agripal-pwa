@@ -1,5 +1,7 @@
 import type { CatalogoCultivo } from '@/types'
 import type { ProyeccionROI } from './roi'
+import { COSTO_VARIABLE_FACTOR, COSTO_VARIABLE_FALLBACK_FACTOR } from '@/lib/constants/conversiones'
+import { calcularPrecioKgPromedio } from '@/lib/utils/helpers-cultivo'
 
 export interface MetricasEconomicas {
   costoProduccionKg: number
@@ -17,10 +19,10 @@ export function calcularMetricasEconomicas(
   kgProducidosAño: number
 ): MetricasEconomicas {
   const costoTotalAnual = roi.costo_agua_anual
-  const precioVenta = (cultivo.precio_kg_min_clp + cultivo.precio_kg_max_clp) / 2
+  const precioVenta = calcularPrecioKgPromedio(cultivo)
   const costoVariable = cultivo.costo_variable_kg ?? (costoTotalAnual > 0 && kgProducidosAño > 0
-    ? (costoTotalAnual / kgProducidosAño) * 0.6
-    : precioVenta * 0.4)
+    ? (costoTotalAnual / kgProducidosAño) * COSTO_VARIABLE_FACTOR
+    : precioVenta * COSTO_VARIABLE_FALLBACK_FACTOR)
 
   const costoProduccionKg = kgProducidosAño > 0
     ? costoTotalAnual / kgProducidosAño

@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger'
 import { getCurrentTimestamp } from '@/lib/utils'
 import { db } from '@/lib/db'
 import {
@@ -13,7 +14,7 @@ import {
 } from './queue'
 import type { SyncAdapter } from './types'
 import type { SyncItem } from '@/types'
-import { SYNC_ENTIDADES } from '@/types'
+import { SYNC_ENTIDADES } from '@/lib/constants/sync'
 
 const SYNC_TIMEOUT_MS = 30_000
 const PULL_TIMEOUT_MS = 60_000
@@ -66,7 +67,7 @@ export async function ejecutarSync(): Promise<SyncResult> {
   const adapter = adapterRef.current
 
   if (!adapter) {
-    console.warn('No sync adapter configured')
+    logger.warn('No sync adapter configured')
     return result
   }
 
@@ -97,13 +98,13 @@ async function ejecutarSyncInternal(adapter: SyncAdapter, result: SyncResult): P
     const pullResult = await pullChanges(adapter)
     result.pulled = pullResult.count
   } catch (error) {
-    console.error('Error en sync engine:', error)
+    logger.error('Error en sync engine', { error })
   }
 
   try {
     await limpiarColaAntigua()
   } catch (cleanupError) {
-    console.error('Error en limpieza de cola:', cleanupError)
+    logger.error('Error en limpieza de cola', { error: cleanupError })
   }
 
   return result
@@ -235,7 +236,7 @@ async function pullChanges(adapter: SyncAdapter): Promise<{ count: number }> {
         }
       }
     } catch (error) {
-      console.error(`Error pulling ${entidad}:`, error)
+      logger.error(`Error pulling ${entidad}`, { error: error instanceof Error ? { message: error.message } : { error } })
       allSuccess = false
     }
   }

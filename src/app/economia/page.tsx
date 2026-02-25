@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { PageLayout } from "@/components/layout";
 import { useTerrainData } from "@/hooks/use-terrain-data";
+import { ESTADO_PLANTA, TIPO_ZONA } from "@/lib/constants/entities";
+import { filtrarEstanques } from "@/lib/utils/helpers-cultivo";
 import {
   calcularROI,
   obtenerCostoAguaPromedio,
@@ -11,10 +13,7 @@ import {
 } from "@/lib/utils/roi";
 import { calcularConsumoZona } from "@/lib/utils/agua";
 import type { CatalogoCultivo } from "@/types";
-
-function formatCLP(n: number): string {
-  return "$" + Math.round(n).toLocaleString("es-CL");
-}
+import { formatCLP } from "@/lib/utils";
 
 interface ResumenCultivo {
   cultivoId: string;
@@ -33,17 +32,15 @@ export default function EconomiaPage() {
   useEffect(() => {
     if (!terreno || zonas.length === 0) return;
 
-    const estanques = zonas.filter(
-      (z) => z.tipo === "estanque" && z.estanque_config,
-    );
+    const estanques = filtrarEstanques(zonas);
     const costoAguaM3 = obtenerCostoAguaPromedio(estanques, terreno);
 
-    const zonasConCultivo = zonas.filter((z) => z.tipo === "cultivo");
+    const zonasConCultivo = zonas.filter((z) => z.tipo === TIPO_ZONA.CULTIVO);
     const resumenCalculado: ResumenCultivo[] = [];
 
     for (const zona of zonasConCultivo) {
       const plantasZona = plantas.filter(
-        (p) => p.zona_id === zona.id && p.estado !== "muerta",
+        (p) => p.zona_id === zona.id && p.estado !== ESTADO_PLANTA.MUERTA,
       );
       if (plantasZona.length === 0) continue;
 

@@ -1,17 +1,9 @@
 import type { Planta, Zona, CatalogoCultivo, EstadoPlanta, EtapaCrecimiento } from '@/types'
+import { ESTADOS_PLANTA_LIST, ETAPAS_LIST, TIPO_ZONA } from '@/lib/constants/entities'
+import { distancia, clamp } from '@/lib/utils/math'
+import type { ValidationResult } from './types'
 
-export interface ValidationResult {
-  valida: boolean
-  error?: string
-  advertencia?: string
-}
-
-const ESTADOS_VALIDOS: EstadoPlanta[] = ['plantada', 'creciendo', 'produciendo', 'muerta']
-const ETAPAS_VALIDAS: EtapaCrecimiento[] = ['plántula', 'joven', 'adulta', 'madura']
-
-function distancia(p1: { x: number; y: number }, p2: { x: number; y: number }): number {
-  return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2))
-}
+export type { ValidationResult }
 
 export function validarNuevaPlanta(
   posicion: { x: number; y: number },
@@ -19,7 +11,7 @@ export function validarNuevaPlanta(
   plantasExistentes: Planta[],
   cultivo: CatalogoCultivo
 ): ValidationResult {
-  if (zona.tipo !== 'cultivo') {
+  if (zona.tipo !== TIPO_ZONA.CULTIVO) {
     return { valida: false, error: 'Solo puedes plantar en zonas de tipo "cultivo"' }
   }
 
@@ -110,8 +102,8 @@ export function snapToGrid(
   const nearestCol = Math.round((mouseX - margenX) / espaciado)
   const nearestRow = Math.round((mouseY - margenY) / espaciado)
 
-  const col = Math.max(0, Math.min(columnas - 1, nearestCol))
-  const row = Math.max(0, Math.min(filas - 1, nearestRow))
+  const col = clamp(nearestCol, 0, columnas - 1)
+  const row = clamp(nearestRow, 0, filas - 1)
 
   const key = `${col},${row}`
   if (ocupadas.has(key)) return null
@@ -187,11 +179,11 @@ export function validarGridPlantas(
 }
 
 export function validarEstadoPlanta(estado: unknown): estado is EstadoPlanta {
-  return ESTADOS_VALIDOS.includes(estado as EstadoPlanta)
+  return ESTADOS_PLANTA_LIST.includes(estado as EstadoPlanta)
 }
 
 export function validarEtapaPlanta(etapa: unknown): etapa is EtapaCrecimiento {
-  return ETAPAS_VALIDAS.includes(etapa as EtapaCrecimiento)
+  return ETAPAS_LIST.includes(etapa as EtapaCrecimiento)
 }
 
 export function validarPosicionParaMover(

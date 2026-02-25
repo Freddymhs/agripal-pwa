@@ -1,6 +1,7 @@
 import { Container, Graphics, Text } from "pixi.js";
 import { PIXELS_POR_METRO, COLORES_ZONA_HEX } from "./pixi-constants";
 import type { Zona } from "@/types";
+import { TIPO_ZONA } from "@/lib/constants/entities";
 
 const COLOR_ZONA_HOVER = 0xfbbf24;
 
@@ -34,7 +35,7 @@ export class PixiZonasLayer {
       const cultivoColor = zonaCultivoColor[zona.id];
       const colorHex = cultivoColor ?? COLORES_ZONA_HEX[zona.tipo] ?? 0x374151;
 
-      if (zona.tipo === "estanque" && zona.estanque_config) {
+      if (zona.tipo === TIPO_ZONA.ESTANQUE && zona.estanque_config) {
         g.rect(x, y, w, h);
         g.fill({ color: colorHex, alpha: 0.3 });
 
@@ -99,7 +100,7 @@ export class PixiZonasLayer {
           : Math.max(10, 14 / scale);
 
         let labelText = zona.nombre;
-        if (zona.tipo === "estanque" && zona.estanque_config) {
+        if (zona.tipo === TIPO_ZONA.ESTANQUE && zona.estanque_config) {
           const cfg = zona.estanque_config;
           const pct =
             cfg.capacidad_m3 > 0
@@ -145,6 +146,7 @@ export class PixiZonasLayer {
     this.zonaLabels.clear();
 
     // Recrear hoverGraphics si fue destruido
+    // any: PixiJS `destroyed` property exists at runtime but is not in public types
     if (!this.hoverGraphics || (this.hoverGraphics as any).destroyed) {
       this.hoverGraphics = new Graphics();
     } else {

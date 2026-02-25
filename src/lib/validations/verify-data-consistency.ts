@@ -1,4 +1,4 @@
-import type { Cultivo } from '@/types'
+import type { CatalogoCultivo } from '@/types'
 import { KC_POR_CULTIVO } from '@/lib/data/kc-cultivos'
 import { DURACION_ETAPAS } from '@/lib/data/duracion-etapas'
 
@@ -16,7 +16,7 @@ export interface DataConsistencyReport {
   duplicados_en_duracion: string[]
 }
 
-export function verificarConsistenciaData(cultivos: Cultivo[]): DataConsistencyReport {
+export function verificarConsistenciaData(cultivos: CatalogoCultivo[]): DataConsistencyReport {
   const cultivosArica = cultivos.map(c => c.id)
   const cultivosKc = Object.keys(KC_POR_CULTIVO)
   const cultivosDuracion = Object.keys(DURACION_ETAPAS)
@@ -44,10 +44,6 @@ export function verificarConsistenciaData(cultivos: Cultivo[]): DataConsistencyR
     }
   }
 
-  // Verificar cobertura Kc - mapear nombres comunes
-  const cultivosAricaLowerIds = cultivos.map(c => c.id.toLowerCase())
-  const cultivosAricaLowerNombres = cultivos.map(c => c.nombre.toLowerCase())
-
   const sinCoberturaKc = cultivosArica.filter(id => {
     const cultivo = cultivos.find(c => c.id === id)
     if (!cultivo) return true
@@ -61,7 +57,7 @@ export function verificarConsistenciaData(cultivos: Cultivo[]): DataConsistencyR
       return (
         nombreLower.includes(kcLower) ||
         kcLower.includes(nombreLower) ||
-        nameParts.some(part => part === kcLower || kcLower === part)
+        nameParts.some((part: string) => part === kcLower || kcLower === part)
       )
     })
   })
@@ -79,7 +75,7 @@ export function verificarConsistenciaData(cultivos: Cultivo[]): DataConsistencyR
       return (
         nombreLower.includes(dLower) ||
         dLower.includes(nombreLower) ||
-        nameParts.some(part => part === dLower || dLower === part)
+        nameParts.some((part: string) => part === dLower || dLower === part)
       )
     })
   })

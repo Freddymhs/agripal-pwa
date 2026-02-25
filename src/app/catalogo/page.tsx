@@ -8,9 +8,9 @@ import { CultivoForm } from '@/components/catalogo/cultivo-form'
 import { useProyectos } from '@/hooks/use-proyectos'
 import { useCatalogo } from '@/hooks/use-catalogo'
 import { TECNICAS_MEJORA } from '@/lib/data/tecnicas-mejora'
+import { formatCLP } from '@/lib/utils'
+import { STORAGE_KEYS } from '@/lib/constants/storage'
 import type { CatalogoCultivo, Proyecto } from '@/types'
-
-const STORAGE_KEY_PROYECTO = 'agriplan_proyecto_actual'
 
 export default function CatalogoPage() {
   const [proyectoActual, setProyectoActual] = useState<Proyecto | null>(null)
@@ -23,7 +23,7 @@ export default function CatalogoPage() {
 
   useEffect(() => {
     if (!proyectosHook.loading && proyectosHook.proyectos.length > 0) {
-      const savedId = localStorage.getItem(STORAGE_KEY_PROYECTO)
+      const savedId = localStorage.getItem(STORAGE_KEYS.PROYECTO)
       if (savedId) {
         const proyecto = proyectosHook.proyectos.find(p => p.id === savedId)
         if (proyecto) {
@@ -97,7 +97,7 @@ export default function CatalogoPage() {
               const p = proyectosHook.proyectos.find(p => p.id === e.target.value)
               if (p) {
                 setProyectoActual(p)
-                localStorage.setItem(STORAGE_KEY_PROYECTO, p.id)
+                localStorage.setItem(STORAGE_KEYS.PROYECTO, p.id)
               }
             }}
             className="bg-green-700 text-white px-3 py-1 rounded text-sm border-0"
@@ -154,7 +154,7 @@ export default function CatalogoPage() {
                   <div className="text-xs text-gray-500 space-y-0.5">
                     <div>Dosis: {t.dosis}</div>
                     <div>Frecuencia: {t.frecuencia}</div>
-                    <div>Costo: ${t.costo_aplicacion_clp.toLocaleString('es-CL')}/aplicación</div>
+                    <div>Costo: {formatCLP(t.costo_aplicacion_clp)}/aplicación</div>
                   </div>
                   <p className="text-xs text-gray-400 mt-1 italic">{t.evidencia}</p>
                 </div>

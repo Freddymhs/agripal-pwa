@@ -115,7 +115,7 @@ export function ResumenTerreno({ terreno, onConfiguracion }: ResumenTerrenoProps
           <div className="text-sm">
             <div className="text-gray-500">Acceso</div>
             <div className="text-gray-900 capitalize">
-              {terreno.infraestructura.acceso.replace('_', ' ')}
+              {terreno.infraestructura.acceso.replaceAll('_', ' ')}
             </div>
           </div>
         )}

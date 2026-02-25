@@ -7,28 +7,36 @@ import type {
   Timestamp,
   UUID,
 } from "@/types";
-import { FACTORES_TEMPORADA } from "@/types";
-import { getTemporadaActual } from "@/lib/utils";
+import { FACTORES_TEMPORADA } from "@/lib/constants/entities";
+import { getTemporadaActual } from "@/lib/data/clima-arica";
 import { getKc } from "@/lib/data/kc-cultivos";
+import { ESTADO_PLANTA, ETAPA, TIPO_ZONA, TIPO_RIEGO, ESTADO_AGUA } from "@/lib/constants/entities";
+import {
+  M2_POR_HECTAREA,
+  SEMANAS_POR_AÑO,
+  DIAS_POR_SEMANA,
+  MS_POR_DIA,
+  MIN_DIAS_DESCUENTO,
+  HORAS_POR_DIA,
+} from "@/lib/constants/conversiones";
+import { calcularAguaPromedioHaAño, calcularPlantasPorHa } from "@/lib/utils/helpers-cultivo";
 
 function calcularConsumoPlanta(
   planta: Planta,
   cultivo: CatalogoCultivo,
   temporada: Temporada = getTemporadaActual(),
 ): number {
-  if (planta.estado === "muerta") return 0;
+  if (planta.estado === ESTADO_PLANTA.MUERTA) return 0;
 
   const factorTemporada = FACTORES_TEMPORADA[temporada];
-  const kc = getKc(cultivo.nombre, planta.etapa_actual || "adulta");
+  const kc = getKc(cultivo.nombre, planta.etapa_actual || ETAPA.ADULTA);
 
   if (!cultivo.agua_m3_ha_año_min || !cultivo.agua_m3_ha_año_max) return 0;
-  const aguaPromedio =
-    (cultivo.agua_m3_ha_año_min + cultivo.agua_m3_ha_año_max) / 2;
-  const espaciadoM2 = cultivo.espaciado_recomendado_m ** 2;
-  if (espaciadoM2 === 0) return 0;
-  const plantasPorHa = 10000 / espaciadoM2;
+  const aguaPromedio = calcularAguaPromedioHaAño(cultivo);
+  const plantasPorHa = calcularPlantasPorHa(cultivo.espaciado_recomendado_m);
+  if (plantasPorHa === 0) return 0;
   const aguaPorPlantaAño = aguaPromedio / plantasPorHa;
-  const aguaPorPlantaSemana = aguaPorPlantaAño / 52;
+  const aguaPorPlantaSemana = aguaPorPlantaAño / SEMANAS_POR_AÑO;
 
   return aguaPorPlantaSemana * factorTemporada * kc;
 }
@@ -39,14 +47,14 @@ export function calcularConsumoZona(
   catalogoCultivos: CatalogoCultivo[],
   temporada: Temporada = getTemporadaActual(),
 ): number {
-  if (zona.tipo !== "cultivo" || plantas.length === 0) {
+  if (zona.tipo !== TIPO_ZONA.CULTIVO || plantas.length === 0) {
     return 0;
   }
 
   let consumoTotal = 0;
 
   for (const planta of plantas) {
-    if (planta.estado === "muerta") continue;
+    if (planta.estado === ESTADO_PLANTA.MUERTA) continue;
 
     const cultivo = catalogoCultivos.find(
       (c) => c.id === planta.tipo_cultivo_id,
@@ -86,8 +94,8 @@ export function calcularConsumoRiegoZona(zona: Zona): number {
 
   let horasDia: number;
 
-  if (config.tipo === "continuo_24_7") {
-    horasDia = 24;
+  if (config.tipo === TIPO_RIEGO.CONTINUO) {
+    horasDia = HORAS_POR_DIA;
   } else {
     if (config.horas_dia) {
       horasDia = config.horas_dia;
@@ -102,7 +110,7 @@ export function calcularConsumoRiegoZona(zona: Zona): number {
     }
   }
 
-  return ((config.caudal_total_lh * horasDia) / 1000) * 7;
+  return ((config.caudal_total_lh * horasDia) / 1000) * DIAS_POR_SEMANA;
 }
 
 export function calcularConsumoRealTerreno(
@@ -114,7 +122,7 @@ export function calcularConsumoRealTerreno(
   let consumoTotal = 0;
 
   for (const zona of zonas) {
-    if (zona.tipo !== "cultivo") continue;
+    if (zona.tipo !== TIPO_ZONA.CULTIVO) continue;
     const plantasZona = plantas.filter((p) => p.zona_id === zona.id);
     if (plantasZona.length === 0) continue;
 
@@ -139,7 +147,7 @@ export function calcularDiasRestantes(
   consumoSemanalM3: number,
 ): number {
   if (isNaN(aguaActualM3) || isNaN(consumoSemanalM3)) return 0;
-  const consumoDiario = consumoSemanalM3 / 7;
+  const consumoDiario = consumoSemanalM3 / DIAS_POR_SEMANA;
   if (consumoDiario <= 0) return 999;
   return aguaActualM3 / consumoDiario;
 }
@@ -166,7 +174,6 @@ export interface ResultadoDescuento {
   consumido: number;
 }
 
-const MS_POR_DIA = 86400000;
 
 export function calcularDescuentoAutomatico(
   ultimaSimulacion: Timestamp | undefined,
@@ -185,12 +192,12 @@ export function calcularDescuentoAutomatico(
   const timestamp = Date.parse(ultimaSimulacion);
   if (isNaN(timestamp)) return null;
   const diasTranscurridos = (Date.now() - timestamp) / MS_POR_DIA;
-  if (diasTranscurridos < 0.04) return null;
+  if (diasTranscurridos < MIN_DIAS_DESCUENTO) return null;
 
   const consumoSemanal =
     consumoSemanalOverride ??
     calcularConsumoTerreno(zonas, plantas, catalogoCultivos);
-  const consumoDiario = consumoSemanal / 7;
+  const consumoDiario = consumoSemanal / DIAS_POR_SEMANA;
   const consumoAcumulado = consumoDiario * diasTranscurridos;
 
   if (consumoAcumulado <= 0) return null;
@@ -234,10 +241,10 @@ export function determinarEstadoAgua(
   const margen = aguaDisponible - aguaNecesaria;
 
   if (margen > aguaNecesaria * 0.2) {
-    return "ok";
+    return ESTADO_AGUA.OK;
   } else if (margen >= 0) {
-    return "ajustado";
+    return ESTADO_AGUA.AJUSTADO;
   } else {
-    return "deficit";
+    return ESTADO_AGUA.DEFICIT;
   }
 }

@@ -68,3 +68,64 @@ export function evaluarCompatibilidadSueloMultiple(
 ): CompatibilidadSueloCultivo[] {
   return cultivos.map(c => evaluarCompatibilidadSuelo(suelo, c))
 }
+
+export type { ValidationResult } from './types'
+import type { ValidationResult } from './types'
+
+export function validarSueloTerreno(suelo: SueloTerreno): ValidationResult {
+  if (suelo.fisico?.ph != null) {
+    if (suelo.fisico.ph < 0 || suelo.fisico.ph > 14) {
+      return { valida: false, error: 'El pH debe estar entre 0 y 14' }
+    }
+  }
+
+  if (suelo.fisico?.materia_organica_pct != null) {
+    if (suelo.fisico.materia_organica_pct < 0 || suelo.fisico.materia_organica_pct > 100) {
+      return { valida: false, error: 'La materia orgánica debe estar entre 0% y 100%' }
+    }
+  }
+
+  if (suelo.fisico?.profundidad_efectiva_cm != null) {
+    if (suelo.fisico.profundidad_efectiva_cm < 0) {
+      return { valida: false, error: 'La profundidad efectiva no puede ser negativa' }
+    }
+  }
+
+  if (suelo.quimico?.salinidad_dS_m != null) {
+    if (suelo.quimico.salinidad_dS_m < 0) {
+      return { valida: false, error: 'La salinidad no puede ser negativa' }
+    }
+  }
+
+  if (suelo.quimico?.boro_mg_l != null) {
+    if (suelo.quimico.boro_mg_l < 0) {
+      return { valida: false, error: 'El boro no puede ser negativo' }
+    }
+  }
+
+  if (suelo.quimico?.arsenico_mg_l != null) {
+    if (suelo.quimico.arsenico_mg_l < 0) {
+      return { valida: false, error: 'El arsénico no puede ser negativo' }
+    }
+  }
+
+  if (suelo.quimico?.nitrogeno_ppm != null) {
+    if (suelo.quimico.nitrogeno_ppm < 0) {
+      return { valida: false, error: 'El nitrógeno no puede ser negativo' }
+    }
+  }
+
+  if (suelo.quimico?.fosforo_ppm != null) {
+    if (suelo.quimico.fosforo_ppm < 0) {
+      return { valida: false, error: 'El fósforo no puede ser negativo' }
+    }
+  }
+
+  if (suelo.quimico?.potasio_ppm != null) {
+    if (suelo.quimico.potasio_ppm < 0) {
+      return { valida: false, error: 'El potasio no puede ser negativo' }
+    }
+  }
+
+  return { valida: true }
+}

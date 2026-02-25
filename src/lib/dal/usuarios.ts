@@ -5,10 +5,8 @@ export const usuariosDAL = {
   getById: (id: string) =>
     db.usuarios.get(id),
 
-  getByEmail: async (email: string): Promise<Usuario | undefined> => {
-    const all = await db.usuarios.toArray()
-    return all.find(u => u.email === email)
-  },
+  getByEmail: (email: string): Promise<Usuario | undefined> =>
+    db.usuarios.where('email').equals(email).first(),
 
   add: (usuario: Usuario) =>
     db.usuarios.add(usuario),

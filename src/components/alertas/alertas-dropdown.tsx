@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import type { Alerta } from '@/types'
+import { SEVERIDAD_CONFIG } from '@/lib/constants/alertas'
 
 interface AlertasDropdownProps {
   alertas: Alerta[]
@@ -25,12 +26,6 @@ export function AlertasDropdown({ alertas, alertasCriticas }: AlertasDropdownPro
   }, [])
 
   const ultimasAlertas = alertas.slice(0, 5)
-
-  const severidadConfig = {
-    critical: { icon: '🚨', color: 'text-red-600' },
-    warning: { icon: '⚠️', color: 'text-yellow-600' },
-    info: { icon: 'ℹ️', color: 'text-blue-600' },
-  }
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -66,7 +61,7 @@ export function AlertasDropdown({ alertas, alertasCriticas }: AlertasDropdownPro
             ) : (
               <div className="divide-y divide-gray-100">
                 {ultimasAlertas.map((alerta) => {
-                  const config = severidadConfig[alerta.severidad]
+                  const config = SEVERIDAD_CONFIG[alerta.severidad]
                   return (
                     <div
                       key={alerta.id}

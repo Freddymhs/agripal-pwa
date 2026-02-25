@@ -2,6 +2,7 @@
 
 import { useProjectContext } from '@/contexts/project-context'
 import { useMapContext } from '@/contexts/map-context'
+import { TIPO_ZONA } from '@/lib/constants/entities'
 
 export function MapToolbar() {
   const { catalogoCultivos } = useProjectContext()
@@ -89,11 +90,11 @@ export function MapToolbar() {
           setPlantaSeleccionada(null)
           setPlantasSeleccionadas([])
         }}
-        disabled={modo !== 'zonas' || !zonaSeleccionada || zonaSeleccionada.tipo !== 'cultivo'}
+        disabled={modo !== 'zonas' || !zonaSeleccionada || zonaSeleccionada.tipo !== TIPO_ZONA.CULTIVO}
         className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
           modo === 'plantar'
             ? 'bg-lime-500 text-white'
-            : (modo === 'zonas' && zonaSeleccionada?.tipo === 'cultivo')
+            : (modo === 'zonas' && zonaSeleccionada?.tipo === TIPO_ZONA.CULTIVO)
               ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               : 'bg-gray-100 text-gray-400 cursor-not-allowed'
         }`}
@@ -127,7 +128,7 @@ export function MapToolbar() {
           </span>
           <span className="text-lime-800">→</span>
           {zonaSeleccionada ? (
-            zonaSeleccionada.tipo === 'cultivo' ? (
+            zonaSeleccionada.tipo === TIPO_ZONA.CULTIVO ? (
               <span className="text-sm text-lime-800 font-medium">
                 Haz click DENTRO de &quot;{zonaSeleccionada.nombre}&quot; para colocar 1 planta
               </span>

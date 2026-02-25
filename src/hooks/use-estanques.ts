@@ -6,6 +6,7 @@ import { getCurrentTimestamp } from '@/lib/utils'
 import { calcularStockEstanques } from '@/lib/utils/agua'
 import { emitZonaUpdated } from '@/lib/events/zona-events'
 import type { Zona, UUID } from '@/types'
+import { TIPO_ZONA } from '@/lib/constants/entities'
 
 interface UseEstanques {
   estanques: Zona[]
@@ -22,7 +23,7 @@ export function useEstanques(
   onRefetch: () => void
 ): UseEstanques {
   const estanques = useMemo(() => {
-    return zonas.filter(z => z.tipo === 'estanque' && z.estanque_config)
+    return zonas.filter(z => z.tipo === TIPO_ZONA.ESTANQUE && z.estanque_config)
   }, [zonas])
 
   const stock = useMemo(() => calcularStockEstanques(estanques), [estanques])

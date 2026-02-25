@@ -4,8 +4,9 @@ import { useCallback } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { proyectosDAL, terrenosDAL, zonasDAL, plantasDAL, catalogoDAL, transaccionesDAL } from '@/lib/dal'
 import { generateUUID, getCurrentTimestamp } from '@/lib/utils'
-import { CULTIVOS_ARICA } from '@/lib/data/cultivos-arica'
-import type { Proyecto, UUID, CatalogoCultivo } from '@/types'
+import { crearCatalogoInicial } from '@/lib/data/cultivos-arica'
+import type { Proyecto, UUID } from '@/types'
+import { QUERY_KEYS } from '@/lib/constants/query-keys'
 
 interface EliminacionCascada {
   terrenos: number
@@ -38,7 +39,7 @@ export function useProyectos(): UseProyectos {
     error,
     refetch,
   } = useQuery({
-    queryKey: ['proyectos', USUARIO_ID],
+    queryKey: QUERY_KEYS.proyectos(USUARIO_ID),
     queryFn: () => proyectosDAL.getByUsuarioId(USUARIO_ID),
   })
 
@@ -55,22 +56,11 @@ export function useProyectos(): UseProyectos {
         updated_at: timestamp,
       }
 
-      const cultivosIniciales = CULTIVOS_ARICA.map(cultivo => {
-        const { id, proyecto_id, created_at, updated_at, ...cultivoData } = cultivo as CatalogoCultivo & { proyecto_id?: string }
-        return {
-          ...cultivoData,
-          id: generateUUID(),
-          proyecto_id: nuevoProyecto.id,
-          created_at: timestamp,
-          updated_at: timestamp,
-        } as CatalogoCultivo
-      })
-
-      await transaccionesDAL.crearProyectoConCatalogo(nuevoProyecto, cultivosIniciales)
+      await transaccionesDAL.crearProyectoConCatalogo(nuevoProyecto, crearCatalogoInicial(nuevoProyecto.id))
       return nuevoProyecto
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['proyectos', USUARIO_ID] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.proyectos(USUARIO_ID) })
     },
   })
 
@@ -83,7 +73,7 @@ export function useProyectos(): UseProyectos {
       })
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['proyectos', USUARIO_ID] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.proyectos(USUARIO_ID) })
     },
   })
 
@@ -95,7 +85,7 @@ export function useProyectos(): UseProyectos {
       return { eliminados: conteo }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['proyectos', USUARIO_ID] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.proyectos(USUARIO_ID) })
     },
   })
 

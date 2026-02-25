@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
+import { logger } from '@/lib/logger'
 import { alertasDAL } from '@/lib/dal'
 import { sincronizarAlertas } from '@/lib/utils/alertas'
 import { getCurrentTimestamp } from '@/lib/utils'
@@ -39,21 +40,29 @@ export function useAlertas(
   }, [refrescarAlertas])
 
   const resolverAlerta = useCallback(async (id: UUID, como: string) => {
-    await alertasDAL.update(id, {
-      estado: 'resuelta',
-      fecha_resolucion: getCurrentTimestamp(),
-      como_se_resolvio: como,
-      updated_at: getCurrentTimestamp(),
-    })
-    setAlertas(prev => prev.filter(a => a.id !== id))
+    try {
+      await alertasDAL.update(id, {
+        estado: 'resuelta',
+        fecha_resolucion: getCurrentTimestamp(),
+        como_se_resolvio: como,
+        updated_at: getCurrentTimestamp(),
+      })
+      setAlertas(prev => prev.filter(a => a.id !== id))
+    } catch (err) {
+      logger.error('Error resolviendo alerta', { error: err })
+    }
   }, [])
 
   const ignorarAlerta = useCallback(async (id: UUID) => {
-    await alertasDAL.update(id, {
-      estado: 'ignorada',
-      updated_at: getCurrentTimestamp(),
-    })
-    setAlertas(prev => prev.filter(a => a.id !== id))
+    try {
+      await alertasDAL.update(id, {
+        estado: 'ignorada',
+        updated_at: getCurrentTimestamp(),
+      })
+      setAlertas(prev => prev.filter(a => a.id !== id))
+    } catch (err) {
+      logger.error('Error ignorando alerta', { error: err })
+    }
   }, [])
 
   const alertasCriticas = alertas.filter(a => a.severidad === 'critical').length

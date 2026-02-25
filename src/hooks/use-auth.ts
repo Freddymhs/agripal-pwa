@@ -4,9 +4,8 @@ import { useEffect, useState, useCallback } from 'react'
 import { usuariosDAL } from '@/lib/dal'
 import { generarToken, obtenerUsuarioDeToken } from '@/lib/auth/jwt'
 import { generateUUID, getCurrentTimestamp } from '@/lib/utils'
+import { STORAGE_KEYS } from '@/lib/constants/storage'
 import type { Usuario } from '@/types'
-
-const TOKEN_KEY = 'agriplan_token'
 
 export interface UseAuth {
   usuario: Usuario | null
@@ -23,7 +22,7 @@ export function useAuth(): UseAuth {
 
   useEffect(() => {
     async function cargar() {
-      const token = localStorage.getItem(TOKEN_KEY)
+      const token = localStorage.getItem(STORAGE_KEYS.TOKEN)
       if (!token) {
         setLoading(false)
         return
@@ -31,7 +30,7 @@ export function useAuth(): UseAuth {
 
       const datos = obtenerUsuarioDeToken(token)
       if (!datos) {
-        localStorage.removeItem(TOKEN_KEY)
+        localStorage.removeItem(STORAGE_KEYS.TOKEN)
         setLoading(false)
         return
       }
@@ -40,7 +39,7 @@ export function useAuth(): UseAuth {
       setUsuario(user || null)
 
       if (!user) {
-        localStorage.removeItem(TOKEN_KEY)
+        localStorage.removeItem(STORAGE_KEYS.TOKEN)
       }
 
       setLoading(false)
@@ -64,7 +63,7 @@ export function useAuth(): UseAuth {
         await usuariosDAL.add(nuevoUsuario)
 
         const token = generarToken(nuevoUsuario)
-        localStorage.setItem(TOKEN_KEY, token)
+        localStorage.setItem(STORAGE_KEYS.TOKEN, token)
         setUsuario(nuevoUsuario)
         return {}
       }
@@ -73,13 +72,13 @@ export function useAuth(): UseAuth {
     }
 
     const token = generarToken(user)
-    localStorage.setItem(TOKEN_KEY, token)
+    localStorage.setItem(STORAGE_KEYS.TOKEN, token)
     setUsuario(user)
     return {}
   }, [])
 
   const logout = useCallback(() => {
-    localStorage.removeItem(TOKEN_KEY)
+    localStorage.removeItem(STORAGE_KEYS.TOKEN)
     setUsuario(null)
   }, [])
 
@@ -101,7 +100,7 @@ export function useAuth(): UseAuth {
     await usuariosDAL.add(nuevoUsuario)
 
     const token = generarToken(nuevoUsuario)
-    localStorage.setItem(TOKEN_KEY, token)
+    localStorage.setItem(STORAGE_KEYS.TOKEN, token)
     setUsuario(nuevoUsuario)
 
     return {}

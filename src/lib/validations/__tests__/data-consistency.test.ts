@@ -32,10 +32,7 @@ describe('Data Consistency', () => {
         }
       }
 
-      expect(faltantes).toEqual(
-        [],
-        `Cultivos sin cobertura Kc: ${faltantes.join(', ')}`
-      )
+      expect(faltantes, `Cultivos sin cobertura Kc: ${faltantes.join(', ')}`).toEqual([])
     })
 
     it('todos los Kc tienen las 4 etapas requeridas', () => {
@@ -60,7 +57,7 @@ describe('Data Consistency', () => {
         }
       }
 
-      expect(problemas).toEqual([], problemas.join('\n'))
+      expect(problemas, problemas.join('\n')).toEqual([])
     })
   })
 
@@ -77,10 +74,7 @@ describe('Data Consistency', () => {
         }
       }
 
-      expect(faltantes).toEqual(
-        [],
-        `Cultivos sin cobertura de duración: ${faltantes.join(', ')}`
-      )
+      expect(faltantes, `Cultivos sin cobertura de duración: ${faltantes.join(', ')}`).toEqual([])
     })
 
     it('todas las duraciones tienen las 4 etapas requeridas', () => {
@@ -113,7 +107,7 @@ describe('Data Consistency', () => {
         }
       }
 
-      expect(problemas).toEqual([], problemas.join('\n'))
+      expect(problemas, problemas.join('\n')).toEqual([])
     })
   })
 
@@ -171,7 +165,7 @@ describe('Data Consistency', () => {
         }
       }
 
-      expect(faltantes).toEqual([], `IDs sin cobertura: ${faltantes.join(', ')}`)
+      expect(faltantes, `IDs sin cobertura: ${faltantes.join(', ')}`).toEqual([])
     })
   })
 })

@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import type { ContingenciasAgua, ProveedorAgua } from '@/types'
+import { ESTADO_AGUA } from '@/lib/constants'
 
 interface ContingenciasAguaProps {
   contingencias?: ContingenciasAgua
@@ -16,24 +17,23 @@ export function ContingenciasAguaPanel({
   aguaActualPct = 100,
   onChange,
 }: ContingenciasAguaProps) {
-  const [editando, setEditando] = useState(false)
   const [planItem, setPlanItem] = useState('')
 
   const bufferMinimo = contingencias?.buffer_minimo_pct ?? 30
   const alertaCritica = contingencias?.alerta_critica_pct ?? 20
 
   const getNivelAlerta = () => {
-    if (aguaActualPct <= alertaCritica) return 'critico'
-    if (aguaActualPct <= bufferMinimo) return 'ajustado'
-    return 'ok'
+    if (aguaActualPct <= alertaCritica) return ESTADO_AGUA.DEFICIT
+    if (aguaActualPct <= bufferMinimo) return ESTADO_AGUA.AJUSTADO
+    return ESTADO_AGUA.OK
   }
 
   const nivelAlerta = getNivelAlerta()
 
   const coloresNivel = {
-    ok: 'bg-green-100 text-green-800 border-green-200',
-    ajustado: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-    critico: 'bg-red-100 text-red-800 border-red-200',
+    [ESTADO_AGUA.OK]: 'bg-green-100 text-green-800 border-green-200',
+    [ESTADO_AGUA.AJUSTADO]: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+    [ESTADO_AGUA.DEFICIT]: 'bg-red-100 text-red-800 border-red-200',
   }
 
   const handleAddPlan = () => {
@@ -62,22 +62,22 @@ export function ContingenciasAguaPanel({
         <div className="flex items-center justify-between">
           <div>
             <h3 className="font-bold">
-              {nivelAlerta === 'ok' && 'Estado: OK'}
-              {nivelAlerta === 'ajustado' && 'Estado: Ajustado'}
-              {nivelAlerta === 'critico' && 'ALERTA CRÍTICA'}
+              {nivelAlerta === ESTADO_AGUA.OK && 'Estado: OK'}
+              {nivelAlerta === ESTADO_AGUA.AJUSTADO && 'Estado: Ajustado'}
+              {nivelAlerta === ESTADO_AGUA.DEFICIT && 'ALERTA CRÍTICA'}
             </h3>
             <p className="text-sm">
               Nivel actual: {aguaActualPct}%
             </p>
           </div>
           <div className="text-3xl">
-            {nivelAlerta === 'ok' && '✅'}
-            {nivelAlerta === 'ajustado' && '⚠️'}
-            {nivelAlerta === 'critico' && '🚨'}
+            {nivelAlerta === ESTADO_AGUA.OK && '✅'}
+            {nivelAlerta === ESTADO_AGUA.AJUSTADO && '⚠️'}
+            {nivelAlerta === ESTADO_AGUA.DEFICIT && '🚨'}
           </div>
         </div>
 
-        {nivelAlerta === 'critico' && (
+        {nivelAlerta === ESTADO_AGUA.DEFICIT && (
           <div className="mt-3 pt-3 border-t border-red-200">
             <p className="text-sm font-medium">LLAMAR ALJIBE INMEDIATAMENTE</p>
             {proveedoresAlternativos.length > 0 && (

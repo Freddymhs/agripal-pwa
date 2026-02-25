@@ -1,5 +1,6 @@
 import type { Zona, EntradaAgua, Planta, CatalogoCultivo } from '@/types'
 import { calcularConsumoTerreno } from './agua'
+import { SEMANAS_POR_AÑO } from '@/lib/constants/conversiones'
 
 export interface CalculoAguaAnual {
   aguaAnualM3: number
@@ -67,7 +68,7 @@ function calcularPorHistorial(
 }
 
 function calcularPorConsumoCultivos(consumoSemanal: number): CalculoAguaAnual {
-  const aguaAnual = consumoSemanal * 52
+  const aguaAnual = consumoSemanal * SEMANAS_POR_AÑO
 
   return {
     aguaAnualM3: Math.round(aguaAnual),

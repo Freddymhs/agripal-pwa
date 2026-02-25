@@ -2,10 +2,11 @@
 
 import { useCallback } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { catalogoDAL, transaccionesDAL } from '@/lib/dal'
+import { catalogoDAL, plantasDAL, transaccionesDAL } from '@/lib/dal'
 import { generateUUID, getCurrentTimestamp } from '@/lib/utils'
-import { CULTIVOS_ARICA } from '@/lib/data/cultivos-arica'
+import { crearCatalogoInicial } from '@/lib/data/cultivos-arica'
 import type { CatalogoCultivo, UUID } from '@/types'
+import { QUERY_KEYS } from '@/lib/constants/query-keys'
 
 interface UseCatalogo {
   cultivos: CatalogoCultivo[]
@@ -26,24 +27,14 @@ export function useCatalogo(proyectoId: UUID | null): UseCatalogo {
     isLoading,
     error,
   } = useQuery({
-    queryKey: ['catalogo', proyectoId],
+    queryKey: QUERY_KEYS.catalogo(proyectoId!),
     queryFn: async () => {
       if (!proyectoId) return []
 
       const data = await catalogoDAL.getByProyectoId(proyectoId)
 
       if (data.length === 0) {
-        const timestamp = getCurrentTimestamp()
-        const cultivosIniciales: CatalogoCultivo[] = CULTIVOS_ARICA.map(cultivo => {
-          const { id, proyecto_id, created_at, updated_at, ...cultivoData } = cultivo as CatalogoCultivo & { proyecto_id?: string }
-          return {
-            ...cultivoData,
-            id: generateUUID(),
-            proyecto_id: proyectoId,
-            created_at: timestamp,
-            updated_at: timestamp,
-          } as CatalogoCultivo
-        })
+        const cultivosIniciales = crearCatalogoInicial(proyectoId)
         await transaccionesDAL.seedCatalogo(cultivosIniciales)
         return cultivosIniciales
       }
@@ -71,7 +62,7 @@ export function useCatalogo(proyectoId: UUID | null): UseCatalogo {
       return nuevo
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['catalogo', proyectoId] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.catalogo(proyectoId!) })
     },
   })
 
@@ -83,16 +74,23 @@ export function useCatalogo(proyectoId: UUID | null): UseCatalogo {
       })
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['catalogo', proyectoId] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.catalogo(proyectoId!) })
     },
   })
 
   const eliminarCultivoMutation = useMutation({
     mutationFn: async (id: UUID) => {
+      const todasPlantas = await plantasDAL.getAll()
+      const plantasUsandoCultivo = todasPlantas.filter(p => p.tipo_cultivo_id === id)
+      if (plantasUsandoCultivo.length > 0) {
+        throw new Error(
+          `No se puede eliminar: ${plantasUsandoCultivo.length} planta(s) usan este cultivo. Elimina o cambia las plantas primero.`
+        )
+      }
       await catalogoDAL.delete(id)
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['catalogo', proyectoId] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.catalogo(proyectoId!) })
     },
   })
 

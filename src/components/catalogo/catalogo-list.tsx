@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { obtenerVariedades, type VariedadCultivo } from '@/lib/data/variedades'
 import { obtenerMercado, type DatosMercado } from '@/lib/data/mercado'
 import type { CatalogoCultivo, UUID } from '@/types'
+import { formatCLP } from '@/lib/utils'
 
 interface CatalogoListProps {
   cultivos: CatalogoCultivo[]
@@ -101,7 +102,7 @@ function CultivoCard({
         {cultivo.precio_kg_min_clp && cultivo.precio_kg_max_clp && (
           <div>
             <span className="font-medium">Precio:</span>{' '}
-            ${cultivo.precio_kg_min_clp.toLocaleString()}-${cultivo.precio_kg_max_clp.toLocaleString()}/kg
+            {formatCLP(cultivo.precio_kg_min_clp)}-{formatCLP(cultivo.precio_kg_max_clp)}/kg
           </div>
         )}
         {cultivo.clima && (
@@ -136,7 +137,7 @@ function CultivoCard({
                     </span>
                   </div>
                   <div className="text-blue-800">
-                    ${mercado.precio_kg_actual_clp.toLocaleString('es-CL')}/kg actual
+                    {formatCLP(mercado.precio_kg_actual_clp)}/kg actual
                   </div>
                   <div className="text-blue-700">
                     Demanda: {mercado.demanda_local} | Competencia: {mercado.competencia_local}
@@ -155,7 +156,7 @@ function CultivoCard({
                     <div key={v.id} className="bg-gray-50 p-2 rounded text-xs">
                       <div className="flex justify-between">
                         <span className="font-medium text-gray-900">{v.nombre}</span>
-                        <span className="text-gray-500">${v.precio_planta_clp.toLocaleString('es-CL')}/planta</span>
+                        <span className="text-gray-500">{formatCLP(v.precio_planta_clp)}/planta</span>
                       </div>
                       <div className="text-gray-500">{v.origen} | Rend: x{v.rendimiento_relativo}</div>
                       <div className="text-green-600 mt-0.5">+ {v.ventajas.join(', ')}</div>

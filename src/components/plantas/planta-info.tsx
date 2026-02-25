@@ -2,7 +2,7 @@
 
 import { formatDate } from '@/lib/utils'
 import type { Planta, CatalogoCultivo, EstadoPlanta, EtapaCrecimiento } from '@/types'
-import { COLORES_ESTADO_PLANTA, ETAPAS_CRECIMIENTO, ETAPA_INFO } from '@/types'
+import { COLORES_ESTADO_PLANTA, ETAPA_INFO, ESTADOS_PLANTA_LIST, ETAPA, ETAPAS_LIST } from '@/lib/constants/entities'
 import { getKc } from '@/lib/data/kc-cultivos'
 import { getDiasRestantesEtapa } from '@/lib/data/duracion-etapas'
 
@@ -23,8 +23,8 @@ export function PlantaInfo({
   onEliminar,
   onClose,
 }: PlantaInfoProps) {
-  const estados: EstadoPlanta[] = ['plantada', 'creciendo', 'produciendo', 'muerta']
-  const etapaActual = planta.etapa_actual || 'adulta'
+  const estados: EstadoPlanta[] = ESTADOS_PLANTA_LIST
+  const etapaActual = planta.etapa_actual || ETAPA.ADULTA
   const kc = cultivo ? getKc(cultivo.nombre, etapaActual) : 1.0
   const diasRestantes = cultivo && planta.fecha_plantacion
     ? getDiasRestantesEtapa(cultivo.nombre, etapaActual, new Date(planta.fecha_plantacion))
@@ -129,7 +129,7 @@ export function PlantaInfo({
             onChange={(e) => onCambiarEtapa(e.target.value as EtapaCrecimiento)}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-green-500 focus:border-green-500"
           >
-            {ETAPAS_CRECIMIENTO.map((etapa) => {
+            {ETAPAS_LIST.map((etapa) => {
               const info = ETAPA_INFO[etapa]
               const etapaKc = cultivo ? getKc(cultivo.nombre, etapa) : 1.0
               return (

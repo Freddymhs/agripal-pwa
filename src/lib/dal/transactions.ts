@@ -1,5 +1,6 @@
 import { db } from '@/lib/db'
 import type { Proyecto, CatalogoCultivo, EntradaAgua, Terreno, Zona, Planta, Alerta } from '@/types'
+import { ESTADO_PLANTA } from '@/lib/constants/entities'
 
 export const transaccionesDAL = {
   eliminarZonaCascade: (zonaId: string) =>
@@ -126,7 +127,7 @@ export const transaccionesDAL = {
       await db.plantas
         .where('zona_id')
         .equals(zonaId)
-        .filter((p) => p.estado === 'muerta')
+        .filter((p) => p.estado === ESTADO_PLANTA.MUERTA)
         .delete()
     }),
 }

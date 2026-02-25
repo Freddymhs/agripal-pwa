@@ -2,13 +2,10 @@
 
 import { useState } from 'react'
 import type { ProyeccionROI } from '@/lib/utils/roi'
+import { formatCLP } from '@/lib/utils'
 
 interface ROIPanelProps {
   roi: ProyeccionROI
-}
-
-function formatCLP(n: number): string {
-  return '$' + Math.round(n).toLocaleString('es-CL')
 }
 
 export function ROIPanel({ roi }: ROIPanelProps) {

@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import type { EstadoPlanta } from '@/types'
+import { ESTADO_PLANTA } from '@/lib/constants/entities'
 
 interface AccionesLoteProps {
   cantidad: number
@@ -19,10 +20,10 @@ export function AccionesLote({
   const [showConfirmDelete, setShowConfirmDelete] = useState(false)
 
   const estados: { value: EstadoPlanta; label: string }[] = [
-    { value: 'plantada', label: 'Plantada' },
-    { value: 'creciendo', label: 'Creciendo' },
-    { value: 'produciendo', label: 'Produciendo' },
-    { value: 'muerta', label: 'Muerta' },
+    { value: ESTADO_PLANTA.PLANTADA, label: 'Plantada' },
+    { value: ESTADO_PLANTA.CRECIENDO, label: 'Creciendo' },
+    { value: ESTADO_PLANTA.PRODUCIENDO, label: 'Produciendo' },
+    { value: ESTADO_PLANTA.MUERTA, label: 'Muerta' },
   ]
 
   return (

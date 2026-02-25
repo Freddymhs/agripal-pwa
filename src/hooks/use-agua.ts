@@ -1,14 +1,17 @@
 "use client";
 
 import { useEffect, useState, useCallback, useMemo, useRef } from "react";
-import { aguaDAL, terrenosDAL, transaccionesDAL } from "@/lib/dal";
+import { logger } from "@/lib/logger";
+import { aguaDAL, transaccionesDAL } from "@/lib/dal";
 import { generateUUID, getCurrentTimestamp } from "@/lib/utils";
+import { TIPO_ZONA, ESTADO_AGUA } from "@/lib/constants/entities";
+import { filtrarEstanques } from "@/lib/utils/helpers-cultivo";
 import {
   calcularConsumoRealTerreno,
   calcularStockEstanques,
-  calcularDescuentoAutomatico,
   determinarEstadoAgua,
 } from "@/lib/utils/agua";
+import { aplicarDescuentoAutomaticoAgua } from "@/lib/utils/agua-descuento";
 import { emitZonaUpdated } from "@/lib/events/zona-events";
 import { addDays } from "date-fns";
 import type {
@@ -36,8 +39,6 @@ interface UseAgua {
     proveedor?: string;
     notas?: string;
   }) => Promise<EntradaAgua>;
-
-  calcularAguaDesdeEstanques: () => number;
 }
 
 export function useAgua(
@@ -51,7 +52,7 @@ export function useAgua(
   const [loading, setLoading] = useState(true);
 
   const estanques = useMemo(() => {
-    return zonas.filter((z) => z.tipo === "estanque" && z.estanque_config);
+    return filtrarEstanques(zonas);
   }, [zonas]);
 
   const stock = useMemo(() => calcularStockEstanques(estanques), [estanques]);
@@ -63,20 +64,20 @@ export function useAgua(
   useEffect(() => {
     if (!terreno) return;
 
-    let cancelled = false;
+    const cancelledRef = { current: false };
     const terrenoId = terreno.id;
 
     async function cargar() {
       setLoading(true);
       try {
         const data = await aguaDAL.getEntradasByTerrenoId(terrenoId);
-        if (!cancelled) {
+        if (!cancelledRef.current) {
           setEntradas(data);
         }
       } catch (err) {
-        console.error("Error cargando entradas de agua:", err);
+        logger.error("Error cargando entradas de agua", { error: err });
       } finally {
-        if (!cancelled) {
+        if (!cancelledRef.current) {
           setLoading(false);
         }
       }
@@ -85,87 +86,41 @@ export function useAgua(
     cargar();
 
     return () => {
-      cancelled = true;
+      cancelledRef.current = true;
     };
   }, [terreno]);
 
   useEffect(() => {
     if (!terreno || estanques.length === 0 || descuentoAplicado.current) return;
 
-    let cancelled = false;
+    const cancelledRef = { current: false };
     const terrenoCapture = terreno;
 
-    async function aplicarDescuento() {
+    async function ejecutarDescuento() {
       try {
-        const now = getCurrentTimestamp();
-
-        if (!terrenoCapture.ultima_simulacion_agua) {
-          if (cancelled) return;
-          await terrenosDAL.update(terrenoCapture.id, {
-            ultima_simulacion_agua: now,
-          });
-          descuentoAplicado.current = true;
-          return;
-        }
-
-        const consumoReal = calcularConsumoRealTerreno(
-          zonas,
-          plantas,
-          catalogoCultivos,
-        );
-        const resultado = calcularDescuentoAutomatico(
-          terrenoCapture.ultima_simulacion_agua,
+        const resultado = await aplicarDescuentoAutomaticoAgua(
+          terrenoCapture,
           estanques,
           zonas,
           plantas,
           catalogoCultivos,
-          consumoReal,
+          cancelledRef,
         );
 
-        if (!resultado) {
-          descuentoAplicado.current = true;
-          return;
+        descuentoAplicado.current = resultado.aplicado;
+        if (resultado.aplicado && !cancelledRef.current) {
+          onRefetch();
         }
-
-        const descuentos = resultado.descuentos
-          .map((d) => {
-            const estanque = estanques.find((e) => e.id === d.estanqueId);
-            if (!estanque || !estanque.estanque_config) return null;
-            return {
-              estanqueId: d.estanqueId,
-              update: {
-                estanque_config: {
-                  ...estanque.estanque_config,
-                  nivel_actual_m3: d.nivelNuevo,
-                },
-                updated_at: now,
-              } as Partial<Zona>,
-            };
-          })
-          .filter((d): d is NonNullable<typeof d> => d !== null);
-
-        if (cancelled) return;
-        await transaccionesDAL.aplicarDescuentosAgua(
-          descuentos,
-          terrenoCapture.id,
-          { ultima_simulacion_agua: now },
-        );
-
-        for (const d of descuentos) {
-          emitZonaUpdated(d.estanqueId);
-        }
-        descuentoAplicado.current = true;
-        if (!cancelled) onRefetch();
       } catch (err) {
-        console.error("Error aplicando descuento automático de agua:", err);
+        logger.error("Error aplicando descuento automatico de agua", { error: err });
         descuentoAplicado.current = false;
       }
     }
 
-    aplicarDescuento();
+    ejecutarDescuento();
 
     return () => {
-      cancelled = true;
+      cancelledRef.current = true;
     };
   }, [terreno, estanques, zonas, plantas, catalogoCultivos, onRefetch]);
 
@@ -178,7 +133,7 @@ export function useAgua(
   );
 
   const estadoAgua = useMemo(() => {
-    if (!terreno) return "ok" as EstadoAgua;
+    if (!terreno) return ESTADO_AGUA.OK;
     const aguaDisponible =
       estanques.length > 0 ? aguaTotalEstanques : terreno.agua_actual_m3;
     return determinarEstadoAgua(aguaDisponible, consumoSemanal);
@@ -251,13 +206,6 @@ export function useAgua(
     [terreno, estanques, onRefetch],
   );
 
-  const calcularAguaDesdeEstanques = useCallback(() => {
-    return estanques.reduce(
-      (sum, e) => sum + (e.estanque_config?.nivel_actual_m3 || 0),
-      0,
-    );
-  }, [estanques]);
-
   return {
     entradas,
     consumoSemanal,
@@ -266,6 +214,5 @@ export function useAgua(
     estadoAgua,
     loading,
     registrarEntrada,
-    calcularAguaDesdeEstanques,
   };
 }

@@ -1,12 +1,15 @@
 'use client'
 
-import { useState, useCallback, useEffect, useMemo } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import { PageLayout } from '@/components/layout'
 import { FormularioSuelo, PanelSuelo, ChecklistSuelo, PlanBSuelo } from '@/components/suelo'
-import { terrenosDAL, zonasDAL, catalogoDAL, plantasDAL } from '@/lib/dal'
+import { useProjectContext } from '@/contexts/project-context'
+import { terrenosDAL } from '@/lib/dal'
 import { ENMIENDAS_SUELO, sugerirEnmiendas } from '@/lib/data/enmiendas-suelo'
-import { evaluarCompatibilidadSueloMultiple } from '@/lib/validations/suelo'
-import type { SueloTerreno, CatalogoCultivo, Planta, Terreno } from '@/types'
+import { evaluarCompatibilidadSueloMultiple, validarSueloTerreno } from '@/lib/validations/suelo'
+import { logger } from '@/lib/logger'
+import type { SueloTerreno } from '@/types'
+import { ESTADO_PLANTA } from '@/lib/constants/entities'
 
 const COLORES_COMPAT = {
   compatible: 'text-green-700 bg-green-50',
@@ -21,40 +24,23 @@ const LABELS_COMPAT = {
 }
 
 export default function SueloPage() {
-  const [terreno, setTerreno] = useState<Terreno | null>(null)
-  const [suelo, setSuelo] = useState<SueloTerreno>({})
-  const [catalogoCultivos, setCatalogoCultivos] = useState<CatalogoCultivo[]>([])
-  const [plantas, setPlantas] = useState<Planta[]>([])
+  const { terrenoActual: terreno, plantas, catalogoCultivos } = useProjectContext()
+  const [sueloOverride, setSueloOverride] = useState<SueloTerreno | null>(null)
+  const sueloTerreno = terreno?.suelo
+  const suelo = useMemo(() => sueloOverride ?? sueloTerreno ?? {}, [sueloOverride, sueloTerreno])
   const [activeTab, setActiveTab] = useState<'formulario' | 'resultados'>('formulario')
   const [guardando, setGuardando] = useState(false)
 
-  useEffect(() => {
-    const cargar = async () => {
-      const terrenos = await terrenosDAL.getAll()
-      if (terrenos.length > 0) {
-        const t = terrenos[0]
-        setTerreno(t)
-        if (t.suelo) setSuelo(t.suelo)
-
-        const [zonas, c] = await Promise.all([
-          zonasDAL.getByTerrenoId(t.id),
-          catalogoDAL.getByProyectoId(t.proyecto_id),
-        ])
-        setCatalogoCultivos(c)
-
-        const zonaIds = zonas.map(z => z.id)
-        if (zonaIds.length > 0) {
-          const p = await plantasDAL.getByZonaIds(zonaIds)
-          setPlantas(p)
-        }
-      }
-    }
-    cargar()
-  }, [])
-
   const handleChange = useCallback(async (newSuelo: SueloTerreno) => {
-    setSuelo(newSuelo)
+    setSueloOverride(newSuelo)
     if (!terreno) return
+
+    const validacion = validarSueloTerreno(newSuelo)
+    if (!validacion.valida) {
+      logger.error('Validación suelo fallida', { error: validacion.error })
+      return
+    }
+
     setGuardando(true)
     await terrenosDAL.update(terreno.id, {
       suelo: newSuelo,
@@ -66,7 +52,7 @@ export default function SueloPage() {
   const cultivosActivos = useMemo(() => {
     const ids = new Set<string>()
     for (const p of plantas) {
-      if (p.estado !== 'muerta') ids.add(p.tipo_cultivo_id)
+      if (p.estado !== ESTADO_PLANTA.MUERTA) ids.add(p.tipo_cultivo_id)
     }
     return catalogoCultivos.filter(c => ids.has(c.id))
   }, [plantas, catalogoCultivos])

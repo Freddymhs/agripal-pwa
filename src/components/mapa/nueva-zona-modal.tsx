@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import type { TipoZona, EstanqueConfig, MaterialEstanque } from '@/types'
-import { COLORES_ZONA } from '@/types'
+import { COLORES_ZONA, TIPO_ZONA } from '@/lib/constants/entities'
 
 interface NuevaZonaModalProps {
   rect: { x: number; y: number; ancho: number; alto: number }
@@ -12,7 +12,7 @@ interface NuevaZonaModalProps {
 
 export function NuevaZonaModal({ rect, onConfirm, onCancel }: NuevaZonaModalProps) {
   const [nombre, setNombre] = useState('')
-  const [tipo, setTipo] = useState<TipoZona>('cultivo')
+  const [tipo, setTipo] = useState<TipoZona>(TIPO_ZONA.CULTIVO)
 
   const [capacidad, setCapacidad] = useState(10)
   const [material, setMaterial] = useState<MaterialEstanque>('plastico')
@@ -27,7 +27,7 @@ export function NuevaZonaModal({ rect, onConfirm, onCancel }: NuevaZonaModalProp
         tipo,
       }
 
-      if (tipo === 'estanque') {
+      if (tipo === TIPO_ZONA.ESTANQUE) {
         data.estanque_config = {
           capacidad_m3: capacidad,
           nivel_actual_m3: 0,
@@ -72,17 +72,17 @@ export function NuevaZonaModal({ rect, onConfirm, onCancel }: NuevaZonaModalProp
               onChange={(e) => setTipo(e.target.value as TipoZona)}
               className="w-full px-3 py-2 border rounded text-gray-900"
             >
-              <option value="cultivo">Cultivo</option>
-              <option value="estanque">Estanque de Agua</option>
-              <option value="bodega">Bodega</option>
-              <option value="casa">Casa</option>
-              <option value="camino">Camino</option>
-              <option value="decoracion">Decoración</option>
-              <option value="otro">Otro</option>
+              <option value={TIPO_ZONA.CULTIVO}>Cultivo</option>
+              <option value={TIPO_ZONA.ESTANQUE}>Estanque de Agua</option>
+              <option value={TIPO_ZONA.BODEGA}>Bodega</option>
+              <option value={TIPO_ZONA.CASA}>Casa</option>
+              <option value={TIPO_ZONA.CAMINO}>Camino</option>
+              <option value={TIPO_ZONA.DECORACION}>Decoración</option>
+              <option value={TIPO_ZONA.OTRO}>Otro</option>
             </select>
           </div>
 
-          {tipo === 'estanque' && (
+          {tipo === TIPO_ZONA.ESTANQUE && (
             <div className="space-y-3 p-3 bg-cyan-50 rounded border border-cyan-200">
               <h4 className="font-medium text-cyan-800 text-sm">Configuración del Estanque</h4>
 

@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { logger } from "@/lib/logger";
 import { transaccionesDAL } from "@/lib/dal";
 import { calcularEtapaActual } from "@/lib/data/duracion-etapas";
 import { getCurrentTimestamp } from "@/lib/utils";
 import type { Planta, CatalogoCultivo } from "@/types";
+import { ESTADO_PLANTA } from "@/lib/constants/entities";
 
 const INTERVALO_ACTUALIZACION_MS = 1000 * 60 * 60 * 24;
 
@@ -29,7 +31,7 @@ export function useActualizarEtapas(
       const actualizaciones: Array<{ id: string; cambios: Partial<Planta> }> = [];
 
       for (const planta of plantas) {
-        if (planta.estado === "muerta" || !planta.fecha_plantacion) continue;
+        if (planta.estado === ESTADO_PLANTA.MUERTA || !planta.fecha_plantacion) continue;
 
         const cultivo = catalogoCultivos.find(
           (c) => c.id === planta.tipo_cultivo_id,
@@ -62,7 +64,7 @@ export function useActualizarEtapas(
         if (cancelled) return;
         await transaccionesDAL.actualizarEtapasLote(actualizaciones);
       } catch (err) {
-        console.error("Error actualizando etapas:", err);
+        logger.error("Error actualizando etapas", { error: err });
         return;
       }
 
@@ -89,7 +91,7 @@ export function actualizarEtapasSync(
   const cambios: { plantaId: string; etapaNueva: string }[] = [];
 
   for (const planta of plantas) {
-    if (planta.estado === "muerta" || !planta.fecha_plantacion) continue;
+    if (planta.estado === ESTADO_PLANTA.MUERTA || !planta.fecha_plantacion) continue;
 
     const cultivo = catalogoCultivos.find(
       (c) => c.id === planta.tipo_cultivo_id,

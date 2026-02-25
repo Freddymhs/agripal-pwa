@@ -1,7 +1,9 @@
 'use client'
 
 import { useState } from 'react'
+import { logger } from '@/lib/logger'
 import type { UUID } from '@/types'
+import { formatArea } from '@/lib/utils'
 
 interface CrearTerrenoModalProps {
   proyectoId: UUID
@@ -30,7 +32,7 @@ export function CrearTerrenoModal({
       try {
         await onCreated({ nombre: nombre.trim(), ancho_m: ancho, alto_m: alto })
       } catch (error) {
-        console.error('Error creando terreno:', error)
+        logger.error('Error creando terreno', { error: error instanceof Error ? { message: error.message } : { error } })
         setCreando(false)
       }
     }
@@ -94,7 +96,7 @@ export function CrearTerrenoModal({
           <div className="bg-gray-50 p-4 rounded-lg">
             <div className="flex justify-between items-center mb-3">
               <span className="text-sm text-gray-600">Vista previa</span>
-              <span className="text-sm font-bold text-gray-900">{area.toLocaleString('es-CL')} m²</span>
+              <span className="text-sm font-bold text-gray-900">{formatArea(area)}</span>
             </div>
             <div className="flex justify-center">
               <div

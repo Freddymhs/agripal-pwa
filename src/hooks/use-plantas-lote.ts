@@ -1,8 +1,10 @@
 "use client";
 
 import { useCallback } from "react";
+import { logger } from "@/lib/logger";
 import { plantasDAL, transaccionesDAL } from "@/lib/dal";
 import { getCurrentTimestamp } from "@/lib/utils";
+import { validarEstadoPlanta } from "@/lib/validations/planta";
 import type { EstadoPlanta } from "@/types";
 
 interface UsePlantasLote {
@@ -13,6 +15,10 @@ interface UsePlantasLote {
 export function usePlantasLote(onRefetch: () => void): UsePlantasLote {
   const cambiarEstadoMultiple = useCallback(
     async (ids: string[], estado: EstadoPlanta) => {
+      if (!validarEstadoPlanta(estado)) {
+        throw new Error(`Estado "${estado}" no es un estado válido de planta`)
+      }
+
       const timestamp = getCurrentTimestamp();
       try {
         await transaccionesDAL.cambiarEstadoPlantasLote(ids, {
@@ -20,7 +26,7 @@ export function usePlantasLote(onRefetch: () => void): UsePlantasLote {
           updated_at: timestamp,
         });
       } catch (err) {
-        console.error("Error actualizando plantas en lote:", err);
+        logger.error("Error actualizando plantas en lote", { error: err });
         throw err;
       }
       onRefetch();
@@ -33,7 +39,7 @@ export function usePlantasLote(onRefetch: () => void): UsePlantasLote {
       try {
         await plantasDAL.bulkDelete(ids);
       } catch (err) {
-        console.error("Error eliminando plantas en lote:", err);
+        logger.error("Error eliminando plantas en lote", { error: err });
         throw err;
       }
       onRefetch();

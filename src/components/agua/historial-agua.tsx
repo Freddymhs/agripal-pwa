@@ -1,6 +1,6 @@
 'use client'
 
-import { formatDate, formatPesos } from '@/lib/utils'
+import { formatDate, formatCLP } from '@/lib/utils'
 import type { EntradaAgua, Zona } from '@/types'
 
 interface HistorialAguaProps {
@@ -46,7 +46,7 @@ export function HistorialAgua({ entradas, estanques }: HistorialAguaProps) {
               <div className="text-right">
                 {entrada.costo_clp && (
                   <div className="text-sm text-gray-700">
-                    {formatPesos(entrada.costo_clp)}
+                    {formatCLP(entrada.costo_clp)}
                   </div>
                 )}
                 <div className="text-xs text-gray-500">

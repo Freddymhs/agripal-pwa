@@ -3,16 +3,14 @@
 import { useState, useMemo } from 'react'
 import { calcularROI, type ProyeccionROI } from '@/lib/utils/roi'
 import type { CatalogoCultivo, Zona, SueloTerreno } from '@/types'
+import { formatCLP } from '@/lib/utils'
+import { calcularDensidadPlantas } from '@/lib/utils/helpers-cultivo'
 
 interface ComparadorProps {
   zona: Zona
   catalogoCultivos: CatalogoCultivo[]
   costoAguaM3: number
   suelo?: SueloTerreno | null
-}
-
-function formatCLP(n: number): string {
-  return '$' + Math.round(n).toLocaleString('es-CL')
 }
 
 export function Comparador({ zona, catalogoCultivos, costoAguaM3, suelo }: ComparadorProps) {
@@ -22,16 +20,14 @@ export function Comparador({ zona, catalogoCultivos, costoAguaM3, suelo }: Compa
   const roiA = useMemo(() => {
     const c = catalogoCultivos.find(x => x.id === cultivoA)
     if (!c) return null
-    const espaciadoM2 = c.espaciado_recomendado_m ** 2
-    const numPlantas = Math.floor(zona.area_m2 / espaciadoM2)
+    const { numPlantas } = calcularDensidadPlantas(c.espaciado_recomendado_m, zona.area_m2)
     return calcularROI(c, zona, numPlantas, costoAguaM3, undefined, suelo)
   }, [cultivoA, zona, catalogoCultivos, costoAguaM3, suelo])
 
   const roiB = useMemo(() => {
     const c = catalogoCultivos.find(x => x.id === cultivoB)
     if (!c) return null
-    const espaciadoM2 = c.espaciado_recomendado_m ** 2
-    const numPlantas = Math.floor(zona.area_m2 / espaciadoM2)
+    const { numPlantas } = calcularDensidadPlantas(c.espaciado_recomendado_m, zona.area_m2)
     return calcularROI(c, zona, numPlantas, costoAguaM3, undefined, suelo)
   }, [cultivoB, zona, catalogoCultivos, costoAguaM3, suelo])
 

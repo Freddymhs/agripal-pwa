@@ -8,6 +8,8 @@ import type {
 } from "@/types";
 import { calcularFactorSuelo } from "./calidad";
 import { obtenerFuente } from "@/lib/data/fuentes-agua";
+import { M2_POR_HECTAREA, SEMANAS_POR_AÑO, PRECIO_PLANTA_FACTOR } from "@/lib/constants/conversiones";
+import { calcularPrecioKgPromedio, calcularAguaPromedioHaAño, calcularPlantasPorHa } from "@/lib/utils/helpers-cultivo";
 
 export interface ProyeccionROI {
   cultivo_id: string;
@@ -84,21 +86,18 @@ export function calcularROI(
   consumoSemanalReal?: number,
   suelo?: SueloTerreno | null,
 ): ProyeccionROI {
-  const areaHa = zona.area_m2 / 10000;
-  const espaciadoM2 = cultivo.espaciado_recomendado_m ** 2;
-  const plantasPorHa = espaciadoM2 > 0 ? 10000 / espaciadoM2 : 0;
+  const areaHa = zona.area_m2 / M2_POR_HECTAREA;
+  const plantasPorHa = calcularPlantasPorHa(cultivo.espaciado_recomendado_m);
 
-  const precioKgPromedio =
-    (cultivo.precio_kg_min_clp + cultivo.precio_kg_max_clp) / 2;
-  const precioPlantaEstimado = precioKgPromedio * 0.5;
+  const precioKgPromedio = calcularPrecioKgPromedio(cultivo);
+  const precioPlantaEstimado = precioKgPromedio * PRECIO_PLANTA_FACTOR;
   const precioPlanta = cultivo.precio_planta_clp ?? precioPlantaEstimado;
   const costoPlantasTotal = numPlantasVivas * precioPlanta;
 
-  const aguaPromedioHaAño =
-    (cultivo.agua_m3_ha_año_min + cultivo.agua_m3_ha_año_max) / 2;
+  const aguaPromedioHaAño = calcularAguaPromedioHaAño(cultivo);
   const aguaAnualTotal =
     consumoSemanalReal != null
-      ? consumoSemanalReal * 52
+      ? consumoSemanalReal * SEMANAS_POR_AÑO
       : aguaPromedioHaAño * areaHa;
   const costoAguaAnual = aguaAnualTotal * costoAguaM3;
 

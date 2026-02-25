@@ -2,13 +2,14 @@
 
 import type { SueloTerreno } from '@/types'
 import { evaluarSuelo, UMBRALES_SUELO } from '@/lib/data/umbrales-suelo'
+import { clamp } from '@/lib/utils/math'
 
 interface PanelSueloProps {
   suelo?: SueloTerreno
 }
 
 export function PanelSuelo({ suelo }: PanelSueloProps) {
-  const evaluacion = evaluarSuelo(suelo ? { fisico: suelo.fisico, quimico: suelo.quimico } : undefined)
+  const evaluacion = evaluarSuelo(suelo)
 
   const estadoGeneral = {
     ok: { icono: '✅', texto: 'Apto', color: 'text-green-600 bg-green-50 border-green-200' },
@@ -83,7 +84,7 @@ export function PanelSuelo({ suelo }: PanelSueloProps) {
         <h4 className="font-medium text-gray-900 mb-3">Parámetros Críticos</h4>
         <div className="space-y-3">
           {parametros.map(param => {
-            const porcentaje = param.valor !== undefined ? Math.min(100, Math.max(0, (param.valor / param.max) * 100)) : 0
+            const porcentaje = param.valor !== undefined ? clamp((param.valor / param.max) * 100, 0, 100) : 0
             const excede = param.valor !== undefined && param.valor > param.max
 
             return (
@@ -100,7 +101,7 @@ export function PanelSuelo({ suelo }: PanelSueloProps) {
                     className={`h-full transition-all ${
                       excede ? 'bg-red-500' : porcentaje > 75 ? 'bg-yellow-500' : 'bg-green-500'
                     }`}
-                    style={{ width: `${Math.min(100, porcentaje)}%` }}
+                    style={{ width: `${clamp(porcentaje, 0, 100)}%` }}
                   />
                 </div>
               </div>

@@ -2,6 +2,8 @@
 
 import { useState } from 'react'
 import { useProjectContext } from '@/contexts/project-context'
+import { ESTADO_AGUA } from '@/lib/constants/entities'
+import { DIAS_AGUA_UMBRAL_ALTO, DIAS_AGUA_UMBRAL_CRITICO } from '@/lib/constants/umbrales'
 
 export function MapInfoBar() {
   const { dashboard, terrenoActual } = useProjectContext()
@@ -29,12 +31,12 @@ export function MapInfoBar() {
   const diasLabel = diasAgua === Infinity ? '∞' : `~${Math.floor(diasAgua)}`
   const diasColor =
     diasAgua === Infinity ? 'text-gray-500' :
-    diasAgua > 14 ? 'text-green-700' :
-    diasAgua > 7 ? 'text-yellow-700' : 'text-red-700'
+    diasAgua > DIAS_AGUA_UMBRAL_ALTO ? 'text-green-700' :
+    diasAgua > DIAS_AGUA_UMBRAL_CRITICO ? 'text-yellow-700' : 'text-red-700'
 
   const aguaColor =
-    dashboard.estado_agua === 'ok' ? 'text-green-700' :
-    dashboard.estado_agua === 'ajustado' ? 'text-yellow-700' : 'text-red-700'
+    dashboard.estado_agua === ESTADO_AGUA.OK ? 'text-green-700' :
+    dashboard.estado_agua === ESTADO_AGUA.AJUSTADO ? 'text-yellow-700' : 'text-red-700'
 
   return (
     <div className="bg-gradient-to-r from-slate-50 to-gray-50 border-b border-gray-200 px-4 py-2">
@@ -83,8 +85,8 @@ export function MapInfoBar() {
             label="días agua"
             sublabel={
               diasAgua === Infinity ? 'sin consumo activo' :
-              diasAgua > 14 ? 'agua suficiente' :
-              diasAgua > 7 ? 'planifica recarga' : '⚠️ recarga pronto'
+              diasAgua > DIAS_AGUA_UMBRAL_ALTO ? 'agua suficiente' :
+              diasAgua > DIAS_AGUA_UMBRAL_CRITICO ? 'planifica recarga' : '⚠️ recarga pronto'
             }
             valueClass={diasColor}
           />

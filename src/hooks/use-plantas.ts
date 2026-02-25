@@ -3,6 +3,7 @@
 import { useCallback } from "react";
 import { plantasDAL, transaccionesDAL } from "@/lib/dal";
 import { generateUUID, getCurrentTimestamp } from "@/lib/utils";
+import { ESTADO_PLANTA, ETAPA } from "@/lib/constants/entities";
 import {
   validarNuevaPlanta,
   validarGridPlantas,
@@ -11,6 +12,7 @@ import {
   validarEtapaPlanta,
   validarPosicionParaMover,
 } from "@/lib/validations/planta";
+import { ejecutarMutacion } from "@/lib/helpers/dal-mutation";
 import type {
   Planta,
   Zona,
@@ -82,21 +84,19 @@ export function usePlantas(onRefetch: () => void): UsePlantas {
         tipo_cultivo_id: data.tipoCultivoId,
         x: data.x,
         y: data.y,
-        estado: "plantada",
-        etapa_actual: "plántula",
+        estado: ESTADO_PLANTA.PLANTADA,
+        etapa_actual: ETAPA.PLANTULA,
         fecha_plantacion: getCurrentTimestamp(),
         notas: "",
         created_at: getCurrentTimestamp(),
         updated_at: getCurrentTimestamp(),
       };
 
-      try {
-        await plantasDAL.add(nuevaPlanta);
-      } catch (err) {
-        console.error("Error creando planta:", err);
-        throw err;
-      }
-      onRefetch();
+      await ejecutarMutacion(
+        () => plantasDAL.add(nuevaPlanta),
+        "creando planta",
+        onRefetch,
+      );
 
       return {
         planta: nuevaPlanta,
@@ -126,33 +126,27 @@ export function usePlantas(onRefetch: () => void): UsePlantas {
         data.cultivo,
       );
 
-      const plantas: Planta[] = [];
       const timestamp = getCurrentTimestamp();
 
-      for (const pos of validas) {
-        const planta: Planta = {
-          id: generateUUID(),
-          zona_id: data.zona.id,
-          tipo_cultivo_id: data.tipoCultivoId,
-          x: pos.x,
-          y: pos.y,
-          estado: "plantada",
-          etapa_actual: "plántula",
-          fecha_plantacion: timestamp,
-          notas: "",
-          created_at: timestamp,
-          updated_at: timestamp,
-        };
-        plantas.push(planta);
-      }
+      const plantas: Planta[] = validas.map((pos) => ({
+        id: generateUUID(),
+        zona_id: data.zona.id,
+        tipo_cultivo_id: data.tipoCultivoId,
+        x: pos.x,
+        y: pos.y,
+        estado: ESTADO_PLANTA.PLANTADA,
+        etapa_actual: ETAPA.PLANTULA,
+        fecha_plantacion: timestamp,
+        notas: "",
+        created_at: timestamp,
+        updated_at: timestamp,
+      }));
 
-      try {
-        await plantasDAL.bulkAdd(plantas);
-      } catch (err) {
-        console.error("Error creando plantas en grid:", err);
-        throw err;
-      }
-      onRefetch();
+      await ejecutarMutacion(
+        () => plantasDAL.bulkAdd(plantas),
+        "creando plantas en grid",
+        onRefetch,
+      );
 
       return {
         plantas,
@@ -181,17 +175,16 @@ export function usePlantas(onRefetch: () => void): UsePlantas {
         return { error: validacion.error };
       }
 
-      try {
-        await plantasDAL.update(id, {
+      await ejecutarMutacion(
+        () => plantasDAL.update(id, {
           x: nuevaPosicion.x,
           y: nuevaPosicion.y,
           updated_at: getCurrentTimestamp(),
-        });
-      } catch (err) {
-        console.error("Error moviendo planta:", err);
-        throw err;
-      }
-      onRefetch();
+        }),
+        "moviendo planta",
+        onRefetch,
+      );
+
       return {};
     },
     [onRefetch],
@@ -200,19 +193,18 @@ export function usePlantas(onRefetch: () => void): UsePlantas {
   const cambiarEstado = useCallback(
     async (id: UUID, estado: EstadoPlanta) => {
       if (!validarEstadoPlanta(estado)) {
-        return { error: `Estado inválido: "${estado}". Debe ser uno de: plantada, creciendo, produciendo, muerta` };
+        return { error: `Estado invalido: "${estado}". Debe ser uno de: plantada, creciendo, produciendo, muerta` };
       }
 
-      try {
-        await plantasDAL.update(id, {
+      await ejecutarMutacion(
+        () => plantasDAL.update(id, {
           estado,
           updated_at: getCurrentTimestamp(),
-        });
-      } catch (err) {
-        console.error("Error cambiando estado de planta:", err);
-        throw err;
-      }
-      onRefetch();
+        }),
+        "cambiando estado de planta",
+        onRefetch,
+      );
+
       return {};
     },
     [onRefetch],
@@ -221,20 +213,19 @@ export function usePlantas(onRefetch: () => void): UsePlantas {
   const cambiarEtapa = useCallback(
     async (id: UUID, etapa: EtapaCrecimiento) => {
       if (!validarEtapaPlanta(etapa)) {
-        return { error: `Etapa inválida: "${etapa}". Debe ser una de: plántula, joven, adulta, madura` };
+        return { error: `Etapa invalida: "${etapa}". Debe ser una de: plantula, joven, adulta, madura` };
       }
 
-      try {
-        await plantasDAL.update(id, {
+      await ejecutarMutacion(
+        () => plantasDAL.update(id, {
           etapa_actual: etapa,
           fecha_cambio_etapa: getCurrentTimestamp(),
           updated_at: getCurrentTimestamp(),
-        });
-      } catch (err) {
-        console.error("Error cambiando etapa de planta:", err);
-        throw err;
-      }
-      onRefetch();
+        }),
+        "cambiando etapa de planta",
+        onRefetch,
+      );
+
       return {};
     },
     [onRefetch],
@@ -242,27 +233,23 @@ export function usePlantas(onRefetch: () => void): UsePlantas {
 
   const eliminarPlanta = useCallback(
     async (id: UUID) => {
-      try {
-        await plantasDAL.delete(id);
-      } catch (err) {
-        console.error("Error eliminando planta:", err);
-        throw err;
-      }
-      onRefetch();
+      await ejecutarMutacion(
+        () => plantasDAL.delete(id),
+        "eliminando planta",
+        onRefetch,
+      );
     },
     [onRefetch],
   );
 
   const eliminarPlantasMuertas = useCallback(
     async (zonaId: UUID) => {
-      try {
-        await transaccionesDAL.eliminarPlantasMuertas(zonaId);
-        onRefetch();
-        return 0;
-      } catch (err) {
-        console.error("Error eliminando plantas muertas:", err);
-        throw err;
-      }
+      await ejecutarMutacion(
+        () => transaccionesDAL.eliminarPlantasMuertas(zonaId),
+        "eliminando plantas muertas",
+        onRefetch,
+      );
+      return 0;
     },
     [onRefetch],
   );

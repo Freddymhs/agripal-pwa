@@ -8,6 +8,7 @@ import {
   validarRedimensionarZona,
   validarMoverZona,
 } from "@/lib/validations/zona";
+import { ejecutarMutacion } from "@/lib/helpers/dal-mutation";
 import type {
   Zona,
   Terreno,
@@ -16,7 +17,7 @@ import type {
   UUID,
   EstanqueConfig,
 } from "@/types";
-import { COLORES_ZONA } from "@/types";
+import { COLORES_ZONA } from "@/lib/constants/entities";
 
 interface UseZonas {
   crearZona: (data: {
@@ -87,13 +88,12 @@ export function useZonas(
         updated_at: getCurrentTimestamp(),
       };
 
-      try {
-        await zonasDAL.add(nuevaZona);
-      } catch (err) {
-        console.error("Error creando zona:", err);
-        throw err;
-      }
-      onRefetch();
+      await ejecutarMutacion(
+        () => zonasDAL.add(nuevaZona),
+        "creando zona",
+        onRefetch,
+      );
+
       return { zona: nuevaZona };
     },
     [terrenoId, terreno, zonas, onRefetch],
@@ -105,16 +105,15 @@ export function useZonas(
         cambios.color = COLORES_ZONA[cambios.tipo];
       }
 
-      try {
-        await zonasDAL.update(id, {
+      await ejecutarMutacion(
+        () => zonasDAL.update(id, {
           ...cambios,
           updated_at: getCurrentTimestamp(),
-        });
-      } catch (err) {
-        console.error("Error actualizando zona:", err);
-        throw err;
-      }
-      onRefetch();
+        }),
+        "actualizando zona",
+        onRefetch,
+      );
+
       return {};
     },
     [onRefetch],
@@ -140,18 +139,17 @@ export function useZonas(
         return { error: validacion.error };
       }
 
-      try {
-        await zonasDAL.update(id, {
+      await ejecutarMutacion(
+        () => zonasDAL.update(id, {
           ancho: nuevoTamaño.ancho,
           alto: nuevoTamaño.alto,
           area_m2: nuevoTamaño.ancho * nuevoTamaño.alto,
           updated_at: getCurrentTimestamp(),
-        });
-      } catch (err) {
-        console.error("Error redimensionando zona:", err);
-        throw err;
-      }
-      onRefetch();
+        }),
+        "redimensionando zona",
+        onRefetch,
+      );
+
       return {};
     },
     [zonas, plantas, terreno, onRefetch],
@@ -169,17 +167,16 @@ export function useZonas(
         return { error: validacion.error };
       }
 
-      try {
-        await zonasDAL.update(id, {
+      await ejecutarMutacion(
+        () => zonasDAL.update(id, {
           x: nuevaPosicion.x,
           y: nuevaPosicion.y,
           updated_at: getCurrentTimestamp(),
-        });
-      } catch (err) {
-        console.error("Error moviendo zona:", err);
-        throw err;
-      }
-      onRefetch();
+        }),
+        "moviendo zona",
+        onRefetch,
+      );
+
       return {};
     },
     [zonas, terreno, onRefetch],
@@ -187,13 +184,12 @@ export function useZonas(
 
   const eliminarZona = useCallback(
     async (id: UUID) => {
-      try {
-        await transaccionesDAL.eliminarZonaCascade(id);
-      } catch (err) {
-        console.error("Error eliminando zona:", err);
-        throw err;
-      }
-      onRefetch();
+      await ejecutarMutacion(
+        () => transaccionesDAL.eliminarZonaCascade(id),
+        "eliminando zona",
+        onRefetch,
+      );
+
       return {};
     },
     [onRefetch],

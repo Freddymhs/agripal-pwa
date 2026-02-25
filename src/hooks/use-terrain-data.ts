@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { logger } from "@/lib/logger";
 import { terrenosDAL, zonasDAL, catalogoDAL, plantasDAL } from "@/lib/dal";
 import type { Terreno, Zona, Planta, CatalogoCultivo } from "@/types";
+import { TIPO_ZONA } from "@/lib/constants/entities";
 
 interface UseTerrainDataOptions {
   skipPlants?: boolean;
@@ -68,6 +70,7 @@ export function useTerrainData(
         err instanceof Error
           ? err
           : new Error("Error cargando datos del terreno");
+      logger.error("Error cargando datos del terreno", { error });
       setError(error);
       setTerreno(null);
       setZonas([]);
@@ -82,7 +85,7 @@ export function useTerrainData(
     refetch();
   }, [refetch]);
 
-  const estanques = zonas.filter((z) => z.tipo === "estanque");
+  const estanques = zonas.filter((z) => z.tipo === TIPO_ZONA.ESTANQUE);
 
   return {
     terreno,

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { logger } from '@/lib/logger'
 
 interface CrearProyectoModalProps {
   onCreated: (data: { nombre: string; ubicacion: string }) => Promise<void>
@@ -21,7 +22,7 @@ export function CrearProyectoModal({ onCreated, onCancel }: CrearProyectoModalPr
       try {
         await onCreated({ nombre: nombre.trim(), ubicacion: ubicacion.trim() })
       } catch (error) {
-        console.error('Error creando proyecto:', error)
+        logger.error('Error creando proyecto', { error: error instanceof Error ? { message: error.message } : { error } })
         setCreando(false)
       }
     }

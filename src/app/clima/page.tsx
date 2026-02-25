@@ -1,39 +1,15 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useMemo } from 'react'
 import { PageLayout } from '@/components/layout'
 import { PanelClima } from '@/components/clima'
-import { terrenosDAL, zonasDAL, catalogoDAL, plantasDAL } from '@/lib/dal'
+import { useProjectContext } from '@/contexts/project-context'
 import { ETO_ARICA, getEtoMesActual, hayCamanchaca, getFactorClimatico, getTemporadaActual } from '@/lib/data/clima-arica'
 import { calcularConsumoTerreno } from '@/lib/utils/agua'
-import { FACTORES_TEMPORADA } from '@/types'
-import type { Zona, Planta, CatalogoCultivo } from '@/types'
+import { FACTORES_TEMPORADA } from '@/lib/constants/entities'
 
 export default function ClimaPage() {
-  const [zonas, setZonas] = useState<Zona[]>([])
-  const [plantas, setPlantas] = useState<Planta[]>([])
-  const [catalogoCultivos, setCatalogoCultivos] = useState<CatalogoCultivo[]>([])
-
-  useEffect(() => {
-    const cargar = async () => {
-      const terrenos = await terrenosDAL.getAll()
-      if (terrenos.length > 0) {
-        const t = terrenos[0]
-        const [z, c] = await Promise.all([
-          zonasDAL.getByTerrenoId(t.id),
-          catalogoDAL.getByProyectoId(t.proyecto_id),
-        ])
-        setZonas(z)
-        setCatalogoCultivos(c)
-        const zonaIds = z.map(zona => zona.id)
-        if (zonaIds.length > 0) {
-          const p = await plantasDAL.getByZonaIds(zonaIds)
-          setPlantas(p)
-        }
-      }
-    }
-    cargar()
-  }, [])
+  const { zonas, plantas, catalogoCultivos } = useProjectContext()
 
   const temporada = getTemporadaActual()
   const etoActual = getEtoMesActual()

@@ -1,4 +1,5 @@
 import type { CatalogoCultivo, Terreno } from '@/types'
+import { SEMANAS_POR_AÑO, M2_POR_HECTAREA } from '@/lib/constants/conversiones'
 
 export interface ValidacionCultivo {
   viable: boolean
@@ -15,8 +16,6 @@ export function validarCultivoEnTerreno(
 ): ValidacionCultivo {
   const restricciones: string[] = []
   const advertencias: string[] = []
-  let recomendacion: string | undefined
-
   const agua_necesaria_anual = cultivo.agua_m3_ha_año_min * area_ha
 
   if (!cultivo.agua_m3_ha_año_min || !cultivo.agua_m3_ha_año_max) {
@@ -81,9 +80,9 @@ export function validarCultivoEnTerreno(
     advertencias.push(`Cultivo de alto riesgo en tu zona. Consultar con INDAP/INIA recomendado`)
   }
 
-  if (restricciones.length === 0) {
-    recomendacion = `✅ ${cultivo.nombre} es viable. Agua anual: ${agua_necesaria_anual.toFixed(0)} m³`
-  }
+  const recomendacion = restricciones.length === 0
+    ? `✅ ${cultivo.nombre} es viable. Agua anual: ${agua_necesaria_anual.toFixed(0)} m³`
+    : undefined
 
   return {
     viable: restricciones.length === 0,
@@ -123,20 +122,13 @@ export function rankearCultivosViables(
   priorizarPor: 'agua' | 'rentabilidad' | 'seguridad' = 'rentabilidad'
 ): { cultivo: CatalogoCultivo; validacion: ValidacionCultivo; score: number }[] {
   const ranked = cultivos.map(({ cultivo, validacion }) => {
-    let score = 0
-
-    if (priorizarPor === 'agua') {
-      score = 100 - cultivo.agua_m3_ha_año_max
-    } else if (priorizarPor === 'rentabilidad') {
-      const agua_min = cultivo.agua_m3_ha_año_min
-      const precio_max = cultivo.precio_kg_max_clp
-      const produccion = cultivo.produccion.produccion_kg_ha_año4
-      score = (precio_max * produccion) / agua_min
-    } else if (priorizarPor === 'seguridad') {
-      const riesgoScore = cultivo.riesgo === 'bajo' ? 100 : cultivo.riesgo === 'medio' ? 50 : 0
-      const tierScore = (4 - cultivo.tier) * 30
-      score = riesgoScore + tierScore
-    }
+    const score = priorizarPor === 'agua'
+      ? 100 - cultivo.agua_m3_ha_año_max
+      : priorizarPor === 'rentabilidad'
+        ? (cultivo.precio_kg_max_clp * cultivo.produccion.produccion_kg_ha_año4) / cultivo.agua_m3_ha_año_min
+        : priorizarPor === 'seguridad'
+          ? (cultivo.riesgo === 'bajo' ? 100 : cultivo.riesgo === 'medio' ? 50 : 0) + (4 - cultivo.tier) * 30
+          : 0
 
     return { cultivo, validacion, score }
   })
@@ -159,7 +151,7 @@ export function calcularAguaPorCultivo(
   }))
 
   const agua_anual_m3 = detalle.reduce((sum, d) => sum + d.agua_m3, 0)
-  const agua_semanal_m3 = agua_anual_m3 / 52
+  const agua_semanal_m3 = agua_anual_m3 / SEMANAS_POR_AÑO
   const agua_diaria_m3 = agua_anual_m3 / 365
 
   return { agua_anual_m3, agua_semanal_m3, agua_diaria_m3, detalle }

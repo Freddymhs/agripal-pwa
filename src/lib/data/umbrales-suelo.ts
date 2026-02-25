@@ -1,45 +1,9 @@
 import sueloData from '../../../data/static/umbrales/suelo.json'
-
-export interface UmbralConfig {
-  max?: number
-  min?: number
-  unidad: string
-  alerta: string
-}
+import type { SueloTerreno } from '@/types'
 
 const SUELO_STATIC = sueloData as typeof sueloData
 
 export const UMBRALES_SUELO = SUELO_STATIC.UMBRALES_SUELO
-
-export type TexturaSuelo = 'arenosa' | 'franco-arenosa' | 'franco' | 'franco-arcillosa' | 'arcillosa'
-export type DrenajeSuelo = 'rapido' | 'bueno' | 'moderado' | 'lento'
-
-export interface AnalisisFisico {
-  ph?: number
-  textura?: TexturaSuelo
-  drenaje?: DrenajeSuelo
-  profundidad_efectiva_cm?: number
-  materia_organica_pct?: number
-}
-
-export interface AnalisisQuimico {
-  analisis_realizado?: boolean
-  fecha_analisis?: string
-  laboratorio?: string
-  salinidad_dS_m?: number
-  boro_mg_l?: number
-  arsenico_mg_l?: number
-  nitrogeno_ppm?: number
-  fosforo_ppm?: number
-  potasio_ppm?: number
-  calcio_ppm?: number
-  magnesio_ppm?: number
-}
-
-export interface SueloAnalisis {
-  fisico?: AnalisisFisico
-  quimico?: AnalisisQuimico
-}
 
 export type NivelAlerta = 'ok' | 'advertencia' | 'critico'
 
@@ -50,7 +14,7 @@ export interface EvaluacionSuelo {
   advertencias: string[]
 }
 
-export function evaluarSuelo(suelo?: SueloAnalisis): EvaluacionSuelo {
+export function evaluarSuelo(suelo?: SueloTerreno): EvaluacionSuelo {
   const problemas: string[] = []
   const advertencias: string[] = []
 
@@ -92,9 +56,11 @@ export function evaluarSuelo(suelo?: SueloAnalisis): EvaluacionSuelo {
     }
   }
 
-  let nivel: NivelAlerta = 'ok'
-  if (problemas.length > 0) nivel = 'critico'
-  else if (advertencias.length > 0) nivel = 'advertencia'
+  const nivel: NivelAlerta = problemas.length > 0
+    ? 'critico'
+    : advertencias.length > 0
+      ? 'advertencia'
+      : 'ok'
 
   return {
     viable: problemas.length === 0,

@@ -7,7 +7,7 @@ vi.mock("@/lib/utils/index.ts", () => ({
   parseTimestamp: vi.fn((ts: string) => new Date(ts)),
   formatDate: vi.fn((ts: string) => ts),
   formatArea: vi.fn((m2: number) => `${m2} m2`),
-  formatPesos: vi.fn((clp: number) => `$${clp}`),
+  formatCLP: vi.fn((clp: number) => `$${clp}`),
 }));
 
 vi.mock("@/lib/data/kc-cultivos.ts", async (importOriginal) => {

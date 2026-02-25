@@ -17,6 +17,7 @@ function decodePayload(token: string): JWTPayload | null {
     const [, payloadB64] = token.split('.')
     return JSON.parse(atob(payloadB64))
   } catch {
+    // Token malformado/corrupto — retorna null como payload inválido
     return null
   }
 }

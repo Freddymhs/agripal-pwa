@@ -130,7 +130,7 @@ export function FormularioCalidadAgua({ calidad, onChange }: FormularioCalidadAg
             type="number"
             step="0.1"
             value={data.salinidad_dS_m ?? ''}
-            onChange={e => setData({ ...data, salinidad_dS_m: parseFloat(e.target.value) || undefined })}
+            onChange={e => setData({ ...data, salinidad_dS_m: e.target.value === '' ? undefined : parseFloat(e.target.value) })}
             placeholder={`< ${UMBRALES_AGUA.salinidad.max}`}
             className={`w-full px-3 py-2 border rounded text-gray-900 ${
               coloresIndicador[getIndicador(data.salinidad_dS_m, UMBRALES_AGUA.salinidad.max)]
@@ -147,7 +147,7 @@ export function FormularioCalidadAgua({ calidad, onChange }: FormularioCalidadAg
             type="number"
             step="0.1"
             value={data.boro_ppm ?? ''}
-            onChange={e => setData({ ...data, boro_ppm: parseFloat(e.target.value) || undefined })}
+            onChange={e => setData({ ...data, boro_ppm: e.target.value === '' ? undefined : parseFloat(e.target.value) })}
             placeholder={`< ${UMBRALES_AGUA.boro.max}`}
             className={`w-full px-3 py-2 border rounded text-gray-900 ${
               coloresIndicador[getIndicador(data.boro_ppm, UMBRALES_AGUA.boro.max)]
@@ -164,7 +164,7 @@ export function FormularioCalidadAgua({ calidad, onChange }: FormularioCalidadAg
             type="number"
             step="0.01"
             value={data.arsenico_mg_l ?? ''}
-            onChange={e => setData({ ...data, arsenico_mg_l: parseFloat(e.target.value) || undefined })}
+            onChange={e => setData({ ...data, arsenico_mg_l: e.target.value === '' ? undefined : parseFloat(e.target.value) })}
             placeholder={`< ${UMBRALES_AGUA.arsenico.max}`}
             className={`w-full px-3 py-2 border rounded text-gray-900 ${
               coloresIndicador[getIndicador(data.arsenico_mg_l, UMBRALES_AGUA.arsenico.max)]

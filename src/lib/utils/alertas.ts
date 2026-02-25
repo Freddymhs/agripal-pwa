@@ -8,17 +8,10 @@ import {
 import { getDiasTotalesCultivo } from "@/lib/data/duracion-etapas";
 import { alertasDAL, transaccionesDAL } from "@/lib/dal";
 import { differenceInDays } from "date-fns";
-
-const ESPACIADO_MINIMO = 0.5;
-const DIAS_ALERTA_AGUA_CRITICA = 7;
-const DIAS_LAVADO_SALINO = 30;
-
-function distancia(
-  p1: { x: number; y: number },
-  p2: { x: number; y: number },
-): number {
-  return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
-}
+import { ESPACIADO_MINIMO_M, DIAS_ALERTA_AGUA_CRITICA, DIAS_LAVADO_SALINO, PORCENTAJE_CICLO_REPLANTA } from "@/lib/constants/conversiones";
+import { ESTADO_PLANTA, ETAPA, TIPO_ZONA, TIPO_RIEGO, SEVERIDAD_ALERTA, ESTADO_ALERTA } from "@/lib/constants/entities";
+import { distancia } from "@/lib/utils/math";
+import { filtrarEstanques } from "@/lib/utils/helpers-cultivo";
 
 function generarAlertas(
   terreno: Terreno,
@@ -28,9 +21,7 @@ function generarAlertas(
 ): Omit<Alerta, "id" | "created_at" | "updated_at">[] {
   const alertas: Omit<Alerta, "id" | "created_at" | "updated_at">[] = [];
 
-  const estanques = zonas.filter(
-    (z) => z.tipo === "estanque" && z.estanque_config,
-  );
+  const estanques = filtrarEstanques(zonas);
   const { aguaTotal } = calcularStockEstanques(estanques);
   const aguaActual = estanques.length > 0 ? aguaTotal : terreno.agua_actual_m3;
 
@@ -46,8 +37,8 @@ function generarAlertas(
     alertas.push({
       terreno_id: terreno.id,
       tipo: "deficit_agua",
-      severidad: "critical",
-      estado: "activa",
+      severidad: SEVERIDAD_ALERTA.CRITICAL,
+      estado: ESTADO_ALERTA.ACTIVA,
       titulo: "Déficit de agua",
       descripcion: `El agua disponible (${aguaActual.toFixed(1)} m³) es menor al consumo semanal (${consumoSemanal.toFixed(1)} m³).`,
       sugerencia: "Registra una entrada de agua o reduce el número de plantas.",
@@ -78,8 +69,8 @@ function generarAlertas(
     alertas.push({
       terreno_id: terreno.id,
       tipo: "agua_critica",
-      severidad: "critical",
-      estado: "activa",
+      severidad: SEVERIDAD_ALERTA.CRITICAL,
+      estado: ESTADO_ALERTA.ACTIVA,
       titulo: `⚠️ Agua crítica: solo ${Math.floor(diasRestantes)} días`,
       descripcion: `El agua actual alcanza solo para ${Math.floor(diasRestantes)} días con el consumo actual.`,
       sugerencia,
@@ -92,8 +83,8 @@ function generarAlertas(
         terreno_id: terreno.id,
         zona_id: est.id,
         tipo: "estanque_sin_fuente",
-        severidad: "warning",
-        estado: "activa",
+        severidad: SEVERIDAD_ALERTA.WARNING,
+        estado: ESTADO_ALERTA.ACTIVA,
         titulo: `⚠️ Fuente de agua no configurada`,
         descripcion: `El estanque "${est.nombre}" no tiene fuente de agua asignada. Los cálculos de calidad y costo son aproximados.`,
         sugerencia:
@@ -106,7 +97,7 @@ function generarAlertas(
     const plantasZona = plantas.filter((p) => p.zona_id === zona.id);
 
     if (
-      zona.tipo === "cultivo" &&
+      zona.tipo === TIPO_ZONA.CULTIVO &&
       !zona.configuracion_riego &&
       plantasZona.length > 0
     ) {
@@ -114,8 +105,8 @@ function generarAlertas(
         terreno_id: terreno.id,
         zona_id: zona.id,
         tipo: "zona_sin_riego",
-        severidad: "warning",
-        estado: "activa",
+        severidad: SEVERIDAD_ALERTA.WARNING,
+        estado: ESTADO_ALERTA.ACTIVA,
         titulo: `⚠️ Sistema de riego no configurado en "${zona.nombre}"`,
         descripcion:
           "El consumo se calcula solo con datos del cultivo y clima, no con tu instalación real.",
@@ -124,13 +115,13 @@ function generarAlertas(
       });
     }
 
-    if (zona.tipo === "cultivo" && plantasZona.length === 0) {
+    if (zona.tipo === TIPO_ZONA.CULTIVO && plantasZona.length === 0) {
       alertas.push({
         terreno_id: terreno.id,
         zona_id: zona.id,
         tipo: "zona_sin_cultivo",
-        severidad: "info",
-        estado: "activa",
+        severidad: SEVERIDAD_ALERTA.INFO,
+        estado: ESTADO_ALERTA.ACTIVA,
         titulo: `Zona "${zona.nombre}" sin cultivos`,
         descripcion: "Esta zona de cultivo no tiene plantas.",
         sugerencia: "Agrega plantas o cambia el tipo de zona.",
@@ -142,16 +133,16 @@ function generarAlertas(
       for (let j = i + 1; j < plantasZona.length; j++) {
         if (plantasZona[j].x == null || plantasZona[j].y == null) continue;
         const dist = distancia(plantasZona[i], plantasZona[j]);
-        if (dist < ESPACIADO_MINIMO) {
+        if (dist < ESPACIADO_MINIMO_M) {
           alertas.push({
             terreno_id: terreno.id,
             zona_id: zona.id,
             planta_id: plantasZona[i].id,
             tipo: "espaciado_incorrecto",
-            severidad: "warning",
-            estado: "activa",
+            severidad: SEVERIDAD_ALERTA.WARNING,
+            estado: ESTADO_ALERTA.ACTIVA,
             titulo: "Plantas muy cercanas",
-            descripcion: `Dos plantas están a ${dist.toFixed(2)}m de distancia (mínimo: ${ESPACIADO_MINIMO}m).`,
+            descripcion: `Dos plantas están a ${dist.toFixed(2)}m de distancia (mínimo: ${ESPACIADO_MINIMO_M}m).`,
             sugerencia: "Mueve una de las plantas o elimínala.",
           });
           break;
@@ -159,14 +150,14 @@ function generarAlertas(
       }
     }
 
-    const plantasMuertas = plantasZona.filter((p) => p.estado === "muerta");
+    const plantasMuertas = plantasZona.filter((p) => p.estado === ESTADO_PLANTA.MUERTA);
     if (plantasMuertas.length > 0) {
       alertas.push({
         terreno_id: terreno.id,
         zona_id: zona.id,
         tipo: "planta_muerta",
-        severidad: "warning",
-        estado: "activa",
+        severidad: SEVERIDAD_ALERTA.WARNING,
+        estado: ESTADO_ALERTA.ACTIVA,
         titulo: `${plantasMuertas.length} planta(s) muerta(s) en "${zona.nombre}"`,
         descripcion: "Hay plantas muertas que deberían ser removidas.",
         sugerencia: "Elimina las plantas muertas y considera reemplazarlas.",
@@ -174,15 +165,15 @@ function generarAlertas(
     }
 
     const plantasProduciendo = plantasZona.filter(
-      (p) => p.estado === "produciendo",
+      (p) => p.estado === ESTADO_PLANTA.PRODUCIENDO,
     );
     if (plantasProduciendo.length > 0) {
       alertas.push({
         terreno_id: terreno.id,
         zona_id: zona.id,
         tipo: "cosecha_pendiente",
-        severidad: "info",
-        estado: "activa",
+        severidad: SEVERIDAD_ALERTA.INFO,
+        estado: ESTADO_ALERTA.ACTIVA,
         titulo: `${plantasProduciendo.length} planta(s) listas para cosechar`,
         descripcion: `Hay plantas produciendo en "${zona.nombre}".`,
         sugerencia: "Registra la cosecha cuando recojas los frutos.",
@@ -190,8 +181,8 @@ function generarAlertas(
     }
 
     if (
-      zona.tipo === "cultivo" &&
-      zona.configuracion_riego?.tipo === "continuo_24_7"
+      zona.tipo === TIPO_ZONA.CULTIVO &&
+      zona.configuracion_riego?.tipo === TIPO_RIEGO.CONTINUO
     ) {
       const texturaSuelo = terreno.suelo?.fisico?.textura;
       if (texturaSuelo === "arcillosa" || texturaSuelo === "franco-arcillosa") {
@@ -199,8 +190,8 @@ function generarAlertas(
           terreno_id: terreno.id,
           zona_id: zona.id,
           tipo: "riesgo_encharcamiento",
-          severidad: "warning",
-          estado: "activa",
+          severidad: SEVERIDAD_ALERTA.WARNING,
+          estado: ESTADO_ALERTA.ACTIVA,
           titulo: `⚠️ Riesgo encharcamiento en "${zona.nombre}"`,
           descripcion: `Suelo ${texturaSuelo} + riego continuo 24/7 puede causar pudrición de raíces.`,
           sugerencia:
@@ -210,7 +201,7 @@ function generarAlertas(
     }
 
     for (const planta of plantasZona) {
-      if (planta.estado === "muerta" || !planta.fecha_plantacion) continue;
+      if (planta.estado === ESTADO_PLANTA.MUERTA || !planta.fecha_plantacion) continue;
 
       const cultivo = catalogoCultivos.find(
         (c) => c.id === planta.tipo_cultivo_id,
@@ -223,14 +214,14 @@ function generarAlertas(
       );
       const cicloTotal = getDiasTotalesCultivo(cultivo.nombre);
 
-      if (diasDesde >= cicloTotal * 0.9 && planta.etapa_actual === "madura") {
+      if (diasDesde >= cicloTotal * PORCENTAJE_CICLO_REPLANTA && planta.etapa_actual === ETAPA.MADURA) {
         alertas.push({
           terreno_id: terreno.id,
           zona_id: zona.id,
           planta_id: planta.id,
           tipo: "replanta_pendiente",
-          severidad: "info",
-          estado: "activa",
+          severidad: SEVERIDAD_ALERTA.INFO,
+          estado: ESTADO_ALERTA.ACTIVA,
           titulo: `🔔 ${cultivo.nombre} lista para replante`,
           descripcion: `Plantada hace ${diasDesde} días (ciclo: ${cicloTotal} días).`,
           sugerencia:
@@ -252,8 +243,8 @@ function generarAlertas(
         terreno_id: terreno.id,
         zona_id: est.id,
         tipo: "lavado_salino",
-        severidad: "info",
-        estado: "activa",
+        severidad: SEVERIDAD_ALERTA.INFO,
+        estado: ESTADO_ALERTA.ACTIVA,
         titulo: `🧼 Lavado salino pendiente - ${est.nombre}`,
         descripcion: `Han pasado ${diasDesdeRecarga} días desde la última recarga en "${est.nombre}".`,
         sugerencia: "Aplica riego extra (20%) para lixiviar sales acumuladas.",
@@ -295,7 +286,7 @@ export async function sincronizarAlertas(
       resolver.push({
         id: existente.id,
         cambios: {
-          estado: "resuelta",
+          estado: ESTADO_ALERTA.RESUELTA,
           fecha_resolucion: timestamp,
           como_se_resolvio: "Automático",
           updated_at: timestamp,

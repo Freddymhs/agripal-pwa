@@ -1,10 +1,11 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import Link from 'next/link'
-import { terrenosDAL, zonasDAL, plantasDAL, catalogoDAL } from '@/lib/dal'
+import { useProjectContext } from '@/contexts/project-context'
 import { evaluarRiesgoPlagas, type RiesgoPlaga } from '@/lib/utils/riesgo-plagas'
-import type { Zona, Planta, CatalogoCultivo, EtapaCrecimiento } from '@/types'
+import type { CatalogoCultivo, EtapaCrecimiento } from '@/types'
+import { TIPO_ZONA, ESTADO_PLANTA } from '@/lib/constants/entities'
 
 const ALERT_COLORS: Record<RiesgoPlaga['alertaNivel'], string> = {
   bajo: 'bg-green-50 border-green-200',
@@ -28,45 +29,13 @@ const ALERT_BADGE: Record<RiesgoPlaga['alertaNivel'], string> = {
 }
 
 export default function PlagasPage() {
-  const [zonas, setZonas] = useState<Zona[]>([])
-  const [plantas, setPlantas] = useState<Planta[]>([])
-  const [catalogoCultivos, setCatalogoCultivos] = useState<CatalogoCultivo[]>([])
-  const [loading, setLoading] = useState(true)
-  const [zonaId, setZonaId] = useState<string>('')
-
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const terrenos = await terrenosDAL.getAll()
-        if (terrenos.length > 0) {
-          const t = terrenos[0]
-          const [z, c] = await Promise.all([
-            zonasDAL.getByTerrenoId(t.id),
-            catalogoDAL.getByProyectoId(t.proyecto_id),
-          ])
-          setZonas(z)
-          setCatalogoCultivos(c)
-          const zonaIds = z.map(zona => zona.id)
-          if (zonaIds.length > 0) {
-            const p = await plantasDAL.getByZonaIds(zonaIds)
-            setPlantas(p)
-            const zonaCultivo = z.find(zona => zona.tipo === 'cultivo')
-            if (zonaCultivo) setZonaId(zonaCultivo.id)
-          }
-        }
-      } catch (err) {
-        console.error('[PlagasPage] Error loading data:', err)
-      } finally {
-        setLoading(false)
-      }
-    }
-    fetchData()
-  }, [])
-
-  const zonasCultivo = zonas.filter(z => z.tipo === 'cultivo')
+  const { zonas, plantas, catalogoCultivos, loading } = useProjectContext()
+  const zonasCultivo = useMemo(() => zonas.filter(z => z.tipo === TIPO_ZONA.CULTIVO), [zonas])
+  const [selectedZonaId, setSelectedZonaId] = useState<string | null>(null)
+  const zonaId = selectedZonaId ?? zonasCultivo[0]?.id ?? ''
 
   const riesgos = useMemo<{ cultivo: CatalogoCultivo; etapa: EtapaCrecimiento; plagas: RiesgoPlaga[] }[]>(() => {
-    const plantasZonaFiltradas = plantas.filter(p => p.zona_id === zonaId && p.estado !== 'muerta')
+    const plantasZonaFiltradas = plantas.filter(p => p.zona_id === zonaId && p.estado !== ESTADO_PLANTA.MUERTA)
     if (!zonaId || plantasZonaFiltradas.length === 0) return []
 
     const cultivosPorTipo = new Map<string, { cultivo: CatalogoCultivo; etapa: EtapaCrecimiento }>()
@@ -123,7 +92,7 @@ export default function PlagasPage() {
           <label className="block text-sm font-medium text-gray-700 mb-1">Zona</label>
           <select
             value={zonaId}
-            onChange={e => setZonaId(e.target.value)}
+            onChange={e => setSelectedZonaId(e.target.value)}
             className="w-full px-3 py-2 border rounded text-gray-900"
           >
             <option value="">Seleccionar zona...</option>

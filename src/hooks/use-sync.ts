@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, useRef } from "react";
+import { logger } from "@/lib/logger";
 import { ejecutarSync, setAdapter } from "@/lib/sync/engine";
 import {
   contarPendientes,
@@ -49,7 +50,7 @@ export function useSync() {
       ]);
       setState((prev) => ({ ...prev, pendingCount, conflicts }));
     } catch (error) {
-      console.error("Error updating counts:", error);
+      logger.error("Error updating counts", { error });
     }
   }, []);
 
@@ -74,6 +75,7 @@ export function useSync() {
         await updateCounts();
       }
     } catch (error) {
+      logger.error("Error durante sincronización", { error });
       if (isMountedRef.current) {
         setState((prev) => ({
           ...prev,
@@ -97,7 +99,7 @@ export function useSync() {
           doSyncRef.current?.();
         }
       } catch (error) {
-        console.error("Error resolving conflict:", error);
+        logger.error("Error resolving conflict", { error });
         setState((prev) => ({
           ...prev,
           error:

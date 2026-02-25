@@ -3,15 +3,12 @@
 import { useEffect, useRef, useCallback, type RefObject } from 'react'
 import { Application, Container } from 'pixi.js'
 import { MIN_SCALE, MAX_SCALE } from './pixi-constants'
-
-function clamp(value: number, min: number, max: number): number {
-  return Math.max(min, Math.min(max, value))
-}
+import { clamp } from '@/lib/utils/math'
 
 export function usePixiViewport(
   app: Application | null,
   worldContainerRef: RefObject<Container | null>,
-  options?: { minScale?: number; maxScale?: number }
+  options?: { minScale?: number; maxScale?: number; onScaleChange?: (scale: number) => void }
 ): {
   scaleRef: React.MutableRefObject<number>
   offsetRef: React.MutableRefObject<{ x: number; y: number }>
@@ -28,6 +25,8 @@ export function usePixiViewport(
 } {
   const minScale = options?.minScale ?? MIN_SCALE
   const maxScale = options?.maxScale ?? MAX_SCALE
+  const onScaleChangeRef = useRef(options?.onScaleChange)
+  onScaleChangeRef.current = options?.onScaleChange
   const scaleRef = useRef(1)
   const offsetRef = useRef({ x: 0, y: 0 })
   const isPanningRef = useRef(false)
@@ -64,6 +63,7 @@ export function usePixiViewport(
       scaleRef.current = newScale
 
       applyTransform()
+      onScaleChangeRef.current?.(newScale)
     }
 
     canvas.addEventListener('wheel', onWheel, { passive: false })
@@ -112,6 +112,7 @@ export function usePixiViewport(
     scaleRef.current = newScale
 
     applyTransform()
+    onScaleChangeRef.current?.(newScale)
   }, [app, minScale, maxScale, applyTransform])
 
   const zoomOut = useCallback(() => {
@@ -131,6 +132,7 @@ export function usePixiViewport(
     scaleRef.current = newScale
 
     applyTransform()
+    onScaleChangeRef.current?.(newScale)
   }, [app, minScale, maxScale, applyTransform])
 
   const fitView = useCallback((worldWidthPx: number, worldHeightPx: number) => {
@@ -151,12 +153,14 @@ export function usePixiViewport(
     scaleRef.current = newScale
     offsetRef.current = { x: offsetX, y: offsetY }
     applyTransform()
+    onScaleChangeRef.current?.(newScale)
   }, [app, minScale, maxScale, applyTransform])
 
   const resetView = useCallback(() => {
     scaleRef.current = 1
     offsetRef.current = { x: 0, y: 0 }
     applyTransform()
+    onScaleChangeRef.current?.(1)
   }, [applyTransform])
 
   const getScale = useCallback(() => scaleRef.current, [])

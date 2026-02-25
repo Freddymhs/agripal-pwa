@@ -272,28 +272,9 @@ export interface Zona {
   lastModified?: Timestamp
 }
 
-export const COLORES_ZONA: Record<TipoZona, string> = {
-  cultivo: '#22c55e',
-  bodega: '#a16207',
-  casa: '#3b82f6',
-  camino: '#6b7280',
-  decoracion: '#a855f7',
-  estanque: '#06b6d4',
-  otro: '#374151',
-}
-
 export type EstadoPlanta = 'plantada' | 'creciendo' | 'produciendo' | 'muerta'
 
 export type EtapaCrecimiento = 'plántula' | 'joven' | 'adulta' | 'madura'
-
-export const ETAPAS_CRECIMIENTO: EtapaCrecimiento[] = ['plántula', 'joven', 'adulta', 'madura']
-
-export const ETAPA_INFO: Record<EtapaCrecimiento, { emoji: string; label: string; kcRango: string }> = {
-  'plántula': { emoji: '🌱', label: 'Plántula', kcRango: '0.4-0.5' },
-  'joven': { emoji: '🌿', label: 'Joven', kcRango: '0.7-0.8' },
-  'adulta': { emoji: '🌳', label: 'Adulta', kcRango: '1.0-1.2' },
-  'madura': { emoji: '🍎', label: 'Madura', kcRango: '0.8-0.9' },
-}
 
 export type TipoSistemaRiego = 'continuo_24_7' | 'programado'
 
@@ -308,11 +289,6 @@ export interface ConfiguracionRiego {
 export interface ConfiguracionGoteros {
   cantidad: number
   caudal_lh_por_gotero: number
-}
-
-export const GOTEROS_DEFAULT: ConfiguracionGoteros = {
-  cantidad: 2,
-  caudal_lh_por_gotero: 4,
 }
 
 export interface Planta {
@@ -330,13 +306,6 @@ export interface Planta {
   created_at: Timestamp
   updated_at: Timestamp
   lastModified?: Timestamp
-}
-
-export const COLORES_ESTADO_PLANTA: Record<EstadoPlanta, string> = {
-  plantada: '#84cc16',
-  creciendo: '#22c55e',
-  produciendo: '#f59e0b',
-  muerta: '#6b7280',
 }
 
 export type Tolerancia = 'alta' | 'media' | 'baja' | 'muy_baja'
@@ -563,20 +532,6 @@ export interface SyncConflict {
   serverData: Record<string, unknown>
 }
 
-export const SYNC_ENTIDADES: SyncEntidad[] = [
-  'proyecto',
-  'terreno',
-  'zona',
-  'planta',
-  'entrada_agua',
-  'cosecha',
-  'alerta',
-]
-
-export const RETRY_DELAYS = [1000, 5000, 30000, 120000, 300000]
-export const MAX_RETRY_ATTEMPTS = 5
-export const SYNC_CLEANUP_DAYS = 7
-
 export type TipoFuenteAgua = 'aljibe' | 'pozo' | 'rio' | 'canal' | 'reciclada' | 'otro'
 
 export interface FuenteAgua {
@@ -602,13 +557,6 @@ export interface CompatibilidadAguaCultivo {
 
 export type Temporada = 'verano' | 'otoño' | 'invierno' | 'primavera'
 export type EstadoAgua = 'ok' | 'ajustado' | 'deficit'
-
-export const FACTORES_TEMPORADA: Record<Temporada, number> = {
-  verano: 1.4,
-  otoño: 1.0,
-  invierno: 0.6,
-  primavera: 1.2,
-}
 
 export interface DashboardTerreno {
   terreno_id: UUID

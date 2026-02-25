@@ -3,9 +3,15 @@
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { calcularConsumoZona, calcularConsumoRiegoZona, calcularStockEstanques } from '@/lib/utils/agua'
+import { clamp } from '@/lib/utils/math'
+import { formatCLP } from '@/lib/utils'
 import { FUENTES_AGUA_ARICA } from '@/lib/data/fuentes-agua'
 import { evaluarCompatibilidadMultiple } from '@/lib/validations/agua'
-import type { Zona, Planta, CatalogoCultivo, UUID, FuenteAgua, CompatibilidadNivel } from '@/types'
+import type { Zona, Planta, CatalogoCultivo, UUID, FuenteAgua } from '@/types'
+import { DIAS_POR_SEMANA } from '@/lib/constants/conversiones'
+import { TIPO_ZONA, ESTADO_PLANTA } from '@/lib/constants/entities'
+import { EstanqueCompatibilidad } from './estanque-compatibilidad'
+import { EstanqueConsumoZonas } from './estanque-consumo-zonas'
 
 interface EstanquePanelProps {
   estanque: Zona
@@ -14,18 +20,6 @@ interface EstanquePanelProps {
   catalogoCultivos: CatalogoCultivo[]
   onAbrirFormularioAgua: (estanqueId: UUID) => void
   onCambiarFuente?: (estanqueId: UUID, fuenteId: string) => Promise<void>
-}
-
-const COLORES_COMPATIBILIDAD: Record<CompatibilidadNivel, string> = {
-  compatible: 'text-green-700 bg-green-50',
-  limitado: 'text-yellow-700 bg-yellow-50',
-  no_compatible: 'text-red-700 bg-red-50',
-}
-
-const LABELS_COMPATIBILIDAD: Record<CompatibilidadNivel, string> = {
-  compatible: 'Compatible',
-  limitado: 'Limitado',
-  no_compatible: 'No compatible',
 }
 
 function TooltipIcon({ text, variant = 'default' }: { text: string; variant?: 'default' | 'warning' | 'ok' }) {
@@ -58,21 +52,15 @@ export function EstanquePanel({
   if (!config) return null
 
   const aguaActualM3 = config.nivel_actual_m3
-  const porcentaje = config.capacidad_m3 > 0
-    ? (aguaActualM3 / config.capacidad_m3) * 100
-    : 0
-
+  const porcentaje = config.capacidad_m3 > 0 ? (aguaActualM3 / config.capacidad_m3) * 100 : 0
   const espacioDisponible = config.capacidad_m3 - aguaActualM3
   const colorBarra = porcentaje > 50 ? 'bg-cyan-500' : porcentaje > 20 ? 'bg-yellow-500' : 'bg-red-500'
 
-  const zonasCultivo = useMemo(() =>
-    zonas.filter(z => z.tipo === 'cultivo'),
-    [zonas]
-  )
+  const zonasCultivo = useMemo(() => zonas.filter(z => z.tipo === TIPO_ZONA.CULTIVO), [zonas])
 
   const consumoPorZona = useMemo(() => {
     return zonasCultivo.map(zona => {
-      const plantasZona = plantas.filter(p => p.zona_id === zona.id && p.estado !== 'muerta')
+      const plantasZona = plantas.filter(p => p.zona_id === zona.id && p.estado !== ESTADO_PLANTA.MUERTA)
       const consumoRecomendado = calcularConsumoZona(zona, plantasZona, catalogoCultivos)
       const consumoRiego = calcularConsumoRiegoZona(zona)
       const consumoEfectivo = consumoRiego > 0 ? consumoRiego : consumoRecomendado
@@ -80,24 +68,14 @@ export function EstanquePanel({
       const cultivoNombre = tipos.size === 1
         ? catalogoCultivos.find(c => c.id === [...tipos][0])?.nombre ?? '?'
         : tipos.size > 1 ? 'Mixto' : 'Vacía'
-      return {
-        zona,
-        plantasCount: plantasZona.length,
-        consumoRecomendado,
-        consumoRiego,
-        consumoEfectivo,
-        cultivoNombre,
-      }
+      return { zona, plantasCount: plantasZona.length, consumoRecomendado, consumoRiego, consumoEfectivo, cultivoNombre }
     }).filter(z => z.plantasCount > 0)
   }, [zonasCultivo, plantas, catalogoCultivos])
 
   const consumoTotal = consumoPorZona.reduce((sum, z) => sum + z.consumoEfectivo, 0)
-  const todosEstanques = useMemo(() =>
-    zonas.filter(z => z.tipo === 'estanque' && z.estanque_config),
-    [zonas]
-  )
+  const todosEstanques = useMemo(() => zonas.filter(z => z.tipo === TIPO_ZONA.ESTANQUE && z.estanque_config), [zonas])
   const stockTotal = useMemo(() => calcularStockEstanques(todosEstanques), [todosEstanques])
-  const diasRestantes = consumoTotal > 0 ? (stockTotal.aguaTotal / (consumoTotal / 7)) : Infinity
+  const diasRestantes = consumoTotal > 0 ? (stockTotal.aguaTotal / (consumoTotal / DIAS_POR_SEMANA)) : Infinity
 
   const fuenteActual: FuenteAgua | null = useMemo(() => {
     if (!config.fuente_id) return null
@@ -107,7 +85,7 @@ export function EstanquePanel({
   const cultivosActivos = useMemo(() => {
     const ids = new Set<string>()
     for (const p of plantas) {
-      if (p.estado !== 'muerta') ids.add(p.tipo_cultivo_id)
+      if (p.estado !== ESTADO_PLANTA.MUERTA) ids.add(p.tipo_cultivo_id)
     }
     return catalogoCultivos.filter(c => ids.has(c.id))
   }, [plantas, catalogoCultivos])
@@ -121,10 +99,7 @@ export function EstanquePanel({
     <div className="p-4 space-y-4">
       <div className="flex items-center justify-between">
         <h4 className="text-sm font-bold text-cyan-800">Estanque de Agua</h4>
-        <Link
-          href="/agua"
-          className="text-xs text-cyan-600 hover:text-cyan-800 font-medium flex items-center gap-1"
-        >
+        <Link href="/agua" className="text-xs text-cyan-600 hover:text-cyan-800 font-medium flex items-center gap-1">
           ⚙️ Configurar
         </Link>
       </div>
@@ -132,15 +107,10 @@ export function EstanquePanel({
       <div className="bg-cyan-50 p-3 rounded-lg space-y-2">
         <div className="flex justify-between text-sm">
           <span className="text-cyan-700">Nivel actual</span>
-          <span className="font-bold text-cyan-900">
-            {aguaActualM3.toFixed(1)} / {config.capacidad_m3} m³
-          </span>
+          <span className="font-bold text-cyan-900">{aguaActualM3.toFixed(1)} / {config.capacidad_m3} m³</span>
         </div>
         <div className="h-4 bg-cyan-200 rounded-full overflow-hidden">
-          <div
-            className={`h-full ${colorBarra} transition-all`}
-            style={{ width: `${Math.min(100, porcentaje)}%` }}
-          />
+          <div className={`h-full ${colorBarra} transition-all`} style={{ width: `${clamp(porcentaje, 0, 100)}%` }} />
         </div>
         <div className="flex justify-between text-xs text-cyan-600">
           <span>{porcentaje.toFixed(0)}%</span>
@@ -153,39 +123,25 @@ export function EstanquePanel({
           <label className="text-xs font-medium text-gray-700">Fuente de agua</label>
           {!fuenteActual ? (
             <>
-              <TooltipIcon
-                variant="warning"
-                text="No hay fuente de agua configurada. La app usa valores estándar y no puede evaluar bien boro, salinidad ni costo real por m³. Asigna Lluta, Azapa, aljibe, etc. para tener un riesgo más realista."
-              />
+              <TooltipIcon variant="warning" text="No hay fuente de agua configurada. La app usa valores estándar y no puede evaluar bien boro, salinidad ni costo real por m³. Asigna Lluta, Azapa, aljibe, etc. para tener un riesgo más realista." />
               <span className="text-[10px] font-medium text-amber-600">Sin fuente</span>
             </>
           ) : (
-            <TooltipIcon
-              variant="ok"
-              text="Usando la fuente seleccionada para calcular calidad de agua (boro, salinidad, pH) y costo real por m³."
-            />
+            <TooltipIcon variant="ok" text="Usando la fuente seleccionada para calcular calidad de agua (boro, salinidad, pH) y costo real por m³." />
           )}
         </div>
         <select
           value={config.fuente_id || ''}
-          onChange={async (e) => {
-            if (onCambiarFuente) {
-              await onCambiarFuente(estanque.id, e.target.value)
-            }
-          }}
+          onChange={async (e) => { if (onCambiarFuente) await onCambiarFuente(estanque.id, e.target.value) }}
           className="w-full px-2 py-1.5 border rounded text-sm text-gray-900"
         >
           <option value="">Sin asignar</option>
-          {FUENTES_AGUA_ARICA.map(f => (
-            <option key={f.id} value={f.id}>{f.nombre}</option>
-          ))}
+          {FUENTES_AGUA_ARICA.map(f => <option key={f.id} value={f.id}>{f.nombre}</option>)}
         </select>
         {!fuenteActual && (
           <div className="bg-amber-50 border border-amber-300 rounded-lg p-2.5 space-y-1">
             <p className="text-xs font-bold text-amber-800">⚠️ Fuente de agua no configurada</p>
-            <p className="text-[11px] text-amber-700">
-              Este estanque no tiene fuente de agua asignada. Los cálculos de calidad (boro, salinidad, pH) y costo del agua se basan en valores estándar o quedan incompletos. Asigna una fuente para tener riesgos y costos reales.
-            </p>
+            <p className="text-[11px] text-amber-700">Este estanque no tiene fuente de agua asignada. Los cálculos de calidad (boro, salinidad, pH) y costo del agua se basan en valores estándar o quedan incompletos. Asigna una fuente para tener riesgos y costos reales.</p>
           </div>
         )}
         {fuenteActual && (
@@ -211,37 +167,14 @@ export function EstanquePanel({
               )}
             </div>
             {fuenteActual.costo_m3_clp != null && fuenteActual.costo_m3_clp > 0 && (
-              <div className="text-xs text-gray-500">
-                Costo: ${fuenteActual.costo_m3_clp.toLocaleString('es-CL')}/m³
-              </div>
+              <div className="text-xs text-gray-500">Costo: {formatCLP(fuenteActual.costo_m3_clp)}/m³</div>
             )}
-            {fuenteActual.notas && (
-              <p className="text-xs text-gray-500 italic">{fuenteActual.notas}</p>
-            )}
+            {fuenteActual.notas && <p className="text-xs text-gray-500 italic">{fuenteActual.notas}</p>}
           </div>
         )}
       </div>
 
-      {compatibilidades.length > 0 && (
-        <div className="space-y-1.5">
-          <h5 className="text-xs font-medium text-gray-700">Compatibilidad agua - cultivos</h5>
-          {compatibilidades.map(c => (
-            <div key={c.cultivo_id} className={`p-2 rounded text-xs ${COLORES_COMPATIBILIDAD[c.nivel]}`}>
-              <div className="flex justify-between items-center">
-                <span className="font-medium">{c.cultivo_nombre}</span>
-                <span className="font-bold">{LABELS_COMPATIBILIDAD[c.nivel]}</span>
-              </div>
-              {c.problemas.length > 0 && (
-                <ul className="mt-1 space-y-0.5">
-                  {c.problemas.map((p, i) => (
-                    <li key={i}>{p}</li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
+      <EstanqueCompatibilidad compatibilidades={compatibilidades} />
 
       <div className="bg-gradient-to-br from-cyan-50 to-blue-50 border-2 border-cyan-200 rounded-lg p-4">
         <button
@@ -253,69 +186,12 @@ export function EstanquePanel({
           </svg>
           Registrar Entrada de Agua
         </button>
-        <p className="text-xs text-cyan-700 text-center mt-2">
-          Incluye costo, proveedor y notas para economía
-        </p>
+        <p className="text-xs text-cyan-700 text-center mt-2">Incluye costo, proveedor y notas para economía</p>
       </div>
 
-      {consumoTotal > 0 && (
-        <div className="space-y-3">
-          <div className={`p-3 rounded-lg text-sm ${
-            diasRestantes > 14 ? 'bg-green-50 text-green-800' :
-            diasRestantes > 7 ? 'bg-yellow-50 text-yellow-800' :
-            'bg-red-50 text-red-800'
-          }`}>
-            <div className="font-medium">
-              {diasRestantes === Infinity
-                ? 'Sin consumo activo'
-                : `Agua para ~${Math.floor(diasRestantes)} días`
-              }
-            </div>
-            <div className="text-xs opacity-75">
-              Consumo total: {consumoTotal.toFixed(2)} m³/semana
-            </div>
-          </div>
+      <EstanqueConsumoZonas consumoPorZona={consumoPorZona} consumoTotal={consumoTotal} diasRestantes={diasRestantes} />
 
-          <div>
-            <h5 className="text-xs font-medium text-gray-700 mb-2">Consumo por zona</h5>
-            <div className="space-y-1.5">
-              {consumoPorZona.map(({ zona, plantasCount, consumoRecomendado, consumoRiego, consumoEfectivo, cultivoNombre }) => {
-                const pct = consumoTotal > 0 ? (consumoEfectivo / consumoTotal) * 100 : 0
-                return (
-                  <div key={zona.id} className="bg-gray-50 p-2 rounded text-xs">
-                    <div className="flex justify-between">
-                      <span className="font-medium text-gray-900">{zona.nombre}</span>
-                      <span className="text-gray-600">{consumoEfectivo.toFixed(2)} m³/sem</span>
-                    </div>
-                    <div className="flex justify-between text-gray-500">
-                      <span>{cultivoNombre} ({plantasCount})</span>
-                      <span>{pct.toFixed(0)}% del total</span>
-                    </div>
-                    {consumoRiego > 0 && (
-                      <div className="flex justify-between text-blue-600 mt-0.5">
-                        <span>Rec: {consumoRecomendado.toFixed(2)}</span>
-                        <span>Real: {consumoRiego.toFixed(2)} m³/sem</span>
-                      </div>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {consumoTotal === 0 && (
-        <div className="bg-gray-50 p-3 rounded text-xs text-gray-600">
-          No hay zonas de cultivo con plantas. El consumo se calculará automáticamente al plantar.
-        </div>
-      )}
-
-      {config.material && (
-        <div className="text-xs text-gray-500">
-          Material: {config.material}
-        </div>
-      )}
+      {config.material && <div className="text-xs text-gray-500">Material: {config.material}</div>}
     </div>
   )
 }

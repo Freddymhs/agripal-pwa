@@ -1,5 +1,17 @@
 import type { CatalogoCultivo, FuenteAgua, SueloTerreno } from '@/types'
 import { CLIMA_ARICA } from '@/lib/data/clima-arica'
+import { clamp, isValidNum } from '@/lib/utils/math'
+import { DIAS_POR_SEMANA } from '@/lib/constants/conversiones'
+import {
+  SCORE_EXCELENTE,
+  SCORE_BUENA,
+  SCORE_ACEPTABLE,
+  SCORE_RIESGOSA,
+  PESO_SCORE_AGUA,
+  PESO_SCORE_SUELO,
+  PESO_SCORE_CLIMA,
+  PESO_SCORE_RIEGO,
+} from '@/lib/constants/umbrales'
 
 export type CategoriaCalidad = 'excelente' | 'buena' | 'aceptable' | 'riesgosa' | 'no_viable'
 
@@ -14,14 +26,6 @@ export interface ScoreCalidad {
   categoria: CategoriaCalidad
   factores_limitantes: string[]
   mejoras_sugeridas: string[]
-}
-
-function clamp(v: number, min: number, max: number): number {
-  return Math.max(min, Math.min(max, v))
-}
-
-function isValidNum(v: unknown): v is number {
-  return typeof v === 'number' && !Number.isNaN(v) && Number.isFinite(v)
 }
 
 function calcScoreAgua(fuente: FuenteAgua | null, cultivo: CatalogoCultivo): { score: number; problemas: string[]; mejoras: string[] } {
@@ -172,7 +176,7 @@ function calcScoreClima(cultivo: CatalogoCultivo): { score: number; problemas: s
 function calcScoreRiego(aguaDisponibleM3: number, consumoSemanalM3: number): { score: number; problemas: string[]; mejoras: string[] } {
   if (consumoSemanalM3 <= 0) return { score: 100, problemas: [], mejoras: [] }
 
-  const diasAgua = aguaDisponibleM3 / (consumoSemanalM3 / 7)
+  const diasAgua = aguaDisponibleM3 / (consumoSemanalM3 / DIAS_POR_SEMANA)
   const problemas: string[] = []
   const mejoras: string[] = []
 
@@ -192,10 +196,10 @@ function calcScoreRiego(aguaDisponibleM3: number, consumoSemanalM3: number): { s
 }
 
 function getCategoria(score: number): CategoriaCalidad {
-  if (score >= 85) return 'excelente'
-  if (score >= 70) return 'buena'
-  if (score >= 50) return 'aceptable'
-  if (score >= 30) return 'riesgosa'
+  if (score >= SCORE_EXCELENTE) return 'excelente'
+  if (score >= SCORE_BUENA) return 'buena'
+  if (score >= SCORE_ACEPTABLE) return 'aceptable'
+  if (score >= SCORE_RIESGOSA) return 'riesgosa'
   return 'no_viable'
 }
 
@@ -212,10 +216,10 @@ export function calcularScoreCalidad(
   const riego = calcScoreRiego(aguaDisponibleM3, consumoSemanalM3)
 
   const total = Math.round(
-    agua.score * 0.30 +
-    sueloScore.score * 0.25 +
-    clima.score * 0.20 +
-    riego.score * 0.25
+    agua.score * PESO_SCORE_AGUA +
+    sueloScore.score * PESO_SCORE_SUELO +
+    clima.score * PESO_SCORE_CLIMA +
+    riego.score * PESO_SCORE_RIEGO
   )
 
   return {

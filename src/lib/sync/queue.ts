@@ -1,7 +1,8 @@
+import { logger } from '@/lib/logger'
 import { db } from '@/lib/db'
 import { generateUUID, getCurrentTimestamp } from '@/lib/utils'
 import type { SyncItem, SyncEntidad, SyncAccion, UUID } from '@/types'
-import { RETRY_DELAYS, MAX_RETRY_ATTEMPTS, SYNC_CLEANUP_DAYS } from '@/types'
+import { RETRY_DELAYS, MAX_RETRY_ATTEMPTS, SYNC_CLEANUP_DAYS } from '@/lib/constants/sync'
 
 export async function agregarACola(
   entidad: SyncEntidad,
@@ -158,7 +159,7 @@ export async function resolverConflicto(
           }
           await tabla.put(updateData as never)
         } catch (err) {
-          console.error('Error applying server data during conflict resolution:', err)
+          logger.error('Error applying server data during conflict resolution', { error: err instanceof Error ? { message: err.message } : { err } })
         }
       }
     }
