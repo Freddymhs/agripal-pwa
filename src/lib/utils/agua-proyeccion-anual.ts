@@ -1,12 +1,24 @@
-import type { Terreno, Zona, Planta, CatalogoCultivo, Temporada } from "@/types";
+import type {
+  Terreno,
+  Zona,
+  Planta,
+  CatalogoCultivo,
+  Temporada,
+} from "@/types";
 import { ESTADO_PLANTA, TEMPORADA } from "@/lib/constants/entities";
 import { calcularConsumoTerreno, calcularStockEstanques } from "./agua";
 import { obtenerCostoAguaPromedio } from "./roi";
 import { getDiasTotalesCultivo } from "@/lib/data/duracion-etapas";
 import { addMonths, addDays, format, getMonth } from "date-fns";
 import { es } from "date-fns/locale";
-import { SEMANAS_POR_MES, DIAS_LAVADO_SALINO } from "@/lib/constants/conversiones";
-import { filtrarEstanques, obtenerStockAgua } from "@/lib/utils/helpers-cultivo";
+import {
+  SEMANAS_POR_MES,
+  DIAS_LAVADO_SALINO,
+} from "@/lib/constants/conversiones";
+import {
+  filtrarEstanques,
+  obtenerStockAgua,
+} from "@/lib/utils/helpers-cultivo";
 
 export interface ProyeccionMensual {
   mes: number;
@@ -57,7 +69,11 @@ export function generarProyeccionAnual(
 
   const estanques = filtrarEstanques(zonas);
   const { aguaTotal } = calcularStockEstanques(estanques);
-  let nivelActual = obtenerStockAgua(estanques, terreno.agua_actual_m3, aguaTotal);
+  let nivelActual = obtenerStockAgua(
+    estanques,
+    terreno.agua_actual_m3,
+    aguaTotal,
+  );
   let consumoTotalAnual = 0;
   let recargasTotales = 0;
   let mesesDeficit = 0;
@@ -71,7 +87,8 @@ export function generarProyeccionAnual(
 
     const consumoSemanal =
       calcularConsumoTerreno(zonas, plantas, catalogoCultivos, temporada) || 0;
-    const consumoMensual = (isNaN(consumoSemanal) ? 0 : consumoSemanal) * SEMANAS_POR_MES;
+    const consumoMensual =
+      (isNaN(consumoSemanal) ? 0 : consumoSemanal) * SEMANAS_POR_MES;
 
     let recargasMes = 0;
     for (const est of estanques) {
@@ -140,7 +157,8 @@ export function generarProyeccionAnual(
   }
 
   for (const planta of plantas) {
-    if (planta.estado === ESTADO_PLANTA.MUERTA || !planta.fecha_plantacion) continue;
+    if (planta.estado === ESTADO_PLANTA.MUERTA || !planta.fecha_plantacion)
+      continue;
 
     const cultivo = catalogoCultivos.find(
       (c) => c.id === planta.tipo_cultivo_id,

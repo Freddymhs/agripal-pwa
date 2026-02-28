@@ -16,6 +16,7 @@ Implementar gestión completa de proyectos y terrenos: selector, CRUD, y elimina
 ## ⚠️ REGLAS DE CASCADA (CRÍTICO)
 
 ### Jerarquía de Datos
+
 ```
 Proyecto
   └── Terreno (1:N)
@@ -24,6 +25,7 @@ Proyecto
 ```
 
 ### Eliminación en Cascada
+
 ```
 Eliminar Terreno:
   1. Eliminar TODAS las plantas de TODAS las zonas del terreno
@@ -37,6 +39,7 @@ Eliminar Proyecto:
 ```
 
 ### Confirmación Obligatoria
+
 - Mostrar conteo exacto de lo que se eliminará
 - Requiere escribir el nombre del terreno/proyecto para confirmar
 - NO hay "undo" - la eliminación es permanente
@@ -63,16 +66,27 @@ Eliminar Proyecto:
 
 ```typescript
 interface UseProyectos {
-  proyectos: Proyecto[]
-  loading: boolean
+  proyectos: Proyecto[];
+  loading: boolean;
 
-  crearProyecto: (data: { nombre: string; ubicacion: string }) => Promise<Proyecto>
-  editarProyecto: (id: UUID, data: Partial<Proyecto>) => Promise<void>
-  eliminarProyecto: (id: UUID) => Promise<{ eliminados: { terrenos: number; zonas: number; plantas: number; cultivos: number } }>
+  crearProyecto: (data: {
+    nombre: string;
+    ubicacion: string;
+  }) => Promise<Proyecto>;
+  editarProyecto: (id: UUID, data: Partial<Proyecto>) => Promise<void>;
+  eliminarProyecto: (id: UUID) => Promise<{
+    eliminados: {
+      terrenos: number;
+      zonas: number;
+      plantas: number;
+      cultivos: number;
+    };
+  }>;
 }
 ```
 
 **Criterios**:
+
 - [x] Lista proyectos del usuario actual
 - [x] Crear proyecto con nombre y ubicación
 - [x] Editar nombre/ubicación
@@ -87,27 +101,31 @@ interface UseProyectos {
 
 ```typescript
 interface UseTerrenos {
-  terrenos: Terreno[]
-  loading: boolean
+  terrenos: Terreno[];
+  loading: boolean;
 
   crearTerreno: (data: {
-    proyecto_id: UUID
-    nombre: string
-    ancho_m: number
-    alto_m: number
-  }) => Promise<Terreno>
+    proyecto_id: UUID;
+    nombre: string;
+    ancho_m: number;
+    alto_m: number;
+  }) => Promise<Terreno>;
 
-  editarTerreno: (id: UUID, data: Partial<Terreno>) => Promise<{ error?: string }>
+  editarTerreno: (
+    id: UUID,
+    data: Partial<Terreno>,
+  ) => Promise<{ error?: string }>;
 
   eliminarTerreno: (id: UUID) => Promise<{
-    eliminados: { zonas: number; plantas: number }
-  }>
+    eliminados: { zonas: number; plantas: number };
+  }>;
 
-  contarContenido: (id: UUID) => Promise<{ zonas: number; plantas: number }>
+  contarContenido: (id: UUID) => Promise<{ zonas: number; plantas: number }>;
 }
 ```
 
 **Criterios**:
+
 - [x] Lista terrenos de un proyecto
 - [x] Crear terreno con dimensiones
 - [x] Editar nombre y dimensiones (validar que zonas caben)
@@ -124,22 +142,24 @@ UI para seleccionar proyecto y terreno activo.
 
 ```typescript
 interface SelectorTerrenoProps {
-  proyectoActual: Proyecto | null
-  terrenoActual: Terreno | null
-  onSelectProyecto: (proyecto: Proyecto) => void
-  onSelectTerreno: (terreno: Terreno) => void
-  onCrearProyecto: () => void
-  onCrearTerreno: () => void
+  proyectoActual: Proyecto | null;
+  terrenoActual: Terreno | null;
+  onSelectProyecto: (proyecto: Proyecto) => void;
+  onSelectTerreno: (terreno: Terreno) => void;
+  onCrearProyecto: () => void;
+  onCrearTerreno: () => void;
 }
 ```
 
 **UI**:
+
 - Dropdown de proyectos con opción "+ Nuevo proyecto"
 - Dropdown de terrenos (filtrado por proyecto) con opción "+ Nuevo terreno"
 - Muestra dimensiones del terreno seleccionado
 - Badge con cantidad de zonas/plantas
 
 **Criterios**:
+
 - [x] Selector de proyecto funcional
 - [x] Selector de terreno filtrado por proyecto
 - [x] Botones para crear nuevo proyecto/terreno
@@ -153,19 +173,21 @@ interface SelectorTerrenoProps {
 
 ```typescript
 interface CrearTerrenoModalProps {
-  proyectoId: UUID
-  onCreated: (terreno: Terreno) => void
-  onCancel: () => void
+  proyectoId: UUID;
+  onCreated: (terreno: Terreno) => void;
+  onCancel: () => void;
 }
 ```
 
 **Campos**:
+
 - Nombre del terreno (requerido)
 - Ancho en metros (requerido, min: 1)
 - Alto en metros (requerido, min: 1)
 - Preview visual del tamaño
 
 **Criterios**:
+
 - [x] Formulario con validación
 - [x] Preview visual proporcional
 - [x] Muestra área calculada (m²)
@@ -181,26 +203,28 @@ Modal de confirmación para eliminar terreno/proyecto.
 
 ```typescript
 interface ConfirmarEliminacionModalProps {
-  tipo: 'terreno' | 'proyecto'
-  nombre: string
+  tipo: "terreno" | "proyecto";
+  nombre: string;
   contenido: {
-    terrenos?: number
-    zonas: number
-    plantas: number
-    cultivos?: number
-  }
-  onConfirm: () => void
-  onCancel: () => void
+    terrenos?: number;
+    zonas: number;
+    plantas: number;
+    cultivos?: number;
+  };
+  onConfirm: () => void;
+  onCancel: () => void;
 }
 ```
 
 **UI**:
+
 - Título rojo de advertencia
 - Lista de lo que se eliminará con conteos
 - Input para escribir el nombre exacto
 - Botón "Eliminar" solo habilitado cuando el nombre coincide
 
 **Criterios**:
+
 - [x] Muestra conteo exacto de elementos a eliminar
 - [x] Requiere escribir nombre para confirmar
 - [x] Botón deshabilitado hasta que nombre coincida
@@ -215,11 +239,13 @@ interface ConfirmarEliminacionModalProps {
 Página dedicada para gestionar proyectos y terrenos.
 
 **Secciones**:
+
 1. **Lista de Proyectos**: Cards con nombre, ubicación, cantidad de terrenos
 2. **Terrenos del Proyecto Seleccionado**: Grid con preview, dimensiones, zonas
 3. **Acciones**: Crear, editar, eliminar
 
 **Criterios**:
+
 - [x] Lista proyectos como cards
 - [x] Al seleccionar proyecto, muestra sus terrenos
 - [x] Cada terreno muestra: nombre, dimensiones, área, zonas, plantas
@@ -235,11 +261,13 @@ Página dedicada para gestionar proyectos y terrenos.
 Modificar página principal para usar terreno dinámico.
 
 **Cambios**:
+
 1. Eliminar constantes hardcodeadas:
+
    ```typescript
    // ELIMINAR:
-   const TERRENO_ID = 'terreno-principal'
-   const PROYECTO_ID = 'proyecto-principal'
+   const TERRENO_ID = "terreno-principal";
+   const PROYECTO_ID = "proyecto-principal";
    ```
 
 2. Agregar selector de terreno en header
@@ -247,6 +275,7 @@ Modificar página principal para usar terreno dinámico.
 4. Si no hay terreno, mostrar pantalla de bienvenida
 
 **Criterios**:
+
 - [x] Selector de terreno visible en página principal
 - [x] Datos cargan según terreno seleccionado
 - [x] Sin terreno → pantalla de "Crear tu primer terreno"
@@ -262,9 +291,9 @@ Script para migrar datos del terreno hardcodeado.
 
 ```typescript
 export async function migrarTerrenoHardcodeado(): Promise<{
-  migrado: boolean
-  proyecto?: Proyecto
-  terreno?: Terreno
+  migrado: boolean;
+  proyecto?: Proyecto;
+  terreno?: Terreno;
 }> {
   // 1. Verificar si ya existe un proyecto real
   // 2. Si no, crear proyecto "Mi Proyecto"
@@ -275,6 +304,7 @@ export async function migrarTerrenoHardcodeado(): Promise<{
 ```
 
 **Criterios**:
+
 - [ ] Detecta si hay datos con IDs hardcodeados
 - [ ] Crea proyecto/terreno real si no existen
 - [ ] Migra zonas y plantas existentes

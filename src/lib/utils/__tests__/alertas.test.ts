@@ -1,10 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import type {
-  Terreno,
-  Zona,
-  Planta,
-  CatalogoCultivo,
-} from "@/types";
+import type { Terreno, Zona, Planta, CatalogoCultivo } from "@/types";
 
 vi.mock("@/lib/dal", () => ({
   alertasDAL: {
@@ -22,7 +17,8 @@ vi.mock("@/lib/utils/agua", () => ({
 }));
 
 vi.mock("@/lib/data/duracion-etapas", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/data/duracion-etapas")>();
+  const actual =
+    await importOriginal<typeof import("@/lib/data/duracion-etapas")>();
   return {
     ...actual,
     getDiasTotalesCultivo: vi.fn(() => 240),

@@ -15,30 +15,42 @@ Sistema de alertas automáticas y dashboard con métricas del terreno.
 
 ## Tipos de Alertas
 
-| Tipo | Severidad | Condición |
-|------|-----------|-----------|
-| `deficit_agua` | critical | Agua disponible < consumo semanal |
-| `espaciado_incorrecto` | warning | Plantas muy cerca (<0.5m) |
-| `zona_sin_cultivo` | info | Zona tipo cultivo sin plantas |
-| `planta_muerta` | warning | Hay plantas muertas |
-| `cosecha_pendiente` | info | Plantas en estado "produciendo" |
+| Tipo                   | Severidad | Condición                         |
+| ---------------------- | --------- | --------------------------------- |
+| `deficit_agua`         | critical  | Agua disponible < consumo semanal |
+| `espaciado_incorrecto` | warning   | Plantas muy cerca (<0.5m)         |
+| `zona_sin_cultivo`     | info      | Zona tipo cultivo sin plantas     |
+| `planta_muerta`        | warning   | Hay plantas muertas               |
+| `cosecha_pendiente`    | info      | Plantas en estado "produciendo"   |
 
 ---
 
 ## Tareas
 
 ### Tarea 1: Crear Generador de Alertas
+
 **Archivo**: `src/lib/utils/alertas.ts` (crear)
 
 ```typescript
-import type { Alerta, Terreno, Zona, Planta, CatalogoCultivo, TipoAlerta, SeveridadAlerta } from '@/types'
-import { generateUUID, getCurrentTimestamp } from '@/lib/utils'
-import { calcularConsumoTerreno } from '@/lib/utils/agua'
-import { ESPACIADO_MINIMO } from '@/lib/validations/planta'
+import type {
+  Alerta,
+  Terreno,
+  Zona,
+  Planta,
+  CatalogoCultivo,
+  TipoAlerta,
+  SeveridadAlerta,
+} from "@/types";
+import { generateUUID, getCurrentTimestamp } from "@/lib/utils";
+import { calcularConsumoTerreno } from "@/lib/utils/agua";
+import { ESPACIADO_MINIMO } from "@/lib/validations/planta";
 
 // Distancia entre dos puntos
-function distancia(p1: { x: number; y: number }, p2: { x: number; y: number }): number {
-  return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2))
+function distancia(
+  p1: { x: number; y: number },
+  p2: { x: number; y: number },
+): number {
+  return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
 }
 
 // Generar todas las alertas para un terreno
@@ -46,95 +58,101 @@ export function generarAlertas(
   terreno: Terreno,
   zonas: Zona[],
   plantas: Planta[],
-  catalogoCultivos: CatalogoCultivo[]
-): Omit<Alerta, 'id' | 'created_at' | 'updated_at'>[] {
-  const alertas: Omit<Alerta, 'id' | 'created_at' | 'updated_at'>[] = []
+  catalogoCultivos: CatalogoCultivo[],
+): Omit<Alerta, "id" | "created_at" | "updated_at">[] {
+  const alertas: Omit<Alerta, "id" | "created_at" | "updated_at">[] = [];
 
   // 1. Alerta de déficit de agua
-  const consumoSemanal = calcularConsumoTerreno(zonas, plantas, catalogoCultivos)
+  const consumoSemanal = calcularConsumoTerreno(
+    zonas,
+    plantas,
+    catalogoCultivos,
+  );
   if (terreno.agua_actual_m3 < consumoSemanal) {
     alertas.push({
       terreno_id: terreno.id,
-      tipo: 'deficit_agua',
-      severidad: 'critical',
-      estado: 'activa',
-      titulo: 'Déficit de agua',
+      tipo: "deficit_agua",
+      severidad: "critical",
+      estado: "activa",
+      titulo: "Déficit de agua",
       descripcion: `El agua disponible (${terreno.agua_actual_m3.toFixed(1)} m³) es menor al consumo semanal (${consumoSemanal.toFixed(1)} m³).`,
-      sugerencia: 'Registra una entrada de agua o reduce el número de plantas.',
-    })
+      sugerencia: "Registra una entrada de agua o reduce el número de plantas.",
+    });
   }
 
   // 2. Alertas por zona
   for (const zona of zonas) {
-    const plantasZona = plantas.filter(p => p.zona_id === zona.id)
+    const plantasZona = plantas.filter((p) => p.zona_id === zona.id);
 
     // Zona de cultivo sin plantas
-    if (zona.tipo === 'cultivo' && plantasZona.length === 0) {
+    if (zona.tipo === "cultivo" && plantasZona.length === 0) {
       alertas.push({
         terreno_id: terreno.id,
         zona_id: zona.id,
-        tipo: 'zona_sin_cultivo',
-        severidad: 'info',
-        estado: 'activa',
+        tipo: "zona_sin_cultivo",
+        severidad: "info",
+        estado: "activa",
         titulo: `Zona "${zona.nombre}" sin cultivos`,
-        descripcion: 'Esta zona de cultivo no tiene plantas.',
-        sugerencia: 'Agrega plantas o cambia el tipo de zona.',
-      })
+        descripcion: "Esta zona de cultivo no tiene plantas.",
+        sugerencia: "Agrega plantas o cambia el tipo de zona.",
+      });
     }
 
     // Verificar espaciado entre plantas
     for (let i = 0; i < plantasZona.length; i++) {
       for (let j = i + 1; j < plantasZona.length; j++) {
-        const dist = distancia(plantasZona[i], plantasZona[j])
+        const dist = distancia(plantasZona[i], plantasZona[j]);
         if (dist < ESPACIADO_MINIMO) {
           alertas.push({
             terreno_id: terreno.id,
             zona_id: zona.id,
             planta_id: plantasZona[i].id,
-            tipo: 'espaciado_incorrecto',
-            severidad: 'warning',
-            estado: 'activa',
-            titulo: 'Plantas muy cercanas',
+            tipo: "espaciado_incorrecto",
+            severidad: "warning",
+            estado: "activa",
+            titulo: "Plantas muy cercanas",
             descripcion: `Dos plantas están a ${dist.toFixed(2)}m de distancia (mínimo: ${ESPACIADO_MINIMO}m).`,
-            sugerencia: 'Mueve una de las plantas o elimínala.',
-          })
-          break // Solo una alerta por zona
+            sugerencia: "Mueve una de las plantas o elimínala.",
+          });
+          break; // Solo una alerta por zona
         }
       }
     }
 
     // Plantas muertas
-    const plantasMuertas = plantasZona.filter(p => p.estado === 'muerta')
+    const plantasMuertas = plantasZona.filter((p) => p.estado === "muerta");
     if (plantasMuertas.length > 0) {
       alertas.push({
         terreno_id: terreno.id,
         zona_id: zona.id,
-        tipo: 'planta_muerta',
-        severidad: 'warning',
-        estado: 'activa',
+        tipo: "planta_muerta",
+        severidad: "warning",
+        estado: "activa",
         titulo: `${plantasMuertas.length} planta(s) muerta(s) en "${zona.nombre}"`,
-        descripcion: 'Hay plantas muertas que deberían ser removidas.',
-        sugerencia: 'Elimina las plantas muertas y considera reemplazarlas.',
-      })
+        descripcion: "Hay plantas muertas que deberían ser removidas.",
+        sugerencia: "Elimina las plantas muertas y considera reemplazarlas.",
+      });
     }
 
     // Cosecha pendiente
-    const plantasProduciendo = plantasZona.filter(p => p.estado === 'produciendo')
+    const plantasProduciendo = plantasZona.filter(
+      (p) => p.estado === "produciendo",
+    );
     if (plantasProduciendo.length > 0) {
       alertas.push({
         terreno_id: terreno.id,
         zona_id: zona.id,
-        tipo: 'cosecha_pendiente',
-        severidad: 'info',
-        estado: 'activa',
+        tipo: "cosecha_pendiente",
+        severidad: "info",
+        estado: "activa",
         titulo: `${plantasProduciendo.length} planta(s) listas para cosechar`,
         descripcion: `Hay plantas produciendo en "${zona.nombre}".`,
-        sugerencia: 'Registra la cosecha cuando recojas los frutos.',
-      })
+        sugerencia: "Registra la cosecha cuando recojas los frutos.",
+      });
     }
   }
 
-  return alertas
+  return alertas;
 }
 
 // Sincronizar alertas con la base de datos
@@ -143,46 +161,53 @@ export async function sincronizarAlertas(
   terreno: Terreno,
   zonas: Zona[],
   plantas: Planta[],
-  catalogoCultivos: CatalogoCultivo[]
+  catalogoCultivos: CatalogoCultivo[],
 ): Promise<Alerta[]> {
-  const timestamp = getCurrentTimestamp()
+  const timestamp = getCurrentTimestamp();
 
   // Marcar alertas existentes como resueltas (si ya no aplican)
   const alertasExistentes = await db.alertas
-    .where('terreno_id')
+    .where("terreno_id")
     .equals(terreno.id)
-    .and((a: Alerta) => a.estado === 'activa')
-    .toArray()
+    .and((a: Alerta) => a.estado === "activa")
+    .toArray();
 
   // Generar nuevas alertas
-  const nuevasAlertas = generarAlertas(terreno, zonas, plantas, catalogoCultivos)
+  const nuevasAlertas = generarAlertas(
+    terreno,
+    zonas,
+    plantas,
+    catalogoCultivos,
+  );
 
   // Comparar y actualizar
   for (const existente of alertasExistentes) {
     const sigueSiendo = nuevasAlertas.some(
-      n => n.tipo === existente.tipo &&
-           n.zona_id === existente.zona_id &&
-           n.planta_id === existente.planta_id
-    )
+      (n) =>
+        n.tipo === existente.tipo &&
+        n.zona_id === existente.zona_id &&
+        n.planta_id === existente.planta_id,
+    );
 
     if (!sigueSiendo) {
       await db.alertas.update(existente.id, {
-        estado: 'resuelta',
+        estado: "resuelta",
         fecha_resolucion: timestamp,
-        como_se_resolvio: 'Automático',
+        como_se_resolvio: "Automático",
         updated_at: timestamp,
-      })
+      });
     }
   }
 
   // Crear alertas nuevas (que no existían)
-  const alertasCreadas: Alerta[] = []
+  const alertasCreadas: Alerta[] = [];
   for (const nueva of nuevasAlertas) {
     const yaExiste = alertasExistentes.some(
-      e => e.tipo === nueva.tipo &&
-           e.zona_id === nueva.zona_id &&
-           e.planta_id === nueva.planta_id
-    )
+      (e) =>
+        e.tipo === nueva.tipo &&
+        e.zona_id === nueva.zona_id &&
+        e.planta_id === nueva.planta_id,
+    );
 
     if (!yaExiste) {
       const alerta: Alerta = {
@@ -190,86 +215,102 @@ export async function sincronizarAlertas(
         id: generateUUID(),
         created_at: timestamp,
         updated_at: timestamp,
-      }
-      await db.alertas.add(alerta)
-      alertasCreadas.push(alerta)
+      };
+      await db.alertas.add(alerta);
+      alertasCreadas.push(alerta);
     }
   }
 
   // Retornar todas las alertas activas
   return db.alertas
-    .where('terreno_id')
+    .where("terreno_id")
     .equals(terreno.id)
-    .and((a: Alerta) => a.estado === 'activa')
-    .toArray()
+    .and((a: Alerta) => a.estado === "activa")
+    .toArray();
 }
 ```
 
 ---
 
 ### Tarea 2: Crear Hook useAlertas
+
 **Archivo**: `src/hooks/useAlertas.ts` (crear)
 
 ```typescript
-'use client'
+"use client";
 
-import { useEffect, useState, useCallback } from 'react'
-import { db } from '@/lib/db'
-import { sincronizarAlertas } from '@/lib/utils/alertas'
-import { getCurrentTimestamp } from '@/lib/utils'
-import type { Alerta, Terreno, Zona, Planta, CatalogoCultivo, UUID } from '@/types'
+import { useEffect, useState, useCallback } from "react";
+import { db } from "@/lib/db";
+import { sincronizarAlertas } from "@/lib/utils/alertas";
+import { getCurrentTimestamp } from "@/lib/utils";
+import type {
+  Alerta,
+  Terreno,
+  Zona,
+  Planta,
+  CatalogoCultivo,
+  UUID,
+} from "@/types";
 
 interface UseAlertas {
-  alertas: Alerta[]
-  alertasCriticas: number
-  loading: boolean
+  alertas: Alerta[];
+  alertasCriticas: number;
+  loading: boolean;
 
-  refrescarAlertas: () => Promise<void>
-  resolverAlerta: (id: UUID, como: string) => Promise<void>
-  ignorarAlerta: (id: UUID) => Promise<void>
+  refrescarAlertas: () => Promise<void>;
+  resolverAlerta: (id: UUID, como: string) => Promise<void>;
+  ignorarAlerta: (id: UUID) => Promise<void>;
 }
 
 export function useAlertas(
   terreno: Terreno | null,
   zonas: Zona[],
   plantas: Planta[],
-  catalogoCultivos: CatalogoCultivo[]
+  catalogoCultivos: CatalogoCultivo[],
 ): UseAlertas {
-  const [alertas, setAlertas] = useState<Alerta[]>([])
-  const [loading, setLoading] = useState(true)
+  const [alertas, setAlertas] = useState<Alerta[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const refrescarAlertas = useCallback(async () => {
-    if (!terreno) return
+    if (!terreno) return;
 
-    setLoading(true)
-    const activas = await sincronizarAlertas(db, terreno, zonas, plantas, catalogoCultivos)
-    setAlertas(activas)
-    setLoading(false)
-  }, [terreno, zonas, plantas, catalogoCultivos])
+    setLoading(true);
+    const activas = await sincronizarAlertas(
+      db,
+      terreno,
+      zonas,
+      plantas,
+      catalogoCultivos,
+    );
+    setAlertas(activas);
+    setLoading(false);
+  }, [terreno, zonas, plantas, catalogoCultivos]);
 
   useEffect(() => {
-    refrescarAlertas()
-  }, [refrescarAlertas])
+    refrescarAlertas();
+  }, [refrescarAlertas]);
 
   const resolverAlerta = useCallback(async (id: UUID, como: string) => {
     await db.alertas.update(id, {
-      estado: 'resuelta',
+      estado: "resuelta",
       fecha_resolucion: getCurrentTimestamp(),
       como_se_resolvio: como,
       updated_at: getCurrentTimestamp(),
-    })
-    setAlertas(prev => prev.filter(a => a.id !== id))
-  }, [])
+    });
+    setAlertas((prev) => prev.filter((a) => a.id !== id));
+  }, []);
 
   const ignorarAlerta = useCallback(async (id: UUID) => {
     await db.alertas.update(id, {
-      estado: 'ignorada',
+      estado: "ignorada",
       updated_at: getCurrentTimestamp(),
-    })
-    setAlertas(prev => prev.filter(a => a.id !== id))
-  }, [])
+    });
+    setAlertas((prev) => prev.filter((a) => a.id !== id));
+  }, []);
 
-  const alertasCriticas = alertas.filter(a => a.severidad === 'critical').length
+  const alertasCriticas = alertas.filter(
+    (a) => a.severidad === "critical",
+  ).length;
 
   return {
     alertas,
@@ -278,13 +319,14 @@ export function useAlertas(
     refrescarAlertas,
     resolverAlerta,
     ignorarAlerta,
-  }
+  };
 }
 ```
 
 ---
 
 ### Tarea 3: Crear Lista de Alertas
+
 **Archivo**: `src/components/alertas/AlertasList.tsx` (crear)
 
 ```typescript
@@ -396,6 +438,7 @@ function AlertaCard({
 ---
 
 ### Tarea 4: Crear Dashboard de Métricas
+
 **Archivo**: `src/components/dashboard/TerrenoDashboard.tsx` (crear)
 
 ```typescript
@@ -517,11 +560,13 @@ function MetricaCard({
 ---
 
 ### Tarea 5: INTEGRAR Alertas y Dashboard en UI
+
 **Archivos**: `src/app/page.tsx` (actualizar), `src/app/alertas/page.tsx` (crear)
 
 **Cambios requeridos:**
 
 1. **Contador de alertas en header**:
+
    ```typescript
    <div className="relative">
      <BellIcon />
@@ -538,6 +583,7 @@ function MetricaCard({
    - Link a página completa
 
 3. **Crear ruta /alertas**:
+
    ```
    src/app/alertas/page.tsx
    ```

@@ -8,8 +8,20 @@ import {
 import { getDiasTotalesCultivo } from "@/lib/data/duracion-etapas";
 import { alertasDAL, transaccionesDAL } from "@/lib/dal";
 import { differenceInDays } from "date-fns";
-import { ESPACIADO_MINIMO_M, DIAS_ALERTA_AGUA_CRITICA, DIAS_LAVADO_SALINO, PORCENTAJE_CICLO_REPLANTA } from "@/lib/constants/conversiones";
-import { ESTADO_PLANTA, ETAPA, TIPO_ZONA, TIPO_RIEGO, SEVERIDAD_ALERTA, ESTADO_ALERTA } from "@/lib/constants/entities";
+import {
+  ESPACIADO_MINIMO_M,
+  DIAS_ALERTA_AGUA_CRITICA,
+  DIAS_LAVADO_SALINO,
+  PORCENTAJE_CICLO_REPLANTA,
+} from "@/lib/constants/conversiones";
+import {
+  ESTADO_PLANTA,
+  ETAPA,
+  TIPO_ZONA,
+  TIPO_RIEGO,
+  SEVERIDAD_ALERTA,
+  ESTADO_ALERTA,
+} from "@/lib/constants/entities";
 import { distancia } from "@/lib/utils/math";
 import { filtrarEstanques } from "@/lib/utils/helpers-cultivo";
 
@@ -150,7 +162,9 @@ function generarAlertas(
       }
     }
 
-    const plantasMuertas = plantasZona.filter((p) => p.estado === ESTADO_PLANTA.MUERTA);
+    const plantasMuertas = plantasZona.filter(
+      (p) => p.estado === ESTADO_PLANTA.MUERTA,
+    );
     if (plantasMuertas.length > 0) {
       alertas.push({
         terreno_id: terreno.id,
@@ -201,7 +215,8 @@ function generarAlertas(
     }
 
     for (const planta of plantasZona) {
-      if (planta.estado === ESTADO_PLANTA.MUERTA || !planta.fecha_plantacion) continue;
+      if (planta.estado === ESTADO_PLANTA.MUERTA || !planta.fecha_plantacion)
+        continue;
 
       const cultivo = catalogoCultivos.find(
         (c) => c.id === planta.tipo_cultivo_id,
@@ -214,7 +229,10 @@ function generarAlertas(
       );
       const cicloTotal = getDiasTotalesCultivo(cultivo.nombre);
 
-      if (diasDesde >= cicloTotal * PORCENTAJE_CICLO_REPLANTA && planta.etapa_actual === ETAPA.MADURA) {
+      if (
+        diasDesde >= cicloTotal * PORCENTAJE_CICLO_REPLANTA &&
+        planta.etapa_actual === ETAPA.MADURA
+      ) {
         alertas.push({
           terreno_id: terreno.id,
           zona_id: zona.id,

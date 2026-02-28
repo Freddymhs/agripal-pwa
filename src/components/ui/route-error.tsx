@@ -1,11 +1,12 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
+import Link from "next/link";
+import { ROUTES } from "@/lib/constants/routes";
 
 interface RouteErrorProps {
-  error: Error & { digest?: string }
-  reset: () => void
-  routeName: string
+  error: Error & { digest?: string };
+  reset: () => void;
+  routeName: string;
 }
 
 export function RouteError({ reset, routeName }: RouteErrorProps) {
@@ -42,7 +43,7 @@ export function RouteError({ reset, routeName }: RouteErrorProps) {
             Reintentar
           </button>
           <Link
-            href="/"
+            href={ROUTES.HOME}
             className="border border-gray-300 text-gray-700 px-6 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors"
           >
             Volver al inicio
@@ -50,5 +51,5 @@ export function RouteError({ reset, routeName }: RouteErrorProps) {
         </div>
       </div>
     </div>
-  )
+  );
 }

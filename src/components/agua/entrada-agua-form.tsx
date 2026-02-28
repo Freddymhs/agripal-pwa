@@ -1,19 +1,19 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import type { Zona, UUID } from '@/types'
+import { useState } from "react";
+import type { Zona, UUID } from "@/types";
 
 interface EntradaAguaFormProps {
-  estanques: Zona[]
-  estanqueIdPrecargado?: UUID
+  estanques: Zona[];
+  estanqueIdPrecargado?: UUID;
   onRegistrar: (data: {
-    estanque_id: UUID
-    cantidad_m3: number
-    costo_clp?: number
-    proveedor?: string
-    notas?: string
-  }) => Promise<void>
-  onCancelar: () => void
+    estanque_id: UUID;
+    cantidad_m3: number;
+    costo_clp?: number;
+    proveedor?: string;
+    notas?: string;
+  }) => Promise<void>;
+  onCancelar: () => void;
 }
 
 export function EntradaAguaForm({
@@ -22,27 +22,29 @@ export function EntradaAguaForm({
   onRegistrar,
   onCancelar,
 }: EntradaAguaFormProps) {
-  const [estanqueId, setEstanqueId] = useState<UUID>(estanqueIdPrecargado || estanques[0]?.id || '')
-  const [cantidad, setCantidad] = useState(20)
-  const [costo, setCosto] = useState<number | ''>('')
-  const [proveedor, setProveedor] = useState('')
-  const [notas, setNotas] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [estanqueId, setEstanqueId] = useState<UUID>(
+    estanqueIdPrecargado || estanques[0]?.id || "",
+  );
+  const [cantidad, setCantidad] = useState(20);
+  const [costo, setCosto] = useState<number | "">("");
+  const [proveedor, setProveedor] = useState("");
+  const [notas, setNotas] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const estanqueSeleccionado = estanques.find(e => e.id === estanqueId)
-  const config = estanqueSeleccionado?.estanque_config
+  const estanqueSeleccionado = estanques.find((e) => e.id === estanqueId);
+  const config = estanqueSeleccionado?.estanque_config;
 
-  const aguaActual = config?.nivel_actual_m3 || 0
-  const aguaMaxima = config?.capacidad_m3 || 0
-  const espacioDisponible = aguaMaxima - aguaActual
-  const cantidadFinal = Math.min(cantidad, espacioDisponible)
-  const excede = cantidad > espacioDisponible
+  const aguaActual = config?.nivel_actual_m3 || 0;
+  const aguaMaxima = config?.capacidad_m3 || 0;
+  const espacioDisponible = aguaMaxima - aguaActual;
+  const cantidadFinal = Math.min(cantidad, espacioDisponible);
+  const excede = cantidad > espacioDisponible;
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!estanqueId || cantidadFinal <= 0) return
+    e.preventDefault();
+    if (!estanqueId || cantidadFinal <= 0) return;
 
-    setLoading(true)
+    setLoading(true);
     try {
       await onRegistrar({
         estanque_id: estanqueId,
@@ -50,18 +52,23 @@ export function EntradaAguaForm({
         costo_clp: costo || undefined,
         proveedor: proveedor || undefined,
         notas,
-      })
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   if (estanques.length === 0) {
     return (
       <div className="p-4">
-        <h3 className="text-lg font-bold text-gray-900 mb-4">Registrar Entrada de Agua</h3>
+        <h3 className="text-lg font-bold text-gray-900 mb-4">
+          Registrar Entrada de Agua
+        </h3>
         <div className="bg-yellow-50 border border-yellow-200 p-4 rounded">
-          <p className="text-yellow-800">No hay estanques disponibles. Crea una zona tipo &quot;Estanque&quot; primero.</p>
+          <p className="text-yellow-800">
+            No hay estanques disponibles. Crea una zona tipo
+            &quot;Estanque&quot; primero.
+          </p>
         </div>
         <button
           onClick={onCancelar}
@@ -70,15 +77,19 @@ export function EntradaAguaForm({
           Cerrar
         </button>
       </div>
-    )
+    );
   }
 
   return (
     <form onSubmit={handleSubmit} className="p-4 space-y-4">
-      <h3 className="text-lg font-bold text-gray-900">Registrar Entrada de Agua</h3>
+      <h3 className="text-lg font-bold text-gray-900">
+        Registrar Entrada de Agua
+      </h3>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Estanque destino *</label>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Estanque destino *
+        </label>
         <select
           value={estanqueId}
           onChange={(e) => setEstanqueId(e.target.value)}
@@ -88,7 +99,8 @@ export function EntradaAguaForm({
         >
           {estanques.map((est) => (
             <option key={est.id} value={est.id}>
-              {est.nombre} ({est.estanque_config?.nivel_actual_m3.toFixed(1)}/{est.estanque_config?.capacidad_m3}m³)
+              {est.nombre} ({est.estanque_config?.nivel_actual_m3.toFixed(1)}/
+              {est.estanque_config?.capacidad_m3}m³)
             </option>
           ))}
         </select>
@@ -101,21 +113,30 @@ export function EntradaAguaForm({
 
       {config && (
         <div className="bg-cyan-50 p-3 rounded text-sm text-cyan-800">
-          <div><strong>Agua actual:</strong> {aguaActual.toFixed(1)} m³</div>
-          <div><strong>Capacidad:</strong> {aguaMaxima.toFixed(1)} m³</div>
-          <div><strong>Espacio disponible:</strong> {espacioDisponible.toFixed(1)} m³</div>
+          <div>
+            <strong>Agua actual:</strong> {aguaActual.toFixed(1)} m³
+          </div>
+          <div>
+            <strong>Capacidad:</strong> {aguaMaxima.toFixed(1)} m³
+          </div>
+          <div>
+            <strong>Espacio disponible:</strong> {espacioDisponible.toFixed(1)}{" "}
+            m³
+          </div>
         </div>
       )}
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Cantidad (m³) *</label>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Cantidad (m³) *
+        </label>
         <input
           type="number"
           value={cantidad}
           onChange={(e) => setCantidad(Number(e.target.value))}
           min={0.1}
           step={0.1}
-          className={`w-full px-3 py-2 border rounded text-gray-900 ${excede ? 'border-yellow-500' : ''}`}
+          className={`w-full px-3 py-2 border rounded text-gray-900 ${excede ? "border-yellow-500" : ""}`}
           required
         />
         {excede && (
@@ -126,11 +147,15 @@ export function EntradaAguaForm({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Costo (CLP)</label>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Costo (CLP)
+        </label>
         <input
           type="number"
           value={costo}
-          onChange={(e) => setCosto(e.target.value ? Number(e.target.value) : '')}
+          onChange={(e) =>
+            setCosto(e.target.value ? Number(e.target.value) : "")
+          }
           min={0}
           className="w-full px-3 py-2 border rounded text-gray-900"
           placeholder="Opcional"
@@ -138,7 +163,9 @@ export function EntradaAguaForm({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Proveedor</label>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Proveedor
+        </label>
         <input
           type="text"
           value={proveedor}
@@ -149,7 +176,9 @@ export function EntradaAguaForm({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Notas</label>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Notas
+        </label>
         <textarea
           value={notas}
           onChange={(e) => setNotas(e.target.value)}
@@ -173,7 +202,7 @@ export function EntradaAguaForm({
           disabled={loading || cantidadFinal <= 0}
           className="flex-1 bg-cyan-600 text-white py-2 rounded hover:bg-cyan-700 disabled:opacity-50"
         >
-          {loading ? 'Registrando...' : 'Registrar Entrada'}
+          {loading ? "Registrando..." : "Registrar Entrada"}
         </button>
         <button
           type="button"
@@ -184,5 +213,5 @@ export function EntradaAguaForm({
         </button>
       </div>
     </form>
-  )
+  );
 }

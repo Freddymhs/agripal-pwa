@@ -2,8 +2,21 @@
   "UMBRALES_SUELO": {
     "salinidad": { "max": 4, "unidad": "dS/m", "alerta": "Suelo muy salino" },
     "boro": { "max": 2, "unidad": "mg/L", "alerta": "Tóxico para frutales" },
-    "arsenico": { "max": 0.05, "unidad": "mg/L", "alerta": "Riesgo para salud" },
-    "ph": { "min": 5.5, "max": 8.5, "unidad": "", "alerta": "pH fuera de rango" },
-    "profundidad_frutales": { "min": 60, "unidad": "cm", "alerta": "Profundidad insuficiente para frutales" }
+    "arsenico": {
+      "max": 0.05,
+      "unidad": "mg/L",
+      "alerta": "Riesgo para salud"
+    },
+    "ph": {
+      "min": 5.5,
+      "max": 8.5,
+      "unidad": "",
+      "alerta": "pH fuera de rango"
+    },
+    "profundidad_frutales": {
+      "min": 60,
+      "unidad": "cm",
+      "alerta": "Profundidad insuficiente para frutales"
+    }
   }
 }

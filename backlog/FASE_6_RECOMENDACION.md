@@ -19,6 +19,7 @@ Crear un motor de recomendación que analiza el terreno (ubicación, agua, suelo
 ## Lógica de Restricciones
 
 ### Restricción 1: Agua Disponible
+
 ```
 agua_necesaria_anual = cultivo.agua_m3_ha_año_min × area_ha
 
@@ -36,6 +37,7 @@ Si suma > disponible:
 ```
 
 ### Restricción 2: pH Suelo
+
 ```
 ¿Es viable?
 terreno.suelo_ph >= cultivo.ph_min AND terreno.suelo_ph <= cultivo.ph_max
@@ -50,6 +52,7 @@ Si desconocido:
 ```
 
 ### Restricción 3: Salinidad Agua
+
 ```
 ¿Es viable?
 terreno.agua_calidad_salinidad_dS_m <= cultivo.salinidad_tolerancia_dS_m
@@ -64,6 +67,7 @@ Si desconocido:
 ```
 
 ### Restricción 4: Boro en Agua
+
 ```
 ¿Es viable?
 terreno.agua_calidad_boro_ppm <= cultivo.boro_tolerancia_ppm
@@ -80,6 +84,7 @@ Si desconocido:
 ```
 
 ### Restricción 5: Riesgo Zona (Plagas)
+
 ```
 ¿Es viable?
 cultivo.riesgo != 'alto' OR cultivo tiene control viable
@@ -96,6 +101,7 @@ Arica: 14 brotes mosca de fruta (Dic 2024)
 Después de pasar restricciones, rankear por:
 
 1. **Prioridad "agua":** Menor consumo (seguridad sequía)
+
    ```
    Score = 100 - agua_m3_ha_año_max
 
@@ -106,6 +112,7 @@ Después de pasar restricciones, rankear por:
    ```
 
 2. **Prioridad "rentabilidad":** Mejor ROI/m³
+
    ```
    Score = (precio_kg_max × produccion_año4) / agua_m3_ha_año_min
 
@@ -115,6 +122,7 @@ Después de pasar restricciones, rankear por:
    ```
 
 3. **Prioridad "seguridad":** Cultivos fáciles, bajo riesgo
+
    ```
    Score = (riesgoScore × 100) + (tierScore × 30)
 
@@ -128,6 +136,7 @@ Después de pasar restricciones, rankear por:
 ## Interfaz de Usuario
 
 ### Pantalla 1: Recomendación
+
 ```
 ┌─────────────────────────────────────────────────────────┐
 │ 🌾 RECOMENDACIONES PARA TU TERRENO                      │
@@ -172,6 +181,7 @@ Después de pasar restricciones, rankear por:
 ```
 
 ### Pantalla 2: Detalle Cultivo
+
 ```
 ┌─────────────────────────────────────────────────────────┐
 │ TUNA (Opuntia ficus-indica)                            │
@@ -218,6 +228,7 @@ Después de pasar restricciones, rankear por:
 ```
 
 ### Pantalla 3: Mi Plan Recomendado
+
 ```
 ┌─────────────────────────────────────────────────────────┐
 │ 📋 MI PLAN RECOMENDADO                                  │
@@ -251,78 +262,94 @@ Después de pasar restricciones, rankear por:
 ## Tareas de Implementación
 
 ### 2.1 - Actualizar Tipos TypeScript ✅ HECHO
+
 **Archivo**: `src/types/index.ts`
 **Cambios:**
+
 - [x] Agregar `PlantCalendar`, `PlantProduction`, `PlantPlague` interfaces
 - [x] Expandir `CatalogoCultivo` con restricciones agrícolas
 - [x] Expandir `Terreno` con agua_calidad y suelo_info
-**Status**: ✅ COMPLETADO
+      **Status**: ✅ COMPLETADO
 
 ### 2.2 - Crear Motor de Restricciones ✅ HECHO
+
 **Archivo**: `src/lib/validations/cultivo-restricciones.ts`
 **Funciones:**
+
 - [x] `validarCultivoEnTerreno()` - chequea todas las restricciones
 - [x] `filtrarCultivosViables()` - separa viables de no viables
 - [x] `rankearCultivosViables()` - ordena por agua/rentabilidad/seguridad
 - [x] `calcularAguaPorCultivo()` - suma consumo total
 - [x] `simularConsumoEstacional()` - muestra mes a mes
-**Status**: ✅ COMPLETADO
+      **Status**: ✅ COMPLETADO
 
 ### 2.3 - Datos de Cultivos Arica ✅ HECHO
+
 **Archivo**: `src/lib/data/cultivos-arica.ts`
 **Tarea:**
+
 - [x] Crear archivo TypeScript con 8 cultivos evaluados (Tuna, Higuera, Pitahaya, etc.)
 - [x] Completar campos obligatorios de investigación
 - [x] Validar contra fuentes INIA/ODEPA
-**Status**: ✅ COMPLETADO
+      **Status**: ✅ COMPLETADO
 
 ### 2.4 - Hook useRecomendacion ✅ HECHO
+
 **Archivo**: `src/hooks/useRecomendacion.ts`
 **Interfaz:**
+
 ```typescript
 interface UseRecomendacion {
   recomendacion: {
-    cultivos_viables: CultivoRecomendado[]
-    cultivos_noViables: { cultivo: CatalogoCultivo; razon: string }[]
-    agua_total_anual: number
-    riesgos_criticos: string[]
-    advertencias: string[]
-  } | null
-  loading: boolean
-  error: Error | null
-  calcularRecomendacion: (terreno: Terreno) => Promise<void>
+    cultivos_viables: CultivoRecomendado[];
+    cultivos_noViables: { cultivo: CatalogoCultivo; razon: string }[];
+    agua_total_anual: number;
+    riesgos_criticos: string[];
+    advertencias: string[];
+  } | null;
+  loading: boolean;
+  error: Error | null;
+  calcularRecomendacion: (terreno: Terreno) => Promise<void>;
 }
 ```
+
 **Tareas:**
+
 - [x] Implementar hook que usa `filtrarCultivosViables()`
 - [x] Calcular ranking automático
 - [x] Hacer async (validar contra APIs INIA si es necesario)
-**Status**: ✅ COMPLETADO
+      **Status**: ✅ COMPLETADO
 
 ### 2.5 - Componente RecomendacionPanel ✅ HECHO
+
 **Archivo**: `src/components/recomendacion/recomendacion-panel.tsx`
 **Interfaz:**
+
 ```typescript
 interface RecomendacionPanelProps {
-  terreno: Terreno
-  areaHa?: number
+  terreno: Terreno;
+  areaHa?: number;
 }
 ```
+
 **Tareas:**
+
 - [x] Panel que muestra cultivos viables en cards
 - [x] Tabs: Viables, No Viables, Mi Plan
 - [x] Mi Plan Recomendado (checkboxes, agua total)
 - [x] Advertencias y riesgos críticos
 - [x] Gráfico consumo estacional
-**Status**: ✅ COMPLETADO
+      **Status**: ✅ COMPLETADO
 
 ### 2.6 - Integración en Página Principal ✅ HECHO
+
 **Archivo**: `src/app/page.tsx`
 **Tareas:**
+
 - [x] Agregar tab/sección "Recomendación" después de seleccionar terreno
 - [x] Mostrar RecomendacionPanel si terreno activo
 - [x] Tabs en sidebar: Terreno | Recomendación
-**Status**: ✅ COMPLETADO
+      **Status**: ✅ COMPLETADO
 
 ---
 

@@ -20,22 +20,22 @@ Basado en los datos que ya tenemos y los de fases anteriores:
 
 ```typescript
 interface ScoreCalidad {
-  cultivo_id: string
-  zona_id: string
+  cultivo_id: string;
+  zona_id: string;
 
   // Factores (0-100 cada uno)
-  score_agua: number     // calidad agua vs tolerancia cultivo
-  score_suelo: number    // pH, salinidad, nutrientes vs requerimientos
-  score_clima: number    // temp, humedad vs rango óptimo del cultivo
-  score_riego: number    // agua disponible vs necesaria
+  score_agua: number; // calidad agua vs tolerancia cultivo
+  score_suelo: number; // pH, salinidad, nutrientes vs requerimientos
+  score_clima: number; // temp, humedad vs rango óptimo del cultivo
+  score_riego: number; // agua disponible vs necesaria
 
   // Score total ponderado
-  score_total: number    // 0-100
-  categoria: 'excelente' | 'buena' | 'aceptable' | 'riesgosa' | 'no_viable'
+  score_total: number; // 0-100
+  categoria: "excelente" | "buena" | "aceptable" | "riesgosa" | "no_viable";
 
   // Recomendaciones
-  factores_limitantes: string[]  // "Boro del agua excede tolerancia"
-  mejoras_sugeridas: string[]    // "Considerar filtrado de agua"
+  factores_limitantes: string[]; // "Boro del agua excede tolerancia"
+  mejoras_sugeridas: string[]; // "Considerar filtrado de agua"
 }
 ```
 
@@ -43,31 +43,31 @@ interface ScoreCalidad {
 
 ```typescript
 interface ProyeccionROI {
-  cultivo_id: string
-  zona_id: string
+  cultivo_id: string;
+  zona_id: string;
 
   // Inversión
-  costo_plantas: number        // n_plantas × precio_planta
-  costo_agua_anual: number     // consumo_anual × costo_m3
-  costo_preparacion_suelo: number
-  costo_infraestructura: number // estanque, riego, etc.
-  inversion_total: number
+  costo_plantas: number; // n_plantas × precio_planta
+  costo_agua_anual: number; // consumo_anual × costo_m3
+  costo_preparacion_suelo: number;
+  costo_infraestructura: number; // estanque, riego, etc.
+  inversion_total: number;
 
   // Producción (desde CatalogoCultivo.produccion)
-  kg_esperados_año2: number
-  kg_esperados_año3: number
-  kg_esperados_año4: number
+  kg_esperados_año2: number;
+  kg_esperados_año3: number;
+  kg_esperados_año4: number;
 
   // Ingreso
-  precio_kg_estimado: number   // promedio min/max del catálogo
-  ingreso_año2: number
-  ingreso_año3: number
-  ingreso_año4: number
+  precio_kg_estimado: number; // promedio min/max del catálogo
+  ingreso_año2: number;
+  ingreso_año3: number;
+  ingreso_año4: number;
 
   // ROI
-  punto_equilibrio_meses: number
-  roi_3_años_pct: number
-  viable: boolean
+  punto_equilibrio_meses: number;
+  roi_3_años_pct: number;
+  viable: boolean;
 }
 ```
 

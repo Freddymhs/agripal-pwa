@@ -8,8 +8,16 @@ import type {
 } from "@/types";
 import { calcularFactorSuelo } from "./calidad";
 import { obtenerFuente } from "@/lib/data/fuentes-agua";
-import { M2_POR_HECTAREA, SEMANAS_POR_AÑO, PRECIO_PLANTA_FACTOR } from "@/lib/constants/conversiones";
-import { calcularPrecioKgPromedio, calcularAguaPromedioHaAño, calcularPlantasPorHa } from "@/lib/utils/helpers-cultivo";
+import {
+  M2_POR_HECTAREA,
+  SEMANAS_POR_AÑO,
+  PRECIO_PLANTA_FACTOR,
+} from "@/lib/constants/conversiones";
+import {
+  calcularPrecioKgPromedio,
+  calcularAguaPromedioHaAño,
+  calcularPlantasPorHa,
+} from "@/lib/utils/helpers-cultivo";
 
 export interface ProyeccionROI {
   cultivo_id: string;

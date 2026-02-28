@@ -18,6 +18,7 @@ Permitir al usuario ingresar datos de análisis de suelo (después de hacerlo en
 ## Datos de Suelo
 
 ### 1. Análisis Físico
+
 ```typescript
 analisis_fisico?: {
   ph?: number                     // 7.2 (ligeramente alcalino)
@@ -29,6 +30,7 @@ analisis_fisico?: {
 ```
 
 ### 2. Análisis Químico (CRÍTICO)
+
 ```typescript
 analisis_quimico?: {
   analisis_realizado?: boolean
@@ -50,15 +52,16 @@ analisis_quimico?: {
 ```
 
 ### 3. Umbrales Críticos (constantes)
+
 ```typescript
 export const UMBRALES_SUELO = {
-  salinidad_max_dS_m: 4,          // >4 = suelo muy salino
-  boro_max_mg_l: 2,               // >2 = tóxico para mayoría frutales
-  arsenico_max_mg_l: 0.05,        // >0.05 = riesgo salud
+  salinidad_max_dS_m: 4, // >4 = suelo muy salino
+  boro_max_mg_l: 2, // >2 = tóxico para mayoría frutales
+  arsenico_max_mg_l: 0.05, // >0.05 = riesgo salud
   ph_min: 5.5,
   ph_max: 8.5,
   profundidad_min_frutales_cm: 60,
-}
+};
 ```
 
 ---
@@ -66,57 +69,70 @@ export const UMBRALES_SUELO = {
 ## Tareas
 
 ### Tarea 1: Agregar Campos Suelo a Terreno
+
 **Archivo**: `src/types/index.ts`
 
 Agregar `suelo?: SueloAnalisis` a interface Terreno.
 
 ### Tarea 2: Crear Constantes Umbrales
+
 **Archivo**: `src/lib/data/umbrales-suelo.ts`
 
 ```typescript
 export const UMBRALES_SUELO = {
-  salinidad: { max: 4, unidad: 'dS/m', alerta: 'Suelo muy salino' },
-  boro: { max: 2, unidad: 'mg/L', alerta: 'Tóxico para frutales' },
-  arsenico: { max: 0.05, unidad: 'mg/L', alerta: 'Riesgo para salud' },
-  ph: { min: 5.5, max: 8.5, alerta: 'pH fuera de rango' },
-}
+  salinidad: { max: 4, unidad: "dS/m", alerta: "Suelo muy salino" },
+  boro: { max: 2, unidad: "mg/L", alerta: "Tóxico para frutales" },
+  arsenico: { max: 0.05, unidad: "mg/L", alerta: "Riesgo para salud" },
+  ph: { min: 5.5, max: 8.5, alerta: "pH fuera de rango" },
+};
 
 export function evaluarSuelo(suelo: SueloAnalisis): EvaluacionSuelo {
-  const problemas: string[] = []
-  const advertencias: string[] = []
+  const problemas: string[] = [];
+  const advertencias: string[] = [];
 
-  if (suelo.salinidad_dS_m && suelo.salinidad_dS_m > UMBRALES_SUELO.salinidad.max) {
-    problemas.push(`Salinidad ${suelo.salinidad_dS_m} dS/m > ${UMBRALES_SUELO.salinidad.max} (MUY ALTO)`)
+  if (
+    suelo.salinidad_dS_m &&
+    suelo.salinidad_dS_m > UMBRALES_SUELO.salinidad.max
+  ) {
+    problemas.push(
+      `Salinidad ${suelo.salinidad_dS_m} dS/m > ${UMBRALES_SUELO.salinidad.max} (MUY ALTO)`,
+    );
   }
   // ... más validaciones
 
-  return { viable: problemas.length === 0, problemas, advertencias }
+  return { viable: problemas.length === 0, problemas, advertencias };
 }
 ```
 
 ### Tarea 3: Crear Formulario Análisis Suelo
+
 **Archivo**: `src/components/suelo/formulario-suelo.tsx`
 
 Formulario con secciones:
+
 1. **Análisis Físico**: pH, textura, drenaje, profundidad, MO%
 2. **Análisis Químico**: salinidad, boro, arsénico, nutrientes
 3. **Metadata**: fecha análisis, laboratorio
 
 Con validación visual en tiempo real:
+
 - 🟢 Verde = OK
 - 🟡 Amarillo = Advertencia
 - 🔴 Rojo = CRÍTICO
 
 ### Tarea 4: Crear Panel Resultados Suelo
+
 **Archivo**: `src/components/suelo/panel-suelo.tsx`
 
 Muestra:
+
 - Estado general: ✅ Apto / ⚠️ Limitado / ❌ No apto
 - Tabla de valores vs umbrales
 - Gráfico de barras (valor vs máximo permitido)
 - Recomendaciones si hay problemas
 
 ### Tarea 5: Crear Checklist Antes de Invertir
+
 **Archivo**: `src/components/suelo/checklist-suelo.tsx`
 
 ```
@@ -133,18 +149,22 @@ CHECKLIST ANTES DE INVERTIR EN CULTIVOS:
 ```
 
 ### Tarea 6: Crear Modal/Página Suelo
+
 **Archivo**: `src/app/suelo/page.tsx` o modal
 
 Página dedicada con:
+
 - Formulario para ingresar datos
 - Panel de resultados
 - Checklist
 - Tips de mejoras (si hay problemas)
 
 ### Tarea 7: Plan B Suelo Problemático
+
 **Archivo**: `src/components/suelo/plan-b-suelo.tsx`
 
 Si se detectan problemas, mostrar opciones:
+
 - **Suelo muy salino**: Lavado de sales, yeso agrícola, cultivos halófitos
 - **Boro alto**: Filtración agua, buscar fuente alternativa
 - **Arsénico alto**: Proyecto no viable para agricultura alimentaria

@@ -93,7 +93,9 @@ describe("validarCultivoEnTerreno", () => {
     } as Terreno;
     const result = validarCultivoEnTerreno(cultivoFixture, terrenoPocaAgua, 1);
     expect(result.viable).toBe(false);
-    expect(result.restricciones.some((r) => r.includes("Agua insuficiente"))).toBe(true);
+    expect(
+      result.restricciones.some((r) => r.includes("Agua insuficiente")),
+    ).toBe(true);
   });
 
   it("detecta pH incompatible", () => {
@@ -103,7 +105,9 @@ describe("validarCultivoEnTerreno", () => {
     } as Terreno;
     const result = validarCultivoEnTerreno(cultivoFixture, terrenoPhBajo, 1);
     expect(result.viable).toBe(false);
-    expect(result.restricciones.some((r) => r.includes("pH incompatible"))).toBe(true);
+    expect(
+      result.restricciones.some((r) => r.includes("pH incompatible")),
+    ).toBe(true);
   });
 
   it("detecta salinidad excesiva", () => {
@@ -113,7 +117,9 @@ describe("validarCultivoEnTerreno", () => {
     } as Terreno;
     const result = validarCultivoEnTerreno(cultivoFixture, terrenoSalino, 1);
     expect(result.viable).toBe(false);
-    expect(result.restricciones.some((r) => r.includes("Salinidad"))).toBe(true);
+    expect(result.restricciones.some((r) => r.includes("Salinidad"))).toBe(
+      true,
+    );
   });
 
   it("detecta boro toxico", () => {
@@ -140,18 +146,37 @@ describe("validarCultivoEnTerreno", () => {
       ...cultivoFixture,
       riesgo: "alto" as const,
     } as CatalogoCultivo;
-    const result = validarCultivoEnTerreno(cultivoAltoRiesgo, terrenoFixture, 1);
-    expect(result.advertencias.some((a) => a.includes("alto riesgo"))).toBe(true);
+    const result = validarCultivoEnTerreno(
+      cultivoAltoRiesgo,
+      terrenoFixture,
+      1,
+    );
+    expect(result.advertencias.some((a) => a.includes("alto riesgo"))).toBe(
+      true,
+    );
   });
 
   it("usa aguaAnualCalculada cuando se proporciona", () => {
-    const result = validarCultivoEnTerreno(cultivoFixture, terrenoFixture, 1, 100000);
+    const result = validarCultivoEnTerreno(
+      cultivoFixture,
+      terrenoFixture,
+      1,
+      100000,
+    );
     expect(result.viable).toBe(true);
   });
 
   it("escala requerimiento por area_ha", () => {
-    const resultPequeño = validarCultivoEnTerreno(cultivoFixture, terrenoFixture, 0.1);
-    const resultGrande = validarCultivoEnTerreno(cultivoFixture, terrenoFixture, 10);
+    const resultPequeño = validarCultivoEnTerreno(
+      cultivoFixture,
+      terrenoFixture,
+      0.1,
+    );
+    const resultGrande = validarCultivoEnTerreno(
+      cultivoFixture,
+      terrenoFixture,
+      10,
+    );
     expect(resultPequeño.viable).toBe(true);
     expect(resultGrande.viable).toBe(false);
   });
@@ -214,8 +239,14 @@ describe("rankearCultivosViables", () => {
   } as CatalogoCultivo;
 
   const viablesList = [
-    { cultivo: cultivoBarato, validacion: { viable: true, restricciones: [], advertencias: [] } },
-    { cultivo: cultivoCaro, validacion: { viable: true, restricciones: [], advertencias: [] } },
+    {
+      cultivo: cultivoBarato,
+      validacion: { viable: true, restricciones: [], advertencias: [] },
+    },
+    {
+      cultivo: cultivoCaro,
+      validacion: { viable: true, restricciones: [], advertencias: [] },
+    },
   ];
 
   it("rankea por rentabilidad por defecto", () => {
@@ -273,7 +304,9 @@ describe("calcularAguaPorCultivo", () => {
     ]);
     expect(result.detalle[0].nombre).toBe("Olivo");
     expect(result.detalle[0].area_ha).toBe(0.5);
-    expect(result.detalle[0].agua_m3).toBe(cultivoFixture.agua_m3_ha_año_min * 0.5);
+    expect(result.detalle[0].agua_m3).toBe(
+      cultivoFixture.agua_m3_ha_año_min * 0.5,
+    );
   });
 });
 

@@ -9,20 +9,22 @@
 ## Estado Actual del Codebase
 
 **Modelo YA existe** en `src/types/index.ts` (linea ~521):
+
 ```typescript
 export interface HistorialEntrada {
-  id: string
-  usuario_id: string
-  accion: string
-  entidad: string
-  entidad_id: string
-  datos_anterior?: Record<string, unknown>
-  datos_nuevo?: Record<string, unknown>
-  created_at: string
+  id: string;
+  usuario_id: string;
+  accion: string;
+  entidad: string;
+  entidad_id: string;
+  datos_anterior?: Record<string, unknown>;
+  datos_nuevo?: Record<string, unknown>;
+  created_at: string;
 }
 ```
 
 **Tabla YA existe** en IndexedDB (`src/lib/db/index.ts`, linea 27):
+
 ```
 historial: '++id, usuario_id, entidad, created_at, lastModified'
 ```

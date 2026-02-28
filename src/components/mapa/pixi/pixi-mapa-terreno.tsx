@@ -1,7 +1,10 @@
-import dynamic from 'next/dynamic'
+import dynamic from "next/dynamic";
 
 const PixiMapaTerrenoInner = dynamic(
-  () => import('./pixi-mapa-terreno-inner').then(m => ({ default: m.PixiMapaTerrenoInner })),
+  () =>
+    import("./pixi-mapa-terreno-inner").then((m) => ({
+      default: m.PixiMapaTerrenoInner,
+    })),
   {
     ssr: false,
     loading: () => (
@@ -9,7 +12,7 @@ const PixiMapaTerrenoInner = dynamic(
         <span className="text-gray-400">Cargando mapa...</span>
       </div>
     ),
-  }
-)
+  },
+);
 
-export { PixiMapaTerrenoInner as PixiMapaTerreno }
+export { PixiMapaTerrenoInner as PixiMapaTerreno };

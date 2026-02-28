@@ -1,5 +1,5 @@
-'use client'
-import { RouteError } from '@/components/ui/route-error'
+"use client";
+import { RouteError } from "@/components/ui/route-error";
 export default function Error(props: { error: Error; reset: () => void }) {
-  return <RouteError {...props} routeName="Configuración de Agua" />
+  return <RouteError {...props} routeName="Configuración de Agua" />;
 }

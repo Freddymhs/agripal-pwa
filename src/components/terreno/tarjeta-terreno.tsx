@@ -1,24 +1,25 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import { formatArea } from '@/lib/utils'
-import type { Terreno } from '@/types'
+import Link from "next/link";
+import { formatArea } from "@/lib/utils";
+import type { Terreno } from "@/types";
+import { ROUTES } from "@/lib/constants/routes";
 
 interface TerrenoConConteo extends Terreno {
-  zonasCount: number
-  plantasCount: number
+  zonasCount: number;
+  plantasCount: number;
 }
 
 interface TarjetaTerrenoProps {
-  terreno: TerrenoConConteo
-  editando: boolean
-  editandoTerreno: Terreno | null
-  onEdit: () => void
-  onDelete: () => void
-  onChangeEditando: (t: Terreno) => void
-  onGuardar: () => void
-  onCancelar: () => void
-  onSelectTerreno: () => void
+  terreno: TerrenoConConteo;
+  editando: boolean;
+  editandoTerreno: Terreno | null;
+  onEdit: () => void;
+  onDelete: () => void;
+  onChangeEditando: (t: Terreno) => void;
+  onGuardar: () => void;
+  onCancelar: () => void;
+  onSelectTerreno: () => void;
 }
 
 export function TarjetaTerreno({
@@ -53,7 +54,9 @@ export function TarjetaTerreno({
             <input
               type="text"
               value={editandoTerreno.nombre}
-              onChange={(e) => onChangeEditando({ ...editandoTerreno, nombre: e.target.value })}
+              onChange={(e) =>
+                onChangeEditando({ ...editandoTerreno, nombre: e.target.value })
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
               placeholder="Nombre"
             />
@@ -63,7 +66,12 @@ export function TarjetaTerreno({
                 <input
                   type="number"
                   value={editandoTerreno.ancho_m}
-                  onChange={(e) => onChangeEditando({ ...editandoTerreno, ancho_m: Number(e.target.value) })}
+                  onChange={(e) =>
+                    onChangeEditando({
+                      ...editandoTerreno,
+                      ancho_m: Number(e.target.value),
+                    })
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
                   min={1}
                 />
@@ -73,7 +81,12 @@ export function TarjetaTerreno({
                 <input
                   type="number"
                   value={editandoTerreno.alto_m}
-                  onChange={(e) => onChangeEditando({ ...editandoTerreno, alto_m: Number(e.target.value) })}
+                  onChange={(e) =>
+                    onChangeEditando({
+                      ...editandoTerreno,
+                      alto_m: Number(e.target.value),
+                    })
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
                   min={1}
                 />
@@ -118,11 +131,13 @@ export function TarjetaTerreno({
 
             <div className="text-sm text-gray-600 space-y-1 mb-3">
               <p>Area: {formatArea(terreno.area_m2)}</p>
-              <p>Zonas: {terreno.zonasCount} - Plantas: {terreno.plantasCount}</p>
+              <p>
+                Zonas: {terreno.zonasCount} - Plantas: {terreno.plantasCount}
+              </p>
             </div>
 
             <Link
-              href="/"
+              href={ROUTES.HOME}
               onClick={onSelectTerreno}
               className="block w-full text-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium"
             >
@@ -132,5 +147,5 @@ export function TarjetaTerreno({
         )}
       </div>
     </div>
-  )
+  );
 }

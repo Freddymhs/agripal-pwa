@@ -1,10 +1,24 @@
-import { PageLayout } from '@/components/layout'
-import { GuiaIndice } from '@/components/guia/guia-indice'
-import { GuiaPasoProyecto, GuiaPasoCatalogo, GuiaPasoAgua } from '@/components/guia/guia-pasos-configuracion'
-import { GuiaPasoSuelo, GuiaPasoClima } from '@/components/guia/guia-pasos-ambiente'
-import { GuiaPasoMapa, GuiaPasoPlanificador, GuiaPasoEconomia } from '@/components/guia/guia-pasos-uso'
-import { GuiaPasoAlertas, GuiaPasoOffline } from '@/components/guia/guia-pasos-monitoreo'
-import { GuiaResumen } from '@/components/guia/guia-resumen'
+import { PageLayout } from "@/components/layout";
+import { GuiaIndice } from "@/components/guia/guia-indice";
+import {
+  GuiaPasoProyecto,
+  GuiaPasoCatalogo,
+  GuiaPasoAgua,
+} from "@/components/guia/guia-pasos-configuracion";
+import {
+  GuiaPasoSuelo,
+  GuiaPasoClima,
+} from "@/components/guia/guia-pasos-ambiente";
+import {
+  GuiaPasoMapa,
+  GuiaPasoPlanificador,
+  GuiaPasoEconomia,
+} from "@/components/guia/guia-pasos-uso";
+import {
+  GuiaPasoAlertas,
+  GuiaPasoOffline,
+} from "@/components/guia/guia-pasos-monitoreo";
+import { GuiaResumen } from "@/components/guia/guia-resumen";
 
 export default function GuiaPage() {
   return (
@@ -24,5 +38,5 @@ export default function GuiaPage() {
         <GuiaResumen />
       </main>
     </PageLayout>
-  )
+  );
 }

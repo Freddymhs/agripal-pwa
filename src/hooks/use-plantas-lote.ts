@@ -16,7 +16,7 @@ export function usePlantasLote(onRefetch: () => void): UsePlantasLote {
   const cambiarEstadoMultiple = useCallback(
     async (ids: string[], estado: EstadoPlanta) => {
       if (!validarEstadoPlanta(estado)) {
-        throw new Error(`Estado "${estado}" no es un estado válido de planta`)
+        throw new Error(`Estado "${estado}" no es un estado válido de planta`);
       }
 
       const timestamp = getCurrentTimestamp();

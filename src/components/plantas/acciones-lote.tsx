@@ -1,14 +1,14 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import type { EstadoPlanta } from '@/types'
-import { ESTADO_PLANTA } from '@/lib/constants/entities'
+import { useState } from "react";
+import type { EstadoPlanta } from "@/types";
+import { ESTADO_PLANTA } from "@/lib/constants/entities";
 
 interface AccionesLoteProps {
-  cantidad: number
-  onCambiarEstado: (estado: EstadoPlanta) => void
-  onEliminar: () => void
-  onCancelar: () => void
+  cantidad: number;
+  onCambiarEstado: (estado: EstadoPlanta) => void;
+  onEliminar: () => void;
+  onCancelar: () => void;
 }
 
 export function AccionesLote({
@@ -17,20 +17,21 @@ export function AccionesLote({
   onEliminar,
   onCancelar,
 }: AccionesLoteProps) {
-  const [showConfirmDelete, setShowConfirmDelete] = useState(false)
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
 
   const estados: { value: EstadoPlanta; label: string }[] = [
-    { value: ESTADO_PLANTA.PLANTADA, label: 'Plantada' },
-    { value: ESTADO_PLANTA.CRECIENDO, label: 'Creciendo' },
-    { value: ESTADO_PLANTA.PRODUCIENDO, label: 'Produciendo' },
-    { value: ESTADO_PLANTA.MUERTA, label: 'Muerta' },
-  ]
+    { value: ESTADO_PLANTA.PLANTADA, label: "Plantada" },
+    { value: ESTADO_PLANTA.CRECIENDO, label: "Creciendo" },
+    { value: ESTADO_PLANTA.PRODUCIENDO, label: "Produciendo" },
+    { value: ESTADO_PLANTA.MUERTA, label: "Muerta" },
+  ];
 
   return (
     <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 space-y-3">
       <div className="flex items-center justify-between">
         <span className="text-blue-800 font-medium">
-          🌱 {cantidad} planta{cantidad !== 1 ? 's' : ''} seleccionada{cantidad !== 1 ? 's' : ''}
+          🌱 {cantidad} planta{cantidad !== 1 ? "s" : ""} seleccionada
+          {cantidad !== 1 ? "s" : ""}
         </span>
         <button
           onClick={onCancelar}
@@ -42,19 +43,25 @@ export function AccionesLote({
 
       <div className="flex flex-wrap gap-2">
         <div className="flex-1 min-w-[150px]">
-          <label className="block text-xs text-gray-600 mb-1">Cambiar estado a:</label>
+          <label className="block text-xs text-gray-600 mb-1">
+            Cambiar estado a:
+          </label>
           <select
             onChange={(e) => {
               if (e.target.value) {
-                onCambiarEstado(e.target.value as EstadoPlanta)
+                onCambiarEstado(e.target.value as EstadoPlanta);
               }
             }}
             defaultValue=""
             className="w-full px-2 py-1.5 border rounded text-sm text-gray-900"
           >
-            <option value="" disabled>Seleccionar...</option>
-            {estados.map(e => (
-              <option key={e.value} value={e.value}>{e.label}</option>
+            <option value="" disabled>
+              Seleccionar...
+            </option>
+            {estados.map((e) => (
+              <option key={e.value} value={e.value}>
+                {e.label}
+              </option>
             ))}
           </select>
         </div>
@@ -70,8 +77,8 @@ export function AccionesLote({
           <div className="flex gap-1 self-end">
             <button
               onClick={() => {
-                onEliminar()
-                setShowConfirmDelete(false)
+                onEliminar();
+                setShowConfirmDelete(false);
               }}
               className="px-3 py-1.5 bg-red-500 text-white rounded text-sm hover:bg-red-600"
             >
@@ -91,5 +98,5 @@ export function AccionesLote({
         Tip: Presiona Escape para deseleccionar
       </p>
     </div>
-  )
+  );
 }

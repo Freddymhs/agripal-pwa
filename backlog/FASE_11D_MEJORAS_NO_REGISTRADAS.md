@@ -20,9 +20,11 @@ Tras completar FASE_11C (Dashboard + Planificador), se realizaron múltiples mej
 ## 1. Módulo Economía Completo
 
 ### 1A. Página Principal (`/economia`)
+
 **Archivos**: `src/app/economia/page.tsx`
 
 **Funcionalidad**:
+
 - Dashboard ROI por cultivo/zona
 - Resumen de inversión, costos agua anuales, ingresos proyectados (año 2-4)
 - ROI acumulado a 4 años con indicador de viabilidad
@@ -32,9 +34,11 @@ Tras completar FASE_11C (Dashboard + Planificador), se realizaron múltiples mej
 **Dependencias**: `calcularROI()` de `roi.ts`, `calcularConsumoZona()` de `agua.ts`
 
 ### 1B. Economía Avanzada (`/economia/avanzado`)
+
 **Archivos**: `src/app/economia/avanzado/page.tsx`, `src/lib/utils/economia-avanzada.ts`
 
 **Funcionalidad**:
+
 - Costo de producción por kg
 - Punto de equilibrio en kg (break-even)
 - Margen de contribución (%)
@@ -45,9 +49,11 @@ Tras completar FASE_11C (Dashboard + Planificador), se realizaron múltiples mej
 **Función**: `calcularMetricasEconomicas(roi, cultivo, kgProducidosAño)`
 
 ### 1C. Integración Suelo → ROI
+
 **Archivos**: `src/lib/utils/roi.ts`, `src/lib/utils/calidad.ts`
 
 **Cambio**: `calcularROI()` ahora acepta parámetro opcional `suelo?: SueloTerreno`
+
 - Si hay suelo, aplica `calcularFactorSuelo()` sobre la producción en kg
 - Factor suelo penaliza por: pH extremo, salinidad alta, boro excesivo, baja materia orgánica
 - Si no hay suelo, factor = 1.0 (sin penalización)
@@ -59,6 +65,7 @@ Tras completar FASE_11C (Dashboard + Planificador), se realizaron múltiples mej
 **Archivos**: `src/app/escenarios/page.tsx`, `src/lib/utils/comparador-cultivos.ts`
 
 **Funcionalidad**:
+
 - Comparar hasta 3 cultivos lado a lado en una misma zona
 - Métricas comparadas: ROI 4 años, inversión total, ingresos, costo/kg, margen, consumo agua, factor suelo, break-even
 - Selector de zona y cultivos del catálogo
@@ -74,6 +81,7 @@ Tras completar FASE_11C (Dashboard + Planificador), se realizaron múltiples mej
 **Archivos**: `src/app/plagas/page.tsx`, `src/lib/utils/riesgo-plagas.ts`
 
 **Funcionalidad**:
+
 - Evaluación de riesgo por plaga basada en:
   - Temperatura actual del mes (calculada desde `CLIMA_ARICA`)
   - Etapa de crecimiento actual (vulnerabilidad variable)
@@ -93,6 +101,7 @@ Tras completar FASE_11C (Dashboard + Planificador), se realizaron múltiples mej
 **Archivo**: `src/lib/utils/calidad.ts`
 
 **Funcionalidad**:
+
 - Evaluación ponderada de compatibilidad cultivo-terreno
 - Sub-scores: agua (boro, salinidad, pH), suelo (pH, materia orgánica, drenaje), clima (temp), riego
 - Categorías: excelente, buena, aceptable, riesgosa, no_viable
@@ -108,6 +117,7 @@ Tras completar FASE_11C (Dashboard + Planificador), se realizaron múltiples mej
 **Archivo**: `src/app/guia/page.tsx` (~600 líneas)
 
 **Funcionalidad**:
+
 - Onboarding paso a paso (10 pasos)
 - Cada paso con resumen y botón directo a la pantalla correspondiente
 - Cubre: crear proyecto/terreno, catálogo, agua, suelo, clima, mapa, planificador, economía, alertas, offline
@@ -118,14 +128,14 @@ Tras completar FASE_11C (Dashboard + Planificador), se realizaron múltiples mej
 
 Archivos JSON en `data/static/` con loaders TypeScript en `src/lib/data/`:
 
-| Dato | JSON | Loader TS | Contenido |
-|------|------|-----------|-----------|
-| Precios mercado | `mercado/precios-arica.json` | `mercado.ts` | Precios min/max CLP/kg por cultivo, indicadores demanda |
-| Variedades cultivos | `variedades/arica.json` | `variedades.ts` | Variedades por cultivo, días cosecha, rendimientos |
-| Técnicas mejora | `tecnicas/mejora-crecimiento.json` | `tecnicas-mejora.ts` | Técnicas, costo, mejora rendimiento esperada |
-| Enmiendas suelo | `suelo/enmiendas.json` | `enmiendas-suelo.ts` | NPK, orgánicos, correctores pH, dosis, costos |
-| Fuentes agua | `fuentes-agua/arica.json` | `fuentes-agua.ts` | Pozos, ríos, canales, costo/m3, calidad |
-| Evapotranspiración | `clima/evapotranspiracion-arica.json` | (usado en cálculos) | ET₀ mensual para Arica |
+| Dato                | JSON                                  | Loader TS            | Contenido                                               |
+| ------------------- | ------------------------------------- | -------------------- | ------------------------------------------------------- |
+| Precios mercado     | `mercado/precios-arica.json`          | `mercado.ts`         | Precios min/max CLP/kg por cultivo, indicadores demanda |
+| Variedades cultivos | `variedades/arica.json`               | `variedades.ts`      | Variedades por cultivo, días cosecha, rendimientos      |
+| Técnicas mejora     | `tecnicas/mejora-crecimiento.json`    | `tecnicas-mejora.ts` | Técnicas, costo, mejora rendimiento esperada            |
+| Enmiendas suelo     | `suelo/enmiendas.json`                | `enmiendas-suelo.ts` | NPK, orgánicos, correctores pH, dosis, costos           |
+| Fuentes agua        | `fuentes-agua/arica.json`             | `fuentes-agua.ts`    | Pozos, ríos, canales, costo/m3, calidad                 |
+| Evapotranspiración  | `clima/evapotranspiracion-arica.json` | (usado en cálculos)  | ET₀ mensual para Arica                                  |
 
 ---
 
@@ -134,6 +144,7 @@ Archivos JSON en `data/static/` con loaders TypeScript en `src/lib/data/`:
 **Archivos**: `src/contexts/map-context.tsx`, `src/contexts/project-context.tsx`
 
 **Propósito**:
+
 - `MapContext` (~362 líneas): Estado centralizado del mapa PixiJS (zoom, pan, selección, modo edición)
 - `ProjectContext` (~372 líneas): Datos del proyecto activo (terreno, zonas, plantas, catálogo)
 
@@ -142,11 +153,13 @@ Archivos JSON en `data/static/` con loaders TypeScript en `src/lib/data/`:
 ## 8. Simplificaciones y Removals
 
 ### ConfigurarGoteros eliminado
+
 - Componente `ConfigurarGoteros` eliminado - mostraba goteros por planta que NO afectaban cálculos reales de agua
 - Consumo de agua ahora se calcula SOLO vía: catálogo (agua_m3_ha_año, Kc, espaciado) × cantidad plantas
 - Campo `Planta.goteros` existe en schema DB pero no se usa (reservado para futuro)
 
 ### Configuración riego a nivel zona se mantiene
+
 - `configuracion_riego` en Zona SÍ se usa para planificación/dimensionamiento del sistema
 
 ---
@@ -164,6 +177,7 @@ Archivos JSON en `data/static/` con loaders TypeScript en `src/lib/data/`:
 Commits: `fabd71d`, `8224fc9`, `9b7be51`, `360dc82`, `d2b5a91`, `8178193`, `7e388a1`
 
 **Fixes aplicados**:
+
 - Fix agua: correcciones en cálculos de consumo
 - Fix navbar: ajustes de navegación
 - Fix UI: múltiples correcciones de interfaz
@@ -175,6 +189,7 @@ Commits: `fabd71d`, `8224fc9`, `9b7be51`, `360dc82`, `d2b5a91`, `8178193`, `7e38
 ## Inventario de Archivos
 
 ### Páginas nuevas (4)
+
 - `src/app/economia/page.tsx`
 - `src/app/economia/avanzado/page.tsx`
 - `src/app/escenarios/page.tsx`
@@ -182,15 +197,18 @@ Commits: `fabd71d`, `8224fc9`, `9b7be51`, `360dc82`, `d2b5a91`, `8178193`, `7e38
 - `src/app/guia/page.tsx`
 
 ### Utilidades nuevas (3)
+
 - `src/lib/utils/economia-avanzada.ts`
 - `src/lib/utils/comparador-cultivos.ts`
 - `src/lib/utils/riesgo-plagas.ts`
 
 ### Utilidades extendidas (2)
+
 - `src/lib/utils/roi.ts` (suelo param)
 - `src/lib/utils/calidad.ts` (calcularFactorSuelo + ScoreCalidad)
 
 ### Datos nuevos (6 JSON + 6 TS loaders)
+
 - `data/static/mercado/precios-arica.json` + `src/lib/data/mercado.ts`
 - `data/static/variedades/arica.json` + `src/lib/data/variedades.ts`
 - `data/static/tecnicas/mejora-crecimiento.json` + `src/lib/data/tecnicas-mejora.ts`
@@ -199,6 +217,7 @@ Commits: `fabd71d`, `8224fc9`, `9b7be51`, `360dc82`, `d2b5a91`, `8178193`, `7e38
 - `data/static/clima/evapotranspiracion-arica.json`
 
 ### Contexts nuevos (2)
+
 - `src/contexts/map-context.tsx`
 - `src/contexts/project-context.tsx`
 

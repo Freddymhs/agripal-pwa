@@ -21,14 +21,15 @@ Actualmente solo se usa `FACTORES_TEMPORADA` (estacional). Agregar:
 
 ```typescript
 interface FactorClimatico {
-  temperatura_media_c: number
-  humedad_relativa_pct: number
-  evapotranspiracion_mm_dia: number // ETo
-  factor_ajuste: number // multiplicador sobre consumo base
+  temperatura_media_c: number;
+  humedad_relativa_pct: number;
+  evapotranspiracion_mm_dia: number; // ETo
+  factor_ajuste: number; // multiplicador sobre consumo base
 }
 ```
 
 La evapotranspiración (ETo) es la métrica estándar para ajustar riego:
+
 - ETo alta (>6 mm/día) → más agua
 - ETo baja (<3 mm/día) → menos agua
 - Humedad alta → reduce necesidad de riego
@@ -36,6 +37,7 @@ La evapotranspiración (ETo) es la métrica estándar para ajustar riego:
 ### 6.2 Camanchaca como fuente
 
 En Arica, la camanchaca (neblina) aporta agua en madrugadas. Esto es relevante para:
+
 - Reducir consumo de estanque en época de camanchaca
 - Captura de agua con atrapanieblas (infraestructura futura)
 
@@ -44,6 +46,7 @@ Datos estáticos: meses con camanchaca, mm/día estimado por zona
 ### 6.3 Recomendación de sistema de riego
 
 Basado en clima + cultivo, recomendar:
+
 - Goteo manual: zonas secas, pocas plantas, bajo presupuesto
 - Goteo eléctrico: variantes de clima requieren ajuste frecuente
 - Aspersión: cultivos que toleran mojado foliar
@@ -51,6 +54,7 @@ Basado en clima + cultivo, recomendar:
 ### 6.4 Datos estáticos
 
 `data/static/clima/` ya existe. Agregar:
+
 - `evapotranspiracion-arica.json` — ETo mensual promedio
 - `camanchaca-arica.json` — meses y aporte estimado
 

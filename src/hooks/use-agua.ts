@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { logger } from "@/lib/logger";
 import { aguaDAL, transaccionesDAL } from "@/lib/dal";
 import { generateUUID, getCurrentTimestamp } from "@/lib/utils";
-import { TIPO_ZONA, ESTADO_AGUA } from "@/lib/constants/entities";
+import { ESTADO_AGUA } from "@/lib/constants/entities";
 import { filtrarEstanques } from "@/lib/utils/helpers-cultivo";
 import {
   calcularConsumoRealTerreno,
@@ -112,7 +112,9 @@ export function useAgua(
           onRefetch();
         }
       } catch (err) {
-        logger.error("Error aplicando descuento automatico de agua", { error: err });
+        logger.error("Error aplicando descuento automatico de agua", {
+          error: err,
+        });
         descuentoAplicado.current = false;
       }
     }

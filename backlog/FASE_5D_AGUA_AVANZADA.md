@@ -10,6 +10,7 @@
 ## Objetivo
 
 Extender el sistema de agua con:
+
 1. **Calidad del agua** (salinidad, boro, arsénico) - CRÍTICO
 2. **Gestión de proveedores** (aljibe, alternativos)
 3. **Contingencias** (qué hacer si no llega agua)
@@ -22,6 +23,7 @@ Extender el sistema de agua con:
 ## Nuevos Datos
 
 ### 1. Calidad del Agua (CRÍTICO)
+
 ```typescript
 calidad_agua?: {
   analisis_realizado?: boolean
@@ -38,6 +40,7 @@ calidad_agua?: {
 ```
 
 ### 2. Proveedores de Agua
+
 ```typescript
 proveedores_agua?: {
   principal?: {
@@ -56,6 +59,7 @@ proveedores_agua?: {
 ```
 
 ### 3. Derechos Legales de Agua
+
 ```typescript
 derechos_agua?: {
   tiene_derechos_dga?: boolean
@@ -67,6 +71,7 @@ derechos_agua?: {
 ```
 
 ### 4. Contingencias
+
 ```typescript
 contingencias_agua?: {
   buffer_minimo_pct?: number    // 30% - nunca bajar de esto
@@ -76,6 +81,7 @@ contingencias_agua?: {
 ```
 
 ### 5. Técnicas de Ahorro
+
 ```typescript
 tecnicas_ahorro?: {
   riego_deficitario_controlado?: boolean  // RDC - ahorra 20-60%
@@ -90,55 +96,65 @@ tecnicas_ahorro?: {
 ## Tareas
 
 ### Tarea 1: Agregar Campos a Terreno
+
 **Archivo**: `src/types/index.ts`
 
 Agregar todos los nuevos campos opcionales.
 
 ### Tarea 2: Crear Umbrales Calidad Agua
+
 **Archivo**: `src/lib/data/umbrales-agua.ts`
 
 ```typescript
 export const UMBRALES_AGUA = {
-  salinidad: { max: 2, unidad: 'dS/m', alerta: 'Agua salina' },
-  boro: { max: 2, unidad: 'ppm', alerta: 'Tóxico para muchos cultivos' },
-  arsenico: { max: 0.05, unidad: 'mg/L', alerta: 'Riesgo para salud' },
-}
+  salinidad: { max: 2, unidad: "dS/m", alerta: "Agua salina" },
+  boro: { max: 2, unidad: "ppm", alerta: "Tóxico para muchos cultivos" },
+  arsenico: { max: 0.05, unidad: "mg/L", alerta: "Riesgo para salud" },
+};
 
 export const RIOS_ARICA = {
-  lluta: { salinidad: 2.5, boro: 11, arsenico: 0.02, nota: 'MUY ALTO BORO' },
-  azapa: { salinidad: 1.5, boro: 0.5, arsenico: 0.01, nota: 'Mejor calidad' },
-}
+  lluta: { salinidad: 2.5, boro: 11, arsenico: 0.02, nota: "MUY ALTO BORO" },
+  azapa: { salinidad: 1.5, boro: 0.5, arsenico: 0.01, nota: "Mejor calidad" },
+};
 ```
 
 ### Tarea 3: Crear Formulario Calidad Agua
+
 **Archivo**: `src/components/agua/formulario-calidad-agua.tsx`
 
 Similar al de suelo:
+
 - Campos para salinidad, boro, arsénico
 - Validación visual vs umbrales
 - Selector de fuente conocida (Lluta, Azapa, aljibe)
 
 ### Tarea 4: CRUD Proveedores
+
 **Archivo**: `src/components/agua/proveedores-agua.tsx`
 
 Lista de proveedores con:
+
 - Agregar nuevo proveedor
 - Editar datos
 - Marcar como principal/alternativo
 - Mostrar precio por m³
 
 ### Tarea 5: Panel Contingencias
+
 **Archivo**: `src/components/agua/contingencias-agua.tsx`
 
 Muestra:
+
 - Nivel de alerta actual (OK, Ajustado, Crítico)
 - Plan de acción si agua < 20%
 - Contactos de emergencia (proveedores alternativos)
 
 ### Tarea 6: Panel Técnicas Ahorro
+
 **Archivo**: `src/components/agua/tecnicas-ahorro.tsx`
 
 Información sobre:
+
 - **RDC (Riego Deficitario Controlado)**: Ahorra 20-60% sin perder producción
 - **Hidrogel Raindrops**: 74% menos frecuencia de riego
 - **Mulch**: Reduce evaporación
@@ -147,16 +163,20 @@ Información sobre:
 Con links a proveedores (Raindrops.cl, PlusAgro, etc.)
 
 ### Tarea 7: Integrar en Validación Cultivos
+
 **Archivo**: `src/lib/validations/cultivo-restricciones.ts`
 
 Actualizar `validarCultivoEnTerreno()` para considerar:
+
 - Calidad del agua (boro, salinidad)
 - Si agua del Lluta → descartar cultivos sensibles a boro
 
 ### Tarea 8: Página /agua/configuracion
+
 **Archivo**: `src/app/agua/configuracion/page.tsx`
 
 Página con tabs:
+
 1. Calidad del Agua
 2. Proveedores
 3. Contingencias
@@ -189,10 +209,10 @@ Página con tabs:
 
 ## Referencias Proveedores Hidrogel (Chile)
 
-| Proveedor | URL | Ventaja |
-|-----------|-----|---------|
-| Raindrops | raindrops.cl | Aplica en SECO, 400L/kg |
-| PlusAgro | plusagro.cl | Biodegradable, 85% ahorro |
+| Proveedor | URL           | Ventaja                      |
+| --------- | ------------- | ---------------------------- |
+| Raindrops | raindrops.cl  | Aplica en SECO, 400L/kg      |
+| PlusAgro  | plusagro.cl   | Biodegradable, 85% ahorro    |
 | Plantagel | plantagel.com | Contacto: info@plantagel.com |
 
 ---

@@ -24,34 +24,35 @@ Implementar autenticación JWT básica. Login mock para desarrollo, preparado pa
 ## Tareas
 
 ### Tarea 1: Crear Utilidades JWT
+
 **Archivo**: `src/lib/auth/jwt.ts` (crear)
 
 ```typescript
-import type { Usuario } from '@/types'
+import type { Usuario } from "@/types";
 
 // En producción, usar jose o similar
 // Por ahora, implementación simple para desarrollo
 
-const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-change-in-production'
+const JWT_SECRET = process.env.JWT_SECRET || "dev-secret-change-in-production";
 
 interface JWTPayload {
-  userId: string
-  email: string
-  exp: number
+  userId: string;
+  email: string;
+  exp: number;
 }
 
 // Codificar payload a base64 (simplificado para dev)
 function encodePayload(payload: JWTPayload): string {
-  return btoa(JSON.stringify(payload))
+  return btoa(JSON.stringify(payload));
 }
 
 // Decodificar payload
 function decodePayload(token: string): JWTPayload | null {
   try {
-    const [, payloadB64] = token.split('.')
-    return JSON.parse(atob(payloadB64))
+    const [, payloadB64] = token.split(".");
+    return JSON.parse(atob(payloadB64));
   } catch {
-    return null
+    return null;
   }
 }
 
@@ -61,169 +62,179 @@ export function generarToken(usuario: Usuario): string {
     userId: usuario.id,
     email: usuario.email,
     exp: Date.now() + 7 * 24 * 60 * 60 * 1000, // 7 días
-  }
+  };
 
   // Mock JWT: header.payload.signature
-  const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }))
-  const payloadEncoded = encodePayload(payload)
-  const signature = btoa(JWT_SECRET) // Simplificado
+  const header = btoa(JSON.stringify({ alg: "HS256", typ: "JWT" }));
+  const payloadEncoded = encodePayload(payload);
+  const signature = btoa(JWT_SECRET); // Simplificado
 
-  return `${header}.${payloadEncoded}.${signature}`
+  return `${header}.${payloadEncoded}.${signature}`;
 }
 
 // Verificar token
 export function verificarToken(token: string): JWTPayload | null {
-  const payload = decodePayload(token)
+  const payload = decodePayload(token);
 
-  if (!payload) return null
-  if (payload.exp < Date.now()) return null // Expirado
+  if (!payload) return null;
+  if (payload.exp < Date.now()) return null; // Expirado
 
-  return payload
+  return payload;
 }
 
 // Obtener usuario del token
-export function obtenerUsuarioDeToken(token: string): { userId: string; email: string } | null {
-  const payload = verificarToken(token)
-  if (!payload) return null
+export function obtenerUsuarioDeToken(
+  token: string,
+): { userId: string; email: string } | null {
+  const payload = verificarToken(token);
+  if (!payload) return null;
 
   return {
     userId: payload.userId,
     email: payload.email,
-  }
+  };
 }
 ```
 
 ---
 
 ### Tarea 2: Crear Hook useAuth
+
 **Archivo**: `src/hooks/useAuth.ts` (crear)
 
 ```typescript
-'use client'
+"use client";
 
-import { useEffect, useState, useCallback } from 'react'
-import { db } from '@/lib/db'
-import { generarToken, verificarToken, obtenerUsuarioDeToken } from '@/lib/auth/jwt'
-import { generateUUID, getCurrentTimestamp } from '@/lib/utils'
-import type { Usuario } from '@/types'
+import { useEffect, useState, useCallback } from "react";
+import { db } from "@/lib/db";
+import {
+  generarToken,
+  verificarToken,
+  obtenerUsuarioDeToken,
+} from "@/lib/auth/jwt";
+import { generateUUID, getCurrentTimestamp } from "@/lib/utils";
+import type { Usuario } from "@/types";
 
-const TOKEN_KEY = 'agriplan_token'
+const TOKEN_KEY = "agriplan_token";
 
 interface UseAuth {
-  usuario: Usuario | null
-  loading: boolean
-  isAuthenticated: boolean
+  usuario: Usuario | null;
+  loading: boolean;
+  isAuthenticated: boolean;
 
-  login: (email: string, password: string) => Promise<{ error?: string }>
-  logout: () => void
-  registrar: (email: string, nombre: string, password: string) => Promise<{ error?: string }>
+  login: (email: string, password: string) => Promise<{ error?: string }>;
+  logout: () => void;
+  registrar: (
+    email: string,
+    nombre: string,
+    password: string,
+  ) => Promise<{ error?: string }>;
 }
 
 export function useAuth(): UseAuth {
-  const [usuario, setUsuario] = useState<Usuario | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [usuario, setUsuario] = useState<Usuario | null>(null);
+  const [loading, setLoading] = useState(true);
 
   // Cargar usuario al iniciar
   useEffect(() => {
     async function cargar() {
-      const token = localStorage.getItem(TOKEN_KEY)
+      const token = localStorage.getItem(TOKEN_KEY);
       if (!token) {
-        setLoading(false)
-        return
+        setLoading(false);
+        return;
       }
 
-      const datos = obtenerUsuarioDeToken(token)
+      const datos = obtenerUsuarioDeToken(token);
       if (!datos) {
-        localStorage.removeItem(TOKEN_KEY)
-        setLoading(false)
-        return
+        localStorage.removeItem(TOKEN_KEY);
+        setLoading(false);
+        return;
       }
 
       // Buscar usuario en DB local
-      const user = await db.usuarios.get(datos.userId)
-      setUsuario(user || null)
-      setLoading(false)
+      const user = await db.usuarios.get(datos.userId);
+      setUsuario(user || null);
+      setLoading(false);
     }
 
-    cargar()
-  }, [])
+    cargar();
+  }, []);
 
   // Login
   const login = useCallback(async (email: string, password: string) => {
     // Buscar usuario por email
     const user = await db.usuarios
-      .where('email')
+      .where("email")
       .equals(email.toLowerCase())
-      .first()
+      .first();
 
     if (!user) {
       // Para desarrollo: crear usuario automáticamente
-      if (process.env.NODE_ENV === 'development') {
+      if (process.env.NODE_ENV === "development") {
         const nuevoUsuario: Usuario = {
           id: generateUUID(),
           email: email.toLowerCase(),
-          nombre: email.split('@')[0],
+          nombre: email.split("@")[0],
           created_at: getCurrentTimestamp(),
           updated_at: getCurrentTimestamp(),
-        }
-        await db.usuarios.add(nuevoUsuario)
+        };
+        await db.usuarios.add(nuevoUsuario);
 
-        const token = generarToken(nuevoUsuario)
-        localStorage.setItem(TOKEN_KEY, token)
-        setUsuario(nuevoUsuario)
-        return {}
+        const token = generarToken(nuevoUsuario);
+        localStorage.setItem(TOKEN_KEY, token);
+        setUsuario(nuevoUsuario);
+        return {};
       }
 
-      return { error: 'Usuario no encontrado' }
+      return { error: "Usuario no encontrado" };
     }
 
     // En producción, verificar password con hash
     // Por ahora, aceptamos cualquier password
 
-    const token = generarToken(user)
-    localStorage.setItem(TOKEN_KEY, token)
-    setUsuario(user)
-    return {}
-  }, [])
+    const token = generarToken(user);
+    localStorage.setItem(TOKEN_KEY, token);
+    setUsuario(user);
+    return {};
+  }, []);
 
   // Logout
   const logout = useCallback(() => {
-    localStorage.removeItem(TOKEN_KEY)
-    setUsuario(null)
-  }, [])
+    localStorage.removeItem(TOKEN_KEY);
+    setUsuario(null);
+  }, []);
 
   // Registrar
-  const registrar = useCallback(async (
-    email: string,
-    nombre: string,
-    password: string
-  ) => {
-    // Verificar si ya existe
-    const existente = await db.usuarios
-      .where('email')
-      .equals(email.toLowerCase())
-      .first()
+  const registrar = useCallback(
+    async (email: string, nombre: string, password: string) => {
+      // Verificar si ya existe
+      const existente = await db.usuarios
+        .where("email")
+        .equals(email.toLowerCase())
+        .first();
 
-    if (existente) {
-      return { error: 'El email ya está registrado' }
-    }
+      if (existente) {
+        return { error: "El email ya está registrado" };
+      }
 
-    const nuevoUsuario: Usuario = {
-      id: generateUUID(),
-      email: email.toLowerCase(),
-      nombre,
-      created_at: getCurrentTimestamp(),
-      updated_at: getCurrentTimestamp(),
-    }
+      const nuevoUsuario: Usuario = {
+        id: generateUUID(),
+        email: email.toLowerCase(),
+        nombre,
+        created_at: getCurrentTimestamp(),
+        updated_at: getCurrentTimestamp(),
+      };
 
-    await db.usuarios.add(nuevoUsuario)
+      await db.usuarios.add(nuevoUsuario);
 
-    const token = generarToken(nuevoUsuario)
-    localStorage.setItem(TOKEN_KEY, token)
-    setUsuario(nuevoUsuario)
+      const token = generarToken(nuevoUsuario);
+      localStorage.setItem(TOKEN_KEY, token);
+      setUsuario(nuevoUsuario);
 
-    return {}
-  }, [])
+      return {};
+    },
+    [],
+  );
 
   return {
     usuario,
@@ -232,13 +243,14 @@ export function useAuth(): UseAuth {
     login,
     logout,
     registrar,
-  }
+  };
 }
 ```
 
 ---
 
 ### Tarea 3: Crear Página de Login
+
 **Archivo**: `src/app/auth/login/page.tsx` (crear)
 
 ```typescript
@@ -346,6 +358,7 @@ export default function LoginPage() {
 ---
 
 ### Tarea 4: Crear Provider de Auth
+
 **Archivo**: `src/components/providers/AuthProvider.tsx` (crear)
 
 ```typescript

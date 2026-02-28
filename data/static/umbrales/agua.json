@@ -1,18 +1,49 @@
 {
   "UMBRALES_AGUA": {
     "salinidad": { "max": 2, "unidad": "dS/m", "alerta": "Agua salina" },
-    "boro": { "max": 2, "unidad": "ppm", "alerta": "Tóxico para muchos cultivos" },
+    "boro": {
+      "max": 2,
+      "unidad": "ppm",
+      "alerta": "Tóxico para muchos cultivos"
+    },
     "arsenico": { "max": 0.05, "unidad": "mg/L", "alerta": "Riesgo para salud" }
   },
   "RIOS_ARICA": {
-    "lluta": { "salinidad": 2.5, "boro": 11, "arsenico": 0.02, "nota": "MUY ALTO BORO - No apto para mayoría de cultivos" },
-    "azapa": { "salinidad": 1.5, "boro": 0.5, "arsenico": 0.01, "nota": "Mejor calidad, apto para frutales" },
-    "aljibe": { "salinidad": 0.5, "boro": 0.1, "arsenico": 0.01, "nota": "Agua tratada, mejor opción si está disponible" }
+    "lluta": {
+      "salinidad": 2.5,
+      "boro": 11,
+      "arsenico": 0.02,
+      "nota": "MUY ALTO BORO - No apto para mayoría de cultivos"
+    },
+    "azapa": {
+      "salinidad": 1.5,
+      "boro": 0.5,
+      "arsenico": 0.01,
+      "nota": "Mejor calidad, apto para frutales"
+    },
+    "aljibe": {
+      "salinidad": 0.5,
+      "boro": 0.1,
+      "arsenico": 0.01,
+      "nota": "Agua tratada, mejor opción si está disponible"
+    }
   },
   "PROVEEDORES_HIDROGEL_CHILE": [
-    { "nombre": "Raindrops", "url": "raindrops.cl", "ventaja": "Aplica en SECO, 400L/kg" },
-    { "nombre": "PlusAgro", "url": "plusagro.cl", "ventaja": "Biodegradable, 85% ahorro" },
-    { "nombre": "Plantagel", "url": "plantagel.com", "ventaja": "Contacto: info@plantagel.com" }
+    {
+      "nombre": "Raindrops",
+      "url": "raindrops.cl",
+      "ventaja": "Aplica en SECO, 400L/kg"
+    },
+    {
+      "nombre": "PlusAgro",
+      "url": "plusagro.cl",
+      "ventaja": "Biodegradable, 85% ahorro"
+    },
+    {
+      "nombre": "Plantagel",
+      "url": "plantagel.com",
+      "ventaja": "Contacto: info@plantagel.com"
+    }
   ],
   "TECNICAS_AHORRO_INFO": {
     "riego_deficitario_controlado": {

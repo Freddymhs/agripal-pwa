@@ -1,31 +1,38 @@
-'use client'
+"use client";
 
-import { useState, useRef, useEffect } from 'react'
-import Link from 'next/link'
-import type { Alerta } from '@/types'
-import { SEVERIDAD_CONFIG } from '@/lib/constants/alertas'
+import { useState, useRef, useEffect } from "react";
+import Link from "next/link";
+import type { Alerta } from "@/types";
+import { SEVERIDAD_CONFIG } from "@/lib/constants/alertas";
+import { ROUTES } from "@/lib/constants/routes";
 
 interface AlertasDropdownProps {
-  alertas: Alerta[]
-  alertasCriticas: number
+  alertas: Alerta[];
+  alertasCriticas: number;
 }
 
-export function AlertasDropdown({ alertas, alertasCriticas }: AlertasDropdownProps) {
-  const [isOpen, setIsOpen] = useState(false)
-  const dropdownRef = useRef<HTMLDivElement>(null)
+export function AlertasDropdown({
+  alertas,
+  alertasCriticas,
+}: AlertasDropdownProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsOpen(false)
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
       }
     }
 
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
-  const ultimasAlertas = alertas.slice(0, 5)
+  const ultimasAlertas = alertas.slice(0, 5);
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -61,7 +68,7 @@ export function AlertasDropdown({ alertas, alertasCriticas }: AlertasDropdownPro
             ) : (
               <div className="divide-y divide-gray-100">
                 {ultimasAlertas.map((alerta) => {
-                  const config = SEVERIDAD_CONFIG[alerta.severidad]
+                  const config = SEVERIDAD_CONFIG[alerta.severidad];
                   return (
                     <div
                       key={alerta.id}
@@ -70,7 +77,9 @@ export function AlertasDropdown({ alertas, alertasCriticas }: AlertasDropdownPro
                       <div className="flex items-start gap-2">
                         <span className="text-sm">{config.icon}</span>
                         <div className="flex-1 min-w-0">
-                          <p className={`text-sm font-medium ${config.color} truncate`}>
+                          <p
+                            className={`text-sm font-medium ${config.color} truncate`}
+                          >
                             {alerta.titulo}
                           </p>
                           <p className="text-xs text-gray-500 truncate">
@@ -79,7 +88,7 @@ export function AlertasDropdown({ alertas, alertasCriticas }: AlertasDropdownPro
                         </div>
                       </div>
                     </div>
-                  )
+                  );
                 })}
               </div>
             )}
@@ -88,7 +97,7 @@ export function AlertasDropdown({ alertas, alertasCriticas }: AlertasDropdownPro
           {alertas.length > 0 && (
             <div className="p-2 border-t border-gray-100">
               <Link
-                href="/alertas"
+                href={ROUTES.ALERTAS}
                 onClick={() => setIsOpen(false)}
                 className="block w-full text-center text-sm text-green-600 hover:text-green-700 font-medium py-2 hover:bg-green-50 rounded"
               >
@@ -99,7 +108,7 @@ export function AlertasDropdown({ alertas, alertasCriticas }: AlertasDropdownPro
         </div>
       )}
     </div>
-  )
+  );
 }
 
 function BellIcon() {
@@ -118,5 +127,5 @@ function BellIcon() {
         d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0"
       />
     </svg>
-  )
+  );
 }

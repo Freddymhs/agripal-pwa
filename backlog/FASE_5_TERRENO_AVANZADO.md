@@ -16,6 +16,7 @@ Ampliar la configuración del terreno con datos legales, ubicación geográfica,
 ## Campos a Agregar en Terreno
 
 ### 1. Ubicación Geográfica
+
 ```typescript
 ubicacion?: {
   region?: string              // "Arica y Parinacota"
@@ -26,6 +27,7 @@ ubicacion?: {
 ```
 
 ### 2. Legal (CRÍTICO para venta)
+
 ```typescript
 legal?: {
   tipo_propiedad?: 'propio' | 'arriendo' | 'comodato' | 'sucesion' | null
@@ -61,6 +63,7 @@ legal?: {
 ```
 
 ### 3. Distancias a Servicios
+
 ```typescript
 distancias?: {
   pueblo_cercano_km?: number
@@ -72,6 +75,7 @@ distancias?: {
 ```
 
 ### 4. Conectividad
+
 ```typescript
 conectividad?: {
   señal_celular?: boolean
@@ -83,6 +87,7 @@ conectividad?: {
 ```
 
 ### 5. Infraestructura Existente
+
 ```typescript
 infraestructura?: {
   acceso?: 'pavimentado' | 'ripio' | 'tierra' | 'inexistente'
@@ -97,14 +102,17 @@ infraestructura?: {
 ## Tareas
 
 ### Tarea 1: Actualizar Tipos
+
 **Archivo**: `src/types/index.ts`
 
 Agregar los nuevos campos opcionales a la interface `Terreno`.
 
 ### Tarea 2: Crear Modal/Página Configuración Avanzada
+
 **Archivo**: `src/components/terreno/configuracion-avanzada-modal.tsx`
 
 Modal con tabs o secciones colapsables:
+
 - Tab 1: Ubicación
 - Tab 2: Legal
 - Tab 3: Distancias
@@ -112,9 +120,11 @@ Modal con tabs o secciones colapsables:
 - Tab 5: Infraestructura
 
 ### Tarea 3: Crear Checklist Legal
+
 **Archivo**: `src/components/terreno/checklist-legal.tsx`
 
 Muestra estado de requisitos legales:
+
 - ✅ / ❌ Inscripción SAG (OBLIGATORIO para vender)
 - ✅ / ❌ RUT Agrícola
 - ✅ / ❌ Derechos de agua DGA
@@ -123,14 +133,17 @@ Muestra estado de requisitos legales:
 Con advertencias si faltan elementos críticos.
 
 ### Tarea 4: Integrar en Selector Terreno
+
 **Archivo**: `src/components/terreno/selector-terreno.tsx`
 
 Agregar botón "⚙️ Configuración" que abre el modal de configuración avanzada.
 
 ### Tarea 5: Panel de Resumen
+
 **Archivo**: `src/components/terreno/resumen-terreno.tsx`
 
 Card que muestre:
+
 - Ubicación (región, comuna)
 - Estado legal (% completado)
 - Distancias clave

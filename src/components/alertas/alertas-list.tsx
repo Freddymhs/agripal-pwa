@@ -1,27 +1,31 @@
-'use client'
+"use client";
 
-import type { Alerta, UUID } from '@/types'
-import { SEVERIDAD_CONFIG } from '@/lib/constants/alertas'
+import type { Alerta, UUID } from "@/types";
+import { SEVERIDAD_CONFIG } from "@/lib/constants/alertas";
 
 interface AlertasListProps {
-  alertas: Alerta[]
-  onResolver: (id: UUID, como: string) => void
-  onIgnorar: (id: UUID) => void
+  alertas: Alerta[];
+  onResolver: (id: UUID, como: string) => void;
+  onIgnorar: (id: UUID) => void;
 }
 
-export function AlertasList({ alertas, onResolver, onIgnorar }: AlertasListProps) {
+export function AlertasList({
+  alertas,
+  onResolver,
+  onIgnorar,
+}: AlertasListProps) {
   if (alertas.length === 0) {
     return (
       <div className="text-center py-8 text-gray-500">
         ✅ No hay alertas activas
       </div>
-    )
+    );
   }
 
   const ordenadas = [...alertas].sort((a, b) => {
-    const orden = { critical: 0, warning: 1, info: 2 }
-    return orden[a.severidad] - orden[b.severidad]
-  })
+    const orden = { critical: 0, warning: 1, info: 2 };
+    return orden[a.severidad] - orden[b.severidad];
+  });
 
   return (
     <div className="space-y-3">
@@ -34,7 +38,7 @@ export function AlertasList({ alertas, onResolver, onIgnorar }: AlertasListProps
         />
       ))}
     </div>
-  )
+  );
 }
 
 function AlertaCard({
@@ -42,11 +46,11 @@ function AlertaCard({
   onResolver,
   onIgnorar,
 }: {
-  alerta: Alerta
-  onResolver: (id: UUID, como: string) => void
-  onIgnorar: (id: UUID) => void
+  alerta: Alerta;
+  onResolver: (id: UUID, como: string) => void;
+  onIgnorar: (id: UUID) => void;
 }) {
-  const config = SEVERIDAD_CONFIG[alerta.severidad]
+  const config = SEVERIDAD_CONFIG[alerta.severidad];
 
   return (
     <div className={`${config.bg} ${config.border} border rounded-lg p-4`}>
@@ -63,7 +67,7 @@ function AlertaCard({
 
           <div className="flex gap-2 mt-3">
             <button
-              onClick={() => onResolver(alerta.id, 'Resuelto manualmente')}
+              onClick={() => onResolver(alerta.id, "Resuelto manualmente")}
               className="text-sm px-3 py-1 bg-white rounded border hover:bg-gray-50"
             >
               Marcar resuelta
@@ -78,5 +82,5 @@ function AlertaCard({
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -1,31 +1,43 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import type { TipoZona, EstanqueConfig, MaterialEstanque } from '@/types'
-import { COLORES_ZONA, TIPO_ZONA } from '@/lib/constants/entities'
+import { useState } from "react";
+import type { TipoZona, EstanqueConfig, MaterialEstanque } from "@/types";
+import { COLORES_ZONA, TIPO_ZONA } from "@/lib/constants/entities";
 
 interface NuevaZonaModalProps {
-  rect: { x: number; y: number; ancho: number; alto: number }
-  onConfirm: (data: { nombre: string; tipo: TipoZona; estanque_config?: EstanqueConfig }) => void
-  onCancel: () => void
+  rect: { x: number; y: number; ancho: number; alto: number };
+  onConfirm: (data: {
+    nombre: string;
+    tipo: TipoZona;
+    estanque_config?: EstanqueConfig;
+  }) => void;
+  onCancel: () => void;
 }
 
-export function NuevaZonaModal({ rect, onConfirm, onCancel }: NuevaZonaModalProps) {
-  const [nombre, setNombre] = useState('')
-  const [tipo, setTipo] = useState<TipoZona>(TIPO_ZONA.CULTIVO)
+export function NuevaZonaModal({
+  rect,
+  onConfirm,
+  onCancel,
+}: NuevaZonaModalProps) {
+  const [nombre, setNombre] = useState("");
+  const [tipo, setTipo] = useState<TipoZona>(TIPO_ZONA.CULTIVO);
 
-  const [capacidad, setCapacidad] = useState(10)
-  const [material, setMaterial] = useState<MaterialEstanque>('plastico')
-  const [tieneTapa, setTieneTapa] = useState(true)
-  const [tieneFiltro, setTieneFiltro] = useState(false)
+  const [capacidad, setCapacidad] = useState(10);
+  const [material, setMaterial] = useState<MaterialEstanque>("plastico");
+  const [tieneTapa, setTieneTapa] = useState(true);
+  const [tieneFiltro, setTieneFiltro] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     if (nombre.trim()) {
-      const data: { nombre: string; tipo: TipoZona; estanque_config?: EstanqueConfig } = {
+      const data: {
+        nombre: string;
+        tipo: TipoZona;
+        estanque_config?: EstanqueConfig;
+      } = {
         nombre: nombre.trim(),
         tipo,
-      }
+      };
 
       if (tipo === TIPO_ZONA.ESTANQUE) {
         data.estanque_config = {
@@ -34,12 +46,12 @@ export function NuevaZonaModal({ rect, onConfirm, onCancel }: NuevaZonaModalProp
           material,
           tiene_tapa: tieneTapa,
           tiene_filtro: tieneFiltro,
-        }
+        };
       }
 
-      onConfirm(data)
+      onConfirm(data);
     }
-  }
+  };
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
@@ -48,12 +60,20 @@ export function NuevaZonaModal({ rect, onConfirm, onCancel }: NuevaZonaModalProp
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="bg-gray-50 p-3 rounded text-sm text-gray-900">
-            <div><strong className="text-gray-900">Área:</strong> {(rect.ancho * rect.alto).toFixed(1)} m²</div>
-            <div><strong className="text-gray-900">Dimensiones:</strong> {rect.ancho.toFixed(1)}m × {rect.alto.toFixed(1)}m</div>
+            <div>
+              <strong className="text-gray-900">Área:</strong>{" "}
+              {(rect.ancho * rect.alto).toFixed(1)} m²
+            </div>
+            <div>
+              <strong className="text-gray-900">Dimensiones:</strong>{" "}
+              {rect.ancho.toFixed(1)}m × {rect.alto.toFixed(1)}m
+            </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-900 mb-1">Nombre *</label>
+            <label className="block text-sm font-medium text-gray-900 mb-1">
+              Nombre *
+            </label>
             <input
               type="text"
               value={nombre}
@@ -66,7 +86,9 @@ export function NuevaZonaModal({ rect, onConfirm, onCancel }: NuevaZonaModalProp
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-900 mb-1">Tipo</label>
+            <label className="block text-sm font-medium text-gray-900 mb-1">
+              Tipo
+            </label>
             <select
               value={tipo}
               onChange={(e) => setTipo(e.target.value as TipoZona)}
@@ -84,10 +106,14 @@ export function NuevaZonaModal({ rect, onConfirm, onCancel }: NuevaZonaModalProp
 
           {tipo === TIPO_ZONA.ESTANQUE && (
             <div className="space-y-3 p-3 bg-cyan-50 rounded border border-cyan-200">
-              <h4 className="font-medium text-cyan-800 text-sm">Configuración del Estanque</h4>
+              <h4 className="font-medium text-cyan-800 text-sm">
+                Configuración del Estanque
+              </h4>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Capacidad (m³) *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Capacidad (m³) *
+                </label>
                 <input
                   type="number"
                   value={capacidad}
@@ -100,10 +126,14 @@ export function NuevaZonaModal({ rect, onConfirm, onCancel }: NuevaZonaModalProp
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Material</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Material
+                </label>
                 <select
                   value={material}
-                  onChange={(e) => setMaterial(e.target.value as MaterialEstanque)}
+                  onChange={(e) =>
+                    setMaterial(e.target.value as MaterialEstanque)
+                  }
                   className="w-full px-3 py-2 border rounded text-gray-900"
                 >
                   <option value="plastico">Plástico</option>
@@ -141,7 +171,9 @@ export function NuevaZonaModal({ rect, onConfirm, onCancel }: NuevaZonaModalProp
               className="w-6 h-6 rounded"
               style={{ backgroundColor: COLORES_ZONA[tipo] }}
             />
-            <span className="text-sm text-gray-700">Color automático según tipo</span>
+            <span className="text-sm text-gray-700">
+              Color automático según tipo
+            </span>
           </div>
 
           <div className="flex gap-2 pt-2">
@@ -162,5 +194,5 @@ export function NuevaZonaModal({ rect, onConfirm, onCancel }: NuevaZonaModalProp
         </form>
       </div>
     </div>
-  )
+  );
 }

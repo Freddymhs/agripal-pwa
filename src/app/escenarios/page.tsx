@@ -15,6 +15,7 @@ import {
 } from "@/components/escenarios/tabla-comparativa";
 import { filtrarEstanques } from "@/lib/utils/helpers-cultivo";
 import { TIPO_ZONA } from "@/lib/constants/entities";
+import { ROUTES } from "@/lib/constants/routes";
 import type { CatalogoCultivo } from "@/types";
 
 const COLORES_LINEA = ["text-blue-600", "text-green-600", "text-purple-600"];
@@ -30,6 +31,7 @@ export default function EscenariosPage() {
   useEffect(() => {
     if (zonas.length > 0) {
       const zonaCultivo = zonas.find((zona) => zona.tipo === TIPO_ZONA.CULTIVO);
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- inicialización de selección con los primeros cultivos disponibles
       if (zonaCultivo) setZonaId(zonaCultivo.id);
       if (catalogoCultivos.length >= 2)
         setSeleccion([catalogoCultivos[0].id, catalogoCultivos[1].id]);
@@ -78,9 +80,19 @@ export default function EscenariosPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-indigo-600 text-white px-4 py-3 flex items-center gap-4">
-        <Link href="/" className="p-1 hover:bg-indigo-700 rounded">
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+        <Link href={ROUTES.HOME} className="p-1 hover:bg-indigo-700 rounded">
+          <svg
+            className="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15 19l-7-7 7-7"
+            />
           </svg>
         </Link>
         <h1 className="text-xl font-bold">Escenarios Comparativos</h1>

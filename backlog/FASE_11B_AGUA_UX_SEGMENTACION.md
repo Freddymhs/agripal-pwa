@@ -23,6 +23,7 @@ El sistema mezclaba dos casos de uso distintos sin clara separación:
    - Ver cuántos días queda de agua
 
 **Confusión UX**: Ambos flujos estaban mezclados en el sidebar del mapa, causando:
+
 - Recomendaciones basadas en plantas actuales (no útil para experimentación)
 - No era claro dónde planificar vs dónde gestionar
 - Usuario perdido entre múltiples tabs sin propósito claro
@@ -32,6 +33,7 @@ El sistema mezclaba dos casos de uso distintos sin clara separación:
 ## Objetivo
 
 Separar claramente los dos flujos de trabajo en páginas distintas con:
+
 - Propósito evidente (color, mensajes, ubicación)
 - Navegación clara entre ambas
 - Herramientas específicas para cada contexto
@@ -51,24 +53,26 @@ Separar claramente los dos flujos de trabajo en páginas distintas con:
 
 ### Diferenciación Visual
 
-| Aspecto | 💧 Gestión `/agua` | 🧪 Planificador `/agua/planificador` |
-|---------|-------------------|--------------------------------------|
-| **Color principal** | Cian (`cyan-600`) | Azul (`blue-600`) |
-| **Propósito** | Día a día real | Simulación antes de invertir |
-| **Datos** | Plantas/estanques actuales | Hipotéticos (prueba) |
-| **Consumo** | Basado en plantas reales | Basado en cultivos potenciales |
-| **Entradas agua** | Registro histórico real | No aplica (solo planificación) |
-| **Recomendaciones** | No | Sí (viables/no viables) |
-| **Target user** | Agricultor en operación | Agricultor planificando inversión |
+| Aspecto             | 💧 Gestión `/agua`         | 🧪 Planificador `/agua/planificador` |
+| ------------------- | -------------------------- | ------------------------------------ |
+| **Color principal** | Cian (`cyan-600`)          | Azul (`blue-600`)                    |
+| **Propósito**       | Día a día real             | Simulación antes de invertir         |
+| **Datos**           | Plantas/estanques actuales | Hipotéticos (prueba)                 |
+| **Consumo**         | Basado en plantas reales   | Basado en cultivos potenciales       |
+| **Entradas agua**   | Registro histórico real    | No aplica (solo planificación)       |
+| **Recomendaciones** | No                         | Sí (viables/no viables)              |
+| **Target user**     | Agricultor en operación    | Agricultor planificando inversión    |
 
 ---
 
 ## Tareas Implementadas
 
 ### Tarea 1: Crear Página Planificador
+
 **Archivo**: `src/app/agua/planificador/page.tsx` ✅
 
 **Características:**
+
 - Banner azul explicativo: "🧪 Modo Experimentación"
 - Panel de recomendaciones completo (cultivos viables/no viables)
 - Calculadora de agua anual automática
@@ -77,9 +81,11 @@ Separar claramente los dos flujos de trabajo en páginas distintas con:
 - Navegación clara a "Gestión" cuando estés listo
 
 **Mensaje al usuario:**
+
 > "Esta herramienta te permite **simular y planificar** antes de invertir dinero real. Prueba diferentes cultivos, calcula cuánta agua necesitarías, y descubre qué es viable para tu terreno."
 
 **Implementación:**
+
 ```typescript
 export default function PlanificadorAguaPage() {
   // Carga terreno, zonas, plantas, catálogo
@@ -119,18 +125,22 @@ export default function PlanificadorAguaPage() {
 ---
 
 ### Tarea 2: Mejorar Página Gestión
+
 **Archivo**: `src/app/agua/page.tsx` ✅
 
 **Mejoras:**
+
 - Header actualizado: "Gestión de Agua" (antes: "Control de Agua")
 - Banner cian explicativo: "💧 Gestión Diaria del Agua"
 - Botón "Planificador" en header
 - Enlace al planificador en banner
 
 **Mensaje al usuario:**
+
 > "Monitorea tu agua **actual**, registra entradas reales, y controla el consumo día a día. Este es el seguimiento de tu sistema **en operación**."
 
 **Implementación:**
+
 ```typescript
 <header className="bg-cyan-600">
   <h1>Gestión de Agua</h1>
@@ -162,9 +172,11 @@ export default function PlanificadorAguaPage() {
 ---
 
 ### Tarea 3: Simplificar Sidebar Mapa
+
 **Archivo**: `src/components/mapa/map-sidebar.tsx` ✅
 
 **Cambios:**
+
 - ❌ **Eliminado**: Tab "Recomendación" (movido a planificador)
 - ❌ **Eliminado**: Imports innecesarios (`RecomendacionPanel`)
 - ❌ **Eliminado**: Estado `panelTab`, `setPanelTab`
@@ -174,6 +186,7 @@ export default function PlanificadorAguaPage() {
 **Beneficio**: Sidebar más limpio, enfocado en editar el mapa
 
 **Implementación:**
+
 ```typescript
 // Antes: Tabs (Terreno | Recomendación)
 <div className="flex border-b">
@@ -200,18 +213,21 @@ export default function PlanificadorAguaPage() {
 ## Navegación Implementada
 
 ### Desde `/agua` (Gestión):
+
 ```
 Header → Botón "Planificador" (azul)
 Banner → Link "Usa el Planificador para simular"
 ```
 
 ### Desde `/agua/planificador` (Experimentación):
+
 ```
 Header → Botón "Ir a Gestión" (azul)
 Card final → Link "Ir al Mapa →"
 ```
 
 ### Desde Mapa (Sidebar):
+
 ```
 Panel → Banner verde "¿Planificando tu cultivo?" → "Ir al Planificador →"
 ```
@@ -237,6 +253,7 @@ Panel → Banner verde "¿Planificando tu cultivo?" → "Ir al Planificador →"
 ## Impacto UX
 
 ### Antes (Confuso):
+
 ```
 Mapa → Sidebar → Tab "Recomendación"
                    ↳ ¿Basado en qué? ¿Plantas actuales o hipotéticas?
@@ -245,6 +262,7 @@ Mapa → Sidebar → Tab "Recomendación"
 ```
 
 ### Ahora (Claro):
+
 ```
 💧 /agua
    ↳ "Gestión Diaria del Agua"
@@ -264,10 +282,10 @@ Mapa → Sidebar → Tab "Recomendación"
 
 ## Archivos Modificados
 
-| Archivo | Acción | Descripción |
-|---------|--------|-------------|
-| `src/app/agua/planificador/page.tsx` | ✅ Creado | Nueva página experimentación |
-| `src/app/agua/page.tsx` | ✏️ Modificado | Mejorado con banner gestión + link planificador |
+| Archivo                               | Acción        | Descripción                                              |
+| ------------------------------------- | ------------- | -------------------------------------------------------- |
+| `src/app/agua/planificador/page.tsx`  | ✅ Creado     | Nueva página experimentación                             |
+| `src/app/agua/page.tsx`               | ✏️ Modificado | Mejorado con banner gestión + link planificador          |
 | `src/components/mapa/map-sidebar.tsx` | ✏️ Modificado | Eliminado tab recomendación + agregado link planificador |
 
 ---
@@ -286,11 +304,13 @@ Mapa → Sidebar → Tab "Recomendación"
 ## Testing
 
 ### Build Production
+
 ```bash
 pnpm build
 ```
 
 **Resultado:**
+
 ```
 ✓ Compiled successfully in 3.6s
   Running TypeScript ...

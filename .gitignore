@@ -60,5 +60,13 @@ public/fallback-*.js
 
 # Cache
 .cache/
+.eslintcache
+.prettiercache
 .sentry-native/
 testsprite_tests
+
+# Scrappers/dumps
+save-scrappers/**
+
+# Temp
+/tmp/

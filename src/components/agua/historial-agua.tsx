@@ -1,27 +1,29 @@
-'use client'
+"use client";
 
-import { formatDate, formatCLP } from '@/lib/utils'
-import type { EntradaAgua, Zona } from '@/types'
+import { formatDate, formatCLP } from "@/lib/utils";
+import type { EntradaAgua, Zona } from "@/types";
 
 interface HistorialAguaProps {
-  entradas: EntradaAgua[]
-  estanques: Zona[]
+  entradas: EntradaAgua[];
+  estanques: Zona[];
 }
 
 export function HistorialAgua({ entradas, estanques }: HistorialAguaProps) {
   const getEstanqueNombre = (estanqueId?: string) => {
-    if (!estanqueId) return 'Sin asignar'
-    const estanque = estanques.find(e => e.id === estanqueId)
-    return estanque?.nombre || 'Desconocido'
-  }
+    if (!estanqueId) return "Sin asignar";
+    const estanque = estanques.find((e) => e.id === estanqueId);
+    return estanque?.nombre || "Desconocido";
+  };
 
   if (entradas.length === 0) {
     return (
       <div className="bg-white rounded-lg shadow p-4">
         <h3 className="font-bold text-gray-900 mb-2">Historial de Entradas</h3>
-        <p className="text-gray-500 text-sm">No hay entradas de agua registradas.</p>
+        <p className="text-gray-500 text-sm">
+          No hay entradas de agua registradas.
+        </p>
       </div>
-    )
+    );
   }
 
   return (
@@ -68,5 +70,5 @@ export function HistorialAgua({ entradas, estanques }: HistorialAguaProps) {
         ))}
       </div>
     </div>
-  )
+  );
 }

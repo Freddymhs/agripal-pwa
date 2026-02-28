@@ -1,13 +1,16 @@
-'use client'
+"use client";
 
-import type { Zona, UUID } from '@/types'
-import { clamp } from '@/lib/utils/math'
+import type { Zona, UUID } from "@/types";
+import { clamp } from "@/lib/utils/math";
 
 interface PanelEstanquesProps {
-  estanques: Zona[]
-  aguaTotal: number
-  capacidadTotal: number
-  onAgregarAgua: (estanqueId: UUID, cantidad: number) => Promise<{ error?: string }>
+  estanques: Zona[];
+  aguaTotal: number;
+  capacidadTotal: number;
+  onAgregarAgua: (
+    estanqueId: UUID,
+    cantidad: number,
+  ) => Promise<{ error?: string }>;
 }
 
 export function PanelEstanques({
@@ -15,17 +18,19 @@ export function PanelEstanques({
   aguaTotal,
   capacidadTotal,
 }: PanelEstanquesProps) {
-  const porcentajeTotal = capacidadTotal > 0 ? (aguaTotal / capacidadTotal) * 100 : 0
+  const porcentajeTotal =
+    capacidadTotal > 0 ? (aguaTotal / capacidadTotal) * 100 : 0;
 
   if (estanques.length === 0) {
     return (
       <div className="bg-cyan-50 border border-cyan-200 rounded-lg p-4">
         <h3 className="font-bold text-cyan-800 mb-2">Estanques de Agua</h3>
         <p className="text-sm text-cyan-700">
-          No hay estanques en este terreno. Crea una zona tipo &quot;Estanque&quot; para almacenar agua.
+          No hay estanques en este terreno. Crea una zona tipo
+          &quot;Estanque&quot; para almacenar agua.
         </p>
       </div>
-    )
+    );
   }
 
   return (
@@ -50,17 +55,23 @@ export function PanelEstanques({
 
       <div className="space-y-3">
         {estanques.map((estanque) => {
-          const config = estanque.estanque_config
-          if (!config) return null
+          const config = estanque.estanque_config;
+          if (!config) return null;
 
-          const porcentaje = config.capacidad_m3 > 0
-            ? (config.nivel_actual_m3 / config.capacidad_m3) * 100
-            : 0
+          const porcentaje =
+            config.capacidad_m3 > 0
+              ? (config.nivel_actual_m3 / config.capacidad_m3) * 100
+              : 0;
 
           return (
-            <div key={estanque.id} className="border border-gray-200 rounded-lg p-3">
+            <div
+              key={estanque.id}
+              className="border border-gray-200 rounded-lg p-3"
+            >
               <div className="flex justify-between items-center mb-2">
-                <div className="font-medium text-gray-900">{estanque.nombre}</div>
+                <div className="font-medium text-gray-900">
+                  {estanque.nombre}
+                </div>
                 <div className="text-sm text-gray-600">
                   {config.nivel_actual_m3.toFixed(1)} / {config.capacidad_m3} m³
                 </div>
@@ -78,9 +89,9 @@ export function PanelEstanques({
                 {config.material && <span>{config.material}</span>}
               </div>
             </div>
-          )
+          );
         })}
       </div>
     </div>
-  )
+  );
 }

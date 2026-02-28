@@ -5,7 +5,18 @@
     "anual_mm": 1,
     "max_24h_mm": 10,
     "meses_lluviosos": ["ene", "feb"],
-    "meses_secos": ["mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"]
+    "meses_secos": [
+      "mar",
+      "abr",
+      "may",
+      "jun",
+      "jul",
+      "ago",
+      "sep",
+      "oct",
+      "nov",
+      "dic"
+    ]
   },
   "temperatura": {
     "minima_historica_c": 11,

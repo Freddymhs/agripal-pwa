@@ -1,10 +1,10 @@
-'use client'
+"use client";
 
-import type { LegalTerreno } from '@/types'
+import type { LegalTerreno } from "@/types";
 
 interface TabLegalSeccionProps {
-  value: LegalTerreno
-  onChange: (v: LegalTerreno) => void
+  value: LegalTerreno;
+  onChange: (v: LegalTerreno) => void;
 }
 
 export function SeccionDerechosAgua({ value, onChange }: TabLegalSeccionProps) {
@@ -16,10 +16,15 @@ export function SeccionDerechosAgua({ value, onChange }: TabLegalSeccionProps) {
           <input
             type="checkbox"
             checked={value.derechos_agua?.tiene_derechos_dga || false}
-            onChange={e => onChange({
-              ...value,
-              derechos_agua: { ...value.derechos_agua, tiene_derechos_dga: e.target.checked }
-            })}
+            onChange={(e) =>
+              onChange({
+                ...value,
+                derechos_agua: {
+                  ...value.derechos_agua,
+                  tiene_derechos_dga: e.target.checked,
+                },
+              })
+            }
             className="rounded"
           />
           <span className="text-sm text-gray-700">Tiene derechos DGA</span>
@@ -28,32 +33,49 @@ export function SeccionDerechosAgua({ value, onChange }: TabLegalSeccionProps) {
           <input
             type="checkbox"
             checked={value.derechos_agua?.inscripcion_junta_vigilancia || false}
-            onChange={e => onChange({
-              ...value,
-              derechos_agua: { ...value.derechos_agua, inscripcion_junta_vigilancia: e.target.checked }
-            })}
+            onChange={(e) =>
+              onChange({
+                ...value,
+                derechos_agua: {
+                  ...value.derechos_agua,
+                  inscripcion_junta_vigilancia: e.target.checked,
+                },
+              })
+            }
             className="rounded"
           />
-          <span className="text-sm text-gray-700">Inscripcion Junta de Vigilancia</span>
+          <span className="text-sm text-gray-700">
+            Inscripcion Junta de Vigilancia
+          </span>
         </label>
         {value.derechos_agua?.tiene_derechos_dga && (
           <div className="mt-2">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Litros por segundo</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Litros por segundo
+            </label>
             <input
               type="number"
               step="0.1"
-              value={value.derechos_agua?.litros_por_segundo || ''}
-              onChange={e => onChange({
-                ...value,
-                derechos_agua: { ...value.derechos_agua, litros_por_segundo: parseFloat(e.target.value) || undefined }
-              })}
+              value={value.derechos_agua?.litros_por_segundo || ""}
+              onChange={(e) =>
+                onChange({
+                  ...value,
+                  derechos_agua: {
+                    ...value.derechos_agua,
+                    litros_por_segundo:
+                      e.target.value === ""
+                        ? undefined
+                        : parseFloat(e.target.value),
+                  },
+                })
+              }
               className="w-full px-3 py-2 border rounded text-gray-900"
             />
           </div>
         )}
       </div>
     </div>
-  )
+  );
 }
 
 export function SeccionPermisos({ value, onChange }: TabLegalSeccionProps) {
@@ -65,10 +87,15 @@ export function SeccionPermisos({ value, onChange }: TabLegalSeccionProps) {
           <input
             type="checkbox"
             checked={value.permisos?.permiso_edificacion || false}
-            onChange={e => onChange({
-              ...value,
-              permisos: { ...value.permisos, permiso_edificacion: e.target.checked }
-            })}
+            onChange={(e) =>
+              onChange({
+                ...value,
+                permisos: {
+                  ...value.permisos,
+                  permiso_edificacion: e.target.checked,
+                },
+              })
+            }
             className="rounded"
           />
           <span className="text-sm text-gray-700">Permiso edificacion</span>
@@ -77,10 +104,15 @@ export function SeccionPermisos({ value, onChange }: TabLegalSeccionProps) {
           <input
             type="checkbox"
             checked={value.permisos?.resolucion_sanitaria || false}
-            onChange={e => onChange({
-              ...value,
-              permisos: { ...value.permisos, resolucion_sanitaria: e.target.checked }
-            })}
+            onChange={(e) =>
+              onChange({
+                ...value,
+                permisos: {
+                  ...value.permisos,
+                  resolucion_sanitaria: e.target.checked,
+                },
+              })
+            }
             className="rounded"
           />
           <span className="text-sm text-gray-700">Resolucion sanitaria</span>
@@ -89,10 +121,15 @@ export function SeccionPermisos({ value, onChange }: TabLegalSeccionProps) {
           <input
             type="checkbox"
             checked={value.permisos?.declaracion_sii || false}
-            onChange={e => onChange({
-              ...value,
-              permisos: { ...value.permisos, declaracion_sii: e.target.checked }
-            })}
+            onChange={(e) =>
+              onChange({
+                ...value,
+                permisos: {
+                  ...value.permisos,
+                  declaracion_sii: e.target.checked,
+                },
+              })
+            }
             className="rounded"
           />
           <span className="text-sm text-gray-700">Declaracion SII</span>
@@ -101,17 +138,22 @@ export function SeccionPermisos({ value, onChange }: TabLegalSeccionProps) {
           <input
             type="checkbox"
             checked={value.permisos?.patente_municipal || false}
-            onChange={e => onChange({
-              ...value,
-              permisos: { ...value.permisos, patente_municipal: e.target.checked }
-            })}
+            onChange={(e) =>
+              onChange({
+                ...value,
+                permisos: {
+                  ...value.permisos,
+                  patente_municipal: e.target.checked,
+                },
+              })
+            }
             className="rounded"
           />
           <span className="text-sm text-gray-700">Patente municipal</span>
         </label>
       </div>
     </div>
-  )
+  );
 }
 
 export function SeccionSeguros({ value, onChange }: TabLegalSeccionProps) {
@@ -123,10 +165,15 @@ export function SeccionSeguros({ value, onChange }: TabLegalSeccionProps) {
           <input
             type="checkbox"
             checked={value.seguros?.seguro_agricola || false}
-            onChange={e => onChange({
-              ...value,
-              seguros: { ...value.seguros, seguro_agricola: e.target.checked }
-            })}
+            onChange={(e) =>
+              onChange({
+                ...value,
+                seguros: {
+                  ...value.seguros,
+                  seguro_agricola: e.target.checked,
+                },
+              })
+            }
             className="rounded"
           />
           <span className="text-sm text-gray-700">Seguro agricola</span>
@@ -135,29 +182,44 @@ export function SeccionSeguros({ value, onChange }: TabLegalSeccionProps) {
           <input
             type="checkbox"
             checked={value.seguros?.seguro_incendio || false}
-            onChange={e => onChange({
-              ...value,
-              seguros: { ...value.seguros, seguro_incendio: e.target.checked }
-            })}
+            onChange={(e) =>
+              onChange({
+                ...value,
+                seguros: {
+                  ...value.seguros,
+                  seguro_incendio: e.target.checked,
+                },
+              })
+            }
             className="rounded"
           />
           <span className="text-sm text-gray-700">Seguro incendio</span>
         </label>
         {(value.seguros?.seguro_agricola || value.seguros?.seguro_incendio) && (
           <div className="mt-2">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Costo anual (CLP)</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Costo anual (CLP)
+            </label>
             <input
               type="number"
-              value={value.seguros?.costo_anual_clp || ''}
-              onChange={e => onChange({
-                ...value,
-                seguros: { ...value.seguros, costo_anual_clp: parseInt(e.target.value) || undefined }
-              })}
+              value={value.seguros?.costo_anual_clp || ""}
+              onChange={(e) =>
+                onChange({
+                  ...value,
+                  seguros: {
+                    ...value.seguros,
+                    costo_anual_clp:
+                      e.target.value === ""
+                        ? undefined
+                        : parseInt(e.target.value),
+                  },
+                })
+              }
               className="w-full px-3 py-2 border rounded text-gray-900"
             />
           </div>
         )}
       </div>
     </div>
-  )
+  );
 }

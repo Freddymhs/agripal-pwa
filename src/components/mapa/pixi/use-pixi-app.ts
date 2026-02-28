@@ -1,26 +1,26 @@
-'use client'
+"use client";
 
-import { useEffect, useRef, useState, type RefObject } from 'react'
-import { Application } from 'pixi.js'
-import { BG_COLOR } from './pixi-constants'
+import { useEffect, useRef, useState, type RefObject } from "react";
+import { Application } from "pixi.js";
+import { BG_COLOR } from "./pixi-constants";
 
 export function usePixiApp(containerRef: RefObject<HTMLDivElement | null>): {
-  app: Application | null
-  isReady: boolean
+  app: Application | null;
+  isReady: boolean;
 } {
-  const appRef = useRef<Application | null>(null)
-  const [isReady, setIsReady] = useState(false)
-  const resizeObserverRef = useRef<ResizeObserver | null>(null)
+  const appRef = useRef<Application | null>(null);
+  const [isReady, setIsReady] = useState(false);
+  const resizeObserverRef = useRef<ResizeObserver | null>(null);
 
   useEffect(() => {
-    const container = containerRef.current
-    if (!container) return
+    const container = containerRef.current;
+    if (!container) return;
 
-    let destroyed = false
-    const app = new Application()
+    let destroyed = false;
+    const app = new Application();
 
     const init = async () => {
-      const rect = container.getBoundingClientRect()
+      const rect = container.getBoundingClientRect();
 
       await app.init({
         width: rect.width || 800,
@@ -29,52 +29,53 @@ export function usePixiApp(containerRef: RefObject<HTMLDivElement | null>): {
         antialias: true,
         resolution: window.devicePixelRatio || 1,
         autoDensity: true,
-        preference: 'webgl',
-      })
+        preference: "webgl",
+      });
 
       if (destroyed) {
-        app.destroy(true, { children: true })
-        return
+        app.destroy(true, { children: true });
+        return;
       }
 
-      app.stage.eventMode = 'static'
-      app.stage.hitArea = app.screen
+      app.stage.eventMode = "static";
+      app.stage.hitArea = app.screen;
 
-      container.appendChild(app.canvas as HTMLCanvasElement)
-      appRef.current = app
+      container.appendChild(app.canvas as HTMLCanvasElement);
+      appRef.current = app;
 
       resizeObserverRef.current = new ResizeObserver((entries) => {
         for (const entry of entries) {
-          const { width, height } = entry.contentRect
+          const { width, height } = entry.contentRect;
           if (width > 0 && height > 0) {
-            app.renderer.resize(width, height)
-            app.stage.hitArea = app.screen
+            app.renderer.resize(width, height);
+            app.stage.hitArea = app.screen;
           }
         }
-      })
-      resizeObserverRef.current.observe(container)
+      });
+      resizeObserverRef.current.observe(container);
 
-      setIsReady(true)
-    }
+      setIsReady(true);
+    };
 
-    init()
+    init();
 
     return () => {
-      destroyed = true
-      resizeObserverRef.current?.disconnect()
-      resizeObserverRef.current = null
+      destroyed = true;
+      resizeObserverRef.current?.disconnect();
+      resizeObserverRef.current = null;
 
       if (appRef.current) {
-        const canvas = appRef.current.canvas as HTMLCanvasElement
+        const canvas = appRef.current.canvas as HTMLCanvasElement;
         if (canvas.parentNode) {
-          canvas.parentNode.removeChild(canvas)
+          canvas.parentNode.removeChild(canvas);
         }
-        appRef.current.destroy(true, { children: true })
-        appRef.current = null
+        appRef.current.destroy(true, { children: true });
+        appRef.current = null;
       }
-      setIsReady(false)
-    }
-  }, [containerRef])
+      setIsReady(false);
+    };
+  }, [containerRef]);
 
-  return { app: appRef.current, isReady }
+  // eslint-disable-next-line react-hooks/refs -- lectura de ref en retorno del hook, no durante render del componente; patrón válido para librerías imperativas
+  return { app: appRef.current, isReady };
 }

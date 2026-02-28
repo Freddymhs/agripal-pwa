@@ -1,5 +1,5 @@
-export { STORAGE_KEYS } from './storage'
-export { QUERY_KEYS } from './query-keys'
+export { STORAGE_KEYS } from "./storage";
+export { QUERY_KEYS } from "./query-keys";
 export {
   TIPO_ZONA,
   ESTADO_PLANTA,
@@ -16,13 +16,13 @@ export {
   ETAPA_INFO,
   FACTORES_TEMPORADA,
   GOTEROS_DEFAULT,
-} from './entities'
+} from "./entities";
 export {
   SYNC_ENTIDADES,
   RETRY_DELAYS,
   MAX_RETRY_ATTEMPTS,
   SYNC_CLEANUP_DAYS,
-} from './sync'
+} from "./sync";
 export {
   M2_POR_HECTAREA,
   SEMANAS_POR_AÑO,
@@ -41,7 +41,7 @@ export {
   DIAS_POR_AÑO,
   HORAS_POR_DIA,
   MESES_POR_AÑO,
-} from './conversiones'
+} from "./conversiones";
 export {
   DIAS_AGUA_UMBRAL_ALTO,
   DIAS_AGUA_UMBRAL_CRITICO,
@@ -55,4 +55,4 @@ export {
   PESO_SCORE_SUELO,
   PESO_SCORE_CLIMA,
   PESO_SCORE_RIEGO,
-} from './umbrales'
+} from "./umbrales";

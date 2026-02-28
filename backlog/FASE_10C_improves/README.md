@@ -17,16 +17,16 @@ Revisión completa como usuario final de AgriPlan. Se identificaron problemas de
 
 ## Sub-fases
 
-| Archivo | Tema | Status |
-|---|---|---|
-| `01-dashboard-responsive.md` | Dashboard desbordado en panel lateral | DONE |
-| `02-estanques-funcionales.md` | Rellenar estanque, configurar gasto, goteo | DONE |
-| `03-agua-por-zona.md` | Consumo de agua por zona de cultivo | DONE |
-| `04-fuentes-agua-calidad.md` | Fuente de agua, proveedores, calidad (boro, salinidad, arsénico) | DONE |
-| `05-suelo-nutrientes.md` | Datos químicos del terreno, preparación, fertilizantes | DONE |
-| `06-clima-impacto-riego.md` | Clima afectando riego, camanchaca, humedad | DONE |
-| `07-semillas-mercado.md` | Tipos de semilla, mercado, universidad, tierra líquida, algas | DONE |
-| `08-calidad-fruto-roi.md` | Predicción calidad fruto, precio venta, ROI del proyecto | DONE |
+| Archivo                       | Tema                                                             | Status |
+| ----------------------------- | ---------------------------------------------------------------- | ------ |
+| `01-dashboard-responsive.md`  | Dashboard desbordado en panel lateral                            | DONE   |
+| `02-estanques-funcionales.md` | Rellenar estanque, configurar gasto, goteo                       | DONE   |
+| `03-agua-por-zona.md`         | Consumo de agua por zona de cultivo                              | DONE   |
+| `04-fuentes-agua-calidad.md`  | Fuente de agua, proveedores, calidad (boro, salinidad, arsénico) | DONE   |
+| `05-suelo-nutrientes.md`      | Datos químicos del terreno, preparación, fertilizantes           | DONE   |
+| `06-clima-impacto-riego.md`   | Clima afectando riego, camanchaca, humedad                       | DONE   |
+| `07-semillas-mercado.md`      | Tipos de semilla, mercado, universidad, tierra líquida, algas    | DONE   |
+| `08-calidad-fruto-roi.md`     | Predicción calidad fruto, precio venta, ROI del proyecto         | DONE   |
 
 ---
 

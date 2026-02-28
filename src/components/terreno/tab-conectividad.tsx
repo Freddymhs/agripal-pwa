@@ -1,10 +1,10 @@
-'use client'
+"use client";
 
-import type { ConectividadTerreno } from '@/types'
+import type { ConectividadTerreno } from "@/types";
 
 interface TabConectividadProps {
-  value: ConectividadTerreno
-  onChange: (v: ConectividadTerreno) => void
+  value: ConectividadTerreno;
+  onChange: (v: ConectividadTerreno) => void;
 }
 
 export function TabConectividad({ value, onChange }: TabConectividadProps) {
@@ -17,7 +17,7 @@ export function TabConectividad({ value, onChange }: TabConectividadProps) {
         <SeccionInternet value={value} onChange={onChange} />
       </div>
     </div>
-  )
+  );
 }
 
 function SeccionCelular({ value, onChange }: TabConectividadProps) {
@@ -28,7 +28,9 @@ function SeccionCelular({ value, onChange }: TabConectividadProps) {
         <input
           type="checkbox"
           checked={value.señal_celular || false}
-          onChange={e => onChange({ ...value, señal_celular: e.target.checked })}
+          onChange={(e) =>
+            onChange({ ...value, señal_celular: e.target.checked })
+          }
           className="rounded"
         />
         <span className="text-sm text-gray-700">Hay señal celular</span>
@@ -40,8 +42,10 @@ function SeccionCelular({ value, onChange }: TabConectividadProps) {
             <label className="block text-sm text-gray-600 mb-1">Operador</label>
             <input
               type="text"
-              value={value.operador_celular || ''}
-              onChange={e => onChange({ ...value, operador_celular: e.target.value })}
+              value={value.operador_celular || ""}
+              onChange={(e) =>
+                onChange({ ...value, operador_celular: e.target.value })
+              }
               placeholder="Entel, Movistar, etc."
               className="w-full px-3 py-2 border rounded text-gray-900"
             />
@@ -49,8 +53,14 @@ function SeccionCelular({ value, onChange }: TabConectividadProps) {
           <div>
             <label className="block text-sm text-gray-600 mb-1">Calidad</label>
             <select
-              value={value.calidad_señal || ''}
-              onChange={e => onChange({ ...value, calidad_señal: e.target.value as ConectividadTerreno['calidad_señal'] })}
+              value={value.calidad_señal || ""}
+              onChange={(e) =>
+                onChange({
+                  ...value,
+                  calidad_señal: e.target
+                    .value as ConectividadTerreno["calidad_señal"],
+                })
+              }
               className="w-full px-3 py-2 border rounded text-gray-900"
             >
               <option value="">Seleccionar...</option>
@@ -62,7 +72,7 @@ function SeccionCelular({ value, onChange }: TabConectividadProps) {
         </div>
       )}
     </div>
-  )
+  );
 }
 
 function SeccionInternet({ value, onChange }: TabConectividadProps) {
@@ -73,7 +83,9 @@ function SeccionInternet({ value, onChange }: TabConectividadProps) {
         <input
           type="checkbox"
           checked={value.internet_disponible || false}
-          onChange={e => onChange({ ...value, internet_disponible: e.target.checked })}
+          onChange={(e) =>
+            onChange({ ...value, internet_disponible: e.target.checked })
+          }
           className="rounded"
         />
         <span className="text-sm text-gray-700">Internet disponible</span>
@@ -81,10 +93,18 @@ function SeccionInternet({ value, onChange }: TabConectividadProps) {
 
       {value.internet_disponible && (
         <div className="ml-6">
-          <label className="block text-sm text-gray-600 mb-1">Tipo de conexión</label>
+          <label className="block text-sm text-gray-600 mb-1">
+            Tipo de conexión
+          </label>
           <select
-            value={value.tipo_internet || ''}
-            onChange={e => onChange({ ...value, tipo_internet: e.target.value as ConectividadTerreno['tipo_internet'] })}
+            value={value.tipo_internet || ""}
+            onChange={(e) =>
+              onChange({
+                ...value,
+                tipo_internet: e.target
+                  .value as ConectividadTerreno["tipo_internet"],
+              })
+            }
             className="w-full px-3 py-2 border rounded text-gray-900"
           >
             <option value="">Seleccionar...</option>
@@ -95,5 +115,5 @@ function SeccionInternet({ value, onChange }: TabConectividadProps) {
         </div>
       )}
     </div>
-  )
+  );
 }

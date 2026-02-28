@@ -26,85 +26,112 @@ Implementar gestión del catálogo de cultivos que es por proyecto y editable.
 ## Tareas
 
 ### Tarea 1: Crear Hook useCatalogo
+
 **Archivo**: `src/hooks/useCatalogo.ts` (crear)
 
 ```typescript
-'use client'
+"use client";
 
-import { useEffect, useState, useCallback } from 'react'
-import { db } from '@/lib/db'
-import { generateUUID, getCurrentTimestamp } from '@/lib/utils'
-import type { CatalogoCultivo, UUID } from '@/types'
+import { useEffect, useState, useCallback } from "react";
+import { db } from "@/lib/db";
+import { generateUUID, getCurrentTimestamp } from "@/lib/utils";
+import type { CatalogoCultivo, UUID } from "@/types";
 
 interface UseCatalogo {
-  cultivos: CatalogoCultivo[]
-  loading: boolean
-  error: Error | null
+  cultivos: CatalogoCultivo[];
+  loading: boolean;
+  error: Error | null;
 
-  agregarCultivo: (data: Omit<CatalogoCultivo, 'id' | 'proyecto_id' | 'created_at' | 'updated_at'>) => Promise<CatalogoCultivo>
-  actualizarCultivo: (id: UUID, cambios: Partial<CatalogoCultivo>) => Promise<void>
-  eliminarCultivo: (id: UUID) => Promise<void>
-  obtenerCultivo: (id: UUID) => CatalogoCultivo | undefined
+  agregarCultivo: (
+    data: Omit<
+      CatalogoCultivo,
+      "id" | "proyecto_id" | "created_at" | "updated_at"
+    >,
+  ) => Promise<CatalogoCultivo>;
+  actualizarCultivo: (
+    id: UUID,
+    cambios: Partial<CatalogoCultivo>,
+  ) => Promise<void>;
+  eliminarCultivo: (id: UUID) => Promise<void>;
+  obtenerCultivo: (id: UUID) => CatalogoCultivo | undefined;
 }
 
 export function useCatalogo(proyectoId: UUID): UseCatalogo {
-  const [cultivos, setCultivos] = useState<CatalogoCultivo[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<Error | null>(null)
+  const [cultivos, setCultivos] = useState<CatalogoCultivo[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
   // Cargar cultivos del proyecto
   useEffect(() => {
     async function cargar() {
       try {
-        setLoading(true)
+        setLoading(true);
         const data = await db.catalogo_cultivos
-          .where('proyecto_id')
+          .where("proyecto_id")
           .equals(proyectoId)
-          .toArray()
-        setCultivos(data)
+          .toArray();
+        setCultivos(data);
       } catch (err) {
-        setError(err instanceof Error ? err : new Error('Error al cargar catálogo'))
+        setError(
+          err instanceof Error ? err : new Error("Error al cargar catálogo"),
+        );
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     }
-    cargar()
-  }, [proyectoId])
+    cargar();
+  }, [proyectoId]);
 
-  const agregarCultivo = useCallback(async (
-    data: Omit<CatalogoCultivo, 'id' | 'proyecto_id' | 'created_at' | 'updated_at'>
-  ) => {
-    const nuevo: CatalogoCultivo = {
-      ...data,
-      id: generateUUID(),
-      proyecto_id: proyectoId,
-      created_at: getCurrentTimestamp(),
-      updated_at: getCurrentTimestamp(),
-    }
+  const agregarCultivo = useCallback(
+    async (
+      data: Omit<
+        CatalogoCultivo,
+        "id" | "proyecto_id" | "created_at" | "updated_at"
+      >,
+    ) => {
+      const nuevo: CatalogoCultivo = {
+        ...data,
+        id: generateUUID(),
+        proyecto_id: proyectoId,
+        created_at: getCurrentTimestamp(),
+        updated_at: getCurrentTimestamp(),
+      };
 
-    await db.catalogo_cultivos.add(nuevo)
-    setCultivos(prev => [...prev, nuevo])
-    return nuevo
-  }, [proyectoId])
+      await db.catalogo_cultivos.add(nuevo);
+      setCultivos((prev) => [...prev, nuevo]);
+      return nuevo;
+    },
+    [proyectoId],
+  );
 
-  const actualizarCultivo = useCallback(async (id: UUID, cambios: Partial<CatalogoCultivo>) => {
-    await db.catalogo_cultivos.update(id, {
-      ...cambios,
-      updated_at: getCurrentTimestamp(),
-    })
-    setCultivos(prev => prev.map(c =>
-      c.id === id ? { ...c, ...cambios, updated_at: getCurrentTimestamp() } : c
-    ))
-  }, [])
+  const actualizarCultivo = useCallback(
+    async (id: UUID, cambios: Partial<CatalogoCultivo>) => {
+      await db.catalogo_cultivos.update(id, {
+        ...cambios,
+        updated_at: getCurrentTimestamp(),
+      });
+      setCultivos((prev) =>
+        prev.map((c) =>
+          c.id === id
+            ? { ...c, ...cambios, updated_at: getCurrentTimestamp() }
+            : c,
+        ),
+      );
+    },
+    [],
+  );
 
   const eliminarCultivo = useCallback(async (id: UUID) => {
-    await db.catalogo_cultivos.delete(id)
-    setCultivos(prev => prev.filter(c => c.id !== id))
-  }, [])
+    await db.catalogo_cultivos.delete(id);
+    setCultivos((prev) => prev.filter((c) => c.id !== id));
+  }, []);
 
-  const obtenerCultivo = useCallback((id: UUID) => {
-    return cultivos.find(c => c.id === id)
-  }, [cultivos])
+  const obtenerCultivo = useCallback(
+    (id: UUID) => {
+      return cultivos.find((c) => c.id === id);
+    },
+    [cultivos],
+  );
 
   return {
     cultivos,
@@ -114,13 +141,14 @@ export function useCatalogo(proyectoId: UUID): UseCatalogo {
     actualizarCultivo,
     eliminarCultivo,
     obtenerCultivo,
-  }
+  };
 }
 ```
 
 ---
 
 ### Tarea 2: Crear Página de Catálogo
+
 **Archivo**: `src/app/terrenos/[id]/catalogo/page.tsx` (crear)
 
 ```typescript
@@ -205,6 +233,7 @@ export default function CatalogoPage({
 ---
 
 ### Tarea 3: Crear Componente Lista de Cultivos
+
 **Archivo**: `src/components/catalogo/CatalogoList.tsx` (crear)
 
 ```typescript
@@ -313,6 +342,7 @@ function CultivoCard({
 ---
 
 ### Tarea 4: Crear Formulario de Cultivo
+
 **Archivo**: `src/components/catalogo/CultivoForm.tsx` (crear)
 
 ```typescript
@@ -526,16 +556,19 @@ export function CultivoForm({ cultivo, onGuardar, onCancelar }: CultivoFormProps
 ---
 
 ### Tarea 5: INTEGRAR Catálogo en Navegación
+
 **Archivo**: `src/app/catalogo/page.tsx` (crear)
 
 **Cambios requeridos:**
 
 1. **Crear ruta /catalogo** con página dedicada:
+
    ```
    src/app/catalogo/page.tsx
    ```
 
 2. **Link en header** de la página principal:
+
    ```typescript
    <Link href="/catalogo">Catálogo</Link>
    ```

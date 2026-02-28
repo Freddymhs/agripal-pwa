@@ -1,15 +1,18 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { useProjectContext } from '@/contexts/project-context'
-import { ESTADO_AGUA } from '@/lib/constants/entities'
-import { DIAS_AGUA_UMBRAL_ALTO, DIAS_AGUA_UMBRAL_CRITICO } from '@/lib/constants/umbrales'
+import { useState } from "react";
+import { useProjectContext } from "@/contexts/project-context";
+import { ESTADO_AGUA } from "@/lib/constants/entities";
+import {
+  DIAS_AGUA_UMBRAL_ALTO,
+  DIAS_AGUA_UMBRAL_CRITICO,
+} from "@/lib/constants/umbrales";
 
 export function MapInfoBar() {
-  const { dashboard, terrenoActual } = useProjectContext()
-  const [collapsed, setCollapsed] = useState(false)
+  const { dashboard, terrenoActual } = useProjectContext();
+  const [collapsed, setCollapsed] = useState(false);
 
-  if (!dashboard || !terrenoActual) return null
+  if (!dashboard || !terrenoActual) return null;
 
   if (collapsed) {
     return (
@@ -18,25 +21,42 @@ export function MapInfoBar() {
           onClick={() => setCollapsed(false)}
           className="text-xs text-gray-400 hover:text-gray-700 transition-colors flex items-center gap-1"
         >
-          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          <svg
+            className="w-3 h-3"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M19 9l-7 7-7-7"
+            />
           </svg>
           Panel de Información
         </button>
       </div>
-    )
+    );
   }
 
-  const diasAgua = dashboard.dias_agua_restantes
-  const diasLabel = diasAgua === Infinity ? '∞' : `~${Math.floor(diasAgua)}`
+  const diasAgua = dashboard.dias_agua_restantes;
+  const diasLabel = diasAgua === Infinity ? "∞" : `~${Math.floor(diasAgua)}`;
   const diasColor =
-    diasAgua === Infinity ? 'text-gray-500' :
-    diasAgua > DIAS_AGUA_UMBRAL_ALTO ? 'text-green-700' :
-    diasAgua > DIAS_AGUA_UMBRAL_CRITICO ? 'text-yellow-700' : 'text-red-700'
+    diasAgua === Infinity
+      ? "text-gray-500"
+      : diasAgua > DIAS_AGUA_UMBRAL_ALTO
+        ? "text-green-700"
+        : diasAgua > DIAS_AGUA_UMBRAL_CRITICO
+          ? "text-yellow-700"
+          : "text-red-700";
 
   const aguaColor =
-    dashboard.estado_agua === ESTADO_AGUA.OK ? 'text-green-700' :
-    dashboard.estado_agua === ESTADO_AGUA.AJUSTADO ? 'text-yellow-700' : 'text-red-700'
+    dashboard.estado_agua === ESTADO_AGUA.OK
+      ? "text-green-700"
+      : dashboard.estado_agua === ESTADO_AGUA.AJUSTADO
+        ? "text-yellow-700"
+        : "text-red-700";
 
   return (
     <div className="bg-gradient-to-r from-slate-50 to-gray-50 border-b border-gray-200 px-4 py-2">
@@ -84,9 +104,13 @@ export function MapInfoBar() {
             value={diasLabel}
             label="días agua"
             sublabel={
-              diasAgua === Infinity ? 'sin consumo activo' :
-              diasAgua > DIAS_AGUA_UMBRAL_ALTO ? 'agua suficiente' :
-              diasAgua > DIAS_AGUA_UMBRAL_CRITICO ? 'planifica recarga' : '⚠️ recarga pronto'
+              diasAgua === Infinity
+                ? "sin consumo activo"
+                : diasAgua > DIAS_AGUA_UMBRAL_ALTO
+                  ? "agua suficiente"
+                  : diasAgua > DIAS_AGUA_UMBRAL_CRITICO
+                    ? "planifica recarga"
+                    : "⚠️ recarga pronto"
             }
             valueClass={diasColor}
           />
@@ -105,11 +129,21 @@ export function MapInfoBar() {
             <>
               <div className="w-px h-7 bg-gray-300" />
               <Metrica
-                icon={<span>{dashboard.alertas_criticas > 0 ? '🔴' : '⚠️'}</span>}
+                icon={
+                  <span>{dashboard.alertas_criticas > 0 ? "🔴" : "⚠️"}</span>
+                }
                 value={dashboard.alertas_activas.toString()}
-                label={dashboard.alertas_activas === 1 ? 'alerta' : 'alertas'}
-                sublabel={dashboard.alertas_criticas > 0 ? `${dashboard.alertas_criticas} críticas` : 'revisar'}
-                valueClass={dashboard.alertas_criticas > 0 ? 'text-red-700' : 'text-yellow-700'}
+                label={dashboard.alertas_activas === 1 ? "alerta" : "alertas"}
+                sublabel={
+                  dashboard.alertas_criticas > 0
+                    ? `${dashboard.alertas_criticas} críticas`
+                    : "revisar"
+                }
+                valueClass={
+                  dashboard.alertas_criticas > 0
+                    ? "text-red-700"
+                    : "text-yellow-700"
+                }
               />
             </>
           )}
@@ -120,13 +154,23 @@ export function MapInfoBar() {
           className="text-gray-400 hover:text-gray-600 transition-colors shrink-0 p-1"
           title="Ocultar panel de información"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+          <svg
+            className="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M5 15l7-7 7 7"
+            />
           </svg>
         </button>
       </div>
     </div>
-  )
+  );
 }
 
 function Metrica({
@@ -134,26 +178,30 @@ function Metrica({
   value,
   label,
   sublabel,
-  valueClass = 'text-gray-900',
+  valueClass = "text-gray-900",
 }: {
-  icon: React.ReactNode
-  value: string
-  label: string
-  sublabel?: string
-  valueClass?: string
+  icon: React.ReactNode;
+  value: string;
+  label: string;
+  sublabel?: string;
+  valueClass?: string;
 }) {
   return (
     <div className="flex items-center gap-1.5 shrink-0">
       <div className="text-sm leading-none">{icon}</div>
       <div className="flex flex-col">
         <div className="flex items-baseline gap-1">
-          <span className={`text-sm font-bold leading-none ${valueClass}`}>{value}</span>
+          <span className={`text-sm font-bold leading-none ${valueClass}`}>
+            {value}
+          </span>
           <span className="text-xs text-gray-500 leading-none">{label}</span>
         </div>
         {sublabel && (
-          <span className="text-[10px] text-gray-400 leading-tight">{sublabel}</span>
+          <span className="text-[10px] text-gray-400 leading-tight">
+            {sublabel}
+          </span>
         )}
       </div>
     </div>
-  )
+  );
 }

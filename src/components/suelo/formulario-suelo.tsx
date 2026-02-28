@@ -40,15 +40,14 @@ export function FormularioSuelo({ suelo, onChange }: FormularioSueloProps) {
 
   useEffect(() => {
     if (suelo && !deepEqual(suelo, lastSuelo.current)) {
-      if (suelo.fisico && !deepEqual(suelo.fisico, fisico)) {
-        setFisico(suelo.fisico);
-      }
-      if (suelo.quimico && !deepEqual(suelo.quimico, quimico)) {
-        setQuimico(suelo.quimico);
-      }
+      // Solo disparar cuando suelo (prop externa) cambia; fisico/quimico locales
+      // no son deps porque su cambio ya está guardado en lastSuelo.current
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- sincronización de prop externa → estado local del formulario
+      if (suelo.fisico) setFisico(suelo.fisico);
+      if (suelo.quimico) setQuimico(suelo.quimico);
       lastSuelo.current = suelo;
     }
-  }, [suelo, fisico, quimico]);
+  }, [suelo]);
 
   useEffect(() => {
     if (isInitialMount.current) {
@@ -63,10 +62,8 @@ export function FormularioSuelo({ suelo, onChange }: FormularioSueloProps) {
     }
   }, [fisico, quimico, onChange]);
 
-  const {
-    ph: umbralPh,
-    profundidad_frutales: umbralProfundidad,
-  } = UMBRALES_SUELO;
+  const { ph: umbralPh, profundidad_frutales: umbralProfundidad } =
+    UMBRALES_SUELO;
 
   return (
     <div className="space-y-6">

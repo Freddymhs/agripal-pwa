@@ -16,16 +16,19 @@ Permitir seleccionar múltiples plantas arrastrando un rectángulo de selección
 ## Funcionalidad
 
 ### Activación
+
 - Modo: "Seleccionar" (modo === 'ver')
 - Acción: Click + arrastrar en área vacía o sobre plantas
 - Visual: Rectángulo de selección semi-transparente azul
 
 ### Selección
+
 - Plantas dentro del rectángulo quedan seleccionadas
 - Indicador visual: borde especial o highlight en plantas seleccionadas
 - Contador en UI: "X plantas seleccionadas"
 
 ### Acciones en Lote
+
 Una vez seleccionadas múltiples plantas:
 
 1. **Cambiar estado** (dropdown):
@@ -42,6 +45,7 @@ Una vez seleccionadas múltiples plantas:
 ## UI Propuesta
 
 ### Barra de acciones (aparece con selección múltiple)
+
 ```
 ┌─────────────────────────────────────────────────────┐
 │ 🌱 12 plantas seleccionadas                         │
@@ -50,6 +54,7 @@ Una vez seleccionadas múltiples plantas:
 ```
 
 ### Rectángulo de selección
+
 - Color: `rgba(59, 130, 246, 0.2)` (azul semi-transparente)
 - Borde: `#3b82f6` (azul) punteado
 
@@ -58,18 +63,26 @@ Una vez seleccionadas múltiples plantas:
 ## Tareas
 
 ### Tarea 1: Estado de Selección Múltiple
+
 **Archivo**: `src/app/page.tsx` (modificar)
 
 Agregar estados para manejar selección múltiple:
+
 ```typescript
-const [plantasSeleccionadas, setPlantasSeleccionadas] = useState<string[]>([])
-const [selectionRect, setSelectionRect] = useState<{x: number, y: number, ancho: number, alto: number} | null>(null)
-const [isSelecting, setIsSelecting] = useState(false)
+const [plantasSeleccionadas, setPlantasSeleccionadas] = useState<string[]>([]);
+const [selectionRect, setSelectionRect] = useState<{
+  x: number;
+  y: number;
+  ancho: number;
+  alto: number;
+} | null>(null);
+const [isSelecting, setIsSelecting] = useState(false);
 ```
 
 ---
 
 ### Tarea 2: Rectángulo de Selección en Mapa
+
 **Archivo**: `src/components/mapa/mapa-terreno.tsx` (modificar)
 
 - Detectar drag en modo 'ver' cuando no hay zona seleccionada
@@ -79,22 +92,26 @@ const [isSelecting, setIsSelecting] = useState(false)
 ---
 
 ### Tarea 3: Indicador Visual de Plantas Seleccionadas
+
 **Archivo**: `src/components/mapa/planta-marker.tsx` (modificar)
 
 Agregar prop `isSelected` para mostrar borde especial:
+
 ```typescript
 interface PlantaMarkerProps {
   // ... existentes
-  isSelected?: boolean
+  isSelected?: boolean;
 }
 ```
 
 ---
 
 ### Tarea 4: Barra de Acciones en Lote
+
 **Archivo**: `src/components/plantas/acciones-lote.tsx` (crear)
 
 Componente con:
+
 - Contador: "X plantas seleccionadas"
 - Dropdown: Cambiar estado
 - Botón: Eliminar (con confirmación)
@@ -103,27 +120,33 @@ Componente con:
 ---
 
 ### Tarea 5: Hook usePlantasLote
+
 **Archivo**: `src/hooks/usePlantasLote.ts` (crear)
 
 ```typescript
 export function usePlantasLote(onRefetch: () => void) {
   const cambiarEstadoMultiple = async (ids: string[], estado: EstadoPlanta) => {
-    await Promise.all(ids.map(id => db.plantas.update(id, { estado, updated_at: getCurrentTimestamp() })))
-    onRefetch()
-  }
+    await Promise.all(
+      ids.map((id) =>
+        db.plantas.update(id, { estado, updated_at: getCurrentTimestamp() }),
+      ),
+    );
+    onRefetch();
+  };
 
   const eliminarMultiple = async (ids: string[]) => {
-    await db.plantas.bulkDelete(ids)
-    onRefetch()
-  }
+    await db.plantas.bulkDelete(ids);
+    onRefetch();
+  };
 
-  return { cambiarEstadoMultiple, eliminarMultiple }
+  return { cambiarEstadoMultiple, eliminarMultiple };
 }
 ```
 
 ---
 
 ### Tarea 6: Integración en Página Principal
+
 **Archivo**: `src/app/page.tsx` (modificar)
 
 - Mostrar `AccionesLote` cuando hay plantas seleccionadas

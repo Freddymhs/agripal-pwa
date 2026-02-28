@@ -38,7 +38,7 @@ export function useSync() {
   const isMountedRef = useRef(true);
   const isSyncingRef = useRef(false);
   const isOnlineRef = useRef(
-    typeof navigator !== "undefined" ? navigator.onLine : true
+    typeof navigator !== "undefined" ? navigator.onLine : true,
   );
 
   const updateCounts = useCallback(async () => {
@@ -109,7 +109,7 @@ export function useSync() {
         }));
       }
     },
-    [updateCounts]
+    [updateCounts],
   );
 
   useEffect(() => {
@@ -127,7 +127,7 @@ export function useSync() {
       onlineDebounceTimer = setTimeout(() => {
         setState((prev) => ({ ...prev, isOnline: true }));
         timeouts.push(
-          setTimeout(() => doSyncRef.current?.(), RECONNECT_DELAY_MS)
+          setTimeout(() => doSyncRef.current?.(), RECONNECT_DELAY_MS),
         );
       }, ONLINE_DEBOUNCE_MS);
     };
@@ -148,7 +148,7 @@ export function useSync() {
 
     if (navigator.onLine) {
       timeouts.push(
-        setTimeout(() => doSyncRef.current?.(), INITIAL_SYNC_DELAY_MS)
+        setTimeout(() => doSyncRef.current?.(), INITIAL_SYNC_DELAY_MS),
       );
     }
 

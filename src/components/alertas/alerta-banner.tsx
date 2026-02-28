@@ -1,17 +1,18 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import Link from 'next/link'
+import { useState } from "react";
+import Link from "next/link";
+import { ROUTES } from "@/lib/constants/routes";
 
 interface AlertaBannerProps {
-  alertasCriticas: number
+  alertasCriticas: number;
 }
 
 export function AlertaBanner({ alertasCriticas }: AlertaBannerProps) {
-  const [dismissed, setDismissed] = useState(false)
+  const [dismissed, setDismissed] = useState(false);
 
   if (alertasCriticas === 0 || dismissed) {
-    return null
+    return null;
   }
 
   return (
@@ -21,11 +22,11 @@ export function AlertaBanner({ alertasCriticas }: AlertaBannerProps) {
           <span className="text-lg">🚨</span>
           <span className="text-sm font-medium">
             {alertasCriticas === 1
-              ? 'Tienes 1 alerta crítica que requiere atención'
+              ? "Tienes 1 alerta crítica que requiere atención"
               : `Tienes ${alertasCriticas} alertas críticas que requieren atención`}
           </span>
           <Link
-            href="/alertas"
+            href={ROUTES.ALERTAS}
             className="text-sm underline hover:no-underline ml-2"
           >
             Ver alertas
@@ -53,5 +54,5 @@ export function AlertaBanner({ alertasCriticas }: AlertaBannerProps) {
         </button>
       </div>
     </div>
-  )
+  );
 }

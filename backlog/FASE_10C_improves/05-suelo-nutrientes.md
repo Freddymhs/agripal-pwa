@@ -19,27 +19,28 @@
 
 ```typescript
 interface AnalisisSuelo {
-  id: string
-  terreno_id: string
-  fecha: string
-  laboratorio?: string
+  id: string;
+  terreno_id: string;
+  fecha: string;
+  laboratorio?: string;
 
-  ph: number
-  salinidad_dS_m: number
-  materia_organica_pct: number
-  nitrogeno_ppm?: number
-  fosforo_ppm?: number
-  potasio_ppm?: number
+  ph: number;
+  salinidad_dS_m: number;
+  materia_organica_pct: number;
+  nitrogeno_ppm?: number;
+  fosforo_ppm?: number;
+  potasio_ppm?: number;
 
-  presencia_sal: boolean
-  requiere_lavado: boolean
-  notas: string
+  presencia_sal: boolean;
+  requiere_lavado: boolean;
+  notas: string;
 }
 ```
 
 ### 5.2 Preparación del terreno
 
 Registro de aplicaciones:
+
 - Guano de vaca/gallina
 - Fertilizantes (NPK, etc.)
 - Compost
@@ -52,12 +53,14 @@ Cada aplicación tiene: fecha, tipo, cantidad_kg, zona_aplicada, costo
 ### 5.3 Compatibilidad suelo ↔ cultivo
 
 `CatalogoCultivo` ya tiene `ph_min`, `ph_max`. Cruzar con el análisis de suelo:
+
 - "pH actual: 7.8 → Olivo: COMPATIBLE (rango 6.0-8.5)"
 - "pH actual: 7.8 → Arándano: NO COMPATIBLE (necesita 4.5-5.5)"
 
 ### 5.4 Datos estáticos de referencia
 
 Crear `data/static/suelo/enmiendas.json` con datos de:
+
 - Tipos de fertilizantes y su efecto en pH/nutrientes
 - Guano (composición típica NPK)
 - Tiempos de efecto

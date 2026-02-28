@@ -28,10 +28,12 @@ export function useActualizarEtapas(
       if (cancelled) return;
 
       const timestamp = getCurrentTimestamp();
-      const actualizaciones: Array<{ id: string; cambios: Partial<Planta> }> = [];
+      const actualizaciones: Array<{ id: string; cambios: Partial<Planta> }> =
+        [];
 
       for (const planta of plantas) {
-        if (planta.estado === ESTADO_PLANTA.MUERTA || !planta.fecha_plantacion) continue;
+        if (planta.estado === ESTADO_PLANTA.MUERTA || !planta.fecha_plantacion)
+          continue;
 
         const cultivo = catalogoCultivos.find(
           (c) => c.id === planta.tipo_cultivo_id,
@@ -91,7 +93,8 @@ export function actualizarEtapasSync(
   const cambios: { plantaId: string; etapaNueva: string }[] = [];
 
   for (const planta of plantas) {
-    if (planta.estado === ESTADO_PLANTA.MUERTA || !planta.fecha_plantacion) continue;
+    if (planta.estado === ESTADO_PLANTA.MUERTA || !planta.fecha_plantacion)
+      continue;
 
     const cultivo = catalogoCultivos.find(
       (c) => c.id === planta.tipo_cultivo_id,

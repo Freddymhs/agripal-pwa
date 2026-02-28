@@ -4,6 +4,36 @@
 **Prioridad**: 🔴 CRÍTICA
 **Dependencias**: FASE_11
 **Estimación**: 5-6 horas
+**Última revisión**: 2026-03-01
+
+## Estado Real del Código (auditado 2026-03-01)
+
+| Aspecto                         | Estado                                              |
+| ------------------------------- | --------------------------------------------------- |
+| `@supabase/supabase-js`         | ❌ NO instalado en package.json                     |
+| `@supabase/ssr`                 | ❌ NO instalado                                     |
+| `@supabase/auth-helpers-nextjs` | ❌ NO instalado (y no debe instalarse — deprecated) |
+| `src/lib/supabase/`             | ❌ NO existe la carpeta                             |
+| `src/lib/sync/adapters/`        | ✅ Solo MockAdapter activo                          |
+| `src/app/api/`                  | ❌ NO existe (ningún Route Handler)                 |
+| `src/app/billing/`              | ❌ NO existe                                        |
+| `src/lib/db/index.ts`           | ✅ Dexie v4 con schema v1+v2, tablas completas      |
+| `sync_queue` en IndexedDB       | ✅ Existe con índices correctos                     |
+| `supabase/migrations/`          | ❌ NO existe — migrations nunca se crearon          |
+
+**Resumen**: Esta fase es 0% implementada. El código está íntegramente en estado pre-Supabase (solo IndexedDB + MockAdapter). Todo el trabajo descrito abajo está pendiente.
+
+### Corrección al plan original
+
+El backlog original usaba `@supabase/auth-helpers-nextjs` (deprecated desde Supabase v2). La dependencia correcta es:
+
+```bash
+pnpm add @supabase/supabase-js @supabase/ssr
+```
+
+Los clientes correctos son `createBrowserClient` y `createServerClient` de `@supabase/ssr`.
+
+---
 
 ---
 
@@ -12,6 +42,7 @@
 Migrar la aplicación de arquitectura 100% offline-first local a un sistema híbrido con backend real usando Supabase.
 
 **Entregables:**
+
 1. Base de datos PostgreSQL en Supabase con schema completo
 2. Row Level Security (RLS) para multi-tenancy
 3. API real reemplazando MockAdapter
@@ -23,12 +54,14 @@ Migrar la aplicación de arquitectura 100% offline-first local a un sistema híb
 ## Contexto Técnico
 
 ### Estado Actual
+
 - **Backend:** ❌ No existe
 - **DB:** IndexedDB (Dexie.js) solo local
 - **Sync:** MockAdapter (simula sincronización)
 - **Auth:** JWT mock sin validación real
 
 ### Estado Deseado
+
 - **Backend:** ✅ Supabase (PostgreSQL + API REST)
 - **DB:** ✅ PostgreSQL en la nube + IndexedDB local
 - **Sync:** ✅ SupabaseAdapter real
@@ -63,6 +96,7 @@ Migrar la aplicación de arquitectura 100% offline-first local a un sistema híb
 ```
 
 **Flujo de datos:**
+
 ```
 1. Usuario modifica datos → IndexedDB (optimistic)
 2. Cambio se agrega a sync_queue
@@ -105,7 +139,8 @@ JWT_SECRET=agriplan_prod_secret_change_this
 **Instalar dependencias:**
 
 ```bash
-pnpm add @supabase/supabase-js @supabase/auth-helpers-nextjs
+# @supabase/ssr reemplaza a @supabase/auth-helpers-nextjs (deprecated)
+pnpm add @supabase/supabase-js @supabase/ssr
 pnpm add -D @supabase/cli
 ```
 
@@ -509,11 +544,11 @@ npx supabase db push
 **Archivo**: `src/lib/supabase/client.ts` (crear)
 
 ```typescript
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
-import { createClient } from '@supabase/supabase-js'
-import type { Database } from '@/types/supabase'
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "@supabase/supabase-js";
+import type { Database } from "@/types/supabase";
 
-export const supabase = createClientComponentClient<Database>()
+export const supabase = createClientComponentClient<Database>();
 
 export const supabaseAdmin = createClient<Database>(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -521,22 +556,22 @@ export const supabaseAdmin = createClient<Database>(
   {
     auth: {
       autoRefreshToken: false,
-      persistSession: false
-    }
-  }
-)
+      persistSession: false,
+    },
+  },
+);
 ```
 
 **Archivo**: `src/lib/supabase/server.ts` (crear)
 
 ```typescript
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
-import { cookies } from 'next/headers'
-import type { Database } from '@/types/supabase'
+import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
+import { cookies } from "next/headers";
+import type { Database } from "@/types/supabase";
 
 export const createServerSupabaseClient = () => {
-  return createServerComponentClient<Database>({ cookies })
-}
+  return createServerComponentClient<Database>({ cookies });
+};
 ```
 
 ---
@@ -560,8 +595,8 @@ Contiene todos los tipos de PostgreSQL mapeados a TypeScript.
 **Archivo**: `src/lib/sync/adapters/supabase.ts` (crear)
 
 ```typescript
-import { supabase } from '@/lib/supabase/client'
-import { getCurrentTimestamp } from '@/lib/utils'
+import { supabase } from "@/lib/supabase/client";
+import { getCurrentTimestamp } from "@/lib/utils";
 import type {
   SyncAdapter,
   SyncRequest,
@@ -569,25 +604,25 @@ import type {
   PullRequest,
   PullResponse,
   SyncEntidad,
-} from '../types'
+} from "../types";
 
 export class SupabaseAdapter implements SyncAdapter {
   async isAvailable(): Promise<boolean> {
     try {
-      const { error } = await supabase.from('usuarios').select('id').limit(1)
-      return !error
+      const { error } = await supabase.from("usuarios").select("id").limit(1);
+      return !error;
     } catch {
-      return false
+      return false;
     }
   }
 
   async push(request: SyncRequest): Promise<SyncResponse> {
-    const { entidad, entidadId, accion, datos } = request
+    const { entidad, entidadId, accion, datos } = request;
 
     try {
-      const tableName = this.getTableName(entidad)
+      const tableName = this.getTableName(entidad);
 
-      if (accion === 'create') {
+      if (accion === "create") {
         const { data, error } = await supabase
           .from(tableName)
           .insert({
@@ -596,114 +631,114 @@ export class SupabaseAdapter implements SyncAdapter {
             last_modified: getCurrentTimestamp(),
           })
           .select()
-          .single()
+          .single();
 
-        if (error) throw error
+        if (error) throw error;
 
         return {
           success: true,
           data,
-        }
+        };
       }
 
-      if (accion === 'update') {
+      if (accion === "update") {
         const { data, error } = await supabase
           .from(tableName)
           .update({
             ...datos,
             last_modified: getCurrentTimestamp(),
           })
-          .eq('id', entidadId)
+          .eq("id", entidadId)
           .select()
-          .single()
+          .single();
 
         if (error) {
-          if (error.code === '23505') {
+          if (error.code === "23505") {
             const existing = await supabase
               .from(tableName)
               .select()
-              .eq('id', entidadId)
-              .single()
+              .eq("id", entidadId)
+              .single();
 
             return {
               success: false,
               conflict: true,
               serverData: existing.data,
-            }
+            };
           }
-          throw error
+          throw error;
         }
 
         return {
           success: true,
           data,
-        }
+        };
       }
 
-      if (accion === 'delete') {
+      if (accion === "delete") {
         const { error } = await supabase
           .from(tableName)
           .delete()
-          .eq('id', entidadId)
+          .eq("id", entidadId);
 
-        if (error) throw error
+        if (error) throw error;
 
         return {
           success: true,
           data: null,
-        }
+        };
       }
 
-      throw new Error(`Acción no soportada: ${accion}`)
+      throw new Error(`Acción no soportada: ${accion}`);
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Error desconocido',
-      }
+        error: error instanceof Error ? error.message : "Error desconocido",
+      };
     }
   }
 
   async pull(request: PullRequest): Promise<PullResponse> {
-    const { entidad, since } = request
+    const { entidad, since } = request;
 
     try {
-      const tableName = this.getTableName(entidad)
+      const tableName = this.getTableName(entidad);
 
-      let query = supabase.from(tableName).select('*')
+      let query = supabase.from(tableName).select("*");
 
       if (since) {
-        query = query.gt('last_modified', since)
+        query = query.gt("last_modified", since);
       }
 
-      const { data, error } = await query
+      const { data, error } = await query;
 
-      if (error) throw error
+      if (error) throw error;
 
       return {
         success: true,
         data: data || [],
         lastModified: getCurrentTimestamp(),
-      }
+      };
     } catch (error) {
       return {
         success: false,
         data: [],
-        error: error instanceof Error ? error.message : 'Error desconocido',
-      }
+        error: error instanceof Error ? error.message : "Error desconocido",
+      };
     }
   }
 
   private getTableName(entidad: SyncEntidad): string {
     const mapping: Record<SyncEntidad, string> = {
-      proyecto: 'proyectos',
-      terreno: 'terrenos',
-      zona: 'zonas',
-      planta: 'plantas',
-      entrada_agua: 'entradas_agua',
-      cosecha: 'cosechas',
-      alerta: 'alertas',
-    }
-    return mapping[entidad]
+      proyecto: "proyectos",
+      terreno: "terrenos",
+      zona: "zonas",
+      planta: "plantas",
+      entrada_agua: "entradas_agua",
+      cosecha: "cosechas",
+      alerta: "alertas",
+    };
+    return mapping[entidad];
   }
 }
 ```
@@ -715,15 +750,17 @@ export class SupabaseAdapter implements SyncAdapter {
 **Archivo**: `src/hooks/use-sync.ts` (modificar)
 
 Reemplazar:
+
 ```typescript
-import { MockAdapter } from '@/lib/sync/adapters/mock'
-const adapter = new MockAdapter()
+import { MockAdapter } from "@/lib/sync/adapters/mock";
+const adapter = new MockAdapter();
 ```
 
 Por:
+
 ```typescript
-import { SupabaseAdapter } from '@/lib/sync/adapters/supabase'
-const adapter = new SupabaseAdapter()
+import { SupabaseAdapter } from "@/lib/sync/adapters/supabase";
+const adapter = new SupabaseAdapter();
 ```
 
 ---
@@ -733,20 +770,23 @@ const adapter = new SupabaseAdapter()
 **Archivo**: `src/scripts/migrate-to-supabase.ts` (crear)
 
 ```typescript
-import { db } from '@/lib/db'
-import { supabaseAdmin } from '@/lib/supabase/client'
+import { db } from "@/lib/db";
+import { supabaseAdmin } from "@/lib/supabase/client";
 
 export async function migrateToSupabase(userId: string) {
-  console.log('🚀 Iniciando migración a Supabase...')
+  console.log("🚀 Iniciando migración a Supabase...");
 
   try {
-    const proyectos = await db.proyectos.where('usuario_id').equals(userId).toArray()
+    const proyectos = await db.proyectos
+      .where("usuario_id")
+      .equals(userId)
+      .toArray();
 
     for (const proyecto of proyectos) {
-      console.log(`📦 Migrando proyecto: ${proyecto.nombre}`)
+      console.log(`📦 Migrando proyecto: ${proyecto.nombre}`);
 
       const { error: proyectoError } = await supabaseAdmin
-        .from('proyectos')
+        .from("proyectos")
         .upsert({
           id: proyecto.id,
           usuario_id: proyecto.usuario_id,
@@ -755,17 +795,20 @@ export async function migrateToSupabase(userId: string) {
           created_at: proyecto.created_at,
           updated_at: proyecto.updated_at,
           last_modified: proyecto.lastModified || proyecto.updated_at,
-        })
+        });
 
-      if (proyectoError) throw proyectoError
+      if (proyectoError) throw proyectoError;
 
-      const terrenos = await db.terrenos.where('proyecto_id').equals(proyecto.id).toArray()
+      const terrenos = await db.terrenos
+        .where("proyecto_id")
+        .equals(proyecto.id)
+        .toArray();
 
       for (const terreno of terrenos) {
-        console.log(`  🌍 Migrando terreno: ${terreno.nombre}`)
+        console.log(`  🌍 Migrando terreno: ${terreno.nombre}`);
 
         const { error: terrenoError } = await supabaseAdmin
-          .from('terrenos')
+          .from("terrenos")
           .upsert({
             id: terreno.id,
             proyecto_id: terreno.proyecto_id,
@@ -775,21 +818,26 @@ export async function migrateToSupabase(userId: string) {
             created_at: terreno.created_at,
             updated_at: terreno.updated_at,
             last_modified: terreno.lastModified || terreno.updated_at,
-          })
+          });
 
-        if (terrenoError) throw terrenoError
+        if (terrenoError) throw terrenoError;
 
-        const zonas = await db.zonas.where('terreno_id').equals(terreno.id).toArray()
-        const plantas = await db.plantas.whereAny(zonas.map(z => z.id)).toArray()
+        const zonas = await db.zonas
+          .where("terreno_id")
+          .equals(terreno.id)
+          .toArray();
+        const plantas = await db.plantas
+          .whereAny(zonas.map((z) => z.id))
+          .toArray();
 
         // Migrar zonas y plantas...
       }
     }
 
-    console.log('✅ Migración completada')
+    console.log("✅ Migración completada");
   } catch (error) {
-    console.error('❌ Error en migración:', error)
-    throw error
+    console.error("❌ Error en migración:", error);
+    throw error;
   }
 }
 ```
@@ -870,23 +918,27 @@ export default function MigratePage() {
 ## Criterios de Aceptación
 
 ### Infraestructura
+
 - [ ] Proyecto Supabase creado y configurado
 - [ ] Schema PostgreSQL desplegado correctamente
 - [ ] RLS configurado para todas las tablas
 - [ ] Variables de entorno configuradas
 
 ### Código
+
 - [ ] SupabaseAdapter implementado y funcional
 - [ ] Cliente Supabase configurado (client y server)
 - [ ] Tipos TypeScript generados desde schema
 - [ ] useSync actualizado para usar SupabaseAdapter
 
 ### Migración
+
 - [ ] Script de migración funciona sin errores
 - [ ] Datos locales se replican correctamente en Supabase
 - [ ] Página de migración accesible y funcional
 
 ### Sync
+
 - [ ] Push de cambios locales → Supabase funciona
 - [ ] Pull de cambios remotos → IndexedDB funciona
 - [ ] Delta sync (since) reduce tráfico correctamente

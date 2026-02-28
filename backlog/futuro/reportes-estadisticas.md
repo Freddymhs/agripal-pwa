@@ -9,6 +9,7 @@
 ## Estado Actual del Codebase
 
 **Ya existe la data para generar reportes:**
+
 - `/economia` - ROI por cultivo/zona, inversion, costos agua, ingresos proyectados
 - `/economia/avanzado` - Costo/kg, punto equilibrio, margen, payback
 - `/escenarios` - Comparacion multi-cultivo
@@ -23,24 +24,28 @@
 ## Tipos de Reportes (priorizados)
 
 ### Tier 1: Reporte Financiero (datos ya existen)
+
 - [ ] CAPEX/OPEX desde `calcularROI()`
 - [ ] Ingresos vs gastos proyectados
 - [ ] ROI a 4 anos con grafico
 - [ ] Exportar a PDF
 
 ### Tier 2: Reporte de Agua (datos ya existen)
+
 - [ ] Consumo mensual desde `calcularConsumoZona()`
 - [ ] Costo agua anual
 - [ ] Proyeccion 12 meses desde `agua-proyeccion-anual.ts`
 - [ ] Exportar a PDF
 
 ### Tier 3: Reporte de Produccion (requiere UI cosechas)
+
 - [ ] kg por cultivo real vs proyectado
 - [ ] Ingresos por venta
 - [ ] Rendimiento por m2
 - [ ] Exportar a PDF/Excel
 
 ### Tier 4: Resumen Proyecto (compilacion)
+
 - [ ] Area total, zonas, plantas
 - [ ] Score calidad terreno (desde `calidad.ts`)
 - [ ] Formato compatible INDAP

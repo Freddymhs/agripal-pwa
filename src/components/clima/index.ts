@@ -1,1 +1,1 @@
-export { PanelClima } from './panel-clima'
+export { PanelClima } from "./panel-clima";

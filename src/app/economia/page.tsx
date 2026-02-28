@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
 import { PageLayout } from "@/components/layout";
 import { useTerrainData } from "@/hooks/use-terrain-data";
 import { ESTADO_PLANTA, TIPO_ZONA } from "@/lib/constants/entities";
@@ -12,7 +11,6 @@ import {
   type ProyeccionROI,
 } from "@/lib/utils/roi";
 import { calcularConsumoZona } from "@/lib/utils/agua";
-import type { CatalogoCultivo } from "@/types";
 import { formatCLP } from "@/lib/utils";
 
 interface ResumenCultivo {
@@ -83,6 +81,7 @@ export default function EconomiaPage() {
       }
     }
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- calcula resumen derivado cuando cambian los datos del terreno
     setResumen(resumenCalculado);
   }, [terreno, zonas, plantas, catalogoCultivos]);
 

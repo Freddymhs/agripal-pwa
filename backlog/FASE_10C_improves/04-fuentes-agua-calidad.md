@@ -21,35 +21,37 @@ Ya existe parcialmente en FASE_5D. Cada estanque se relaciona con una fuente:
 
 ```typescript
 interface FuenteAgua {
-  id: string
-  nombre: string // "Aljibe Municipal", "Pozo Norte", "Río Lluta"
-  tipo: 'aljibe' | 'pozo' | 'rio' | 'canal' | 'reciclada' | 'otro'
-  proveedor?: string
+  id: string;
+  nombre: string; // "Aljibe Municipal", "Pozo Norte", "Río Lluta"
+  tipo: "aljibe" | "pozo" | "rio" | "canal" | "reciclada" | "otro";
+  proveedor?: string;
 
   // Calidad
-  salinidad_dS_m?: number
-  boro_ppm?: number
-  arsenico_mg_l?: number
-  ph?: number
+  salinidad_dS_m?: number;
+  boro_ppm?: number;
+  arsenico_mg_l?: number;
+  ph?: number;
 
   // Análisis
-  fecha_ultimo_analisis?: string
-  laboratorio?: string
+  fecha_ultimo_analisis?: string;
+  laboratorio?: string;
 
   // Costo
-  costo_m3?: number
+  costo_m3?: number;
 }
 ```
 
 ### 4.2 Compatibilidad agua ↔ cultivo
 
 Cada `CatalogoCultivo` ya tiene:
+
 - `boro_tolerancia_ppm`
 - `salinidad_tolerancia_dS_m`
 - `tolerancia_boro`: alta/media/baja/muy_baja
 - `tolerancia_salinidad`: alta/media/baja
 
 Cruzar estos datos con la fuente para mostrar:
+
 - "Agua del Lluta (11 ppm boro) → Olivo: COMPATIBLE (tolerancia alta)"
 - "Agua del Lluta (11 ppm boro) → Papaya: NO COMPATIBLE (tolerancia baja, máx 1 ppm)"
 

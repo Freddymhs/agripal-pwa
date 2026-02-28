@@ -1,9 +1,11 @@
 # FASE 7: Optimizaciones Avanzadas + Cleanup
 
 ## Objetivo
+
 Optimizaciones finales de performance, cleanup de código SVG obsoleto, y hardening para producción.
 
 ## Prerequisitos
+
 - FASE 6 completada (integración funcional verificada)
 
 ---
@@ -13,6 +15,7 @@ Optimizaciones finales de performance, cleanup de código SVG obsoleto, y harden
 Cuando el usuario está zoomeado (scale > 2x), la mayoría de las plantas están fuera del viewport. No tiene sentido enviar esas partículas a la GPU.
 
 **Implementación:**
+
 ```typescript
 // En pixi-plantas-layer.ts
 
@@ -35,6 +38,7 @@ updateVisibility(viewportBounds: { minX, minY, maxX, maxY }): void {
 ```
 
 **Impacto:**
+
 - A zoom 5x: ~80% de plantas son alpha 0 → GPU procesa solo 20%
 - A zoom 10x: ~95% de plantas son alpha 0 → GPU procesa solo 5%
 - A zoom 1x (todo visible): sin beneficio (todas alpha 1)
@@ -48,6 +52,7 @@ updateVisibility(viewportBounds: { minX, minY, maxX, maxY }): void {
 A zoom muy lejano (< 0.5x), renderizar 66k círculos detallados es innecesario. Se pueden simplificar.
 
 **Niveles:**
+
 ```
 Zoom > 2x:   Textura con detalle (borde visible, X clara)
 Zoom 0.5-2x: Textura normal (actual)
@@ -55,6 +60,7 @@ Zoom < 0.5x: Punto de 1px (sin textura, solo color)
 ```
 
 **Implementación:**
+
 ```typescript
 // En pixi-plantas-layer.ts
 
@@ -81,6 +87,7 @@ updateLOD(scale: number): void {
 Actualmente, cualquier cambio en `plantas[]` causa un rebuild completo del ParticleContainer. Para operaciones frecuentes (agregar 1 planta, cambiar estado), un update incremental es más eficiente.
 
 **Implementación:**
+
 ```typescript
 // En pixi-plantas-layer.ts
 
@@ -112,6 +119,7 @@ updateEstado(plantaId: string, nuevoEstado: string): void {
 ```
 
 **Cuándo usar rebuild vs incremental:**
+
 ```
 Rebuild completo:
   - Cambio de terreno (todas las plantas cambian)
@@ -171,27 +179,28 @@ if (!checkWebGLSupport()) {
 useEffect(() => {
   return () => {
     // 1. Layers
-    gridLayerRef.current?.destroy()
-    zonasLayerRef.current?.destroy()
-    plantasLayerRef.current?.destroy()
-    overlayLayerRef.current?.destroy()
+    gridLayerRef.current?.destroy();
+    zonasLayerRef.current?.destroy();
+    plantasLayerRef.current?.destroy();
+    overlayLayerRef.current?.destroy();
 
     // 2. Texturas
-    textureFactoryRef.current?.destroy()
+    textureFactoryRef.current?.destroy();
 
     // 3. Hit test
-    hitTestRef.current?.destroy()
+    hitTestRef.current?.destroy();
 
     // 4. Application (destruye renderer, stage, canvas)
-    appRef.current?.destroy(true, { children: true })
+    appRef.current?.destroy(true, { children: true });
 
     // 5. Observers
-    resizeObserverRef.current?.disconnect()
-  }
-}, [])
+    resizeObserverRef.current?.disconnect();
+  };
+}, []);
 ```
 
 **Verificación con DevTools:**
+
 1. Heap Snapshot antes de montar el mapa
 2. Usar la app normalmente (plantar 66k, pan/zoom, seleccionar)
 3. Navegar fuera del mapa
@@ -212,24 +221,27 @@ PixiJS v8 maneja touch events nativamente via `FederatedPointerEvents`. Sin emba
 ```
 
 **Pinch to zoom (implementación manual):**
-```typescript
-let lastTouchDist = 0
 
-app.stage.on('touchmove', (e) => {
+```typescript
+let lastTouchDist = 0;
+
+app.stage.on("touchmove", (e) => {
   if (e.touches?.length === 2) {
-    const [t1, t2] = e.touches
-    const dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY)
+    const [t1, t2] = e.touches;
+    const dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
 
     if (lastTouchDist > 0) {
-      const delta = dist - lastTouchDist
-      const newScale = clamp(currentScale + delta * 0.01, MIN_SCALE, MAX_SCALE)
-      worldContainer.scale.set(newScale)
+      const delta = dist - lastTouchDist;
+      const newScale = clamp(currentScale + delta * 0.01, MIN_SCALE, MAX_SCALE);
+      worldContainer.scale.set(newScale);
     }
-    lastTouchDist = dist
+    lastTouchDist = dist;
   }
-})
+});
 
-app.stage.on('touchend', () => { lastTouchDist = 0 })
+app.stage.on("touchend", () => {
+  lastTouchDist = 0;
+});
 ```
 
 ---
@@ -237,6 +249,7 @@ app.stage.on('touchend', () => { lastTouchDist = 0 })
 ## 7. Cleanup de Archivos SVG Obsoletos
 
 **Eliminar:**
+
 ```
 src/components/mapa/planta-marker.tsx    → Reemplazado por pixi-plantas-layer.ts
 src/components/mapa/zona-rect.tsx        → Reemplazado por pixi-zonas-layer.ts
@@ -246,6 +259,7 @@ src/hooks/useMapControls.ts             → Reemplazado por use-pixi-viewport.ts
 ```
 
 **Mantener:**
+
 ```
 src/components/mapa/mapa-controls.tsx    → HTML overlay (sin cambios)
 src/components/mapa/editor-zona.tsx      → Form UI (sin cambios)
@@ -253,6 +267,7 @@ src/components/mapa/nueva-zona-modal.tsx → Modal UI (sin cambios)
 ```
 
 **Verificar que nada más importa los archivos eliminados:**
+
 ```bash
 grep -r "planta-marker\|zona-rect\|mapa-grid\|mapa-terreno\|useMapControls" src/ --include="*.ts" --include="*.tsx"
 ```
@@ -261,32 +276,33 @@ grep -r "planta-marker\|zona-rect\|mapa-grid\|mapa-terreno\|useMapControls" src/
 
 ## 8. Performance Budget Final
 
-| Métrica | Target | Cómo medir |
-|---------|--------|-----------|
-| FPS (pan/zoom 66k) | >= 55 FPS | Chrome DevTools Performance |
-| Frame time | < 18ms (P95) | Performance Monitor |
-| Memory (rendering) | < 20 MB | DevTools Memory |
-| Initial load | < 500ms | Performance.now() |
-| Rebuild 66k | < 100ms | Console.time |
-| Hit test | < 0.5ms | Console.time |
-| Bundle size delta | < 250KB gzipped | `pnpm build`, compare |
+| Métrica            | Target          | Cómo medir                  |
+| ------------------ | --------------- | --------------------------- |
+| FPS (pan/zoom 66k) | >= 55 FPS       | Chrome DevTools Performance |
+| Frame time         | < 18ms (P95)    | Performance Monitor         |
+| Memory (rendering) | < 20 MB         | DevTools Memory             |
+| Initial load       | < 500ms         | Performance.now()           |
+| Rebuild 66k        | < 100ms         | Console.time                |
+| Hit test           | < 0.5ms         | Console.time                |
+| Bundle size delta  | < 250KB gzipped | `pnpm build`, compare       |
 
 ---
 
 ## Testing Final de Fase 7
 
-| Test | Esperado |
-|------|----------|
-| Viewport culling a zoom 5x | Solo ~20% plantas procesadas |
-| LOD a zoom 0.3x | Puntos mínimos, no texturas detalladas |
-| Agregar 1 planta | Aparece sin rebuild completo (< 1ms) |
-| Eliminar 1 planta | Desaparece sin rebuild completo |
-| WebGL detection | Mensaje amigable si no soportado |
-| Memory leak test | Sin objetos PixiJS retenidos post-destroy |
-| Touch pan (mobile) | Pan suave con un dedo |
-| Pinch zoom (mobile) | Zoom suave con dos dedos |
-| Build limpio | `pnpm build` sin errores ni warnings |
-| Archivos eliminados | No quedan imports rotos |
+| Test                       | Esperado                                  |
+| -------------------------- | ----------------------------------------- |
+| Viewport culling a zoom 5x | Solo ~20% plantas procesadas              |
+| LOD a zoom 0.3x            | Puntos mínimos, no texturas detalladas    |
+| Agregar 1 planta           | Aparece sin rebuild completo (< 1ms)      |
+| Eliminar 1 planta          | Desaparece sin rebuild completo           |
+| WebGL detection            | Mensaje amigable si no soportado          |
+| Memory leak test           | Sin objetos PixiJS retenidos post-destroy |
+| Touch pan (mobile)         | Pan suave con un dedo                     |
+| Pinch zoom (mobile)        | Zoom suave con dos dedos                  |
+| Build limpio               | `pnpm build` sin errores ni warnings      |
+| Archivos eliminados        | No quedan imports rotos                   |
 
 ## Resultado Final
+
 Aplicación optimizada con PixiJS v8, 60 FPS con 66k+ plantas, sin memory leaks, compatible mobile, y código SVG antiguo eliminado.

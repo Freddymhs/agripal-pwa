@@ -9,6 +9,7 @@
 ## Problema
 
 Al seleccionar una zona de cultivo con plantas, no se muestra:
+
 - Cuánta agua consumen las plantas de esta zona por semana
 - Si falta o sobra agua respecto al estanque conectado
 - Porcentaje de cobertura de agua
@@ -33,6 +34,7 @@ consumo_zona_semanal_m3 = (n_plantas × espaciado² × agua_m3_ha_año) / (10000
 ```
 
 Donde:
+
 - `n_plantas`: plantas vivas en la zona
 - `espaciado²`: área que ocupa cada planta en m²
 - `agua_m3_ha_año`: del catálogo del cultivo
@@ -42,11 +44,11 @@ Donde:
 
 Al seleccionar un estanque, mostrar tabla:
 
-| Zona | Cultivo | Plantas | Consumo/sem | % del total |
-|---|---|---|---|---|
-| Zona Norte | Olivo | 500 | 12.3 m³ | 45% |
-| Zona Sur | Tuna | 300 | 8.1 m³ | 30% |
-| **Total** | | **800** | **27.4 m³** | **100%** |
+| Zona       | Cultivo | Plantas | Consumo/sem | % del total |
+| ---------- | ------- | ------- | ----------- | ----------- |
+| Zona Norte | Olivo   | 500     | 12.3 m³     | 45%         |
+| Zona Sur   | Tuna    | 300     | 8.1 m³      | 30%         |
+| **Total**  |         | **800** | **27.4 m³** | **100%**    |
 
 ## Datos estáticos disponibles
 

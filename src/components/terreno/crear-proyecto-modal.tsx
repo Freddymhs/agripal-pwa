@@ -1,32 +1,38 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { logger } from '@/lib/logger'
+import { useState } from "react";
+import { logger } from "@/lib/logger";
 
 interface CrearProyectoModalProps {
-  onCreated: (data: { nombre: string; ubicacion: string }) => Promise<void>
-  onCancel: () => void
+  onCreated: (data: { nombre: string; ubicacion: string }) => Promise<void>;
+  onCancel: () => void;
 }
 
-export function CrearProyectoModal({ onCreated, onCancel }: CrearProyectoModalProps) {
-  const [nombre, setNombre] = useState('')
-  const [ubicacion, setUbicacion] = useState('')
-  const [creando, setCreando] = useState(false)
+export function CrearProyectoModal({
+  onCreated,
+  onCancel,
+}: CrearProyectoModalProps) {
+  const [nombre, setNombre] = useState("");
+  const [ubicacion, setUbicacion] = useState("");
+  const [creando, setCreando] = useState(false);
 
-  const valido = nombre.trim().length > 0
+  const valido = nombre.trim().length > 0;
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     if (valido && !creando) {
-      setCreando(true)
+      setCreando(true);
       try {
-        await onCreated({ nombre: nombre.trim(), ubicacion: ubicacion.trim() })
+        await onCreated({ nombre: nombre.trim(), ubicacion: ubicacion.trim() });
       } catch (error) {
-        logger.error('Error creando proyecto', { error: error instanceof Error ? { message: error.message } : { error } })
-        setCreando(false)
+        logger.error("Error creando proyecto", {
+          error:
+            error instanceof Error ? { message: error.message } : { error },
+        });
+        setCreando(false);
       }
     }
-  }
+  };
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
@@ -67,11 +73,11 @@ export function CrearProyectoModal({ onCreated, onCancel }: CrearProyectoModalPr
               disabled={!valido || creando}
               className={`flex-1 py-2 rounded font-medium ${
                 valido && !creando
-                  ? 'bg-green-600 text-white hover:bg-green-700'
-                  : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                  ? "bg-green-600 text-white hover:bg-green-700"
+                  : "bg-gray-200 text-gray-500 cursor-not-allowed"
               }`}
             >
-              {creando ? 'Creando...' : 'Crear Proyecto'}
+              {creando ? "Creando..." : "Crear Proyecto"}
             </button>
             <button
               type="button"
@@ -85,5 +91,5 @@ export function CrearProyectoModal({ onCreated, onCancel }: CrearProyectoModalPr
         </form>
       </div>
     </div>
-  )
+  );
 }

@@ -1,4 +1,4 @@
-import { logger } from '@/lib/logger'
+import { logger } from "@/lib/logger";
 
 export async function ejecutarMutacion<T>(
   operacion: () => Promise<T>,
@@ -10,7 +10,9 @@ export async function ejecutarMutacion<T>(
     onRefetch?.();
     return resultado;
   } catch (err) {
-    logger.error(`Error ${etiquetaError}`, { error: err instanceof Error ? { message: err.message } : { err } });
+    logger.error(`Error ${etiquetaError}`, {
+      error: err instanceof Error ? { message: err.message } : { err },
+    });
     throw err;
   }
 }

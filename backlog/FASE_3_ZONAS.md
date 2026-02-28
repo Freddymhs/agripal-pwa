@@ -16,7 +16,9 @@ Implementar CRUD completo de zonas: crear (click y arrastrar), editar, redimensi
 ## Funcionalidades Implementadas (adicionales al plan original)
 
 ### Sistema de Snap Automático
+
 Al crear zonas, el cursor se "pega" automáticamente a los bordes cuando está cerca (< 0.5m):
+
 - **Bordes del terreno**: x=0, x=ancho_m, y=0, y=alto_m
 - **Bordes de zonas existentes**: Todos los lados de cada zona
 - **Guías visuales**: Líneas naranjas punteadas que aparecen cuando el snap está activo
@@ -24,7 +26,9 @@ Al crear zonas, el cursor se "pega" automáticamente a los bordes cuando está c
 - **Beneficio**: Evita dejar espacios vacíos entre zonas y maximiza el uso del terreno
 
 ### Etiquetas con Dimensiones
+
 Las etiquetas de las zonas ahora muestran:
+
 - **Formato**: `nombre · ancho×alto m` (antes solo mostraba área)
 - **Beneficio**: Permite al usuario calcular espacios disponibles fácilmente
 - **Zonas pequeñas (<10m²)**: Mini-label al costado con dimensiones
@@ -48,59 +52,66 @@ Las etiquetas de las zonas ahora muestran:
 ## Tareas
 
 ### Tarea 1: Crear Validaciones de Zona
+
 **Archivo**: `src/lib/validations/zona.ts` (crear)
 
 ```typescript
-import type { Zona, Terreno, Planta } from '@/types'
+import type { Zona, Terreno, Planta } from "@/types";
 
 export interface ValidationResult {
-  valida: boolean
-  error?: string
+  valida: boolean;
+  error?: string;
 }
 
 // Verificar si dos rectángulos se superponen
 export function zonasSeSuperponen(
   zona1: { x: number; y: number; ancho: number; alto: number },
-  zona2: { x: number; y: number; ancho: number; alto: number }
+  zona2: { x: number; y: number; ancho: number; alto: number },
 ): boolean {
   return !(
     zona1.x + zona1.ancho <= zona2.x ||
     zona2.x + zona2.ancho <= zona1.x ||
     zona1.y + zona1.alto <= zona2.y ||
     zona2.y + zona2.alto <= zona1.y
-  )
+  );
 }
 
 // Validar nueva zona
 export function validarNuevaZona(
   nuevaZona: { x: number; y: number; ancho: number; alto: number },
   zonasExistentes: Zona[],
-  terreno: Terreno
+  terreno: Terreno,
 ): ValidationResult {
   // Tamaño mínimo
   if (nuevaZona.ancho < 1 || nuevaZona.alto < 1) {
-    return { valida: false, error: 'La zona debe tener al menos 1m × 1m' }
+    return { valida: false, error: "La zona debe tener al menos 1m × 1m" };
   }
 
   // Dentro del terreno
   if (nuevaZona.x < 0 || nuevaZona.y < 0) {
-    return { valida: false, error: 'La zona no puede tener coordenadas negativas' }
+    return {
+      valida: false,
+      error: "La zona no puede tener coordenadas negativas",
+    };
   }
   if (nuevaZona.x + nuevaZona.ancho > terreno.ancho_m) {
-    return { valida: false, error: 'La zona excede el ancho del terreno' }
+    return { valida: false, error: "La zona excede el ancho del terreno" };
   }
   if (nuevaZona.y + nuevaZona.alto > terreno.alto_m) {
-    return { valida: false, error: 'La zona excede el alto del terreno' }
+    return { valida: false, error: "La zona excede el alto del terreno" };
   }
 
   // No superposición
   for (const zona of zonasExistentes) {
     if (zonasSeSuperponen(nuevaZona, zona)) {
-      return { valida: false, error: `La zona se superpone con "${zona.nombre}"` }
+      return {
+        valida: false,
+        error: `La zona se superpone con "${zona.nombre}"`,
+      };
     }
   }
 
-  return { valida: true }
+  return { valida: true };
 }
 
 // Validar redimensionamiento
@@ -109,42 +120,49 @@ export function validarRedimensionarZona(
   nuevoTamaño: { ancho: number; alto: number },
   plantas: Planta[],
   zonasExistentes: Zona[],
-  terreno: Terreno
+  terreno: Terreno,
 ): ValidationResult {
   // Tamaño mínimo
   if (nuevoTamaño.ancho < 1 || nuevoTamaño.alto < 1) {
-    return { valida: false, error: 'La zona debe tener al menos 1m × 1m' }
+    return { valida: false, error: "La zona debe tener al menos 1m × 1m" };
   }
 
   // Dentro del terreno
   if (zona.x + nuevoTamaño.ancho > terreno.ancho_m) {
-    return { valida: false, error: 'La zona excedería el ancho del terreno' }
+    return { valida: false, error: "La zona excedería el ancho del terreno" };
   }
   if (zona.y + nuevoTamaño.alto > terreno.alto_m) {
-    return { valida: false, error: 'La zona excedería el alto del terreno' }
+    return { valida: false, error: "La zona excedería el alto del terreno" };
   }
 
   // Verificar plantas que quedarían fuera
-  const plantasFuera = plantas.filter(planta =>
-    planta.x >= nuevoTamaño.ancho || planta.y >= nuevoTamaño.alto
-  )
+  const plantasFuera = plantas.filter(
+    (planta) => planta.x >= nuevoTamaño.ancho || planta.y >= nuevoTamaño.alto,
+  );
   if (plantasFuera.length > 0) {
     return {
       valida: false,
       error: `No puedes achicar la zona: ${plantasFuera.length} planta(s) quedarían fuera`,
-    }
+    };
   }
 
   // No superposición con otras zonas
-  const zonaModificada = { ...zona, ancho: nuevoTamaño.ancho, alto: nuevoTamaño.alto }
+  const zonaModificada = {
+    ...zona,
+    ancho: nuevoTamaño.ancho,
+    alto: nuevoTamaño.alto,
+  };
   for (const otraZona of zonasExistentes) {
-    if (otraZona.id === zona.id) continue
+    if (otraZona.id === zona.id) continue;
     if (zonasSeSuperponen(zonaModificada, otraZona)) {
-      return { valida: false, error: `La zona se superpondría con "${otraZona.nombre}"` }
+      return {
+        valida: false,
+        error: `La zona se superpondría con "${otraZona.nombre}"`,
+      };
     }
   }
 
-  return { valida: true }
+  return { valida: true };
 }
 
 // Validar mover zona a nueva posición
@@ -152,84 +170,98 @@ export function validarMoverZona(
   zona: Zona,
   nuevaPosicion: { x: number; y: number },
   zonasExistentes: Zona[],
-  terreno: Terreno
+  terreno: Terreno,
 ): ValidationResult {
   // Coordenadas no negativas
   if (nuevaPosicion.x < 0 || nuevaPosicion.y < 0) {
-    return { valida: false, error: 'La posición no puede tener coordenadas negativas' }
+    return {
+      valida: false,
+      error: "La posición no puede tener coordenadas negativas",
+    };
   }
 
   // Dentro del terreno
   if (nuevaPosicion.x + zona.ancho > terreno.ancho_m) {
-    return { valida: false, error: 'La zona excedería el ancho del terreno' }
+    return { valida: false, error: "La zona excedería el ancho del terreno" };
   }
   if (nuevaPosicion.y + zona.alto > terreno.alto_m) {
-    return { valida: false, error: 'La zona excedería el alto del terreno' }
+    return { valida: false, error: "La zona excedería el alto del terreno" };
   }
 
   // No superposición con otras zonas
-  const zonaMovida = { ...zona, x: nuevaPosicion.x, y: nuevaPosicion.y }
+  const zonaMovida = { ...zona, x: nuevaPosicion.x, y: nuevaPosicion.y };
   for (const otraZona of zonasExistentes) {
-    if (otraZona.id === zona.id) continue
+    if (otraZona.id === zona.id) continue;
     if (zonasSeSuperponen(zonaMovida, otraZona)) {
-      return { valida: false, error: `La zona se superpondría con "${otraZona.nombre}"` }
+      return {
+        valida: false,
+        error: `La zona se superpondría con "${otraZona.nombre}"`,
+      };
     }
   }
 
-  return { valida: true }
+  return { valida: true };
 }
 
 // Advertencia al eliminar zona con plantas
 export function advertenciaEliminarZona(
   zona: Zona,
-  plantas: Planta[]
+  plantas: Planta[],
 ): string | null {
-  const plantasEnZona = plantas.filter(p => p.zona_id === zona.id)
+  const plantasEnZona = plantas.filter((p) => p.zona_id === zona.id);
   if (plantasEnZona.length > 0) {
-    return `Esta zona tiene ${plantasEnZona.length} planta(s). Al eliminarla, también se eliminarán las plantas.`
+    return `Esta zona tiene ${plantasEnZona.length} planta(s). Al eliminarla, también se eliminarán las plantas.`;
   }
-  return null
+  return null;
 }
 ```
 
 ---
 
 ### Tarea 2: Crear Hook useZonas
+
 **Archivo**: `src/hooks/useZonas.ts` (crear)
 
 ```typescript
-'use client'
+"use client";
 
-import { useState, useCallback } from 'react'
-import { db } from '@/lib/db'
-import { generateUUID, getCurrentTimestamp } from '@/lib/utils'
-import { validarNuevaZona, validarRedimensionarZona, validarMoverZona } from '@/lib/validations/zona'
-import type { Zona, Terreno, Planta, TipoZona, UUID } from '@/types'
-import { COLORES_ZONA } from '@/types'
+import { useState, useCallback } from "react";
+import { db } from "@/lib/db";
+import { generateUUID, getCurrentTimestamp } from "@/lib/utils";
+import {
+  validarNuevaZona,
+  validarRedimensionarZona,
+  validarMoverZona,
+} from "@/lib/validations/zona";
+import type { Zona, Terreno, Planta, TipoZona, UUID } from "@/types";
+import { COLORES_ZONA } from "@/types";
 
 interface UseZonas {
   crearZona: (data: {
-    nombre: string
-    tipo: TipoZona
-    x: number
-    y: number
-    ancho: number
-    alto: number
-  }) => Promise<{ zona?: Zona; error?: string }>
+    nombre: string;
+    tipo: TipoZona;
+    x: number;
+    y: number;
+    ancho: number;
+    alto: number;
+  }) => Promise<{ zona?: Zona; error?: string }>;
 
-  actualizarZona: (id: UUID, cambios: Partial<Zona>) => Promise<{ error?: string }>
+  actualizarZona: (
+    id: UUID,
+    cambios: Partial<Zona>,
+  ) => Promise<{ error?: string }>;
 
   redimensionarZona: (
     id: UUID,
-    nuevoTamaño: { ancho: number; alto: number }
-  ) => Promise<{ error?: string }>
+    nuevoTamaño: { ancho: number; alto: number },
+  ) => Promise<{ error?: string }>;
 
   moverZona: (
     id: UUID,
-    nuevaPosicion: { x: number; y: number }
-  ) => Promise<{ error?: string }>
+    nuevaPosicion: { x: number; y: number },
+  ) => Promise<{ error?: string }>;
 
-  eliminarZona: (id: UUID) => Promise<{ error?: string }>
+  eliminarZona: (id: UUID) => Promise<{ error?: string }>;
 }
 
 export function useZonas(
@@ -237,125 +269,134 @@ export function useZonas(
   terreno: Terreno,
   zonas: Zona[],
   plantas: Planta[],
-  onRefetch: () => void
+  onRefetch: () => void,
 ): UseZonas {
-  const crearZona = useCallback(async (data: {
-    nombre: string
-    tipo: TipoZona
-    x: number
-    y: number
-    ancho: number
-    alto: number
-  }) => {
-    // Validar
-    const validacion = validarNuevaZona(data, zonas, terreno)
-    if (!validacion.valida) {
-      return { error: validacion.error }
-    }
+  const crearZona = useCallback(
+    async (data: {
+      nombre: string;
+      tipo: TipoZona;
+      x: number;
+      y: number;
+      ancho: number;
+      alto: number;
+    }) => {
+      // Validar
+      const validacion = validarNuevaZona(data, zonas, terreno);
+      if (!validacion.valida) {
+        return { error: validacion.error };
+      }
 
-    const nuevaZona: Zona = {
-      id: generateUUID(),
-      terreno_id: terrenoId,
-      nombre: data.nombre,
-      tipo: data.tipo,
-      estado: 'vacia',
-      x: data.x,
-      y: data.y,
-      ancho: data.ancho,
-      alto: data.alto,
-      area_m2: data.ancho * data.alto,
-      color: COLORES_ZONA[data.tipo],
-      notas: '',
-      created_at: getCurrentTimestamp(),
-      updated_at: getCurrentTimestamp(),
-    }
+      const nuevaZona: Zona = {
+        id: generateUUID(),
+        terreno_id: terrenoId,
+        nombre: data.nombre,
+        tipo: data.tipo,
+        estado: "vacia",
+        x: data.x,
+        y: data.y,
+        ancho: data.ancho,
+        alto: data.alto,
+        area_m2: data.ancho * data.alto,
+        color: COLORES_ZONA[data.tipo],
+        notas: "",
+        created_at: getCurrentTimestamp(),
+        updated_at: getCurrentTimestamp(),
+      };
 
-    await db.zonas.add(nuevaZona)
-    onRefetch()
-    return { zona: nuevaZona }
-  }, [terrenoId, terreno, zonas, onRefetch])
+      await db.zonas.add(nuevaZona);
+      onRefetch();
+      return { zona: nuevaZona };
+    },
+    [terrenoId, terreno, zonas, onRefetch],
+  );
 
-  const actualizarZona = useCallback(async (id: UUID, cambios: Partial<Zona>) => {
-    // Si cambia el tipo, actualizar el color
-    if (cambios.tipo && !cambios.color) {
-      cambios.color = COLORES_ZONA[cambios.tipo]
-    }
+  const actualizarZona = useCallback(
+    async (id: UUID, cambios: Partial<Zona>) => {
+      // Si cambia el tipo, actualizar el color
+      if (cambios.tipo && !cambios.color) {
+        cambios.color = COLORES_ZONA[cambios.tipo];
+      }
 
-    await db.zonas.update(id, {
-      ...cambios,
-      updated_at: getCurrentTimestamp(),
-    })
-    onRefetch()
-    return {}
-  }, [onRefetch])
+      await db.zonas.update(id, {
+        ...cambios,
+        updated_at: getCurrentTimestamp(),
+      });
+      onRefetch();
+      return {};
+    },
+    [onRefetch],
+  );
 
-  const redimensionarZona = useCallback(async (
-    id: UUID,
-    nuevoTamaño: { ancho: number; alto: number }
-  ) => {
-    const zona = zonas.find(z => z.id === id)
-    if (!zona) {
-      return { error: 'Zona no encontrada' }
-    }
+  const redimensionarZona = useCallback(
+    async (id: UUID, nuevoTamaño: { ancho: number; alto: number }) => {
+      const zona = zonas.find((z) => z.id === id);
+      if (!zona) {
+        return { error: "Zona no encontrada" };
+      }
 
-    const plantasZona = plantas.filter(p => p.zona_id === id)
-    const validacion = validarRedimensionarZona(
-      zona,
-      nuevoTamaño,
-      plantasZona,
-      zonas,
-      terreno
-    )
+      const plantasZona = plantas.filter((p) => p.zona_id === id);
+      const validacion = validarRedimensionarZona(
+        zona,
+        nuevoTamaño,
+        plantasZona,
+        zonas,
+        terreno,
+      );
 
-    if (!validacion.valida) {
-      return { error: validacion.error }
-    }
+      if (!validacion.valida) {
+        return { error: validacion.error };
+      }
 
-    await db.zonas.update(id, {
-      ancho: nuevoTamaño.ancho,
-      alto: nuevoTamaño.alto,
-      area_m2: nuevoTamaño.ancho * nuevoTamaño.alto,
-      updated_at: getCurrentTimestamp(),
-    })
-    onRefetch()
-    return {}
-  }, [zonas, plantas, terreno, onRefetch])
+      await db.zonas.update(id, {
+        ancho: nuevoTamaño.ancho,
+        alto: nuevoTamaño.alto,
+        area_m2: nuevoTamaño.ancho * nuevoTamaño.alto,
+        updated_at: getCurrentTimestamp(),
+      });
+      onRefetch();
+      return {};
+    },
+    [zonas, plantas, terreno, onRefetch],
+  );
 
-  const moverZona = useCallback(async (
-    id: UUID,
-    nuevaPosicion: { x: number; y: number }
-  ) => {
-    const zona = zonas.find(z => z.id === id)
-    if (!zona) {
-      return { error: 'Zona no encontrada' }
-    }
+  const moverZona = useCallback(
+    async (id: UUID, nuevaPosicion: { x: number; y: number }) => {
+      const zona = zonas.find((z) => z.id === id);
+      if (!zona) {
+        return { error: "Zona no encontrada" };
+      }
 
-    const validacion = validarMoverZona(zona, nuevaPosicion, zonas, terreno)
-    if (!validacion.valida) {
-      return { error: validacion.error }
-    }
+      const validacion = validarMoverZona(zona, nuevaPosicion, zonas, terreno);
+      if (!validacion.valida) {
+        return { error: validacion.error };
+      }
 
-    await db.zonas.update(id, {
-      x: nuevaPosicion.x,
-      y: nuevaPosicion.y,
-      updated_at: getCurrentTimestamp(),
-    })
-    onRefetch()
-    return {}
-  }, [zonas, terreno, onRefetch])
+      await db.zonas.update(id, {
+        x: nuevaPosicion.x,
+        y: nuevaPosicion.y,
+        updated_at: getCurrentTimestamp(),
+      });
+      onRefetch();
+      return {};
+    },
+    [zonas, terreno, onRefetch],
+  );
 
-  const eliminarZona = useCallback(async (id: UUID) => {
-    // Eliminar plantas de la zona primero
-    const plantasZona = plantas.filter(p => p.zona_id === id)
-    for (const planta of plantasZona) {
-      await db.plantas.delete(planta.id)
-    }
+  const eliminarZona = useCallback(
+    async (id: UUID) => {
+      // Eliminar plantas de la zona primero
+      const plantasZona = plantas.filter((p) => p.zona_id === id);
+      for (const planta of plantasZona) {
+        await db.plantas.delete(planta.id);
+      }
 
-    // Eliminar zona
-    await db.zonas.delete(id)
-    onRefetch()
-    return {}
-  }, [plantas, onRefetch])
+      // Eliminar zona
+      await db.zonas.delete(id);
+      onRefetch();
+      return {};
+    },
+    [plantas, onRefetch],
+  );
 
   return {
     crearZona,
@@ -363,13 +404,14 @@ export function useZonas(
     redimensionarZona,
     moverZona,
     eliminarZona,
-  }
+  };
 }
 ```
 
 ---
 
 ### Tarea 3: Crear Modo Creación de Zona
+
 **Archivo**: `src/components/mapa/CrearZonaOverlay.tsx` (crear)
 
 ```typescript
@@ -497,6 +539,7 @@ export function CrearZonaOverlay({ onComplete, onCancel }: CrearZonaOverlayProps
 ---
 
 ### Tarea 4: Crear Modal de Edición de Zona
+
 **Archivo**: `src/components/mapa/EditorZona.tsx` (crear)
 
 > ⚠️ **IMPORTANTE**: Este componente DEBE incluir inputs editables para posición (x, y) y dimensiones (ancho, alto). NO solo mostrarlos como texto.
@@ -825,6 +868,7 @@ function ConfirmDeleteZona({
 ---
 
 ### Tarea 5: Crear Modal Nueva Zona
+
 **Archivo**: `src/components/mapa/NuevaZonaModal.tsx` (crear)
 
 ```typescript
@@ -926,6 +970,7 @@ export function NuevaZonaModal({ rect, onConfirm, onCancel }: NuevaZonaModalProp
 ---
 
 ### Tarea 6: INTEGRAR Zonas en Página Principal
+
 **Archivo**: `src/app/page.tsx` (actualizar)
 
 Esta tarea es CRÍTICA. Sin ella, los componentes existen pero el usuario no puede usarlos.
@@ -937,12 +982,14 @@ Esta tarea es CRÍTICA. Sin ella, los componentes existen pero el usuario no pue
    - "+ Nueva Zona" (modo crear_zona)
 
 2. **Estado de modo** en el componente:
+
    ```typescript
-   type Modo = 'ver' | 'crear_zona'
-   const [modo, setModo] = useState<Modo>('ver')
+   type Modo = "ver" | "crear_zona";
+   const [modo, setModo] = useState<Modo>("ver");
    ```
 
 3. **Integrar MapaTerreno** con modo y callbacks:
+
    ```typescript
    <MapaTerreno
      modo={modo}
@@ -952,11 +999,16 @@ Esta tarea es CRÍTICA. Sin ella, los componentes existen pero el usuario no pue
    ```
 
 4. **Cargar datos de IndexedDB** (NO datos demo):
+
    ```typescript
-   const zonasData = await db.zonas.where('terreno_id').equals(TERRENO_ID).toArray()
+   const zonasData = await db.zonas
+     .where("terreno_id")
+     .equals(TERRENO_ID)
+     .toArray();
    ```
 
 5. **Mostrar EditorZona en sidebar** cuando zona seleccionada:
+
    ```typescript
    <EditorZona
      zona={zonaSeleccionada}
@@ -978,11 +1030,13 @@ Esta tarea es CRÍTICA. Sin ella, los componentes existen pero el usuario no pue
 ## UX: Preview en Tiempo Real
 
 Al editar posición (X, Y) o dimensiones (ancho, alto) en el sidebar:
+
 1. **Preview visual en el mapa** - Mostrar rectángulo punteado con la nueva posición/tamaño
 2. **Indicador de validez** - Verde si es válido, rojo si hay superposición o sale del terreno
 3. **Solo guardar si es válido** - Botón Guardar deshabilitado si la preview es inválida
 
 Implementación:
+
 - `page.tsx` pasa `zonaPreview` al `MapaTerreno`
 - `MapaTerreno` renderiza un `<rect>` punteado con la preview
 - `EditorZona` valida en tiempo real y muestra estado

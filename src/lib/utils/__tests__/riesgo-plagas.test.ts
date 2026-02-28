@@ -73,10 +73,16 @@ describe("evaluarRiesgoPlagas", () => {
     expect(evaluacion.plaga).toBeDefined();
     expect(typeof evaluacion.scoreRiesgo).toBe("number");
     expect(evaluacion.condicionesActuales).toBeDefined();
-    expect(typeof evaluacion.condicionesActuales.temperaturaFavorable).toBe("boolean");
-    expect(typeof evaluacion.condicionesActuales.etapaVulnerable).toBe("boolean");
+    expect(typeof evaluacion.condicionesActuales.temperaturaFavorable).toBe(
+      "boolean",
+    );
+    expect(typeof evaluacion.condicionesActuales.etapaVulnerable).toBe(
+      "boolean",
+    );
     expect(typeof evaluacion.condicionesActuales.tempActual).toBe("number");
-    expect(["bajo", "medio", "alto", "critico"]).toContain(evaluacion.alertaNivel);
+    expect(["bajo", "medio", "alto", "critico"]).toContain(
+      evaluacion.alertaNivel,
+    );
   });
 
   it("marca etapa vulnerable correctamente", () => {
@@ -84,7 +90,9 @@ describe("evaluarRiesgoPlagas", () => {
     expect(resultVulnerable[0].condicionesActuales.etapaVulnerable).toBe(true);
 
     const resultNoVulnerable = evaluarRiesgoPlagas(cultivoFixture, "madura");
-    expect(resultNoVulnerable[0].condicionesActuales.etapaVulnerable).toBe(false);
+    expect(resultNoVulnerable[0].condicionesActuales.etapaVulnerable).toBe(
+      false,
+    );
   });
 
   it("agrega score por severidad de la plaga", () => {
@@ -97,13 +105,21 @@ describe("evaluarRiesgoPlagas", () => {
       severidad: "critica",
     };
 
-    const cultivoBaja = { ...cultivoFixture, plagas: [plagaBaja] } as CatalogoCultivo;
-    const cultivoCritica = { ...cultivoFixture, plagas: [plagaCritica] } as CatalogoCultivo;
+    const cultivoBaja = {
+      ...cultivoFixture,
+      plagas: [plagaBaja],
+    } as CatalogoCultivo;
+    const cultivoCritica = {
+      ...cultivoFixture,
+      plagas: [plagaCritica],
+    } as CatalogoCultivo;
 
     const resultBaja = evaluarRiesgoPlagas(cultivoBaja, "plántula");
     const resultCritica = evaluarRiesgoPlagas(cultivoCritica, "plántula");
 
-    expect(resultCritica[0].scoreRiesgo).toBeGreaterThan(resultBaja[0].scoreRiesgo);
+    expect(resultCritica[0].scoreRiesgo).toBeGreaterThan(
+      resultBaja[0].scoreRiesgo,
+    );
   });
 
   it("ordena resultados por scoreRiesgo descendente", () => {
@@ -135,7 +151,10 @@ describe("evaluarRiesgoPlagas", () => {
       ...plagaFixture,
       etapas_vulnerables: undefined,
     };
-    const cultivoTest = { ...cultivoFixture, plagas: [plagaSinEtapas] } as CatalogoCultivo;
+    const cultivoTest = {
+      ...cultivoFixture,
+      plagas: [plagaSinEtapas],
+    } as CatalogoCultivo;
 
     const result = evaluarRiesgoPlagas(cultivoTest, "adulta");
     expect(result[0].condicionesActuales.etapaVulnerable).toBe(false);
@@ -146,7 +165,10 @@ describe("evaluarRiesgoPlagas", () => {
       ...plagaFixture,
       severidad: undefined,
     };
-    const cultivoTest = { ...cultivoFixture, plagas: [plagaSinSeveridad] } as CatalogoCultivo;
+    const cultivoTest = {
+      ...cultivoFixture,
+      plagas: [plagaSinSeveridad],
+    } as CatalogoCultivo;
 
     const result = evaluarRiesgoPlagas(cultivoTest, "adulta");
     expect(result).toHaveLength(1);
@@ -159,7 +181,10 @@ describe("evaluarRiesgoPlagas", () => {
       temperatura_min: undefined,
       temperatura_max: undefined,
     };
-    const cultivoTest = { ...cultivoFixture, plagas: [plagaSinTemp] } as CatalogoCultivo;
+    const cultivoTest = {
+      ...cultivoFixture,
+      plagas: [plagaSinTemp],
+    } as CatalogoCultivo;
 
     const result = evaluarRiesgoPlagas(cultivoTest, "adulta");
     expect(result).toHaveLength(1);

@@ -17,6 +17,7 @@
 ### 7.1 Variedades de cultivo
 
 Cada cultivo puede tener variedades con diferencias en:
+
 - Resistencia a condiciones adversas
 - Tiempo de producción
 - Rendimiento
@@ -24,14 +25,14 @@ Cada cultivo puede tener variedades con diferencias en:
 
 ```typescript
 interface VariedadCultivo {
-  id: string
-  cultivo_id: string
-  nombre: string // "Olivo Arbequina", "Olivo Picual"
-  origen?: string // "España", "Chile"
-  ventajas: string[]
-  desventajas: string[]
-  rendimiento_relativo: number // 1.0 = base, 1.2 = 20% más
-  precio_planta_clp?: number
+  id: string;
+  cultivo_id: string;
+  nombre: string; // "Olivo Arbequina", "Olivo Picual"
+  origen?: string; // "España", "Chile"
+  ventajas: string[];
+  desventajas: string[];
+  rendimiento_relativo: number; // 1.0 = base, 1.2 = 20% más
+  precio_planta_clp?: number;
 }
 ```
 
@@ -41,18 +42,19 @@ Para decidir qué plantar según rentabilidad:
 
 ```typescript
 interface DatosMercado {
-  cultivo_id: string
-  precio_kg_actual_clp: number
-  tendencia: 'alza' | 'estable' | 'baja'
-  demanda_local: 'alta' | 'media' | 'baja'
-  competencia_local: 'alta' | 'media' | 'baja'
-  mercado_exportacion: boolean
+  cultivo_id: string;
+  precio_kg_actual_clp: number;
+  tendencia: "alza" | "estable" | "baja";
+  demanda_local: "alta" | "media" | "baja";
+  competencia_local: "alta" | "media" | "baja";
+  mercado_exportacion: boolean;
 }
 ```
 
 ### 7.3 Técnicas de mejora
 
 Registro de aplicaciones especiales:
+
 - **Tierra líquida**: duplica retención de agua en suelo
 - **Extracto de algas**: mejora crecimiento (investigación universitaria)
 - **Micorrizas**: mejora absorción de nutrientes

@@ -1,14 +1,14 @@
-'use client'
+"use client";
 
-import type { ToleranciaHeladas } from '@/types'
+import type { ToleranciaHeladas } from "@/types";
 
 interface CultivoClimaFieldsProps {
-  tempMin: number | undefined
-  tempMax: number | undefined
-  toleranciaHeladas: ToleranciaHeladas | undefined
-  onTempMinChange: (v: number | undefined) => void
-  onTempMaxChange: (v: number | undefined) => void
-  onToleranciaHeladasChange: (v: ToleranciaHeladas | undefined) => void
+  tempMin: number | undefined;
+  tempMax: number | undefined;
+  toleranciaHeladas: ToleranciaHeladas | undefined;
+  onTempMinChange: (v: number | undefined) => void;
+  onTempMaxChange: (v: number | undefined) => void;
+  onToleranciaHeladasChange: (v: ToleranciaHeladas | undefined) => void;
 }
 
 export function CultivoClimaFields({
@@ -24,31 +24,49 @@ export function CultivoClimaFields({
       <h4 className="text-sm font-bold text-gray-700 mb-3">Clima (opcional)</h4>
       <div className="grid grid-cols-2 gap-2">
         <div>
-          <label className="block text-sm font-medium mb-1">Temp mín (°C)</label>
+          <label className="block text-sm font-medium mb-1">
+            Temp mín (°C)
+          </label>
           <input
             type="number"
-            value={tempMin ?? ''}
-            onChange={(e) => onTempMinChange(e.target.value ? Number(e.target.value) : undefined)}
+            value={tempMin ?? ""}
+            onChange={(e) =>
+              onTempMinChange(
+                e.target.value ? Number(e.target.value) : undefined,
+              )
+            }
             className="w-full px-3 py-2 border rounded"
             placeholder="-5"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1">Temp máx (°C)</label>
+          <label className="block text-sm font-medium mb-1">
+            Temp máx (°C)
+          </label>
           <input
             type="number"
-            value={tempMax ?? ''}
-            onChange={(e) => onTempMaxChange(e.target.value ? Number(e.target.value) : undefined)}
+            value={tempMax ?? ""}
+            onChange={(e) =>
+              onTempMaxChange(
+                e.target.value ? Number(e.target.value) : undefined,
+              )
+            }
             className="w-full px-3 py-2 border rounded"
             placeholder="40"
           />
         </div>
       </div>
       <div className="mt-2">
-        <label className="block text-sm font-medium mb-1">Tolerancia heladas</label>
+        <label className="block text-sm font-medium mb-1">
+          Tolerancia heladas
+        </label>
         <select
-          value={toleranciaHeladas ?? ''}
-          onChange={(e) => onToleranciaHeladasChange(e.target.value as ToleranciaHeladas || undefined)}
+          value={toleranciaHeladas ?? ""}
+          onChange={(e) =>
+            onToleranciaHeladasChange(
+              (e.target.value as ToleranciaHeladas) || undefined,
+            )
+          }
           className="w-full px-3 py-2 border rounded"
         >
           <option value="">No especificado</option>
@@ -59,5 +77,5 @@ export function CultivoClimaFields({
         </select>
       </div>
     </div>
-  )
+  );
 }

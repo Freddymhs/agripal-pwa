@@ -1,10 +1,10 @@
-import type { SueloTerreno } from '@/types'
+import type { SueloTerreno } from "@/types";
 
 export const SUELO_DEFAULT_AZAPA: SueloTerreno = {
   fisico: {
     ph: 7.6,
-    textura: 'franco-arenosa',
-    drenaje: 'bueno',
+    textura: "franco-arenosa",
+    drenaje: "bueno",
     profundidad_efectiva_cm: 90,
     materia_organica_pct: 1.5,
   },
@@ -19,4 +19,4 @@ export const SUELO_DEFAULT_AZAPA: SueloTerreno = {
     calcio_ppm: 1350,
     magnesio_ppm: 100,
   },
-}
+};

@@ -10,6 +10,7 @@
 ## 🎯 Objetivo
 
 Vista **CEO** para proyectar negocio agrícola completo:
+
 - Proyección agua 12 meses
 - Calendario recargas
 - Economía anual
@@ -20,6 +21,7 @@ Vista **CEO** para proyectar negocio agrícola completo:
 ## 📋 Funcionalidades
 
 ### 1. Gráfico Nivel Estanque
+
 ```
 5000L ┼─╮
       │  ╲  ╱╲    ╱╲    ╱╲
@@ -29,11 +31,13 @@ Vista **CEO** para proyectar negocio agrícola completo:
 ```
 
 ### 2. Calendario Recargas
+
 - Usuario configura: cada X días, Y litros
 - Sistema proyecta 12 meses
 - Marca alertas si agua < 0
 
 ### 3. Economía Proyectada
+
 ```
 Ingresos año: $12,000
 Costos año: $4,500
@@ -42,6 +46,7 @@ ROI: 166%
 ```
 
 ### 4. Eventos Futuros
+
 - Replantas: "Mayo - Tomates"
 - Lavado: "Cada 30 días"
 - Cosechas: "Agosto - Mangos"

@@ -1,169 +1,180 @@
-'use client'
+"use client";
 
-import { useEffect, useRef, useCallback, type RefObject } from 'react'
-import { Application, Container } from 'pixi.js'
-import { MIN_SCALE, MAX_SCALE } from './pixi-constants'
-import { clamp } from '@/lib/utils/math'
+import { useEffect, useRef, useCallback, type RefObject } from "react";
+import { Application, Container } from "pixi.js";
+import { MIN_SCALE, MAX_SCALE } from "./pixi-constants";
+import { clamp } from "@/lib/utils/math";
 
 export function usePixiViewport(
   app: Application | null,
   worldContainerRef: RefObject<Container | null>,
-  options?: { minScale?: number; maxScale?: number; onScaleChange?: (scale: number) => void }
+  options?: {
+    minScale?: number;
+    maxScale?: number;
+    onScaleChange?: (scale: number) => void;
+  },
 ): {
-  scaleRef: React.MutableRefObject<number>
-  offsetRef: React.MutableRefObject<{ x: number; y: number }>
-  isPanningRef: React.MutableRefObject<boolean>
-  startPan: (clientX: number, clientY: number) => void
-  movePan: (clientX: number, clientY: number) => void
-  endPan: () => void
-  zoomIn: () => void
-  zoomOut: () => void
-  resetView: () => void
-  fitView: (worldWidthPx: number, worldHeightPx: number) => void
-  getScale: () => number
-  applyTransform: () => void
+  scaleRef: React.MutableRefObject<number>;
+  offsetRef: React.MutableRefObject<{ x: number; y: number }>;
+  isPanningRef: React.MutableRefObject<boolean>;
+  startPan: (clientX: number, clientY: number) => void;
+  movePan: (clientX: number, clientY: number) => void;
+  endPan: () => void;
+  zoomIn: () => void;
+  zoomOut: () => void;
+  resetView: () => void;
+  fitView: (worldWidthPx: number, worldHeightPx: number) => void;
+  getScale: () => number;
+  applyTransform: () => void;
 } {
-  const minScale = options?.minScale ?? MIN_SCALE
-  const maxScale = options?.maxScale ?? MAX_SCALE
-  const onScaleChangeRef = useRef(options?.onScaleChange)
-  onScaleChangeRef.current = options?.onScaleChange
-  const scaleRef = useRef(1)
-  const offsetRef = useRef({ x: 0, y: 0 })
-  const isPanningRef = useRef(false)
-  const lastPosRef = useRef({ x: 0, y: 0 })
+  const minScale = options?.minScale ?? MIN_SCALE;
+  const maxScale = options?.maxScale ?? MAX_SCALE;
+  const onScaleChangeRef = useRef(options?.onScaleChange);
+  // eslint-disable-next-line react-hooks/refs -- asignación a ref fuera de effect es válida en React 18+ para callbacks estables con Pixi.js
+  onScaleChangeRef.current = options?.onScaleChange;
+  const scaleRef = useRef(1);
+  const offsetRef = useRef({ x: 0, y: 0 });
+  const isPanningRef = useRef(false);
+  const lastPosRef = useRef({ x: 0, y: 0 });
 
   const applyTransform = useCallback(() => {
-    const wc = worldContainerRef.current
-    if (!wc) return
-    wc.position.set(offsetRef.current.x, offsetRef.current.y)
-    wc.scale.set(scaleRef.current)
-  }, [worldContainerRef])
+    const wc = worldContainerRef.current;
+    if (!wc) return;
+    wc.position.set(offsetRef.current.x, offsetRef.current.y);
+    wc.scale.set(scaleRef.current);
+  }, [worldContainerRef]);
 
   useEffect(() => {
-    if (!app) return
+    if (!app) return;
 
-    const canvas = app.canvas as HTMLCanvasElement
+    const canvas = app.canvas as HTMLCanvasElement;
 
     const onWheel = (e: WheelEvent) => {
-      e.preventDefault()
+      e.preventDefault();
 
-      const rect = canvas.getBoundingClientRect()
-      const mouseX = e.clientX - rect.left
-      const mouseY = e.clientY - rect.top
+      const rect = canvas.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
 
-      const oldScale = scaleRef.current
-      const delta = e.deltaY > 0 ? -0.1 : 0.1
-      const newScale = clamp(oldScale + delta * oldScale, minScale, maxScale)
+      const oldScale = scaleRef.current;
+      const delta = e.deltaY > 0 ? -0.1 : 0.1;
+      const newScale = clamp(oldScale + delta * oldScale, minScale, maxScale);
 
-      const worldX = (mouseX - offsetRef.current.x) / oldScale
-      const worldY = (mouseY - offsetRef.current.y) / oldScale
+      const worldX = (mouseX - offsetRef.current.x) / oldScale;
+      const worldY = (mouseY - offsetRef.current.y) / oldScale;
 
-      offsetRef.current.x = mouseX - worldX * newScale
-      offsetRef.current.y = mouseY - worldY * newScale
-      scaleRef.current = newScale
+      offsetRef.current.x = mouseX - worldX * newScale;
+      offsetRef.current.y = mouseY - worldY * newScale;
+      scaleRef.current = newScale;
 
-      applyTransform()
-      onScaleChangeRef.current?.(newScale)
-    }
+      applyTransform();
+      onScaleChangeRef.current?.(newScale);
+    };
 
-    canvas.addEventListener('wheel', onWheel, { passive: false })
+    canvas.addEventListener("wheel", onWheel, { passive: false });
 
     return () => {
-      canvas.removeEventListener('wheel', onWheel)
-    }
-  }, [app, minScale, maxScale, applyTransform])
+      canvas.removeEventListener("wheel", onWheel);
+    };
+  }, [app, minScale, maxScale, applyTransform]);
 
   const startPan = useCallback((clientX: number, clientY: number) => {
-    isPanningRef.current = true
-    lastPosRef.current = { x: clientX, y: clientY }
-  }, [])
+    isPanningRef.current = true;
+    lastPosRef.current = { x: clientX, y: clientY };
+  }, []);
 
-  const movePan = useCallback((clientX: number, clientY: number) => {
-    if (!isPanningRef.current) return
+  const movePan = useCallback(
+    (clientX: number, clientY: number) => {
+      if (!isPanningRef.current) return;
 
-    const dx = clientX - lastPosRef.current.x
-    const dy = clientY - lastPosRef.current.y
+      const dx = clientX - lastPosRef.current.x;
+      const dy = clientY - lastPosRef.current.y;
 
-    offsetRef.current.x += dx
-    offsetRef.current.y += dy
-    lastPosRef.current = { x: clientX, y: clientY }
+      offsetRef.current.x += dx;
+      offsetRef.current.y += dy;
+      lastPosRef.current = { x: clientX, y: clientY };
 
-    applyTransform()
-  }, [applyTransform])
+      applyTransform();
+    },
+    [applyTransform],
+  );
 
   const endPan = useCallback(() => {
-    isPanningRef.current = false
-  }, [])
+    isPanningRef.current = false;
+  }, []);
 
   const zoomIn = useCallback(() => {
-    if (!app) return
-    const canvas = app.canvas as HTMLCanvasElement
-    const centerX = canvas.width / (2 * (window.devicePixelRatio || 1))
-    const centerY = canvas.height / (2 * (window.devicePixelRatio || 1))
+    if (!app) return;
+    const canvas = app.canvas as HTMLCanvasElement;
+    const centerX = canvas.width / (2 * (window.devicePixelRatio || 1));
+    const centerY = canvas.height / (2 * (window.devicePixelRatio || 1));
 
-    const oldScale = scaleRef.current
-    const newScale = clamp(oldScale + 0.5, minScale, maxScale)
+    const oldScale = scaleRef.current;
+    const newScale = clamp(oldScale + 0.5, minScale, maxScale);
 
-    const worldX = (centerX - offsetRef.current.x) / oldScale
-    const worldY = (centerY - offsetRef.current.y) / oldScale
+    const worldX = (centerX - offsetRef.current.x) / oldScale;
+    const worldY = (centerY - offsetRef.current.y) / oldScale;
 
-    offsetRef.current.x = centerX - worldX * newScale
-    offsetRef.current.y = centerY - worldY * newScale
-    scaleRef.current = newScale
+    offsetRef.current.x = centerX - worldX * newScale;
+    offsetRef.current.y = centerY - worldY * newScale;
+    scaleRef.current = newScale;
 
-    applyTransform()
-    onScaleChangeRef.current?.(newScale)
-  }, [app, minScale, maxScale, applyTransform])
+    applyTransform();
+    onScaleChangeRef.current?.(newScale);
+  }, [app, minScale, maxScale, applyTransform]);
 
   const zoomOut = useCallback(() => {
-    if (!app) return
-    const canvas = app.canvas as HTMLCanvasElement
-    const centerX = canvas.width / (2 * (window.devicePixelRatio || 1))
-    const centerY = canvas.height / (2 * (window.devicePixelRatio || 1))
+    if (!app) return;
+    const canvas = app.canvas as HTMLCanvasElement;
+    const centerX = canvas.width / (2 * (window.devicePixelRatio || 1));
+    const centerY = canvas.height / (2 * (window.devicePixelRatio || 1));
 
-    const oldScale = scaleRef.current
-    const newScale = clamp(oldScale - 0.5, minScale, maxScale)
+    const oldScale = scaleRef.current;
+    const newScale = clamp(oldScale - 0.5, minScale, maxScale);
 
-    const worldX = (centerX - offsetRef.current.x) / oldScale
-    const worldY = (centerY - offsetRef.current.y) / oldScale
+    const worldX = (centerX - offsetRef.current.x) / oldScale;
+    const worldY = (centerY - offsetRef.current.y) / oldScale;
 
-    offsetRef.current.x = centerX - worldX * newScale
-    offsetRef.current.y = centerY - worldY * newScale
-    scaleRef.current = newScale
+    offsetRef.current.x = centerX - worldX * newScale;
+    offsetRef.current.y = centerY - worldY * newScale;
+    scaleRef.current = newScale;
 
-    applyTransform()
-    onScaleChangeRef.current?.(newScale)
-  }, [app, minScale, maxScale, applyTransform])
+    applyTransform();
+    onScaleChangeRef.current?.(newScale);
+  }, [app, minScale, maxScale, applyTransform]);
 
-  const fitView = useCallback((worldWidthPx: number, worldHeightPx: number) => {
-    if (!app) return
-    const canvas = app.canvas as HTMLCanvasElement
-    const dpr = window.devicePixelRatio || 1
-    const canvasW = canvas.width / dpr
-    const canvasH = canvas.height / dpr
+  const fitView = useCallback(
+    (worldWidthPx: number, worldHeightPx: number) => {
+      if (!app) return;
+      const canvas = app.canvas as HTMLCanvasElement;
+      const dpr = window.devicePixelRatio || 1;
+      const canvasW = canvas.width / dpr;
+      const canvasH = canvas.height / dpr;
 
-    const padding = 40
-    const scaleX = (canvasW - padding * 2) / worldWidthPx
-    const scaleY = (canvasH - padding * 2) / worldHeightPx
-    const newScale = clamp(Math.min(scaleX, scaleY), minScale, maxScale)
+      const padding = 40;
+      const scaleX = (canvasW - padding * 2) / worldWidthPx;
+      const scaleY = (canvasH - padding * 2) / worldHeightPx;
+      const newScale = clamp(Math.min(scaleX, scaleY), minScale, maxScale);
 
-    const offsetX = (canvasW - worldWidthPx * newScale) / 2
-    const offsetY = (canvasH - worldHeightPx * newScale) / 2
+      const offsetX = (canvasW - worldWidthPx * newScale) / 2;
+      const offsetY = (canvasH - worldHeightPx * newScale) / 2;
 
-    scaleRef.current = newScale
-    offsetRef.current = { x: offsetX, y: offsetY }
-    applyTransform()
-    onScaleChangeRef.current?.(newScale)
-  }, [app, minScale, maxScale, applyTransform])
+      scaleRef.current = newScale;
+      offsetRef.current = { x: offsetX, y: offsetY };
+      applyTransform();
+      onScaleChangeRef.current?.(newScale);
+    },
+    [app, minScale, maxScale, applyTransform],
+  );
 
   const resetView = useCallback(() => {
-    scaleRef.current = 1
-    offsetRef.current = { x: 0, y: 0 }
-    applyTransform()
-    onScaleChangeRef.current?.(1)
-  }, [applyTransform])
+    scaleRef.current = 1;
+    offsetRef.current = { x: 0, y: 0 };
+    applyTransform();
+    onScaleChangeRef.current?.(1);
+  }, [applyTransform]);
 
-  const getScale = useCallback(() => scaleRef.current, [])
+  const getScale = useCallback(() => scaleRef.current, []);
 
   return {
     scaleRef,
@@ -178,5 +189,5 @@ export function usePixiViewport(
     fitView,
     getScale,
     applyTransform,
-  }
+  };
 }

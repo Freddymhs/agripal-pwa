@@ -1,50 +1,56 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-import { useAuthContext } from '@/components/providers/auth-provider'
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useAuthContext } from "@/components/providers/auth-provider";
+import { ROUTES } from "@/lib/constants/routes";
 
 export default function RegistroPage() {
-  const router = useRouter()
-  const { registrar } = useAuthContext()
+  const router = useRouter();
+  const { registrar } = useAuthContext();
 
-  const [nombre, setNombre] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [nombre, setNombre] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError('')
-    setLoading(true)
+    e.preventDefault();
+    setError("");
+    setLoading(true);
 
     if (password.length < 6) {
-      setError('La contraseña debe tener al menos 6 caracteres')
-      setLoading(false)
-      return
+      setError("La contraseña debe tener al menos 6 caracteres");
+      setLoading(false);
+      return;
     }
 
-    const result = await registrar(email, nombre, password)
+    const result = await registrar(email, nombre, password);
 
     if (result.error) {
-      setError(result.error)
-      setLoading(false)
+      setError(result.error);
+      setLoading(false);
     } else {
-      router.push('/')
+      router.push(ROUTES.HOME);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-green-600">AgriPlan</h1>
-          <p className="text-gray-500 mt-2">Planificación agrícola inteligente</p>
+          <p className="text-gray-500 mt-2">
+            Planificación agrícola inteligente
+          </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg shadow space-y-4">
+        <form
+          onSubmit={handleSubmit}
+          className="bg-white p-8 rounded-lg shadow space-y-4"
+        >
           <h2 className="text-xl font-bold text-center">Crear Cuenta</h2>
 
           {error && (
@@ -93,21 +99,24 @@ export default function RegistroPage() {
             disabled={loading}
             className={`w-full py-3 rounded-lg font-medium text-white ${
               loading
-                ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-green-500 hover:bg-green-600'
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-green-500 hover:bg-green-600"
             }`}
           >
-            {loading ? 'Creando cuenta...' : 'Crear Cuenta'}
+            {loading ? "Creando cuenta..." : "Crear Cuenta"}
           </button>
 
           <div className="text-center text-sm text-gray-500">
-            ¿Ya tienes cuenta?{' '}
-            <Link href="/auth/login" className="text-green-600 hover:underline">
+            ¿Ya tienes cuenta?{" "}
+            <Link
+              href={ROUTES.AUTH_LOGIN}
+              className="text-green-600 hover:underline"
+            >
               Inicia sesión
             </Link>
           </div>
         </form>
       </div>
     </div>
-  )
+  );
 }

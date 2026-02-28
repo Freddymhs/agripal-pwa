@@ -78,8 +78,8 @@ export function PlanificadorEconomiaTab({
 
       {plantas.length === 0 && (
         <div className="mt-4 bg-yellow-50 border border-yellow-200 p-3 rounded text-sm text-yellow-800">
-          No hay plantas. Agrega cultivos desde el mapa para ver
-          proyecciones economicas.
+          No hay plantas. Agrega cultivos desde el mapa para ver proyecciones
+          economicas.
         </div>
       )}
     </div>

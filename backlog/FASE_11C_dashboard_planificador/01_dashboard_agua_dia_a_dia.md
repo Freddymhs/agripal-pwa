@@ -18,6 +18,7 @@ Transformar `/agua` en **herramienta día a día** que responde en segundos:
 ## 📋 Problema Actual
 
 **Lo que existe ahora** (`/agua`):
+
 - ✅ Muestra nivel estanque
 - ✅ Muestra consumo semanal
 - ✅ Muestra días restantes
@@ -26,6 +27,7 @@ Transformar `/agua` en **herramienta día a día** que responde en segundos:
 - ⚠️ PERO: No muestra "¿alcanza hasta próxima recarga?"
 
 **Ejemplo del problema**:
+
 ```
 Usuario: "Cargo agua cada 14 días"
 App actual: "Tienes agua para 7 días"
@@ -41,13 +43,14 @@ App actual: ❌ No responde esta pregunta crítica
 
 ```typescript
 interface ConfiguracionRecarga {
-  frecuencia_dias: number      // ej: 14 días
-  cantidad_litros: number      // ej: 5000 L
-  proxima_recarga: Date        // calculada automáticamente
+  frecuencia_dias: number; // ej: 14 días
+  cantidad_litros: number; // ej: 5000 L
+  proxima_recarga: Date; // calculada automáticamente
 }
 ```
 
 **Flujo**:
+
 1. Usuario clickea estanque en mapa
 2. Modal: "¿Cada cuántos días cargas agua?"
 3. Usuario: "14 días"
@@ -110,18 +113,18 @@ interface ConfiguracionRecarga {
 ```typescript
 export interface EstanqueConfig {
   // ... campos existentes
-  capacidad_m3: MetrosCubicos
-  nivel_actual_m3: MetrosCubicos
-  tasa_consumo_m3_hora?: number
+  capacidad_m3: MetrosCubicos;
+  nivel_actual_m3: MetrosCubicos;
+  tasa_consumo_m3_hora?: number;
 
   // NUEVO: Configuración recarga
   recarga?: {
-    frecuencia_dias: number       // ej: 14
-    cantidad_litros: number       // ej: 5000
-    ultima_recarga: Timestamp
-    proxima_recarga: Timestamp    // auto-calculada
-    costo_recarga_clp?: number    // opcional
-  }
+    frecuencia_dias: number; // ej: 14
+    cantidad_litros: number; // ej: 5000
+    ultima_recarga: Timestamp;
+    proxima_recarga: Timestamp; // auto-calculada
+    costo_recarga_clp?: number; // opcional
+  };
 }
 ```
 
@@ -258,6 +261,7 @@ export function ConfigurarRecargaModal({
 **Archivo**: `src/components/agua/resumen-agua.tsx` (MODIFICAR)
 
 Agregar:
+
 - Sección "Próxima Recarga"
 - Cálculo "¿Alcanza hasta próxima recarga?"
 - Alerta si NO alcanza
@@ -516,6 +520,7 @@ return (
 ## 🎯 Resultado Esperado
 
 **Antes** (confuso):
+
 ```
 Usuario: "¿Me alcanza el agua?"
 App: "Tienes 7 días de agua"
@@ -524,6 +529,7 @@ App: 🤷 (no responde)
 ```
 
 **Después** (claro):
+
 ```
 Usuario: "¿Me alcanza el agua?"
 App: "❌ NO alcanza
@@ -550,13 +556,13 @@ App: "❌ NO alcanza
 
 ## 🔗 Archivos Afectados
 
-| Archivo | Acción | Descripción |
-|---------|--------|-------------|
-| `src/types/index.ts` | ✏️ Modificar | Agregar `EstanqueConfig.recarga` |
-| `src/components/agua/configurar-recarga-modal.tsx` | ✅ Crear | Modal configuración |
-| `src/components/agua/resumen-agua.tsx` | ✏️ Modificar | Agregar sección recarga + desglose |
-| `src/app/agua/page.tsx` | ✏️ Modificar | Integrar modal + cálculos |
-| `src/lib/utils/agua-calculo-anual.ts` | ✏️ Modificar | Helper `calcularConsumoPlanta()` |
+| Archivo                                            | Acción       | Descripción                        |
+| -------------------------------------------------- | ------------ | ---------------------------------- |
+| `src/types/index.ts`                               | ✏️ Modificar | Agregar `EstanqueConfig.recarga`   |
+| `src/components/agua/configurar-recarga-modal.tsx` | ✅ Crear     | Modal configuración                |
+| `src/components/agua/resumen-agua.tsx`             | ✏️ Modificar | Agregar sección recarga + desglose |
+| `src/app/agua/page.tsx`                            | ✏️ Modificar | Integrar modal + cálculos          |
+| `src/lib/utils/agua-calculo-anual.ts`              | ✏️ Modificar | Helper `calcularConsumoPlanta()`   |
 
 ---
 

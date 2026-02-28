@@ -1,15 +1,16 @@
-'use client'
+"use client";
 
-import { useProjectContext } from '@/contexts/project-context'
+import { useProjectContext } from "@/contexts/project-context";
 
 export function OfflineBanner() {
-  const { syncHook } = useProjectContext()
+  const { syncHook } = useProjectContext();
 
-  if (syncHook.isOnline) return null
+  if (syncHook.isOnline) return null;
 
   return (
     <div className="bg-yellow-500 text-yellow-900 px-4 py-2 text-center text-sm font-medium">
-      Sin conexión — Los cambios se guardarán localmente y se sincronizarán al reconectar
+      Sin conexión — Los cambios se guardarán localmente y se sincronizarán al
+      reconectar
     </div>
-  )
+  );
 }

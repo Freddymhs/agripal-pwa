@@ -9,6 +9,7 @@ import type {
 } from "@/lib/utils/agua-proyeccion-anual";
 import type { Zona } from "@/types";
 import { formatCLP } from "@/lib/utils";
+import { ROUTES } from "@/lib/constants/routes";
 
 const EVENTO_ICONS: Record<EventoFuturo["tipo"], string> = {
   recarga: "💧",
@@ -53,10 +54,7 @@ export function PlanificadorProyeccionTab({
             const deficit = mes.diasDeficit > 0;
 
             return (
-              <div
-                key={i}
-                className="flex-1 flex flex-col items-center gap-1"
-              >
+              <div key={i} className="flex-1 flex flex-col items-center gap-1">
                 <div className="w-full h-40 flex flex-col justify-end relative">
                   <div
                     className={`w-full rounded-t transition-all ${
@@ -117,7 +115,10 @@ export function PlanificadorProyeccionTab({
         {!estanques.some((e) => e.estanque_config?.recarga) && (
           <div className="mt-4 bg-yellow-50 border border-yellow-200 p-3 rounded text-sm text-yellow-800">
             No tienes configurada la recarga.{" "}
-            <Link href="/agua" className="underline font-medium">
+            <Link
+              href={ROUTES.AGUA_CONFIGURACION}
+              className="underline font-medium"
+            >
               Configurala aqui
             </Link>{" "}
             para proyectar mejor.
@@ -131,9 +132,7 @@ export function PlanificadorProyeccionTab({
         </h3>
 
         {proyeccion.eventos.length === 0 ? (
-          <p className="text-gray-500 text-sm">
-            No hay eventos programados
-          </p>
+          <p className="text-gray-500 text-sm">No hay eventos programados</p>
         ) : (
           <div className="space-y-2 max-h-64 overflow-y-auto">
             {proyeccion.eventos.slice(0, 20).map((evento, i) => (
@@ -141,16 +140,10 @@ export function PlanificadorProyeccionTab({
                 key={i}
                 className={`flex items-center gap-3 p-2 rounded ${EVENTO_COLORS[evento.tipo]}`}
               >
-                <span className="text-lg">
-                  {EVENTO_ICONS[evento.tipo]}
-                </span>
+                <span className="text-lg">{EVENTO_ICONS[evento.tipo]}</span>
                 <div className="flex-1">
-                  <div className="font-medium text-sm">
-                    {evento.titulo}
-                  </div>
-                  <div className="text-xs opacity-75">
-                    {evento.descripcion}
-                  </div>
+                  <div className="font-medium text-sm">{evento.titulo}</div>
+                  <div className="text-xs opacity-75">{evento.descripcion}</div>
                 </div>
                 <div className="text-xs font-medium">
                   {format(evento.fecha, "d MMM", { locale: es })}

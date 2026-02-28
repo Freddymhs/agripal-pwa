@@ -106,10 +106,11 @@ export function useZonas(
       }
 
       await ejecutarMutacion(
-        () => zonasDAL.update(id, {
-          ...cambios,
-          updated_at: getCurrentTimestamp(),
-        }),
+        () =>
+          zonasDAL.update(id, {
+            ...cambios,
+            updated_at: getCurrentTimestamp(),
+          }),
         "actualizando zona",
         onRefetch,
       );
@@ -140,12 +141,13 @@ export function useZonas(
       }
 
       await ejecutarMutacion(
-        () => zonasDAL.update(id, {
-          ancho: nuevoTamaño.ancho,
-          alto: nuevoTamaño.alto,
-          area_m2: nuevoTamaño.ancho * nuevoTamaño.alto,
-          updated_at: getCurrentTimestamp(),
-        }),
+        () =>
+          zonasDAL.update(id, {
+            ancho: nuevoTamaño.ancho,
+            alto: nuevoTamaño.alto,
+            area_m2: nuevoTamaño.ancho * nuevoTamaño.alto,
+            updated_at: getCurrentTimestamp(),
+          }),
         "redimensionando zona",
         onRefetch,
       );
@@ -168,11 +170,12 @@ export function useZonas(
       }
 
       await ejecutarMutacion(
-        () => zonasDAL.update(id, {
-          x: nuevaPosicion.x,
-          y: nuevaPosicion.y,
-          updated_at: getCurrentTimestamp(),
-        }),
+        () =>
+          zonasDAL.update(id, {
+            x: nuevaPosicion.x,
+            y: nuevaPosicion.y,
+            updated_at: getCurrentTimestamp(),
+          }),
         "moviendo zona",
         onRefetch,
       );

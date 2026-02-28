@@ -16,6 +16,7 @@ Crear la estructura de carpetas, layout principal y navegación por tabs.
 ## Tareas
 
 ### Tarea 1: Crear Estructura de Carpetas
+
 **Archivo**: `src/` (estructura)
 **Acción**: Crear directorios
 
@@ -28,6 +29,7 @@ mkdir -p src/app/{auth,terrenos,proyecto}
 ```
 
 **Estructura final**:
+
 ```
 src/
 ├── app/
@@ -58,6 +60,7 @@ src/
 ---
 
 ### Tarea 2: Configurar Variables de Entorno
+
 **Archivo**: `.env.local` (crear)
 
 ```bash
@@ -77,6 +80,7 @@ NEXT_PUBLIC_APP_VERSION=0.1.0
 ---
 
 ### Tarea 3: Actualizar Layout Principal
+
 **Archivo**: `src/app/layout.tsx` (modificar)
 
 ```typescript
@@ -115,6 +119,7 @@ export default function RootLayout({
 ---
 
 ### Tarea 4: Crear Componente Navbar (Tabs)
+
 **Archivo**: `src/components/layout/Navbar.tsx` (crear)
 
 ```typescript
@@ -177,6 +182,7 @@ export function Navbar({ terrenoId }: NavbarProps) {
 ---
 
 ### Tarea 5: Crear Componente Sidebar
+
 **Archivo**: `src/components/layout/Sidebar.tsx` (crear)
 
 ```typescript

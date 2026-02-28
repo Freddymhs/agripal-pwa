@@ -31,44 +31,55 @@ Sistema de gestión de agua: entradas (aljibe), cálculo de consumo con factores
 ## Tareas
 
 ### Tarea 1: Crear Utilidades de Cálculo de Agua
+
 **Archivo**: `src/lib/utils/agua.ts` (crear)
 
 ```typescript
-import type { Terreno, Zona, Planta, CatalogoCultivo, Temporada, EstadoAgua } from '@/types'
-import { FACTORES_TEMPORADA } from '@/types'
-import { getTemporadaActual } from '@/lib/utils'
+import type {
+  Terreno,
+  Zona,
+  Planta,
+  CatalogoCultivo,
+  Temporada,
+  EstadoAgua,
+} from "@/types";
+import { FACTORES_TEMPORADA } from "@/types";
+import { getTemporadaActual } from "@/lib/utils";
 
 // Calcular consumo de una zona (m³/semana)
 export function calcularConsumoZona(
   zona: Zona,
   plantas: Planta[],
   catalogoCultivos: CatalogoCultivo[],
-  temporada: Temporada = getTemporadaActual()
+  temporada: Temporada = getTemporadaActual(),
 ): number {
-  if (zona.tipo !== 'cultivo' || plantas.length === 0) {
-    return 0
+  if (zona.tipo !== "cultivo" || plantas.length === 0) {
+    return 0;
   }
 
-  const factorTemporada = FACTORES_TEMPORADA[temporada]
-  let consumoTotal = 0
+  const factorTemporada = FACTORES_TEMPORADA[temporada];
+  let consumoTotal = 0;
 
   for (const planta of plantas) {
-    if (planta.estado === 'muerta') continue
+    if (planta.estado === "muerta") continue;
 
-    const cultivo = catalogoCultivos.find(c => c.id === planta.tipo_cultivo_id)
-    if (!cultivo) continue
+    const cultivo = catalogoCultivos.find(
+      (c) => c.id === planta.tipo_cultivo_id,
+    );
+    if (!cultivo) continue;
 
     // Promedio de agua (m³/ha/año) convertido a m³/planta/semana
-    const aguaPromedio = (cultivo.agua_m3_ha_año_min + cultivo.agua_m3_ha_año_max) / 2
-    const espaciadoM2 = cultivo.espaciado_recomendado_m ** 2
-    const plantasPorHa = 10000 / espaciadoM2
-    const aguaPorPlantaAño = aguaPromedio / plantasPorHa
-    const aguaPorPlantaSemana = aguaPorPlantaAño / 52
+    const aguaPromedio =
+      (cultivo.agua_m3_ha_año_min + cultivo.agua_m3_ha_año_max) / 2;
+    const espaciadoM2 = cultivo.espaciado_recomendado_m ** 2;
+    const plantasPorHa = 10000 / espaciadoM2;
+    const aguaPorPlantaAño = aguaPromedio / plantasPorHa;
+    const aguaPorPlantaSemana = aguaPorPlantaAño / 52;
 
-    consumoTotal += aguaPorPlantaSemana * factorTemporada
+    consumoTotal += aguaPorPlantaSemana * factorTemporada;
   }
 
-  return consumoTotal
+  return consumoTotal;
 }
 
 // Calcular consumo total del terreno (m³/semana)
@@ -76,47 +87,52 @@ export function calcularConsumoTerreno(
   zonas: Zona[],
   plantas: Planta[],
   catalogoCultivos: CatalogoCultivo[],
-  temporada: Temporada = getTemporadaActual()
+  temporada: Temporada = getTemporadaActual(),
 ): number {
-  let consumoTotal = 0
+  let consumoTotal = 0;
 
   for (const zona of zonas) {
-    const plantasZona = plantas.filter(p => p.zona_id === zona.id)
-    consumoTotal += calcularConsumoZona(zona, plantasZona, catalogoCultivos, temporada)
+    const plantasZona = plantas.filter((p) => p.zona_id === zona.id);
+    consumoTotal += calcularConsumoZona(
+      zona,
+      plantasZona,
+      catalogoCultivos,
+      temporada,
+    );
   }
 
-  return consumoTotal
+  return consumoTotal;
 }
 
 // Calcular descuento automático por riego (m³)
 export function calcularDescuentoRiego(
   terreno: Terreno,
-  horasDesdeUltimaActualizacion: number
+  horasDesdeUltimaActualizacion: number,
 ): number {
   if (!terreno.sistema_riego.descuento_auto) {
-    return 0
+    return 0;
   }
 
-  const litrosPorHora = terreno.sistema_riego.litros_hora
-  const litrosConsumidos = litrosPorHora * horasDesdeUltimaActualizacion
-  const m3Consumidos = litrosConsumidos / 1000
+  const litrosPorHora = terreno.sistema_riego.litros_hora;
+  const litrosConsumidos = litrosPorHora * horasDesdeUltimaActualizacion;
+  const m3Consumidos = litrosConsumidos / 1000;
 
-  return m3Consumidos
+  return m3Consumidos;
 }
 
 // Determinar estado del agua
 export function determinarEstadoAgua(
   aguaDisponible: number,
-  aguaNecesaria: number
+  aguaNecesaria: number,
 ): EstadoAgua {
-  const margen = aguaDisponible - aguaNecesaria
+  const margen = aguaDisponible - aguaNecesaria;
 
   if (margen > aguaNecesaria * 0.2) {
-    return 'ok'         // Más de 20% de margen
+    return "ok"; // Más de 20% de margen
   } else if (margen >= 0) {
-    return 'ajustado'   // Entre 0% y 20%
+    return "ajustado"; // Entre 0% y 20%
   } else {
-    return 'deficit'    // Negativo
+    return "deficit"; // Negativo
   }
 }
 
@@ -124,50 +140,63 @@ export function determinarEstadoAgua(
 export function proyectarAgua(
   aguaActual: number,
   consumoSemanal: number,
-  semanas: number
+  semanas: number,
 ): { semana: number; agua: number }[] {
-  const proyeccion: { semana: number; agua: number }[] = []
-  let agua = aguaActual
+  const proyeccion: { semana: number; agua: number }[] = [];
+  let agua = aguaActual;
 
   for (let i = 0; i <= semanas; i++) {
-    proyeccion.push({ semana: i, agua: Math.max(0, agua) })
-    agua -= consumoSemanal
+    proyeccion.push({ semana: i, agua: Math.max(0, agua) });
+    agua -= consumoSemanal;
   }
 
-  return proyeccion
+  return proyeccion;
 }
 ```
 
 ---
 
 ### Tarea 2: Crear Hook useAgua
+
 **Archivo**: `src/hooks/useAgua.ts` (crear)
 
 ```typescript
-'use client'
+"use client";
 
-import { useEffect, useState, useCallback } from 'react'
-import { db } from '@/lib/db'
-import { generateUUID, getCurrentTimestamp } from '@/lib/utils'
-import { calcularConsumoTerreno, determinarEstadoAgua, calcularDescuentoRiego } from '@/lib/utils/agua'
-import type { EntradaAgua, Terreno, Zona, Planta, CatalogoCultivo, UUID, EstadoAgua } from '@/types'
+import { useEffect, useState, useCallback } from "react";
+import { db } from "@/lib/db";
+import { generateUUID, getCurrentTimestamp } from "@/lib/utils";
+import {
+  calcularConsumoTerreno,
+  determinarEstadoAgua,
+  calcularDescuentoRiego,
+} from "@/lib/utils/agua";
+import type {
+  EntradaAgua,
+  Terreno,
+  Zona,
+  Planta,
+  CatalogoCultivo,
+  UUID,
+  EstadoAgua,
+} from "@/types";
 
 interface UseAgua {
-  entradas: EntradaAgua[]
-  consumoSemanal: number
-  estadoAgua: EstadoAgua
-  loading: boolean
+  entradas: EntradaAgua[];
+  consumoSemanal: number;
+  estadoAgua: EstadoAgua;
+  loading: boolean;
 
   registrarEntrada: (data: {
-    cantidad_m3: number
-    costo_clp?: number
-    proveedor?: string
-    notas?: string
-  }) => Promise<EntradaAgua>
+    cantidad_m3: number;
+    costo_clp?: number;
+    proveedor?: string;
+    notas?: string;
+  }) => Promise<EntradaAgua>;
 
-  actualizarAguaTerreno: (cantidad: number) => Promise<void>
+  actualizarAguaTerreno: (cantidad: number) => Promise<void>;
 
-  aplicarDescuentoAutomatico: () => Promise<number>
+  aplicarDescuentoAutomatico: () => Promise<number>;
 }
 
 export function useAgua(
@@ -175,111 +204,123 @@ export function useAgua(
   zonas: Zona[],
   plantas: Planta[],
   catalogoCultivos: CatalogoCultivo[],
-  onRefetch: () => void
+  onRefetch: () => void,
 ): UseAgua {
-  const [entradas, setEntradas] = useState<EntradaAgua[]>([])
-  const [loading, setLoading] = useState(true)
+  const [entradas, setEntradas] = useState<EntradaAgua[]>([]);
+  const [loading, setLoading] = useState(true);
 
   // Cargar historial de entradas
   useEffect(() => {
-    if (!terreno) return
+    if (!terreno) return;
 
     async function cargar() {
-      setLoading(true)
+      setLoading(true);
       const data = await db.entradas_agua
-        .where('terreno_id')
+        .where("terreno_id")
         .equals(terreno.id)
         .reverse()
-        .sortBy('fecha')
-      setEntradas(data)
-      setLoading(false)
+        .sortBy("fecha");
+      setEntradas(data);
+      setLoading(false);
     }
 
-    cargar()
-  }, [terreno])
+    cargar();
+  }, [terreno]);
 
   // Calcular consumo semanal
   const consumoSemanal = terreno
     ? calcularConsumoTerreno(zonas, plantas, catalogoCultivos)
-    : 0
+    : 0;
 
   // Determinar estado
   const estadoAgua = terreno
     ? determinarEstadoAgua(terreno.agua_actual_m3, consumoSemanal)
-    : 'ok'
+    : "ok";
 
   // Registrar entrada de agua
-  const registrarEntrada = useCallback(async (data: {
-    cantidad_m3: number
-    costo_clp?: number
-    proveedor?: string
-    notas?: string
-  }) => {
-    if (!terreno) throw new Error('No hay terreno')
+  const registrarEntrada = useCallback(
+    async (data: {
+      cantidad_m3: number;
+      costo_clp?: number;
+      proveedor?: string;
+      notas?: string;
+    }) => {
+      if (!terreno) throw new Error("No hay terreno");
 
-    const entrada: EntradaAgua = {
-      id: generateUUID(),
-      terreno_id: terreno.id,
-      fecha: getCurrentTimestamp(),
-      cantidad_m3: data.cantidad_m3,
-      costo_clp: data.costo_clp,
-      proveedor: data.proveedor,
-      notas: data.notas || '',
-      created_at: getCurrentTimestamp(),
-    }
+      const entrada: EntradaAgua = {
+        id: generateUUID(),
+        terreno_id: terreno.id,
+        fecha: getCurrentTimestamp(),
+        cantidad_m3: data.cantidad_m3,
+        costo_clp: data.costo_clp,
+        proveedor: data.proveedor,
+        notas: data.notas || "",
+        created_at: getCurrentTimestamp(),
+      };
 
-    await db.entradas_agua.add(entrada)
+      await db.entradas_agua.add(entrada);
 
-    // Actualizar agua del terreno
-    const nuevaAgua = Math.min(
-      terreno.agua_disponible_m3,
-      terreno.agua_actual_m3 + data.cantidad_m3
-    )
-    await db.terrenos.update(terreno.id, {
-      agua_actual_m3: nuevaAgua,
-      updated_at: getCurrentTimestamp(),
-    })
+      // Actualizar agua del terreno
+      const nuevaAgua = Math.min(
+        terreno.agua_disponible_m3,
+        terreno.agua_actual_m3 + data.cantidad_m3,
+      );
+      await db.terrenos.update(terreno.id, {
+        agua_actual_m3: nuevaAgua,
+        updated_at: getCurrentTimestamp(),
+      });
 
-    setEntradas(prev => [entrada, ...prev])
-    onRefetch()
+      setEntradas((prev) => [entrada, ...prev]);
+      onRefetch();
 
-    return entrada
-  }, [terreno, onRefetch])
+      return entrada;
+    },
+    [terreno, onRefetch],
+  );
 
   // Actualizar agua manualmente
-  const actualizarAguaTerreno = useCallback(async (cantidad: number) => {
-    if (!terreno) return
+  const actualizarAguaTerreno = useCallback(
+    async (cantidad: number) => {
+      if (!terreno) return;
 
-    const nuevaAgua = Math.max(0, Math.min(terreno.agua_disponible_m3, cantidad))
-    await db.terrenos.update(terreno.id, {
-      agua_actual_m3: nuevaAgua,
-      updated_at: getCurrentTimestamp(),
-    })
-    onRefetch()
-  }, [terreno, onRefetch])
+      const nuevaAgua = Math.max(
+        0,
+        Math.min(terreno.agua_disponible_m3, cantidad),
+      );
+      await db.terrenos.update(terreno.id, {
+        agua_actual_m3: nuevaAgua,
+        updated_at: getCurrentTimestamp(),
+      });
+      onRefetch();
+    },
+    [terreno, onRefetch],
+  );
 
   // Aplicar descuento automático
   const aplicarDescuentoAutomatico = useCallback(async () => {
-    if (!terreno) return 0
+    if (!terreno) return 0;
 
-    const ahora = new Date()
-    const ultimaActualizacion = new Date(terreno.sistema_riego.ultima_actualizacion)
-    const horasTranscurridas = (ahora.getTime() - ultimaActualizacion.getTime()) / (1000 * 60 * 60)
+    const ahora = new Date();
+    const ultimaActualizacion = new Date(
+      terreno.sistema_riego.ultima_actualizacion,
+    );
+    const horasTranscurridas =
+      (ahora.getTime() - ultimaActualizacion.getTime()) / (1000 * 60 * 60);
 
-    const descuento = calcularDescuentoRiego(terreno, horasTranscurridas)
+    const descuento = calcularDescuentoRiego(terreno, horasTranscurridas);
 
     if (descuento > 0) {
-      const nuevaAgua = Math.max(0, terreno.agua_actual_m3 - descuento)
+      const nuevaAgua = Math.max(0, terreno.agua_actual_m3 - descuento);
       await db.terrenos.update(terreno.id, {
         agua_actual_m3: nuevaAgua,
-        'sistema_riego.ultima_actualizacion': getCurrentTimestamp(),
+        "sistema_riego.ultima_actualizacion": getCurrentTimestamp(),
         updated_at: getCurrentTimestamp(),
-      })
-      onRefetch()
+      });
+      onRefetch();
     }
 
-    return descuento
-  }, [terreno, onRefetch])
+    return descuento;
+  }, [terreno, onRefetch]);
 
   return {
     entradas,
@@ -289,13 +330,14 @@ export function useAgua(
     registrarEntrada,
     actualizarAguaTerreno,
     aplicarDescuentoAutomatico,
-  }
+  };
 }
 ```
 
 ---
 
 ### Tarea 3: Crear Formulario de Entrada de Agua
+
 **Archivo**: `src/components/agua/EntradaAguaForm.tsx` (crear)
 
 ```typescript
@@ -438,6 +480,7 @@ export function EntradaAguaForm({
 ---
 
 ### Tarea 4: Crear Página de Agua
+
 **Archivo**: `src/app/terrenos/[id]/agua/page.tsx` (crear)
 
 ```typescript
@@ -522,6 +565,7 @@ export default function AguaPage({
 ---
 
 ### Tarea 5: Crear Componente Resumen de Agua
+
 **Archivo**: `src/components/agua/ResumenAgua.tsx` (crear)
 
 ```typescript
@@ -607,16 +651,19 @@ export function ResumenAgua({
 ---
 
 ### Tarea 6: INTEGRAR Agua en Navegación
+
 **Archivos**: `src/app/agua/page.tsx` (crear), `src/app/page.tsx` (actualizar)
 
 **Cambios requeridos:**
 
 1. **Crear ruta /agua** con página dedicada:
+
    ```
    src/app/agua/page.tsx
    ```
 
 2. **Link en header** de la página principal:
+
    ```typescript
    <Link href="/agua">Agua</Link>
    ```

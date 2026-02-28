@@ -48,11 +48,11 @@ ROI = (Neto / Costos) × 100%
 
 ```typescript
 interface EconomiaCultivo {
-  rendimiento_kg_año: number      // Pre-cargado
-  precio_venta_kg: number         // Usuario ingresa
-  costo_semilla: number           // Pre-cargado
-  costo_agua_m3: number           // Usuario ingresa
-  costo_mano_obra?: number        // Usuario ingresa
+  rendimiento_kg_año: number; // Pre-cargado
+  precio_venta_kg: number; // Usuario ingresa
+  costo_semilla: number; // Pre-cargado
+  costo_agua_m3: number; // Usuario ingresa
+  costo_mano_obra?: number; // Usuario ingresa
 }
 ```
 

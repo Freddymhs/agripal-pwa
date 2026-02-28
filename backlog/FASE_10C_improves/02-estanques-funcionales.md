@@ -32,11 +32,11 @@ Cada estanque necesita configurar cómo distribuye agua:
 
 ```typescript
 interface DistribucionAgua {
-  tipo: 'goteo_manual' | 'goteo_electrico' | 'aspersion' | 'inundacion'
-  litros_hora: number
-  horas_por_dia: number
-  dias_por_semana: number
-  zonas_conectadas: string[] // IDs de zonas de cultivo que riega
+  tipo: "goteo_manual" | "goteo_electrico" | "aspersion" | "inundacion";
+  litros_hora: number;
+  horas_por_dia: number;
+  dias_por_semana: number;
+  zonas_conectadas: string[]; // IDs de zonas de cultivo que riega
 }
 ```
 

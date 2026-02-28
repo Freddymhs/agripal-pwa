@@ -9,23 +9,25 @@
 ## Estado Actual del Codebase
 
 **Modelo YA existe** en `src/types/index.ts` (linea ~451):
+
 ```typescript
 export interface Cosecha {
-  id: string
-  zona_id: string
-  cultivo_id: string
-  fecha: string
-  cantidad_kg: number
-  calidad: 'A' | 'B' | 'C'
-  precio_venta_clp?: number
-  destino?: string
-  notas?: string
-  created_at: string
-  updated_at: string
+  id: string;
+  zona_id: string;
+  cultivo_id: string;
+  fecha: string;
+  cantidad_kg: number;
+  calidad: "A" | "B" | "C";
+  precio_venta_clp?: number;
+  destino?: string;
+  notas?: string;
+  created_at: string;
+  updated_at: string;
 }
 ```
 
 **Tabla YA existe** en IndexedDB (`src/lib/db/index.ts`, linea 28):
+
 ```
 cosechas: '++id, zona_id, cultivo_id, fecha, lastModified'
 ```

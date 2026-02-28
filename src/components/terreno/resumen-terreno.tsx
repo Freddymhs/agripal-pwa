@@ -1,33 +1,36 @@
-'use client'
+"use client";
 
-import type { Terreno } from '@/types'
-import { ChecklistLegal } from './checklist-legal'
+import type { Terreno } from "@/types";
+import { ChecklistLegal } from "./checklist-legal";
 
 interface ResumenTerrenoProps {
-  terreno: Terreno
-  onConfiguracion?: () => void
+  terreno: Terreno;
+  onConfiguracion?: () => void;
 }
 
-export function ResumenTerreno({ terreno, onConfiguracion }: ResumenTerrenoProps) {
-  const tieneUbicacion = terreno.ubicacion?.region || terreno.ubicacion?.comuna
-  const tieneConectividad = terreno.conectividad?.señal_celular !== undefined
-  const tieneInfraestructura = terreno.infraestructura?.acceso !== undefined
+export function ResumenTerreno({
+  terreno,
+  onConfiguracion,
+}: ResumenTerrenoProps) {
+  const tieneUbicacion = terreno.ubicacion?.region || terreno.ubicacion?.comuna;
+  const tieneConectividad = terreno.conectividad?.señal_celular !== undefined;
+  const tieneInfraestructura = terreno.infraestructura?.acceso !== undefined;
 
   const calcularDistanciaPromedio = () => {
-    const distancias = terreno.distancias
-    if (!distancias) return null
+    const distancias = terreno.distancias;
+    if (!distancias) return null;
     const valores = [
       distancias.pueblo_cercano_km,
       distancias.ciudad_principal_km,
       distancias.hospital_km,
       distancias.ferreteria_agricola_km,
       distancias.mercado_mayorista_km,
-    ].filter((v): v is number => v !== undefined)
-    if (valores.length === 0) return null
-    return Math.round(valores.reduce((a, b) => a + b, 0) / valores.length)
-  }
+    ].filter((v): v is number => v !== undefined);
+    if (valores.length === 0) return null;
+    return Math.round(valores.reduce((a, b) => a + b, 0) / valores.length);
+  };
 
-  const distanciaPromedio = calcularDistanciaPromedio()
+  const distanciaPromedio = calcularDistanciaPromedio();
 
   return (
     <div className="bg-white rounded-lg border shadow-sm">
@@ -53,7 +56,9 @@ export function ResumenTerreno({ terreno, onConfiguracion }: ResumenTerrenoProps
           </div>
           <div>
             <div className="text-gray-500">Área</div>
-            <div className="font-medium text-gray-900">{terreno.area_m2} m²</div>
+            <div className="font-medium text-gray-900">
+              {terreno.area_m2} m²
+            </div>
           </div>
         </div>
 
@@ -63,10 +68,12 @@ export function ResumenTerreno({ terreno, onConfiguracion }: ResumenTerrenoProps
             <div className="text-gray-900">
               {[terreno.ubicacion?.comuna, terreno.ubicacion?.region]
                 .filter(Boolean)
-                .join(', ')}
+                .join(", ")}
             </div>
             {terreno.ubicacion?.direccion && (
-              <div className="text-gray-600 text-xs">{terreno.ubicacion.direccion}</div>
+              <div className="text-gray-600 text-xs">
+                {terreno.ubicacion.direccion}
+              </div>
             )}
           </div>
         )}
@@ -76,7 +83,9 @@ export function ResumenTerreno({ terreno, onConfiguracion }: ResumenTerrenoProps
         {distanciaPromedio !== null && (
           <div className="text-sm">
             <div className="text-gray-500">Distancia promedio servicios</div>
-            <div className="font-medium text-gray-900">~{distanciaPromedio} km</div>
+            <div className="font-medium text-gray-900">
+              ~{distanciaPromedio} km
+            </div>
           </div>
         )}
 
@@ -115,11 +124,11 @@ export function ResumenTerreno({ terreno, onConfiguracion }: ResumenTerrenoProps
           <div className="text-sm">
             <div className="text-gray-500">Acceso</div>
             <div className="text-gray-900 capitalize">
-              {terreno.infraestructura.acceso.replaceAll('_', ' ')}
+              {terreno.infraestructura.acceso.replaceAll("_", " ")}
             </div>
           </div>
         )}
       </div>
     </div>
-  )
+  );
 }

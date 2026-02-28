@@ -16,6 +16,7 @@ Mostrar datos climáticos de la zona en un panel informativo. Por ahora serán d
 ## Datos Climáticos a Mostrar
 
 ### 1. Lluvia
+
 ```typescript
 lluvia: {
   anual_mm: number            // 1 mm (Arica casi no llueve)
@@ -26,15 +27,17 @@ lluvia: {
 ```
 
 ### 2. Temperatura
+
 ```typescript
 temperatura: {
-  minima_historica_c: number  // 11°C
-  maxima_verano_c: number     // 32°C
-  horas_frio_aprox: number    // 40 (muy baja vernalización)
+  minima_historica_c: number; // 11°C
+  maxima_verano_c: number; // 32°C
+  horas_frio_aprox: number; // 40 (muy baja vernalización)
 }
 ```
 
 ### 3. Heladas
+
 ```typescript
 heladas: {
   anuales: number             // 0 en costa
@@ -44,6 +47,7 @@ heladas: {
 ```
 
 ### 4. Viento
+
 ```typescript
 viento: {
   max_kmh: number             // 25
@@ -53,22 +57,25 @@ viento: {
 ```
 
 ### 5. Humedad y Radiación
+
 ```typescript
 humedad_radiacion: {
-  humedad_relativa_pct: number    // 70%
-  radiacion_mj_m2_dia: number     // 18 MJ/m²/día
+  humedad_relativa_pct: number; // 70%
+  radiacion_mj_m2_dia: number; // 18 MJ/m²/día
 }
 ```
 
 ### 6. Evapotranspiración
+
 ```typescript
 evapotranspiracion: {
-  et0_mm_dia: number          // 4.5 mm/día
-  nota: string                // Para ajustar riegos
+  et0_mm_dia: number; // 4.5 mm/día
+  nota: string; // Para ajustar riegos
 }
 ```
 
 ### 7. Estacionalidad
+
 ```typescript
 estacionalidad: {
   verano: { meses: string[], caracteristica: string, factor_agua: number }
@@ -83,6 +90,7 @@ estacionalidad: {
 ## Tareas
 
 ### Tarea 1: Crear Datos Estáticos Clima Arica
+
 **Archivo**: `src/lib/data/clima-arica.ts`
 
 ```typescript
@@ -108,15 +116,17 @@ export const CLIMA_ARICA = {
     "DMC / Red AgroMet",
     "INIA RedAgroclima",
     "NASA POWER",
-    "Open-Meteo"
-  ]
-}
+    "Open-Meteo",
+  ],
+};
 ```
 
 ### Tarea 2: Crear Panel Clima
+
 **Archivo**: `src/components/clima/panel-clima.tsx`
 
 Panel con secciones colapsables mostrando:
+
 - 🌧️ Lluvia
 - 🌡️ Temperatura
 - ❄️ Heladas
@@ -126,14 +136,17 @@ Panel con secciones colapsables mostrando:
 - 📅 Estacionalidad
 
 ### Tarea 3: Crear Página /clima
+
 **Archivo**: `src/app/clima/page.tsx`
 
 Página dedicada con toda la información climática.
 
 ### Tarea 4: Widget Clima en Sidebar
+
 **Archivo**: `src/components/clima/widget-clima.tsx`
 
 Mini-widget que muestra:
+
 - Temporada actual
 - Factor de agua actual (ej: "Verano: 1.4×")
 - ET0 del día
@@ -162,12 +175,12 @@ Mini-widget que muestra:
 
 ## Fuentes de Datos (para futuro)
 
-| Fuente | Datos | API |
-|--------|-------|-----|
-| Open-Meteo | Pronóstico, ET0 | Gratis, sin key |
-| NASA POWER | Radiación, temp histórica | Gratis |
-| INIA RedAgroclima | Datos regionales Chile | Web scraping |
-| DMC Chile | Series históricas | Manual |
+| Fuente            | Datos                     | API             |
+| ----------------- | ------------------------- | --------------- |
+| Open-Meteo        | Pronóstico, ET0           | Gratis, sin key |
+| NASA POWER        | Radiación, temp histórica | Gratis          |
+| INIA RedAgroclima | Datos regionales Chile    | Web scraping    |
+| DMC Chile         | Series históricas         | Manual          |
 
 ---
 

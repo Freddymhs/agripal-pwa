@@ -4,6 +4,48 @@
 **Prioridad**: 🔴 ALTA
 **Dependencias**: FASE_13
 **Estimación**: 8-10 horas
+**Última revisión**: 2026-03-01 (auditado + correcciones críticas al plan)
+
+## Estado Real del Código (auditado 2026-03-01)
+
+| Aspecto                            | Estado                                         |
+| ---------------------------------- | ---------------------------------------------- |
+| `mercadopago` SDK instalado        | ❌ NO                                          |
+| `@mercadopago/sdk-react` instalado | ❌ NO                                          |
+| `src/app/billing/`                 | ❌ NO existe                                   |
+| `src/app/api/`                     | ❌ NO existe (ningún Route Handler creado aún) |
+| `src/hooks/use-subscription.ts`    | ❌ NO existe                                   |
+| `supabase/migrations/billing`      | ❌ NO existe                                   |
+
+**Resumen**: 0% implementado. Depende completamente de FASE_12 (Supabase DB) y FASE_13 (Auth real).
+
+## Correcciones Críticas al Plan Original
+
+### 1. El middleware usa librería deprecated
+
+El plan original usa `createMiddlewareClient` de `@supabase/auth-helpers-nextjs`.
+**Corrección**: usar `createServerClient` de `@supabase/ssr` (ver patrón en FASE_13).
+
+### 2. El guard de billing va en `proxy.ts`, no en `middleware.ts`
+
+Next.js 16 usa `proxy.ts` con `export function proxy()`.
+El guard de billing debe extender el `proxy.ts` existente, no crear un nuevo `middleware.ts`.
+
+### 3. `supabaseAdmin` no existe aún
+
+El webhook usa `supabaseAdmin` de `src/lib/supabase/client.ts`.
+Este cliente con `SERVICE_ROLE_KEY` se crea en FASE_12. Requerido para que el webhook funcione sin RLS.
+
+### 4. `console.log/error` directo — prohibido en producción
+
+El código del webhook usa `console.log/error` directamente.
+**Corrección**: usar el logger centralizado del proyecto (`src/lib/logger.ts`).
+
+### 5. `estado: payment.status as any` — prohibido
+
+**Corrección**: mapear explícitamente los estados de MercadoPago al enum `estado_pago`.
+
+---
 
 ---
 
@@ -12,6 +54,7 @@
 Implementar sistema de suscripciones mensuales con MercadoPago para convertir AgriPlan en un SaaS.
 
 **Características:**
+
 1. Suscripción mensual de **9,990 CLP** (~$10 USD)
 2. Verificación de pago activo en cada sesión
 3. Bloqueo de app si no hay suscripción válida
@@ -26,6 +69,7 @@ Implementar sistema de suscripciones mensuales con MercadoPago para convertir Ag
 ### Modelo de Monetización
 
 **Plan Único:**
+
 - **Precio:** 9,990 CLP/mes (Chile)
 - **Equivalente:** ~$10 USD / ~$10.000 CLP
 - **Facturación:** Mensual recurrente
@@ -56,6 +100,7 @@ Implementar sistema de suscripciones mensuales con MercadoPago para convertir Ag
 ```
 
 **Estados de suscripción:**
+
 - `trialing` - Periodo de prueba activo
 - `active` - Pago activo, app desbloqueada
 - `past_due` - Pago rechazado, gracia de 3 días
@@ -283,18 +328,18 @@ pnpm add mercadopago
 **Archivo**: `src/lib/mercadopago/client.ts` (crear)
 
 ```typescript
-import { MercadoPagoConfig, Preference, Payment } from 'mercadopago'
+import { MercadoPagoConfig, Preference, Payment } from "mercadopago";
 
 if (!process.env.MP_ACCESS_TOKEN) {
-  throw new Error('MP_ACCESS_TOKEN no configurado')
+  throw new Error("MP_ACCESS_TOKEN no configurado");
 }
 
 export const mpClient = new MercadoPagoConfig({
   accessToken: process.env.MP_ACCESS_TOKEN,
-})
+});
 
-export const preferenceClient = new Preference(mpClient)
-export const paymentClient = new Payment(mpClient)
+export const preferenceClient = new Preference(mpClient);
+export const paymentClient = new Payment(mpClient);
 ```
 
 ---
@@ -304,30 +349,33 @@ export const paymentClient = new Payment(mpClient)
 **Archivo**: `src/app/api/billing/checkout/route.ts` (crear)
 
 ```typescript
-import { NextResponse } from 'next/server'
-import { createServerSupabaseClient } from '@/lib/supabase/server'
-import { preferenceClient } from '@/lib/mercadopago/client'
+import { NextResponse } from "next/server";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { preferenceClient } from "@/lib/mercadopago/client";
 
 export async function POST(request: Request) {
   try {
-    const supabase = createServerSupabaseClient()
+    const supabase = createServerSupabaseClient();
 
     const {
       data: { user },
-    } = await supabase.auth.getUser()
+    } = await supabase.auth.getUser();
 
     if (!user) {
-      return NextResponse.json({ error: 'No autenticado' }, { status: 401 })
+      return NextResponse.json({ error: "No autenticado" }, { status: 401 });
     }
 
     const { data: plan } = await supabase
-      .from('planes')
+      .from("planes")
       .select()
-      .eq('activo', true)
-      .single()
+      .eq("activo", true)
+      .single();
 
     if (!plan) {
-      return NextResponse.json({ error: 'Plan no encontrado' }, { status: 404 })
+      return NextResponse.json(
+        { error: "Plan no encontrado" },
+        { status: 404 },
+      );
     }
 
     const preference = await preferenceClient.create({
@@ -336,10 +384,10 @@ export async function POST(request: Request) {
           {
             id: plan.id,
             title: plan.nombre,
-            description: plan.descripcion || '',
+            description: plan.descripcion || "",
             quantity: 1,
             unit_price: plan.precio,
-            currency_id: 'CLP',
+            currency_id: "CLP",
           },
         ],
         payer: {
@@ -350,39 +398,39 @@ export async function POST(request: Request) {
           failure: `${process.env.NEXT_PUBLIC_APP_URL}/billing/failure`,
           pending: `${process.env.NEXT_PUBLIC_APP_URL}/billing/pending`,
         },
-        auto_return: 'approved',
+        auto_return: "approved",
         notification_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/webhooks/mercadopago`,
         metadata: {
           user_id: user.id,
           plan_id: plan.id,
         },
       },
-    })
+    });
 
     const { data: pago } = await supabase
-      .from('pagos')
+      .from("pagos")
       .insert({
         usuario_id: user.id,
         monto: plan.precio,
-        moneda: 'CLP',
-        estado: 'pending',
+        moneda: "CLP",
+        estado: "pending",
         mp_preference_id: preference.id,
         descripcion: plan.nombre,
       })
       .select()
-      .single()
+      .single();
 
     return NextResponse.json({
       preferenceId: preference.id,
       initPoint: preference.init_point,
       pagoId: pago.id,
-    })
+    });
   } catch (error) {
-    console.error('Error creando checkout:', error)
+    console.error("Error creando checkout:", error);
     return NextResponse.json(
-      { error: 'Error al crear checkout' },
-      { status: 500 }
-    )
+      { error: "Error al crear checkout" },
+      { status: 500 },
+    );
   }
 }
 ```
@@ -394,90 +442,96 @@ export async function POST(request: Request) {
 **Archivo**: `src/app/api/webhooks/mercadopago/route.ts` (crear)
 
 ```typescript
-import { NextResponse } from 'next/server'
-import { supabaseAdmin } from '@/lib/supabase/client'
-import { paymentClient } from '@/lib/mercadopago/client'
+import { NextResponse } from "next/server";
+import { supabaseAdmin } from "@/lib/supabase/client";
+import { paymentClient } from "@/lib/mercadopago/client";
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json()
+    const body = await request.json();
 
-    console.log('Webhook recibido:', body)
+    console.log("Webhook recibido:", body);
 
-    if (body.type === 'payment') {
-      const paymentId = body.data.id
+    if (body.type === "payment") {
+      const paymentId = body.data.id;
 
-      const payment = await paymentClient.get({ id: paymentId })
+      const payment = await paymentClient.get({ id: paymentId });
 
       const { data: pago } = await supabaseAdmin
-        .from('pagos')
+        .from("pagos")
         .select()
-        .eq('mp_payment_id', paymentId.toString())
-        .single()
+        .eq("mp_payment_id", paymentId.toString())
+        .single();
 
       if (!pago) {
-        const metadata = payment.metadata as { user_id: string; plan_id: string }
+        const metadata = payment.metadata as {
+          user_id: string;
+          plan_id: string;
+        };
 
-        await supabaseAdmin.from('pagos').insert({
+        await supabaseAdmin.from("pagos").insert({
           usuario_id: metadata.user_id,
           monto: payment.transaction_amount || 0,
-          moneda: payment.currency_id || 'CLP',
+          moneda: payment.currency_id || "CLP",
           estado: payment.status as any,
           mp_payment_id: paymentId.toString(),
           mp_merchant_order_id: payment.order?.id?.toString(),
-          descripcion: payment.description || '',
+          descripcion: payment.description || "",
           metadata: payment.metadata,
-        })
+        });
       } else {
         await supabaseAdmin
-          .from('pagos')
+          .from("pagos")
           .update({
             estado: payment.status as any,
             updated_at: new Date().toISOString(),
           })
-          .eq('id', pago.id)
+          .eq("id", pago.id);
       }
 
-      if (payment.status === 'approved') {
-        const metadata = payment.metadata as { user_id: string; plan_id: string }
+      if (payment.status === "approved") {
+        const metadata = payment.metadata as {
+          user_id: string;
+          plan_id: string;
+        };
 
         const { data: suscripcionActual } = await supabaseAdmin
-          .from('suscripciones')
+          .from("suscripciones")
           .select()
-          .eq('usuario_id', metadata.user_id)
-          .single()
+          .eq("usuario_id", metadata.user_id)
+          .single();
 
-        const now = new Date()
-        const periodEnd = new Date(now)
-        periodEnd.setMonth(periodEnd.getMonth() + 1)
+        const now = new Date();
+        const periodEnd = new Date(now);
+        periodEnd.setMonth(periodEnd.getMonth() + 1);
 
         if (!suscripcionActual) {
-          await supabaseAdmin.from('suscripciones').insert({
+          await supabaseAdmin.from("suscripciones").insert({
             usuario_id: metadata.user_id,
             plan_id: metadata.plan_id,
-            estado: 'active',
+            estado: "active",
             current_period_start: now.toISOString(),
             current_period_end: periodEnd.toISOString(),
             mp_payment_id: paymentId.toString(),
-          })
+          });
         } else {
           await supabaseAdmin
-            .from('suscripciones')
+            .from("suscripciones")
             .update({
-              estado: 'active',
+              estado: "active",
               current_period_start: now.toISOString(),
               current_period_end: periodEnd.toISOString(),
               updated_at: now.toISOString(),
             })
-            .eq('id', suscripcionActual.id)
+            .eq("id", suscripcionActual.id);
         }
       }
     }
 
-    return NextResponse.json({ success: true })
+    return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Error procesando webhook:', error)
-    return NextResponse.json({ error: 'Error interno' }, { status: 500 })
+    console.error("Error procesando webhook:", error);
+    return NextResponse.json({ error: "Error interno" }, { status: 500 });
   }
 }
 ```
@@ -489,85 +543,85 @@ export async function POST(request: Request) {
 **Archivo**: `src/hooks/use-subscription.ts` (crear)
 
 ```typescript
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabase/client'
-import { useAuthContext } from '@/components/providers/AuthProvider'
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase/client";
+import { useAuthContext } from "@/components/providers/AuthProvider";
 
 interface Subscription {
-  id: string
-  plan_id: string
-  estado: 'trialing' | 'active' | 'past_due' | 'canceled' | 'inactive'
-  current_period_end: string
-  trial_end?: string
+  id: string;
+  plan_id: string;
+  estado: "trialing" | "active" | "past_due" | "canceled" | "inactive";
+  current_period_end: string;
+  trial_end?: string;
 }
 
 interface UseSubscription {
-  subscription: Subscription | null
-  loading: boolean
-  isActive: boolean
-  isTrialing: boolean
-  daysRemaining: number
-  needsPayment: boolean
+  subscription: Subscription | null;
+  loading: boolean;
+  isActive: boolean;
+  isTrialing: boolean;
+  daysRemaining: number;
+  needsPayment: boolean;
 }
 
 export function useSubscription(): UseSubscription {
-  const { usuario } = useAuthContext()
-  const [subscription, setSubscription] = useState<Subscription | null>(null)
-  const [loading, setLoading] = useState(true)
+  const { usuario } = useAuthContext();
+  const [subscription, setSubscription] = useState<Subscription | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!usuario) {
-      setLoading(false)
-      return
+      setLoading(false);
+      return;
     }
 
     const fetchSubscription = async () => {
       const { data } = await supabase
-        .from('suscripciones')
+        .from("suscripciones")
         .select()
-        .eq('usuario_id', usuario.id)
-        .single()
+        .eq("usuario_id", usuario.id)
+        .single();
 
-      setSubscription(data)
-      setLoading(false)
-    }
+      setSubscription(data);
+      setLoading(false);
+    };
 
-    fetchSubscription()
+    fetchSubscription();
 
     const channel = supabase
-      .channel('subscription-changes')
+      .channel("subscription-changes")
       .on(
-        'postgres_changes',
+        "postgres_changes",
         {
-          event: '*',
-          schema: 'public',
-          table: 'suscripciones',
+          event: "*",
+          schema: "public",
+          table: "suscripciones",
           filter: `usuario_id=eq.${usuario.id}`,
         },
         (payload) => {
-          setSubscription(payload.new as Subscription)
-        }
+          setSubscription(payload.new as Subscription);
+        },
       )
-      .subscribe()
+      .subscribe();
 
     return () => {
-      channel.unsubscribe()
-    }
-  }, [usuario])
+      channel.unsubscribe();
+    };
+  }, [usuario]);
 
-  const isActive = subscription?.estado === 'active'
-  const isTrialing = subscription?.estado === 'trialing'
+  const isActive = subscription?.estado === "active";
+  const isTrialing = subscription?.estado === "trialing";
 
   const daysRemaining = subscription?.current_period_end
     ? Math.ceil(
         (new Date(subscription.current_period_end).getTime() - Date.now()) /
-          (1000 * 60 * 60 * 24)
+          (1000 * 60 * 60 * 24),
       )
-    : 0
+    : 0;
 
-  const needsPayment = !isActive && !isTrialing
+  const needsPayment = !isActive && !isTrialing;
 
   return {
     subscription,
@@ -576,73 +630,73 @@ export function useSubscription(): UseSubscription {
     isTrialing,
     daysRemaining,
     needsPayment,
-  }
+  };
 }
 ```
 
 ---
 
-### Tarea 6: Middleware de Verificación de Suscripción
+### Tarea 6: Extender `proxy.ts` con verificación de suscripción
 
-**Archivo**: `src/middleware.ts` (modificar)
+**Archivo**: `src/proxy.ts` (modificar — extender el guard existente de FASE_13)
+
+> Next.js 16 usa `proxy.ts` con `export function proxy()`. No crear `middleware.ts`.
+> La librería correcta es `@supabase/ssr`, no `auth-helpers-nextjs` (deprecated).
 
 ```typescript
-import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs'
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
-import type { Database } from '@/types/supabase'
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { createSupabaseMiddlewareClient } from "@/lib/supabase/middleware";
+import { ROUTES } from "@/lib/constants/routes";
 
-export async function middleware(req: NextRequest) {
-  const res = NextResponse.next()
-  const supabase = createMiddlewareClient<Database>({ req, res })
+export async function proxy(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+  const response = NextResponse.next({ request });
 
+  const isBillingPage = pathname.startsWith("/billing");
+  const isAuthPage = pathname.startsWith("/auth");
+  const isAppPage = pathname.startsWith("/app");
+
+  // Solo actuar en rutas protegidas
+  if (!isAppPage && !isBillingPage) {
+    return response;
+  }
+
+  const supabase = createSupabaseMiddlewareClient(request, response);
+
+  // getUser() verifica con Supabase API — forma segura para guards
   const {
-    data: { session },
-  } = await supabase.auth.getSession()
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  const isAuthPage = req.nextUrl.pathname.startsWith('/auth')
-  const isBillingPage = req.nextUrl.pathname.startsWith('/billing')
-
-  // Auth check
-  if (!session && !isAuthPage && !isBillingPage) {
-    const redirectUrl = req.nextUrl.clone()
-    redirectUrl.pathname = '/auth/login'
-    redirectUrl.searchParams.set('redirectedFrom', req.nextUrl.pathname)
-    return NextResponse.redirect(redirectUrl)
+  if (!user) {
+    const loginUrl = new URL(ROUTES.AUTH_LOGIN, request.url);
+    loginUrl.searchParams.set("redirect", pathname);
+    return NextResponse.redirect(loginUrl);
   }
 
-  if (session && isAuthPage) {
-    const redirectUrl = req.nextUrl.clone()
-    redirectUrl.pathname = '/'
-    return NextResponse.redirect(redirectUrl)
-  }
-
-  // Billing check (solo si está autenticado y no es página de billing/auth)
-  if (session && !isBillingPage && !isAuthPage) {
+  // Verificar suscripción activa (solo en /app, no en /billing)
+  if (isAppPage) {
     const { data: suscripcion } = await supabase
-      .from('suscripciones')
-      .select()
-      .eq('usuario_id', session.user.id)
-      .single()
+      .from("suscripciones")
+      .select("estado, current_period_end")
+      .eq("usuario_id", user.id)
+      .single();
 
-    const isSubscriptionActive =
-      suscripcion?.estado === 'active' || suscripcion?.estado === 'trialing'
+    const isActive =
+      suscripcion?.estado === "active" || suscripcion?.estado === "trialing";
 
-    if (!isSubscriptionActive) {
-      const redirectUrl = req.nextUrl.clone()
-      redirectUrl.pathname = '/billing/subscribe'
-      return NextResponse.redirect(redirectUrl)
+    if (!isActive) {
+      return NextResponse.redirect(new URL("/billing/subscribe", request.url));
     }
   }
 
-  return res
+  return response;
 }
 
 export const config = {
-  matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|api|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
-  ],
-}
+  matcher: ["/app/:path*", "/billing/:path*"],
+};
 ```
 
 ---
@@ -966,22 +1020,26 @@ export function SubscriptionBadge() {
 ## Criterios de Aceptación
 
 ### Infraestructura
+
 - [ ] Cuenta de MercadoPago configurada
 - [ ] Webhooks funcionando correctamente
 - [ ] Schema de billing en Supabase
 
 ### Flujo de Pago
+
 - [ ] Crear checkout genera preferencia de MercadoPago
 - [ ] Botón de pago redirige a MercadoPago
 - [ ] Pago aprobado activa suscripción
 - [ ] Webhook actualiza estado en DB
 
 ### Middleware
+
 - [ ] Usuarios sin suscripción activa son redirigidos a /billing/subscribe
 - [ ] Usuarios con trial pueden usar la app
 - [ ] Usuarios con suscripción activa tienen acceso completo
 
 ### UI
+
 - [ ] Página de suscripción muestra precio y beneficios
 - [ ] Badge de estado de suscripción en header
 - [ ] Página de gestión muestra detalles y permite cancelar
@@ -1017,18 +1075,21 @@ export function SubscriptionBadge() {
 ## Consideraciones de Producción
 
 ### Seguridad
+
 - [ ] Validar webhook signature de MercadoPago
 - [ ] Rate limiting en endpoints de billing
 - [ ] Logs de todas las transacciones
 - [ ] Alertas de pagos rechazados
 
 ### UX
+
 - [ ] Email de confirmación de pago
 - [ ] Email de recordatorio antes de expiración
 - [ ] Gracia de 3 días para pagos rechazados
 - [ ] Opción de exportar datos antes de cancelar
 
 ### Legal
+
 - [ ] Términos y condiciones de servicio
 - [ ] Política de privacidad
 - [ ] Política de reembolsos

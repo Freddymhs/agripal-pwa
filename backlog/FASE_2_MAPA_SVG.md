@@ -18,6 +18,7 @@ Crear componente de mapa interactivo usando SVG puro con zoom, pan y renderizado
 ## Funcionalidades Implementadas (adicionales al plan original)
 
 ### Panel de Información del Terreno
+
 - Muestra dimensiones totales del terreno (ancho × alto)
 - Muestra área total, área usada y área disponible
 - Colores diferenciados (naranja para usado, verde para disponible)
@@ -28,44 +29,45 @@ Crear componente de mapa interactivo usando SVG puro con zoom, pan y renderizado
 ## Tareas
 
 ### Tarea 1: Crear Sistema de Coordenadas
+
 **Archivo**: `src/lib/utils/coordinates.ts` (crear)
 
 ```typescript
 // Escala: 1 metro = 10 píxeles
-export const PIXELS_POR_METRO = 10
+export const PIXELS_POR_METRO = 10;
 
 export interface Point {
-  x: number
-  y: number
+  x: number;
+  y: number;
 }
 
 export interface Rect {
-  x: number
-  y: number
-  ancho: number
-  alto: number
+  x: number;
+  y: number;
+  ancho: number;
+  alto: number;
 }
 
 export function metrosToPixels(metros: number): number {
-  return metros * PIXELS_POR_METRO
+  return metros * PIXELS_POR_METRO;
 }
 
 export function pixelsToMetros(pixels: number): number {
-  return pixels / PIXELS_POR_METRO
+  return pixels / PIXELS_POR_METRO;
 }
 
 export function pointToPixels(point: Point): Point {
   return {
     x: metrosToPixels(point.x),
     y: metrosToPixels(point.y),
-  }
+  };
 }
 
 export function pointToMetros(point: Point): Point {
   return {
     x: pixelsToMetros(point.x),
     y: pixelsToMetros(point.y),
-  }
+  };
 }
 
 export function rectToPixels(rect: Rect): Rect {
@@ -74,7 +76,7 @@ export function rectToPixels(rect: Rect): Rect {
     y: metrosToPixels(rect.y),
     ancho: metrosToPixels(rect.ancho),
     alto: metrosToPixels(rect.alto),
-  }
+  };
 }
 
 // Verificar si un punto está dentro de un rectángulo
@@ -84,112 +86,120 @@ export function isPointInRect(point: Point, rect: Rect): boolean {
     point.x <= rect.x + rect.ancho &&
     point.y >= rect.y &&
     point.y <= rect.y + rect.alto
-  )
+  );
 }
 
 // Snap a grid (opcional, para alineación)
 export function snapToGrid(value: number, gridSize = 0.5): number {
-  return Math.round(value / gridSize) * gridSize
+  return Math.round(value / gridSize) * gridSize;
 }
 ```
 
 ---
 
 ### Tarea 2: Crear Hook useMapControls
+
 **Archivo**: `src/hooks/useMapControls.ts` (crear)
 
 ```typescript
-'use client'
+"use client";
 
-import { useCallback, useRef, useState, useEffect } from 'react'
-import type { Point } from '@/lib/utils/coordinates'
+import { useCallback, useRef, useState, useEffect } from "react";
+import type { Point } from "@/lib/utils/coordinates";
 
 interface UseMapControls {
-  scale: number
-  offset: Point
-  isPanning: boolean
+  scale: number;
+  offset: Point;
+  isPanning: boolean;
 
   // Event handlers para el SVG
-  handleWheel: (e: WheelEvent) => void
-  handleMouseDown: (e: React.MouseEvent) => void
-  handleMouseMove: (e: React.MouseEvent) => void
-  handleMouseUp: () => void
-  handleMouseLeave: () => void
+  handleWheel: (e: WheelEvent) => void;
+  handleMouseDown: (e: React.MouseEvent) => void;
+  handleMouseMove: (e: React.MouseEvent) => void;
+  handleMouseUp: () => void;
+  handleMouseLeave: () => void;
 
   // Acciones
-  zoomIn: () => void
-  zoomOut: () => void
-  resetView: () => void
+  zoomIn: () => void;
+  zoomOut: () => void;
+  resetView: () => void;
 
   // Transform string para SVG
-  getTransform: () => string
+  getTransform: () => string;
 }
 
 export function useMapControls(
   minScale = 0.5,
   maxScale = 3,
-  initialScale = 1
+  initialScale = 1,
 ): UseMapControls {
-  const [scale, setScale] = useState(initialScale)
-  const [offset, setOffset] = useState<Point>({ x: 0, y: 0 })
-  const [isPanning, setIsPanning] = useState(false)
-  const lastPosRef = useRef<Point>({ x: 0, y: 0 })
+  const [scale, setScale] = useState(initialScale);
+  const [offset, setOffset] = useState<Point>({ x: 0, y: 0 });
+  const [isPanning, setIsPanning] = useState(false);
+  const lastPosRef = useRef<Point>({ x: 0, y: 0 });
 
   // Zoom con rueda del mouse
-  const handleWheel = useCallback((e: WheelEvent) => {
-    e.preventDefault()
-    const delta = e.deltaY > 0 ? -0.1 : 0.1
-    setScale(s => Math.max(minScale, Math.min(maxScale, s + delta)))
-  }, [minScale, maxScale])
+  const handleWheel = useCallback(
+    (e: WheelEvent) => {
+      e.preventDefault();
+      const delta = e.deltaY > 0 ? -0.1 : 0.1;
+      setScale((s) => Math.max(minScale, Math.min(maxScale, s + delta)));
+    },
+    [minScale, maxScale],
+  );
 
   // Pan con mouse
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    if (e.button === 0) { // Solo click izquierdo
-      setIsPanning(true)
-      lastPosRef.current = { x: e.clientX, y: e.clientY }
+    if (e.button === 0) {
+      // Solo click izquierdo
+      setIsPanning(true);
+      lastPosRef.current = { x: e.clientX, y: e.clientY };
     }
-  }, [])
+  }, []);
 
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!isPanning) return
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent) => {
+      if (!isPanning) return;
 
-    const dx = e.clientX - lastPosRef.current.x
-    const dy = e.clientY - lastPosRef.current.y
+      const dx = e.clientX - lastPosRef.current.x;
+      const dy = e.clientY - lastPosRef.current.y;
 
-    setOffset(prev => ({
-      x: prev.x + dx,
-      y: prev.y + dy,
-    }))
+      setOffset((prev) => ({
+        x: prev.x + dx,
+        y: prev.y + dy,
+      }));
 
-    lastPosRef.current = { x: e.clientX, y: e.clientY }
-  }, [isPanning])
+      lastPosRef.current = { x: e.clientX, y: e.clientY };
+    },
+    [isPanning],
+  );
 
   const handleMouseUp = useCallback(() => {
-    setIsPanning(false)
-  }, [])
+    setIsPanning(false);
+  }, []);
 
   const handleMouseLeave = useCallback(() => {
-    setIsPanning(false)
-  }, [])
+    setIsPanning(false);
+  }, []);
 
   // Acciones de zoom
   const zoomIn = useCallback(() => {
-    setScale(s => Math.min(maxScale, s + 0.2))
-  }, [maxScale])
+    setScale((s) => Math.min(maxScale, s + 0.2));
+  }, [maxScale]);
 
   const zoomOut = useCallback(() => {
-    setScale(s => Math.max(minScale, s - 0.2))
-  }, [minScale])
+    setScale((s) => Math.max(minScale, s - 0.2));
+  }, [minScale]);
 
   const resetView = useCallback(() => {
-    setScale(initialScale)
-    setOffset({ x: 0, y: 0 })
-  }, [initialScale])
+    setScale(initialScale);
+    setOffset({ x: 0, y: 0 });
+  }, [initialScale]);
 
   // Transform string para aplicar al grupo SVG
   const getTransform = useCallback(() => {
-    return `translate(${offset.x}, ${offset.y}) scale(${scale})`
-  }, [offset, scale])
+    return `translate(${offset.x}, ${offset.y}) scale(${scale})`;
+  }, [offset, scale]);
 
   return {
     scale,
@@ -204,13 +214,14 @@ export function useMapControls(
     zoomOut,
     resetView,
     getTransform,
-  }
+  };
 }
 ```
 
 ---
 
 ### Tarea 3: Crear Componente MapaTerreno
+
 **Archivo**: `src/components/mapa/MapaTerreno.tsx` (crear)
 
 > ⚠️ **NOTA CRÍTICA - Conversión de Coordenadas**
@@ -219,16 +230,18 @@ export function useMapControls(
 > Por defecto (`preserveAspectRatio="xMidYMid meet"`), el contenido se centra y puede haber espacio vacío.
 >
 > **INCORRECTO** (no funciona):
+>
 > ```typescript
-> const x = (e.clientX - rect.left) / scale - offset.x
+> const x = (e.clientX - rect.left) / scale - offset.x;
 > ```
 >
 > **CORRECTO** (usar siempre):
+>
 > ```typescript
-> const pt = svg.createSVGPoint()
-> pt.x = e.clientX
-> pt.y = e.clientY
-> const svgPoint = pt.matrixTransform(svg.getScreenCTM()?.inverse())
+> const pt = svg.createSVGPoint();
+> pt.x = e.clientX;
+> pt.y = e.clientY;
+> const svgPoint = pt.matrixTransform(svg.getScreenCTM()?.inverse());
 > ```
 >
 > `getScreenCTM().inverse()` maneja automáticamente el escalado del viewBox al tamaño real del elemento.
@@ -394,6 +407,7 @@ export function MapaTerreno({
 ---
 
 ### Tarea 4: Crear Componente ZonaRect
+
 **Archivo**: `src/components/mapa/ZonaRect.tsx` (crear)
 
 ```typescript
@@ -484,6 +498,7 @@ export function ZonaRect({ zona, plantas, isSelected, onClick }: ZonaRectProps) 
 ---
 
 ### Tarea 5: Crear Componente MapaGrid
+
 **Archivo**: `src/components/mapa/MapaGrid.tsx` (crear)
 
 ```typescript
@@ -549,6 +564,7 @@ export function MapaGrid({ ancho, alto }: MapaGridProps) {
 ---
 
 ### Tarea 6: Crear Componente MapaControls
+
 **Archivo**: `src/components/mapa/MapaControls.tsx` (crear)
 
 ```typescript

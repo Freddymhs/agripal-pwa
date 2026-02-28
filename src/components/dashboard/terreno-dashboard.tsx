@@ -1,10 +1,10 @@
-'use client'
+"use client";
 
-import type { DashboardTerreno } from '@/types'
-import { ESTADO_AGUA } from '@/lib/constants/entities'
+import type { DashboardTerreno } from "@/types";
+import { ESTADO_AGUA } from "@/lib/constants/entities";
 
 interface TerrenoDashboardProps {
-  dashboard: DashboardTerreno
+  dashboard: DashboardTerreno;
 }
 
 export function TerrenoDashboard({ dashboard }: TerrenoDashboardProps) {
@@ -21,28 +21,38 @@ export function TerrenoDashboard({ dashboard }: TerrenoDashboardProps) {
           label="Agua disponible"
           value={`${dashboard.agua_disponible_m3.toFixed(1)} m³`}
           detail={`Consumo: ${dashboard.agua_necesaria_m3.toFixed(1)} m³/sem`}
-          color={dashboard.estado_agua === ESTADO_AGUA.OK ? 'green' : dashboard.estado_agua === ESTADO_AGUA.AJUSTADO ? 'yellow' : 'red'}
+          color={
+            dashboard.estado_agua === ESTADO_AGUA.OK
+              ? "green"
+              : dashboard.estado_agua === ESTADO_AGUA.AJUSTADO
+                ? "yellow"
+                : "red"
+          }
         />
         <MetricaCard
           label="Días de agua"
           value={
             dashboard.dias_agua_restantes === Infinity
-              ? '∞'
+              ? "∞"
               : `~${Math.floor(dashboard.dias_agua_restantes)}`
           }
           detail={
             dashboard.dias_agua_restantes === Infinity
-              ? 'Sin consumo activo'
+              ? "Sin consumo activo"
               : dashboard.dias_agua_restantes > 14
-                ? 'Suficiente agua'
+                ? "Suficiente agua"
                 : dashboard.dias_agua_restantes > 7
-                  ? 'Planifica recarga'
-                  : 'Recarga pronto'
+                  ? "Planifica recarga"
+                  : "Recarga pronto"
           }
           color={
-            dashboard.dias_agua_restantes === Infinity ? 'gray' :
-            dashboard.dias_agua_restantes > 14 ? 'green' :
-            dashboard.dias_agua_restantes > 7 ? 'yellow' : 'red'
+            dashboard.dias_agua_restantes === Infinity
+              ? "gray"
+              : dashboard.dias_agua_restantes > 14
+                ? "green"
+                : dashboard.dias_agua_restantes > 7
+                  ? "yellow"
+                  : "red"
           }
         />
         <MetricaCard
@@ -54,13 +64,21 @@ export function TerrenoDashboard({ dashboard }: TerrenoDashboardProps) {
       </div>
 
       {dashboard.alertas_activas > 0 && (
-        <div className={`rounded-lg p-3 ${
-          dashboard.alertas_criticas > 0 ? 'bg-red-50 text-red-800' : 'bg-yellow-50 text-yellow-800'
-        }`}>
+        <div
+          className={`rounded-lg p-3 ${
+            dashboard.alertas_criticas > 0
+              ? "bg-red-50 text-red-800"
+              : "bg-yellow-50 text-yellow-800"
+          }`}
+        >
           <div className="text-xs font-medium opacity-75">Alertas activas</div>
-          <div className="text-lg font-bold leading-tight">{dashboard.alertas_activas}</div>
+          <div className="text-lg font-bold leading-tight">
+            {dashboard.alertas_activas}
+          </div>
           <div className="text-xs opacity-60">
-            {dashboard.alertas_criticas > 0 ? `${dashboard.alertas_criticas} críticas` : 'Revisa las alertas'}
+            {dashboard.alertas_criticas > 0
+              ? `${dashboard.alertas_criticas} críticas`
+              : "Revisa las alertas"}
           </div>
         </div>
       )}
@@ -69,7 +87,9 @@ export function TerrenoDashboard({ dashboard }: TerrenoDashboardProps) {
         <div className="flex items-center justify-between">
           <div>
             <h3 className="font-medium text-gray-700">Temporada actual</h3>
-            <p className="text-2xl font-bold capitalize">{dashboard.temporada_actual}</p>
+            <p className="text-2xl font-bold capitalize">
+              {dashboard.temporada_actual}
+            </p>
           </div>
           <div className="text-right">
             <div className="text-sm text-gray-500">Factor de consumo</div>
@@ -82,14 +102,21 @@ export function TerrenoDashboard({ dashboard }: TerrenoDashboardProps) {
 
       {Object.keys(dashboard.plantas_por_cultivo).length > 0 && (
         <div className="bg-white rounded-lg p-4 shadow">
-          <h3 className="font-medium text-gray-700 mb-3">Plantas por cultivo</h3>
+          <h3 className="font-medium text-gray-700 mb-3">
+            Plantas por cultivo
+          </h3>
           <div className="space-y-2">
-            {Object.entries(dashboard.plantas_por_cultivo).map(([cultivo, cantidad]) => (
-              <div key={cultivo} className="flex justify-between items-center">
-                <span className="text-gray-600">{cultivo}</span>
-                <span className="font-medium">{cantidad}</span>
-              </div>
-            ))}
+            {Object.entries(dashboard.plantas_por_cultivo).map(
+              ([cultivo, cantidad]) => (
+                <div
+                  key={cultivo}
+                  className="flex justify-between items-center"
+                >
+                  <span className="text-gray-600">{cultivo}</span>
+                  <span className="font-medium">{cantidad}</span>
+                </div>
+              ),
+            )}
           </div>
         </div>
       )}
@@ -99,13 +126,14 @@ export function TerrenoDashboard({ dashboard }: TerrenoDashboardProps) {
           <div className="flex items-center gap-2">
             <span className="text-red-500">☠️</span>
             <span className="text-red-800">
-              {dashboard.plantas_muertas} planta(s) muerta(s) - considera removerlas
+              {dashboard.plantas_muertas} planta(s) muerta(s) - considera
+              removerlas
             </span>
           </div>
         </div>
       )}
     </div>
-  )
+  );
 }
 
 function MetricaCard({
@@ -114,18 +142,18 @@ function MetricaCard({
   detail,
   color,
 }: {
-  label: string
-  value: string
-  detail: string
-  color: 'blue' | 'green' | 'yellow' | 'red' | 'gray'
+  label: string;
+  value: string;
+  detail: string;
+  color: "blue" | "green" | "yellow" | "red" | "gray";
 }) {
   const colorClasses = {
-    blue: 'bg-blue-50 text-blue-800',
-    green: 'bg-green-50 text-green-800',
-    yellow: 'bg-yellow-50 text-yellow-800',
-    red: 'bg-red-50 text-red-800',
-    gray: 'bg-gray-50 text-gray-800',
-  }
+    blue: "bg-blue-50 text-blue-800",
+    green: "bg-green-50 text-green-800",
+    yellow: "bg-yellow-50 text-yellow-800",
+    red: "bg-red-50 text-red-800",
+    gray: "bg-gray-50 text-gray-800",
+  };
 
   return (
     <div className={`rounded-lg p-3 ${colorClasses[color]}`}>
@@ -133,5 +161,5 @@ function MetricaCard({
       <div className="text-lg font-bold leading-tight">{value}</div>
       <div className="text-xs opacity-60 truncate">{detail}</div>
     </div>
-  )
+  );
 }

@@ -1,9 +1,11 @@
 # FASE 6: Integración Completa con page.tsx
 
 ## Objetivo
+
 Conectar el nuevo componente PixiJS con `page.tsx` reemplazando `MapaTerreno`. Verificar que TODAS las funcionalidades existentes siguen intactas sin regresiones.
 
 ## Prerequisitos
+
 - FASES 1-5 completadas
 
 ## Estrategia: Reemplazo Directo
@@ -12,20 +14,29 @@ El nuevo `PixiMapaTerreno` expone la **misma interfaz de props** que `MapaTerren
 
 ```typescript
 interface MapaTerrenoProps {
-  terreno: Terreno
-  zonas: Zona[]
-  plantas: Planta[]
-  zonaSeleccionadaId?: string | null
-  zonaPreview?: ZonaPreview | null
-  modo?: 'ver' | 'crear_zona' | 'plantar'
-  cultivosEspaciado?: Record<string, number>
-  plantasSeleccionadasIds?: string[]
-  onZonaClick?: (zona: Zona) => void
-  onMapClick?: (x: number, y: number) => void
-  onPlantaClick?: (planta: Planta) => void
-  onZonaCreada?: (rect: { x: number; y: number; ancho: number; alto: number }) => void
-  onSeleccionMultiple?: (plantaIds: string[]) => void
-  onMoverPlantasSeleccionadas?: (plantaId: string, deltaX: number, deltaY: number) => Promise<void>
+  terreno: Terreno;
+  zonas: Zona[];
+  plantas: Planta[];
+  zonaSeleccionadaId?: string | null;
+  zonaPreview?: ZonaPreview | null;
+  modo?: "ver" | "crear_zona" | "plantar";
+  cultivosEspaciado?: Record<string, number>;
+  plantasSeleccionadasIds?: string[];
+  onZonaClick?: (zona: Zona) => void;
+  onMapClick?: (x: number, y: number) => void;
+  onPlantaClick?: (planta: Planta) => void;
+  onZonaCreada?: (rect: {
+    x: number;
+    y: number;
+    ancho: number;
+    alto: number;
+  }) => void;
+  onSeleccionMultiple?: (plantaIds: string[]) => void;
+  onMoverPlantasSeleccionadas?: (
+    plantaId: string,
+    deltaX: number,
+    deltaY: number,
+  ) => Promise<void>;
 }
 ```
 
@@ -52,6 +63,7 @@ interface MapaTerrenoProps {
 ## Checklist de Verificación Funcional
 
 ### A. Navegación del Mapa
+
 - [ ] Pan con drag funciona suave (60 FPS)
 - [ ] Zoom con wheel funciona con focal point
 - [ ] Zoom con botones (+/-) funciona
@@ -61,6 +73,7 @@ interface MapaTerrenoProps {
 - [ ] Grid 1m/5m visible
 
 ### B. Zonas
+
 - [ ] Zonas visibles con colores correctos por tipo
 - [ ] Click en zona → EditorZona aparece en panel lateral
 - [ ] Zona seleccionada tiene borde destacado
@@ -73,6 +86,7 @@ interface MapaTerrenoProps {
 - [ ] Eliminar zona → desaparece del mapa
 
 ### C. Plantas
+
 - [ ] Plantas visibles con colores correctos por estado
 - [ ] Plantas muertas muestran X
 - [ ] Click planta → PlantaInfo en panel lateral
@@ -83,6 +97,7 @@ interface MapaTerrenoProps {
 - [ ] Min radius: plantas no desaparecen al alejar
 
 ### D. Operaciones en Lote
+
 - [ ] Shift+drag → selección múltiple
 - [ ] Rectángulo azul de selección visible
 - [ ] AccionesLote aparece con conteo correcto
@@ -93,12 +108,14 @@ interface MapaTerrenoProps {
 - [ ] Escape → deseleccionar
 
 ### E. Modos de Interacción
+
 - [ ] Modo 'ver' → pan/zoom + selección
 - [ ] Modo 'crear_zona' → draw rect + snap guides
 - [ ] Modo 'plantar' → click para plantar
 - [ ] Cambio entre modos funciona sin errores
 
 ### F. Edge Cases
+
 - [ ] Cambiar terreno → recarga completa del canvas
 - [ ] Agregar planta individual → aparece sin rebuild completo
 - [ ] Eliminar planta → desaparece sin rebuild completo
@@ -110,6 +127,7 @@ interface MapaTerrenoProps {
 - [ ] PWA: app funciona offline
 
 ### G. Rendimiento
+
 - [ ] 66,600 plantas: 60 FPS constante en pan/zoom
 - [ ] Memory: < 20 MB para rendering
 - [ ] `pnpm build` sin errores
@@ -141,6 +159,7 @@ ACCIONES QUE CAUSAN RE-RENDER:
 ## Notas de Implementación
 
 ### MapaControls
+
 `MapaControls` es HTML overlay (no SVG/Canvas), así que se monta normalmente:
 
 ```typescript
@@ -158,21 +177,23 @@ ACCIONES QUE CAUSAN RE-RENDER:
 **Solución:** Actualizar un state `scaleDisplay` con throttle (100ms) desde un callback de viewport:
 
 ```typescript
-const [scaleDisplay, setScaleDisplay] = useState(1)
+const [scaleDisplay, setScaleDisplay] = useState(1);
 
 // En el hook de viewport, emitir callback on scale change
 useEffect(() => {
   const interval = setInterval(() => {
-    setScaleDisplay(viewport.getScale())
-  }, 100)
-  return () => clearInterval(interval)
-}, [viewport])
+    setScaleDisplay(viewport.getScale());
+  }, 100);
+  return () => clearInterval(interval);
+}, [viewport]);
 ```
 
 ### Info Panel (bottom-left)
+
 El panel de información (área terreno, área usada, etc.) es HTML overlay y se mantiene igual.
 
 ### Mode Indicators (top-left)
+
 Los indicadores de modo actual y coordenadas del cursor son HTML overlays.
 
 ---
@@ -182,4 +203,5 @@ Los indicadores de modo actual y coordenadas del cursor son HTML overlays.
 La testing de esta fase ES el checklist completo de arriba. Todas las casillas deben estar marcadas antes de considerar la fase completa.
 
 ## Resultado de esta Fase
+
 Aplicación completamente funcional con PixiJS. Todas las funcionalidades de la versión SVG están replicadas con rendimiento de 60 FPS.

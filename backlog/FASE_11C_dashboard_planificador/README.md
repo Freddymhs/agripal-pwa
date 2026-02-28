@@ -13,11 +13,13 @@
 Esta fase divide la aplicación en **DOS contextos claramente separados**:
 
 ### 1. 💧 **Dashboard Día a Día** (Pantalla Principal)
+
 **Usuario objetivo**: Agricultor operando su cultivo diariamente
 
-**Pregunta central**: *"¿Me alcanza el agua para las próximas 2 semanas?"*
+**Pregunta central**: _"¿Me alcanza el agua para las próximas 2 semanas?"_
 
 **Características**:
+
 - ✅ **Simple y directo**: Sin gráficos complejos, solo resultado final
 - ✅ **Tiempo real**: Agrega/quita plantas → recalcula automáticamente
 - ✅ **Basado en realidad**: SOLO plantas actuales plantadas
@@ -27,6 +29,7 @@ Esta fase divide la aplicación en **DOS contextos claramente separados**:
 - ✅ **Etapas automáticas**: Plántula → Joven → Adulta → Madura (afecta consumo)
 
 **Cálculos automáticos** (por dentro, invisibles):
+
 ```
 Consumo/planta/día = goteros × L/h/gotero × horas_riego × Kc_etapa × factor_suelo
 Total/día = suma(todas_plantas)
@@ -34,6 +37,7 @@ Días_restantes = agua_actual / consumo_diario
 ```
 
 **Interfaz**:
+
 ```
 ┌─────────────────────────────────────┐
 │ 🌱 Dashboard Agua                   │
@@ -59,11 +63,13 @@ Días_restantes = agua_actual / consumo_diario
 ---
 
 ### 2. 📊 **Planificador Largo Plazo** (Pantalla Separada)
+
 **Usuario objetivo**: Agricultor experto planificando inversión
 
-**Pregunta central**: *"¿Es viable económicamente este cultivo a 12 meses?"*
+**Pregunta central**: _"¿Es viable económicamente este cultivo a 12 meses?"_
 
 **Características**:
+
 - ✅ **Proyección 12 meses**: Gráfico agua vs tiempo
 - ✅ **Calendario recargas**: Configurable (cada X días, Y litros)
 - ✅ **Economía completa**: Ingresos - Costos = Ganancia
@@ -74,6 +80,7 @@ Días_restantes = agua_actual / consumo_diario
 - ✅ **Vista CEO**: Excel con todas las métricas
 
 **Cálculos avanzados**:
+
 ```
 Proyección_mes = for each mes {
   consumo_mes = plantas × Kc_etapa_mes × días_mes × factor_clima_mes
@@ -91,6 +98,7 @@ Economía = {
 ```
 
 **Interfaz**:
+
 ```
 ┌─────────────────────────────────────┐
 │ 📊 Planificador 12 Meses            │
@@ -128,26 +136,26 @@ Economía = {
 
 ### 🔴 ALTA Prioridad (Completar primero)
 
-| # | Archivo | Descripción | Estimación | Dep | Status |
-|---|---------|-------------|------------|-----|--------|
-| **01** | `01_dashboard_agua_dia_a_dia.md` | Dashboard simple 2 semanas | 1 semana | - | ✅ |
-| **02** | `02_etapas_crecimiento_kc.md` | Etapas automáticas + Kc variable | 4-5 días | 01 | ✅ |
-| **03** | `03_sistema_riego_goteros.md` | Goteros configurable + 24/7 vs Programado | 5-6 días | 01 | ✅ |
-| **04** | `04_modulo_economia.md` | Costos + Ingresos + ROI | 4-5 días | 01 | ✅ |
-| **05** | `05_alertas_criticas.md` | Agua/Replantas/Lavado | 3-4 días | 01,02,03 | ✅ |
+| #      | Archivo                          | Descripción                               | Estimación | Dep      | Status |
+| ------ | -------------------------------- | ----------------------------------------- | ---------- | -------- | ------ |
+| **01** | `01_dashboard_agua_dia_a_dia.md` | Dashboard simple 2 semanas                | 1 semana   | -        | ✅     |
+| **02** | `02_etapas_crecimiento_kc.md`    | Etapas automáticas + Kc variable          | 4-5 días   | 01       | ✅     |
+| **03** | `03_sistema_riego_goteros.md`    | Goteros configurable + 24/7 vs Programado | 5-6 días   | 01       | ✅     |
+| **04** | `04_modulo_economia.md`          | Costos + Ingresos + ROI                   | 4-5 días   | 01       | ✅     |
+| **05** | `05_alertas_criticas.md`         | Agua/Replantas/Lavado                     | 3-4 días   | 01,02,03 | ✅     |
 
 ### 🟡 MEDIA Prioridad (Después de ALTA)
 
-| # | Archivo | Descripción | Estimación | Dep | Status |
-|---|---------|-------------|------------|-----|--------|
-| **06** | `06_planificador_largo_plazo.md` | Proyección 12 meses + Economía | 1.5 semanas | 01-05 | ✅ |
+| #      | Archivo                          | Descripción                    | Estimación  | Dep   | Status |
+| ------ | -------------------------------- | ------------------------------ | ----------- | ----- | ------ |
+| **06** | `06_planificador_largo_plazo.md` | Proyección 12 meses + Economía | 1.5 semanas | 01-05 | ✅     |
 
 ### 🟢 BAJA Prioridad (Integración final)
 
-| # | Archivo | Descripción | Estimación | Dep | Status |
-|---|---------|-------------|------------|-----|--------|
-| **07** | `07_integracion_final.md` | Conectar todo + Tests | 3-4 días | 01-06 | ✅ |
-| **08** | `08_suelo_integration.md` | Integrar /suelo a navegación + Score | 1 día | 01-07 | ✅ |
+| #      | Archivo                   | Descripción                          | Estimación | Dep   | Status |
+| ------ | ------------------------- | ------------------------------------ | ---------- | ----- | ------ |
+| **07** | `07_integracion_final.md` | Conectar todo + Tests                | 3-4 días   | 01-06 | ✅     |
+| **08** | `08_suelo_integration.md` | Integrar /suelo a navegación + Score | 1 día      | 01-07 | ✅     |
 
 ---
 
@@ -158,64 +166,64 @@ Economía = {
 ```typescript
 // Etapas de crecimiento
 export enum EtapaCrecimiento {
-  PLANTULA = 'plántula',    // Kc 0.4-0.5
-  JOVEN = 'joven',          // Kc 0.7-0.8
-  ADULTA = 'adulta',        // Kc 1.0-1.2 (pico)
-  MADURA = 'madura',        // Kc 0.8-0.9
+  PLANTULA = "plántula", // Kc 0.4-0.5
+  JOVEN = "joven", // Kc 0.7-0.8
+  ADULTA = "adulta", // Kc 1.0-1.2 (pico)
+  MADURA = "madura", // Kc 0.8-0.9
 }
 
 // Configuración de riego
 export interface ConfiguracionRiego {
-  tipo: 'continuo_24_7' | 'programado'
+  tipo: "continuo_24_7" | "programado";
   // Si programado:
-  horas_dia?: number          // ej: 6h/día
-  horario_inicio?: string     // ej: "06:00"
-  horario_fin?: string        // ej: "12:00"
+  horas_dia?: number; // ej: 6h/día
+  horario_inicio?: string; // ej: "06:00"
+  horario_fin?: string; // ej: "12:00"
 }
 
 // Goteros por planta
 export interface ConfiguracionGoteros {
-  cantidad: number            // ej: 2 goteros
-  caudal_lh: number          // ej: 4 L/h por gotero
+  cantidad: number; // ej: 2 goteros
+  caudal_lh: number; // ej: 4 L/h por gotero
 }
 
 // Planta extendida
 export interface Planta {
   // ... campos existentes
-  etapa_actual: EtapaCrecimiento
-  fecha_plantacion: Timestamp
-  goteros?: ConfiguracionGoteros
+  etapa_actual: EtapaCrecimiento;
+  fecha_plantacion: Timestamp;
+  goteros?: ConfiguracionGoteros;
 }
 
 // Economía cultivo
 export interface EconomiaCultivo {
-  cultivo_id: UUID
-  rendimiento_kg_año: number
-  precio_venta_kg: number
-  costo_semilla: number
-  costo_mano_obra?: number
-  costo_herramientas?: number
-  costo_agua_m3: number
+  cultivo_id: UUID;
+  rendimiento_kg_año: number;
+  precio_venta_kg: number;
+  costo_semilla: number;
+  costo_mano_obra?: number;
+  costo_herramientas?: number;
+  costo_agua_m3: number;
 }
 
 // Proyección mensual
 export interface ProyeccionMensual {
-  mes: number                 // 1-12
-  año: number
-  consumo_agua_m3: number
-  recargas_programadas: number
-  nivel_estanque_inicio: number
-  nivel_estanque_fin: number
-  alertas: string[]
-  costo_agua: number
+  mes: number; // 1-12
+  año: number;
+  consumo_agua_m3: number;
+  recargas_programadas: number;
+  nivel_estanque_inicio: number;
+  nivel_estanque_fin: number;
+  alertas: string[];
+  costo_agua: number;
 }
 
 // Calendario recargas
 export interface CalendarioRecargas {
-  frecuencia_dias: number     // ej: 14 días
-  cantidad_litros: number     // ej: 5000 L
-  costo_por_recarga: number   // ej: $50
-  proxima_recarga: Timestamp
+  frecuencia_dias: number; // ej: 14 días
+  cantidad_litros: number; // ej: 5000 L
+  costo_por_recarga: number; // ej: $50
+  proxima_recarga: Timestamp;
 }
 ```
 
@@ -254,12 +262,14 @@ export interface CalendarioRecargas {
 ## 🔧 Tecnologías y Librerías
 
 ### Existentes (Reutilizar)
+
 - ✅ IndexedDB (Dexie.js) - Persistencia
 - ✅ SWR - Estado
 - ✅ TailwindCSS - Estilos
 - ✅ Hooks existentes (useAgua, useEstanques, etc.)
 
 ### Nuevas (Agregar)
+
 - 📈 **Recharts** o **Chart.js** - Gráficos proyección temporal
 - 📅 **date-fns** - Manipulación fechas (calendarios, etapas)
 - 🧮 **decimal.js** - Precisión cálculos económicos
@@ -274,24 +284,28 @@ pnpm add -D @types/recharts
 ## ⚠️ Principios de Diseño
 
 ### 1. **Datos Estáticos Ahora, API Futura**
+
 Toda la información (clima, cultivos, Kc) viene de archivos estáticos JSON/TS. Arquitectura preparada para API futura sin cambiar lógica.
 
 ```typescript
 // Ahora:
-const clima = await getClimaEstatico(terreno.region)
+const clima = await getClimaEstatico(terreno.region);
 
 // Futuro (mismo input/output):
-const clima = await getClimaAPI(terreno.coordenadas)
+const clima = await getClimaAPI(terreno.coordenadas);
 ```
 
 ### 2. **Simplicidad en UI, Complejidad por Dentro**
+
 Usuario ve: "Alcanza para 7 días ⚠️"
 Sistema calcula: `∑(plantas × goteros × caudal × horas × Kc × factor_suelo × factor_clima)`
 
 ### 3. **Reutilizar Código Existente**
+
 NO rehacer funcionalidades que funcionan. Extender, no reemplazar.
 
 ### 4. **Backlog = Verdad Absoluta**
+
 Todo cambio, funcionalidad, decisión DEBE estar documentado aquí.
 
 ---
@@ -310,6 +324,7 @@ Todo cambio, funcionalidad, decisión DEBE estar documentado aquí.
 ## 🚀 Orden de Implementación
 
 ### **Iteración 1: Dashboard Funcional** (Semanas 1-2)
+
 - 01_dashboard_agua_dia_a_dia.md
 - 02_etapas_crecimiento_kc.md
 - 03_sistema_riego_goteros.md
@@ -317,12 +332,14 @@ Todo cambio, funcionalidad, decisión DEBE estar documentado aquí.
 **Checkpoint**: Usuario puede operar día a día con precisión
 
 ### **Iteración 2: Inteligencia** (Semanas 3-4)
+
 - 04_modulo_economia.md
 - 05_alertas_criticas.md
 
 **Checkpoint**: Usuario toma decisiones informadas (plantar/no plantar)
 
 ### **Iteración 3: Planificación Avanzada** (Semanas 5-7)
+
 - 06_planificador_largo_plazo.md
 - 07_integracion_final.md
 
@@ -332,12 +349,12 @@ Todo cambio, funcionalidad, decisión DEBE estar documentado aquí.
 
 ## 🔗 Dependencias con Otras Fases
 
-| Fase | Relación | Impacto |
-|------|----------|---------|
-| FASE_8 (Agua) | Reutiliza hooks useAgua | Extender, no reemplazar |
-| FASE_6 (Recomendación) | Usa cálculo Kc | Integrar etapas |
-| FASE_10C (Datos Agrícolas) | Usa cultivos pre-cargados | Agregar Kc por etapa |
-| FASE_12-14 (SaaS) | Independiente | No bloquea conversión |
+| Fase                       | Relación                  | Impacto                 |
+| -------------------------- | ------------------------- | ----------------------- |
+| FASE_8 (Agua)              | Reutiliza hooks useAgua   | Extender, no reemplazar |
+| FASE_6 (Recomendación)     | Usa cálculo Kc            | Integrar etapas         |
+| FASE_10C (Datos Agrícolas) | Usa cultivos pre-cargados | Agregar Kc por etapa    |
+| FASE_12-14 (SaaS)          | Independiente             | No bloquea conversión   |
 
 ---
 

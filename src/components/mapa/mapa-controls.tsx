@@ -1,9 +1,9 @@
 interface MapaControlsProps {
-  onZoomIn: () => void
-  onZoomOut: () => void
-  onReset: () => void
-  scale: number
-  hasSelection?: boolean
+  onZoomIn: () => void;
+  onZoomOut: () => void;
+  onReset: () => void;
+  scale: number;
+  hasSelection?: boolean;
 }
 
 export function MapaControls({
@@ -19,8 +19,8 @@ export function MapaControls({
         onClick={onZoomIn}
         className={`w-8 h-8 rounded shadow flex items-center justify-center text-lg font-bold ${
           hasSelection
-            ? 'bg-green-100 hover:bg-green-200 text-green-700'
-            : 'bg-white hover:bg-gray-50'
+            ? "bg-green-100 hover:bg-green-200 text-green-700"
+            : "bg-white hover:bg-gray-50"
         }`}
         title={hasSelection ? "Zoom In (centrado en zona)" : "Zoom In"}
       >
@@ -30,8 +30,8 @@ export function MapaControls({
         onClick={onZoomOut}
         className={`w-8 h-8 rounded shadow flex items-center justify-center text-lg font-bold ${
           hasSelection
-            ? 'bg-green-100 hover:bg-green-200 text-green-700'
-            : 'bg-white hover:bg-gray-50'
+            ? "bg-green-100 hover:bg-green-200 text-green-700"
+            : "bg-white hover:bg-gray-50"
         }`}
         title={hasSelection ? "Zoom Out (centrado en zona)" : "Zoom Out"}
       >
@@ -53,5 +53,5 @@ export function MapaControls({
         </div>
       )}
     </div>
-  )
+  );
 }

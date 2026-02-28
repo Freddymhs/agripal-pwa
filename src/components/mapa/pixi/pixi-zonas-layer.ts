@@ -130,7 +130,10 @@ export class PixiZonasLayer {
 
   clear(): void {
     // Remover hoverGraphics ANTES de removeChildren() para que no sea destruido
-    if (this.hoverGraphics && this.container.children.includes(this.hoverGraphics)) {
+    if (
+      this.hoverGraphics &&
+      this.container.children.includes(this.hoverGraphics)
+    ) {
       this.container.removeChild(this.hoverGraphics);
     }
 
@@ -146,7 +149,7 @@ export class PixiZonasLayer {
     this.zonaLabels.clear();
 
     // Recrear hoverGraphics si fue destruido
-    // any: PixiJS `destroyed` property exists at runtime but is not in public types
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- PixiJS `destroyed` existe en runtime pero no está en los tipos públicos
     if (!this.hoverGraphics || (this.hoverGraphics as any).destroyed) {
       this.hoverGraphics = new Graphics();
     } else {

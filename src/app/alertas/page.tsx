@@ -1,12 +1,13 @@
-'use client'
+"use client";
 
-import { useRouter } from 'next/navigation'
-import { useProjectContext } from '@/contexts/project-context'
-import { AlertasList } from '@/components/alertas/alertas-list'
+import { useRouter } from "next/navigation";
+import { useProjectContext } from "@/contexts/project-context";
+import { ROUTES } from "@/lib/constants/routes";
+import { AlertasList } from "@/components/alertas/alertas-list";
 
 export default function AlertasPage() {
-  const router = useRouter()
-  const { terrenoActual, loading, alertasHook } = useProjectContext()
+  const router = useRouter();
+  const { terrenoActual, loading, alertasHook } = useProjectContext();
 
   const {
     alertas,
@@ -14,14 +15,14 @@ export default function AlertasPage() {
     loading: alertasLoading,
     resolverAlerta,
     ignorarAlerta,
-  } = alertasHook
+  } = alertasHook;
 
   if (loading || alertasLoading || !terrenoActual) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-gray-500">Cargando alertas...</div>
       </div>
-    )
+    );
   }
 
   return (
@@ -40,7 +41,7 @@ export default function AlertasPage() {
             </p>
           </div>
           <button
-            onClick={() => router.push('/')}
+            onClick={() => router.push(ROUTES.HOME)}
             className="px-4 py-2 bg-white border rounded-lg hover:bg-gray-50"
           >
             Volver al mapa
@@ -54,5 +55,5 @@ export default function AlertasPage() {
         />
       </div>
     </div>
-  )
+  );
 }

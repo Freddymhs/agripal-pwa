@@ -16,13 +16,16 @@ Agregar la página `/suelo` a la navegación principal y asegurar integración c
 ## ✅ Implementación Completada
 
 ### 1. **Navegación actualizada** ✅
+
 - Agregado link "Suelo" en `map-header.tsx`
 - Navegación: `Catálogo | Clima | Agua | Suelo`
 
 ### 2. **Página `/suelo` ya existía** ✅
+
 La página completa ya estaba construida con:
 
 #### **Componentes activos:**
+
 - **FormularioSuelo**: Análisis físico + químico con validación en tiempo real
   - Textura, pH, drenaje, profundidad efectiva, materia orgánica
   - Salinidad, boro, arsénico (CRÍTICOS para Arica)
@@ -45,6 +48,7 @@ La página completa ya estaba construida con:
   - Arsénico → 🚨 RIESGO SALUD, no plantar consumo humano
 
 #### **Funcionalidades:**
+
 - **Compatibilidad suelo-cultivos**: Evalúa cultivos actuales vs suelo configurado
 - **Enmiendas sugeridas**: Automáticas según pH y salinidad
   - Cal agrícola (pH bajo)
@@ -56,6 +60,7 @@ La página completa ya estaba construida con:
 ### 3. **Datos estáticos ya preparados** ✅
 
 #### `/data/static/umbrales/suelo.json`:
+
 ```json
 {
   "salinidad": { "max": 4, "unidad": "dS/m" },
@@ -67,7 +72,9 @@ La página completa ya estaba construida con:
 ```
 
 #### `/data/static/suelo/enmiendas.json`:
+
 8 enmiendas orgánicas, químicas y correctoras:
+
 - Guano vaca/gallina, compost, humus lombriz (orgánicos)
 - Cal agrícola, azufre, yeso (correctores)
 - NPK 15-15-15 (químico)
@@ -75,6 +82,7 @@ La página completa ya estaba construida con:
 ### 4. **Integración con Score de Calidad** ✅
 
 #### Flujo de datos:
+
 ```
 /suelo → terrenosDAL.update(terreno.suelo) → IndexedDB
                                                 ↓
@@ -85,18 +93,21 @@ map-sidebar → terrenoActual.suelo → calcularScoreCalidad()
 ```
 
 #### `calcScoreSuelo()` evalúa:
+
 - **pH**: Resta 25 puntos si fuera del rango del cultivo
 - **Salinidad**: Resta 30 puntos si excede tolerancia del cultivo
 - **Materia orgánica**: Resta 10 puntos si < 2%
 - **Sin datos**: Score 50 + mensaje "Sin análisis de suelo"
 
 #### Pesos en Score Total:
+
 - Agua: 30%
 - **Suelo: 25%** ← Completamente integrado
 - Clima: 20%
 - Riego: 25%
 
 ### 5. **Removido tab redundante** ✅
+
 - Eliminado tab "Suelo" del modal de Configuración Avanzada
 - **Principio**: UN solo lugar para configurar (como con el agua)
 - Usuario configura suelo desde navegación principal, no desde modal oculto
@@ -106,12 +117,14 @@ map-sidebar → terrenoActual.suelo → calcularScoreCalidad()
 ## 📊 Datos Técnicos
 
 ### Archivos modificados:
+
 ```
 src/components/mapa/map-header.tsx
 src/components/terreno/configuracion-avanzada-modal.tsx
 ```
 
 ### Archivos ya existentes (sin cambios):
+
 ```
 src/app/suelo/page.tsx
 src/components/suelo/formulario-suelo.tsx
@@ -152,12 +165,14 @@ data/static/suelo/enmiendas.json
 ## 🎯 Valor Agregado
 
 ### Para el agricultor:
+
 - ✅ **Decisión antes de invertir**: "¿Mi suelo es apto para este cultivo?"
 - ✅ **Soluciones concretas**: Si hay problemas, sabe qué aplicar (yeso, cal, azufre)
 - ✅ **Costos reales**: Enmiendas con precios actualizados de Arica
 - ✅ **Prevención**: Detecta arsénico/boro ANTES de plantar (crítico en zona norte)
 
 ### Para el sistema:
+
 - ✅ **Score de Calidad preciso**: Ya no ignora el suelo (era 25% del peso)
 - ✅ **Compatibilidad cultivos**: Cruza datos suelo vs requerimientos cultivo
 - ✅ **Alertas inteligentes**: "Tu suelo tiene boro alto, NO plantar frutales sensibles"

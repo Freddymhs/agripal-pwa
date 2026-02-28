@@ -1,1 +1,1 @@
-export { MockAdapter, mockAdapter } from './mock'
+export { MockAdapter, mockAdapter } from "./mock";

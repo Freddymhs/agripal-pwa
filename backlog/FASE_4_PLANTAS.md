@@ -16,11 +16,13 @@ Implementar colocación de plantas: individual (click) y en grilla automática c
 ## ⚠️ REGLAS DE ESPACIADO (CRÍTICO)
 
 ### Principio Fundamental
+
 **Cada planta tiene UN espaciado (`espaciado_recomendado_m`) - no existen "mínimos" ni "advertencias".**
 
 Si una planta dice que necesita 2m de espacio, necesita 2m. Punto.
 
 ### Cálculos de Validación
+
 ```
 espaciado = cultivo.espaciado_recomendado_m
 margenBorde = espaciado / 2
@@ -34,12 +36,15 @@ margenBorde = espaciado / 2
 ```
 
 ### Ejemplo: Cultivo General (espaciado: 2m)
+
 - Margen del borde requerido: 1m
 - Distancia entre plantas requerida: 2m
 - Si está a 0.8m del borde → **ERROR** (no advertencia)
 
 ### Validación Completa
+
 La validación debe mostrar **TODOS** los problemas encontrados, no solo el primero:
+
 ```
 No se puede plantar aquí:
 • Borde derecho: 0.63m
@@ -52,6 +57,7 @@ Cultivo General necesita:
 ```
 
 ### Cultivo Obligatorio
+
 El cultivo es **OBLIGATORIO** para plantar. No existen fallbacks ni valores por defecto.
 Si un cultivo no tiene `espaciado_recomendado_m` configurado, no se puede usar para plantar.
 
@@ -60,8 +66,9 @@ Si un cultivo no tiene `espaciado_recomendado_m` configurado, no se puede usar p
 ## Tamaño Visual de Plantas
 
 El radio del marcador refleja el espaciado del cultivo:
+
 ```typescript
-radio = (espaciado_recomendado_m / 2) * PIXELS_POR_METRO
+radio = (espaciado_recomendado_m / 2) * PIXELS_POR_METRO;
 ```
 
 - Zanahoria (0.08m) = círculos pequeños
@@ -86,6 +93,7 @@ radio = (espaciado_recomendado_m / 2) * PIXELS_POR_METRO
 ## Archivos de Implementación
 
 Ver código actual en:
+
 - `src/lib/validations/planta.ts` - Validaciones de espaciado
 - `src/hooks/usePlantas.ts` - Hook CRUD de plantas
 - `src/components/mapa/planta-marker.tsx` - Marcador visual

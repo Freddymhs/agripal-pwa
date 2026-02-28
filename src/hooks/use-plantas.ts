@@ -48,9 +48,15 @@ interface UsePlantas {
     cultivo?: CatalogoCultivo,
   ) => Promise<{ error?: string }>;
 
-  cambiarEstado: (id: UUID, estado: EstadoPlanta) => Promise<{ error?: string }>;
+  cambiarEstado: (
+    id: UUID,
+    estado: EstadoPlanta,
+  ) => Promise<{ error?: string }>;
 
-  cambiarEtapa: (id: UUID, etapa: EtapaCrecimiento) => Promise<{ error?: string }>;
+  cambiarEtapa: (
+    id: UUID,
+    etapa: EtapaCrecimiento,
+  ) => Promise<{ error?: string }>;
 
   eliminarPlanta: (id: UUID) => Promise<void>;
 
@@ -176,11 +182,12 @@ export function usePlantas(onRefetch: () => void): UsePlantas {
       }
 
       await ejecutarMutacion(
-        () => plantasDAL.update(id, {
-          x: nuevaPosicion.x,
-          y: nuevaPosicion.y,
-          updated_at: getCurrentTimestamp(),
-        }),
+        () =>
+          plantasDAL.update(id, {
+            x: nuevaPosicion.x,
+            y: nuevaPosicion.y,
+            updated_at: getCurrentTimestamp(),
+          }),
         "moviendo planta",
         onRefetch,
       );
@@ -193,14 +200,17 @@ export function usePlantas(onRefetch: () => void): UsePlantas {
   const cambiarEstado = useCallback(
     async (id: UUID, estado: EstadoPlanta) => {
       if (!validarEstadoPlanta(estado)) {
-        return { error: `Estado invalido: "${estado}". Debe ser uno de: plantada, creciendo, produciendo, muerta` };
+        return {
+          error: `Estado invalido: "${estado}". Debe ser uno de: plantada, creciendo, produciendo, muerta`,
+        };
       }
 
       await ejecutarMutacion(
-        () => plantasDAL.update(id, {
-          estado,
-          updated_at: getCurrentTimestamp(),
-        }),
+        () =>
+          plantasDAL.update(id, {
+            estado,
+            updated_at: getCurrentTimestamp(),
+          }),
         "cambiando estado de planta",
         onRefetch,
       );
@@ -213,15 +223,18 @@ export function usePlantas(onRefetch: () => void): UsePlantas {
   const cambiarEtapa = useCallback(
     async (id: UUID, etapa: EtapaCrecimiento) => {
       if (!validarEtapaPlanta(etapa)) {
-        return { error: `Etapa invalida: "${etapa}". Debe ser una de: plantula, joven, adulta, madura` };
+        return {
+          error: `Etapa invalida: "${etapa}". Debe ser una de: plantula, joven, adulta, madura`,
+        };
       }
 
       await ejecutarMutacion(
-        () => plantasDAL.update(id, {
-          etapa_actual: etapa,
-          fecha_cambio_etapa: getCurrentTimestamp(),
-          updated_at: getCurrentTimestamp(),
-        }),
+        () =>
+          plantasDAL.update(id, {
+            etapa_actual: etapa,
+            fecha_cambio_etapa: getCurrentTimestamp(),
+            updated_at: getCurrentTimestamp(),
+          }),
         "cambiando etapa de planta",
         onRefetch,
       );

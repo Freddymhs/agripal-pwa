@@ -11,7 +11,8 @@ vi.mock("@/lib/utils/roi", () => ({
 }));
 
 vi.mock("@/lib/data/duracion-etapas", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/data/duracion-etapas")>();
+  const actual =
+    await importOriginal<typeof import("@/lib/data/duracion-etapas")>();
   return {
     ...actual,
     getDiasTotalesCultivo: vi.fn(() => 240),
@@ -250,9 +251,9 @@ describe("generarProyeccionAnual", () => {
     );
 
     for (let i = 1; i < result.eventos.length; i++) {
-      expect(
-        result.eventos[i].fecha.getTime(),
-      ).toBeGreaterThanOrEqual(result.eventos[i - 1].fecha.getTime());
+      expect(result.eventos[i].fecha.getTime()).toBeGreaterThanOrEqual(
+        result.eventos[i - 1].fecha.getTime(),
+      );
     }
   });
 

@@ -174,7 +174,9 @@ describe("calcularScoreCalidad", () => {
     expect(result.score_agua).toBe(100);
     expect(result.score_suelo).toBe(100);
     expect(result.score_total).toBeGreaterThanOrEqual(70);
-    expect(result.categoria === "excelente" || result.categoria === "buena").toBe(true);
+    expect(
+      result.categoria === "excelente" || result.categoria === "buena",
+    ).toBe(true);
   });
 
   it("penaliza boro alto en agua", () => {
@@ -185,9 +187,17 @@ describe("calcularScoreCalidad", () => {
       boro_ppm: 5.0,
     };
 
-    const result = calcularScoreCalidad(cultivoFixture, fuenteAltosBoro, null, 100, 5);
+    const result = calcularScoreCalidad(
+      cultivoFixture,
+      fuenteAltosBoro,
+      null,
+      100,
+      5,
+    );
     expect(result.score_agua).toBeLessThan(100);
-    expect(result.factores_limitantes.some((f) => f.includes("Boro"))).toBe(true);
+    expect(result.factores_limitantes.some((f) => f.includes("Boro"))).toBe(
+      true,
+    );
   });
 
   it("penaliza salinidad alta en agua", () => {
@@ -198,7 +208,13 @@ describe("calcularScoreCalidad", () => {
       salinidad_dS_m: 8.0,
     };
 
-    const result = calcularScoreCalidad(cultivoFixture, fuenteSalina, null, 100, 5);
+    const result = calcularScoreCalidad(
+      cultivoFixture,
+      fuenteSalina,
+      null,
+      100,
+      5,
+    );
     expect(result.score_agua).toBeLessThan(100);
   });
 
@@ -210,7 +226,13 @@ describe("calcularScoreCalidad", () => {
       ph: 4.0,
     };
 
-    const result = calcularScoreCalidad(cultivoFixture, fuentePhBajo, null, 100, 5);
+    const result = calcularScoreCalidad(
+      cultivoFixture,
+      fuentePhBajo,
+      null,
+      100,
+      5,
+    );
     expect(result.score_agua).toBeLessThan(100);
   });
 
@@ -248,10 +270,16 @@ describe("calcularScoreCalidad", () => {
       quimico: { salinidad_dS_m: 12.0 },
     };
 
-    const result = calcularScoreCalidad(cultivoFixture, fuenteMala, sueloMalo, 1, 10);
+    const result = calcularScoreCalidad(
+      cultivoFixture,
+      fuenteMala,
+      sueloMalo,
+      1,
+      10,
+    );
     expect(result.score_total).toBeLessThan(50);
     expect(
-      result.categoria === "riesgosa" || result.categoria === "no_viable"
+      result.categoria === "riesgosa" || result.categoria === "no_viable",
     ).toBe(true);
   });
 

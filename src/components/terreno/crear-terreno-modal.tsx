@@ -1,15 +1,19 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { logger } from '@/lib/logger'
-import type { UUID } from '@/types'
-import { formatArea } from '@/lib/utils'
+import { useState } from "react";
+import { logger } from "@/lib/logger";
+import type { UUID } from "@/types";
+import { formatArea } from "@/lib/utils";
 
 interface CrearTerrenoModalProps {
-  proyectoId: UUID
-  proyectoNombre: string
-  onCreated: (data: { nombre: string; ancho_m: number; alto_m: number }) => Promise<void>
-  onCancel: () => void
+  proyectoId: UUID;
+  proyectoNombre: string;
+  onCreated: (data: {
+    nombre: string;
+    ancho_m: number;
+    alto_m: number;
+  }) => Promise<void>;
+  onCancel: () => void;
 }
 
 export function CrearTerrenoModal({
@@ -17,37 +21,46 @@ export function CrearTerrenoModal({
   onCreated,
   onCancel,
 }: CrearTerrenoModalProps) {
-  const [nombre, setNombre] = useState('')
-  const [ancho, setAncho] = useState(50)
-  const [alto, setAlto] = useState(30)
-  const [creando, setCreando] = useState(false)
+  const [nombre, setNombre] = useState("");
+  const [ancho, setAncho] = useState(50);
+  const [alto, setAlto] = useState(30);
+  const [creando, setCreando] = useState(false);
 
-  const valido = nombre.trim().length > 0 && ancho >= 1 && alto >= 1
-  const area = ancho * alto
+  const valido = nombre.trim().length > 0 && ancho >= 1 && alto >= 1;
+  const area = ancho * alto;
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     if (valido && !creando) {
-      setCreando(true)
+      setCreando(true);
       try {
-        await onCreated({ nombre: nombre.trim(), ancho_m: ancho, alto_m: alto })
+        await onCreated({
+          nombre: nombre.trim(),
+          ancho_m: ancho,
+          alto_m: alto,
+        });
       } catch (error) {
-        logger.error('Error creando terreno', { error: error instanceof Error ? { message: error.message } : { error } })
-        setCreando(false)
+        logger.error("Error creando terreno", {
+          error:
+            error instanceof Error ? { message: error.message } : { error },
+        });
+        setCreando(false);
       }
     }
-  }
+  };
 
-  const maxDimension = Math.max(ancho, alto)
-  const previewScale = 150 / maxDimension
-  const previewWidth = ancho * previewScale
-  const previewHeight = alto * previewScale
+  const maxDimension = Math.max(ancho, alto);
+  const previewScale = 150 / maxDimension;
+  const previewWidth = ancho * previewScale;
+  const previewHeight = alto * previewScale;
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg p-6 w-full max-w-md">
         <h3 className="text-lg font-bold text-gray-900 mb-1">Nuevo Terreno</h3>
-        <p className="text-sm text-gray-500 mb-4">En proyecto: {proyectoNombre}</p>
+        <p className="text-sm text-gray-500 mb-4">
+          En proyecto: {proyectoNombre}
+        </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -96,7 +109,9 @@ export function CrearTerrenoModal({
           <div className="bg-gray-50 p-4 rounded-lg">
             <div className="flex justify-between items-center mb-3">
               <span className="text-sm text-gray-600">Vista previa</span>
-              <span className="text-sm font-bold text-gray-900">{formatArea(area)}</span>
+              <span className="text-sm font-bold text-gray-900">
+                {formatArea(area)}
+              </span>
             </div>
             <div className="flex justify-center">
               <div
@@ -116,11 +131,11 @@ export function CrearTerrenoModal({
               disabled={!valido || creando}
               className={`flex-1 py-2 rounded font-medium ${
                 valido && !creando
-                  ? 'bg-green-600 text-white hover:bg-green-700'
-                  : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                  ? "bg-green-600 text-white hover:bg-green-700"
+                  : "bg-gray-200 text-gray-500 cursor-not-allowed"
               }`}
             >
-              {creando ? 'Creando...' : 'Crear Terreno'}
+              {creando ? "Creando..." : "Crear Terreno"}
             </button>
             <button
               type="button"
@@ -134,5 +149,5 @@ export function CrearTerrenoModal({
         </form>
       </div>
     </div>
-  )
+  );
 }

@@ -1,34 +1,35 @@
-import type { Metadata, Viewport } from 'next'
-import { Toaster } from 'sonner'
-import { AuthProvider } from '@/components/providers/auth-provider'
-import { QueryProvider } from '@/components/providers/query-provider'
-import { ErrorBoundary } from '@/components/error-boundary'
-import { ProjectProvider } from '@/contexts/project-context'
-import './globals.css'
+import type { Metadata, Viewport } from "next";
+import { Toaster } from "sonner";
+import { AuthProvider } from "@/components/providers/auth-provider";
+import { QueryProvider } from "@/components/providers/query-provider";
+import { ErrorBoundary } from "@/components/error-boundary";
+import { ProjectProvider } from "@/contexts/project-context";
+import "./globals.css";
 
 export const metadata: Metadata = {
-  title: 'AgriPlan - Planificador Agrícola',
-  description: 'Sistema de planificación agrícola offline-first para pequeños agricultores',
-  manifest: '/manifest.json',
+  title: "AgriPlan - Planificador Agrícola",
+  description:
+    "Sistema de planificación agrícola offline-first para pequeños agricultores",
+  manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
-    statusBarStyle: 'default',
-    title: 'AgriPlan',
+    statusBarStyle: "default",
+    title: "AgriPlan",
   },
-}
+};
 
 export const viewport: Viewport = {
-  width: 'device-width',
+  width: "device-width",
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  themeColor: '#22c55e',
-}
+  themeColor: "#22c55e",
+};
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
     <html lang="es">
@@ -39,14 +40,12 @@ export default function RootLayout({
         <ErrorBoundary>
           <AuthProvider>
             <QueryProvider>
-              <ProjectProvider>
-                {children}
-              </ProjectProvider>
+              <ProjectProvider>{children}</ProjectProvider>
             </QueryProvider>
           </AuthProvider>
         </ErrorBoundary>
         <Toaster position="bottom-right" richColors duration={3000} />
       </body>
     </html>
-  )
+  );
 }

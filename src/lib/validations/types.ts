@@ -1,5 +1,5 @@
 export interface ValidationResult {
-  valida: boolean
-  error?: string
-  advertencia?: string
+  valida: boolean;
+  error?: string;
+  advertencia?: string;
 }

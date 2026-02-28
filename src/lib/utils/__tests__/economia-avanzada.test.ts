@@ -76,7 +76,8 @@ describe("calcularMetricasEconomicas", () => {
 
   it("calcula precio de venta como promedio de min y max", () => {
     const result = calcularMetricasEconomicas(roiFixture, cultivoFixture, 5000);
-    const expected = (cultivoFixture.precio_kg_min_clp + cultivoFixture.precio_kg_max_clp) / 2;
+    const expected =
+      (cultivoFixture.precio_kg_min_clp + cultivoFixture.precio_kg_max_clp) / 2;
     expect(result.precioVentaKg).toBe(expected);
   });
 
@@ -129,7 +130,11 @@ describe("calcularMetricasEconomicas", () => {
       ingreso_año2: 0,
       inversion_total: 1000000,
     };
-    const result = calcularMetricasEconomicas(roiSinIngresos, cultivoFixture, 0);
+    const result = calcularMetricasEconomicas(
+      roiSinIngresos,
+      cultivoFixture,
+      0,
+    );
     expect(result.tiempoRecuperacionMeses).toBe(null);
   });
 
@@ -138,7 +143,11 @@ describe("calcularMetricasEconomicas", () => {
       ...cultivoFixture,
       costo_variable_kg: 500,
     };
-    const result = calcularMetricasEconomicas(roiFixture, cultivoConCostoVariable, 5000);
+    const result = calcularMetricasEconomicas(
+      roiFixture,
+      cultivoConCostoVariable,
+      5000,
+    );
     expect(result.costoVariableKg).toBe(500);
   });
 

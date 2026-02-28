@@ -16,12 +16,14 @@ Implementar **dos tipos de riego** con goteros configurables por planta.
 ## 📋 Tipos de Sistema
 
 ### 1. Continuo 24/7 (Manual)
+
 - Válvula abierta permanentemente
 - Caudal constante L/h
 - Cálculo: `gasto_día = caudal_lh × 24`
 - ⚠️ Riesgo: Encharcamiento (especialmente suelo arcilloso)
 
 ### 2. Programado (Electrónico)
+
 - Válvulas automáticas con timer
 - Horario específico (ej: 6am-12pm = 6h/día)
 - Cálculo: `gasto_día = caudal_lh × horas_dia`
@@ -37,25 +39,25 @@ Implementar **dos tipos de riego** con goteros configurables por planta.
 
 ```typescript
 export interface ConfiguracionRiego {
-  tipo: 'continuo_24_7' | 'programado'
-  
+  tipo: "continuo_24_7" | "programado";
+
   // Común
-  caudal_total_lh: number        // L/h total del sistema
-  
+  caudal_total_lh: number; // L/h total del sistema
+
   // Solo si programado
-  horas_dia?: number              // ej: 6h
-  horario_inicio?: string         // ej: "06:00"
-  horario_fin?: string            // ej: "12:00"
+  horas_dia?: number; // ej: 6h
+  horario_inicio?: string; // ej: "06:00"
+  horario_fin?: string; // ej: "12:00"
 }
 
 export interface ConfiguracionGoteros {
-  cantidad: number                // ej: 2 goteros
-  caudal_lh_por_gotero: number   // ej: 4 L/h
+  cantidad: number; // ej: 2 goteros
+  caudal_lh_por_gotero: number; // ej: 4 L/h
 }
 
 export interface Planta {
   // ... existentes
-  goteros?: ConfiguracionGoteros
+  goteros?: ConfiguracionGoteros;
 }
 ```
 
@@ -86,27 +88,23 @@ function calcularConsumoPlanta(
   planta: Planta,
   cultivo: CatalogoCultivo,
   configRiego: ConfiguracionRiego,
-  kc: number
+  kc: number,
 ): number {
   // Goteros configurados
   const goteros = planta.goteros || {
-    cantidad: 2,  // default
+    cantidad: 2, // default
     caudal_lh_por_gotero: 4,
-  }
+  };
 
   // Horas riego
-  const horasRiego = configRiego.tipo === 'continuo_24_7'
-    ? 24
-    : (configRiego.horas_dia || 6)
+  const horasRiego =
+    configRiego.tipo === "continuo_24_7" ? 24 : configRiego.horas_dia || 6;
 
   // Consumo real
   const consumoDiario =
-    goteros.cantidad *
-    goteros.caudal_lh_por_gotero *
-    horasRiego *
-    kc
+    goteros.cantidad * goteros.caudal_lh_por_gotero * horasRiego * kc;
 
-  return consumoDiario
+  return consumoDiario;
 }
 ```
 
@@ -133,6 +131,7 @@ Consumo = 2 × 4 × 6 × kc(0.75) = 36 L/día
 ```
 
 **vs Continuo 24/7**:
+
 ```
 Consumo = 2 × 4 × 24 × kc(0.75) = 144 L/día (4x más!)
 ```

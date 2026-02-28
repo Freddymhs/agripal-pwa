@@ -10,16 +10,24 @@ import type {
 import { FACTORES_TEMPORADA } from "@/lib/constants/entities";
 import { getTemporadaActual } from "@/lib/data/clima-arica";
 import { getKc } from "@/lib/data/kc-cultivos";
-import { ESTADO_PLANTA, ETAPA, TIPO_ZONA, TIPO_RIEGO, ESTADO_AGUA } from "@/lib/constants/entities";
 import {
-  M2_POR_HECTAREA,
+  ESTADO_PLANTA,
+  ETAPA,
+  TIPO_ZONA,
+  TIPO_RIEGO,
+  ESTADO_AGUA,
+} from "@/lib/constants/entities";
+import {
   SEMANAS_POR_AÑO,
   DIAS_POR_SEMANA,
   MS_POR_DIA,
   MIN_DIAS_DESCUENTO,
   HORAS_POR_DIA,
 } from "@/lib/constants/conversiones";
-import { calcularAguaPromedioHaAño, calcularPlantasPorHa } from "@/lib/utils/helpers-cultivo";
+import {
+  calcularAguaPromedioHaAño,
+  calcularPlantasPorHa,
+} from "@/lib/utils/helpers-cultivo";
 
 function calcularConsumoPlanta(
   planta: Planta,
@@ -173,7 +181,6 @@ export interface ResultadoDescuento {
   nivelNuevo: number;
   consumido: number;
 }
-
 
 export function calcularDescuentoAutomatico(
   ultimaSimulacion: Timestamp | undefined,
