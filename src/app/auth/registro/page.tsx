@@ -29,15 +29,12 @@ export default function RegistroPage() {
     }
 
     try {
-      logger.debug("Registro: llamando registrar()...");
       const result = await registrar(email, nombre, password);
-      logger.debug("Registro: registrar() completado", { result });
 
       if (result.error) {
         setError(result.error);
         setLoading(false);
       } else {
-        logger.debug("Registro: redirigiendo a", { href: ROUTES.HOME });
         router.push(ROUTES.HOME);
       }
     } catch (err) {

@@ -110,13 +110,7 @@ export function useAuth(): UseAuth {
   const registrar = useCallback(
     async (email: string, nombre: string, _password: string) => {
       void _password;
-      logger.debug("Auth: registrar() inicio", { email });
-
-      logger.debug("Auth: consultando email existente...");
       const existente = await usuariosDAL.getByEmail(email.toLowerCase());
-      logger.debug("Auth: consulta email completada", {
-        existente: !!existente,
-      });
 
       if (existente) {
         return { error: "El email ya está registrado" };
@@ -130,15 +124,12 @@ export function useAuth(): UseAuth {
         updated_at: getCurrentTimestamp(),
       };
 
-      logger.debug("Auth: guardando usuario en DB...");
       await usuariosDAL.add(nuevoUsuario);
-      logger.debug("Auth: usuario guardado OK");
 
       const token = generarToken(nuevoUsuario);
       localStorage.setItem(STORAGE_KEYS.TOKEN, token);
       setAuthCookie(token);
       setUsuario(nuevoUsuario);
-      logger.debug("Auth: token y cookie seteados, registrar() completo");
 
       return {};
     },
