@@ -20,13 +20,18 @@ export default function LoginPage() {
     setError("");
     setLoading(true);
 
-    const result = await login(email, password);
+    try {
+      const result = await login(email, password);
 
-    if (result.error) {
-      setError(result.error);
+      if (result.error) {
+        setError(result.error);
+        setLoading(false);
+      } else {
+        router.push(ROUTES.HOME);
+      }
+    } catch {
+      setError("Error al iniciar sesión. Intenta de nuevo.");
       setLoading(false);
-    } else {
-      router.push(ROUTES.HOME);
     }
   };
 

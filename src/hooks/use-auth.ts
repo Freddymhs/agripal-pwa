@@ -5,6 +5,7 @@ import { usuariosDAL } from "@/lib/dal";
 import { generarToken, obtenerUsuarioDeToken } from "@/lib/auth/jwt";
 import { generateUUID, getCurrentTimestamp } from "@/lib/utils";
 import { STORAGE_KEYS, COOKIE_KEYS } from "@/lib/constants/storage";
+import { logger } from "@/lib/logger";
 import type { Usuario } from "@/types";
 
 export interface UseAuth {
@@ -34,29 +35,35 @@ export function useAuth(): UseAuth {
 
   useEffect(() => {
     async function cargar() {
-      const token = localStorage.getItem(STORAGE_KEYS.TOKEN);
-      if (!token) {
-        setLoading(false);
-        return;
-      }
+      try {
+        const token = localStorage.getItem(STORAGE_KEYS.TOKEN);
+        if (!token) {
+          return;
+        }
 
-      const datos = obtenerUsuarioDeToken(token);
-      if (!datos) {
+        const datos = obtenerUsuarioDeToken(token);
+        if (!datos) {
+          localStorage.removeItem(STORAGE_KEYS.TOKEN);
+          clearAuthCookie();
+          return;
+        }
+
+        const user = await usuariosDAL.getById(datos.userId);
+        setUsuario(user || null);
+
+        if (!user) {
+          localStorage.removeItem(STORAGE_KEYS.TOKEN);
+          clearAuthCookie();
+        }
+      } catch (err) {
+        logger.error("Auth: error cargando sesión", {
+          error: err instanceof Error ? err.message : err,
+        });
         localStorage.removeItem(STORAGE_KEYS.TOKEN);
         clearAuthCookie();
+      } finally {
         setLoading(false);
-        return;
       }
-
-      const user = await usuariosDAL.getById(datos.userId);
-      setUsuario(user || null);
-
-      if (!user) {
-        localStorage.removeItem(STORAGE_KEYS.TOKEN);
-        clearAuthCookie();
-      }
-
-      setLoading(false);
     }
 
     cargar();
@@ -103,7 +110,13 @@ export function useAuth(): UseAuth {
   const registrar = useCallback(
     async (email: string, nombre: string, _password: string) => {
       void _password;
+      logger.debug("Auth: registrar() inicio", { email });
+
+      logger.debug("Auth: consultando email existente...");
       const existente = await usuariosDAL.getByEmail(email.toLowerCase());
+      logger.debug("Auth: consulta email completada", {
+        existente: !!existente,
+      });
 
       if (existente) {
         return { error: "El email ya está registrado" };
@@ -117,12 +130,15 @@ export function useAuth(): UseAuth {
         updated_at: getCurrentTimestamp(),
       };
 
+      logger.debug("Auth: guardando usuario en DB...");
       await usuariosDAL.add(nuevoUsuario);
+      logger.debug("Auth: usuario guardado OK");
 
       const token = generarToken(nuevoUsuario);
       localStorage.setItem(STORAGE_KEYS.TOKEN, token);
       setAuthCookie(token);
       setUsuario(nuevoUsuario);
+      logger.debug("Auth: token y cookie seteados, registrar() completo");
 
       return {};
     },

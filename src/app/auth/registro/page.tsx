@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuthContext } from "@/components/providers/auth-provider";
 import { ROUTES } from "@/lib/constants/routes";
+import { logger } from "@/lib/logger";
 
 export default function RegistroPage() {
   const router = useRouter();
@@ -27,13 +28,27 @@ export default function RegistroPage() {
       return;
     }
 
-    const result = await registrar(email, nombre, password);
+    try {
+      logger.debug("Registro: llamando registrar()...");
+      const result = await registrar(email, nombre, password);
+      logger.debug("Registro: registrar() completado", { result });
 
-    if (result.error) {
-      setError(result.error);
+      if (result.error) {
+        setError(result.error);
+        setLoading(false);
+      } else {
+        logger.debug("Registro: redirigiendo a", { href: ROUTES.HOME });
+        router.push(ROUTES.HOME);
+      }
+    } catch (err) {
+      logger.error("Registro: excepción en registrar()", {
+        error:
+          err instanceof Error
+            ? { message: err.message, stack: err.stack }
+            : { err },
+      });
+      setError("Error al crear la cuenta. Intenta de nuevo.");
       setLoading(false);
-    } else {
-      router.push(ROUTES.HOME);
     }
   };
 

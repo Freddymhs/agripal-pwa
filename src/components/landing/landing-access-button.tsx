@@ -27,17 +27,18 @@ export function LandingAccessButton() {
   }, [router]);
 
   return (
-    <div className="mt-8 flex flex-col gap-2">
+    <div className="flex flex-col gap-3">
       <button
         onClick={handlePrimary}
-        className="inline-flex items-center justify-center px-6 py-3 rounded-lg bg-green-600 text-white font-semibold shadow-md hover:bg-green-700 transition-colors"
+        className="inline-flex items-center justify-center px-8 py-4 rounded-xl font-bold text-lg transition-opacity hover:opacity-90 self-start"
+        style={{ background: "#2d6a4f", color: "#fff" }}
       >
-        {authed ? "Ver planner" : "Ingresar / Registrarse"}
+        {authed ? "Ver planner →" : "Probar gratis →"}
       </button>
-      <p className="text-sm text-gray-600">
+      <p className="text-sm" style={{ color: "#7fb38a" }}>
         {authed
           ? "Ya tienes sesión: te llevamos directo al planner."
-          : "Si ya tienes sesión, te llevamos directo. Si no, verás el login/registro."}
+          : "Si ya tienes sesión, te llevamos directo al planner."}
       </p>
     </div>
   );
