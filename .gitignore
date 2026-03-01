@@ -70,3 +70,8 @@ save-scrappers/**
 
 # Temp
 /tmp/
+
+
+# skills
+.agent
+.agents

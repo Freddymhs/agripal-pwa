@@ -2,9 +2,79 @@
   "version": 1,
   "skills": {
     "interface-design": {
-      "source": "dammyjay93/interface-design",
+      "source": "dammyjay93/claude-design-skill",
       "sourceType": "github",
       "computedHash": "d004c5e5e2e7132e1d64e9c2a339db7f7aaa69053a5c19cddc210dd35dd6fff5"
+    },
+    "seo": {
+      "source": "addyosmani/web-quality-skills",
+      "sourceType": "github",
+      "computedHash": "f1fed683b76913d26fbf1aa1e008e6932f7771701fc3a79925b042236aa4681a"
+    },
+    "seo-audit": {
+      "source": "agricidaniel/claude-seo",
+      "sourceType": "github",
+      "computedHash": "e869a9ef8f58f91dbfee4073112ccee28b484bcf567a9525c1bcdadc6bb21932"
+    },
+    "seo-competitor-pages": {
+      "source": "agricidaniel/claude-seo",
+      "sourceType": "github",
+      "computedHash": "668537fbd423912711c4c36ea0cb11f4414a619618be238c65c39361d0fb4220"
+    },
+    "seo-content": {
+      "source": "agricidaniel/claude-seo",
+      "sourceType": "github",
+      "computedHash": "bd49b63a728a3e6c9e01f5347e275649265528301606368d5562d8bed372b527"
+    },
+    "seo-geo": {
+      "source": "resciencelab/opc-skills",
+      "sourceType": "github",
+      "computedHash": "56f90ba46b36563bb5461feb8462aed9283e74dfc4cdac2a98c42c4bc86a95be"
+    },
+    "seo-hreflang": {
+      "source": "agricidaniel/claude-seo",
+      "sourceType": "github",
+      "computedHash": "24839df33d8d0685284aaf0b313050fa9b5176611c8f29e1d64cdebbb87299ac"
+    },
+    "seo-images": {
+      "source": "agricidaniel/claude-seo",
+      "sourceType": "github",
+      "computedHash": "31ecafa0a49fc56433024bf3174f6a893bbe5f6f2607ff732504a9dc3f6931d6"
+    },
+    "seo-page": {
+      "source": "agricidaniel/claude-seo",
+      "sourceType": "github",
+      "computedHash": "e3ddb884486ff5e833bc791e9211902b6fd2fb9fea9ec1e1ab1e5956f4a271fb"
+    },
+    "seo-plan": {
+      "source": "agricidaniel/claude-seo",
+      "sourceType": "github",
+      "computedHash": "2a5ef1fb3f9b097c288e8b652932557261cc3ab3b12c9d4ef8a9cab498620074"
+    },
+    "seo-programmatic": {
+      "source": "agricidaniel/claude-seo",
+      "sourceType": "github",
+      "computedHash": "52a5d0a9e726b1c9a26b3c12b62920b6a701383a169e5e56af8c46e1f9ad81b9"
+    },
+    "seo-schema": {
+      "source": "agricidaniel/claude-seo",
+      "sourceType": "github",
+      "computedHash": "ffe84a4ef6798924dc213db62531c8fef2124947fb7f11fa47749253540ebc79"
+    },
+    "seo-sitemap": {
+      "source": "agricidaniel/claude-seo",
+      "sourceType": "github",
+      "computedHash": "8df9c63ee927febd850402e7276b21959307073df45b652ea4707afe3621b355"
+    },
+    "seo-technical": {
+      "source": "agricidaniel/claude-seo",
+      "sourceType": "github",
+      "computedHash": "b61090b240397256ca1dd5783aca02f6c8218ea6da68e1d6434a63583a5ac30e"
+    },
+    "vercel-react-best-practices": {
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github",
+      "computedHash": "4365be772fd3b41994a72ad478472c6d680678e7f3859860ab010e9c46e48ee0"
     }
   }
 }
