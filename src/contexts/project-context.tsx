@@ -50,7 +50,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
     usuario,
     loading: authLoading,
     isAuthenticated,
-    logout,
+    signOut: logout,
   } = useAuthContext();
   const [proyectoActual, setProyectoActual] = useState<Proyecto | null>(null);
   const [terrenoActual, setTerrenoActual] = useState<Terreno | null>(null);

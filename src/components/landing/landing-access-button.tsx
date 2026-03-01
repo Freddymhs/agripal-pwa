@@ -1,39 +1,37 @@
 "use client";
 
-import { useCallback, useSyncExternalStore } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase/client";
 import { ROUTES } from "@/lib/constants/routes";
-import { COOKIE_KEYS, STORAGE_KEYS } from "@/lib/constants/storage";
-
-function getAuthSnapshot() {
-  const inCookie = document.cookie
-    .split(";")
-    .some((c) => c.trim().startsWith(`${COOKIE_KEYS.TOKEN}=`));
-  const inStorage = !!localStorage.getItem(STORAGE_KEYS.TOKEN);
-  return inCookie || inStorage;
-}
-
-function getServerSnapshot() {
-  return false;
-}
-
-const NOOP_SUBSCRIBE = () => () => {};
 
 export function LandingAccessButton() {
   const router = useRouter();
-  const authed = useSyncExternalStore(
-    NOOP_SUBSCRIBE,
-    getAuthSnapshot,
-    getServerSnapshot,
-  );
+  const [authed, setAuthed] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setAuthed(!!session);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setAuthed(!!session);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
 
   const handlePrimary = useCallback(() => {
-    if (getAuthSnapshot()) {
+    if (authed) {
       router.push(ROUTES.HOME);
     } else {
       router.push(ROUTES.AUTH_LOGIN);
     }
-  }, [router]);
+  }, [authed, router]);
 
   return (
     <div className="flex flex-col gap-3">

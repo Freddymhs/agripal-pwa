@@ -111,12 +111,13 @@ Cada archivo FASE_X.md incluye esta tarea de integración al final.
 | **11C** | ✅     | 100%     | Dashboard Mejorado + Planificador Económico                         | 🔴 CRÍTICA |
 | **11D** | ✅     | 100%     | Mejoras No Registradas (Economía, Escenarios, Plagas, Datos, Fixes) | 🔴 Alta    |
 | **15B** | ✅     | 100%     | Bugs Críticos de UX (pre-Supabase)                                  | 🔴 Alta    |
+| **12**  | ✅     | 100%     | Auth Real con Supabase (login, registro, OAuth)                     | 🔴 CRÍTICA |
 
 ### Pendientes ⏳
 
 | Fase      | Status | Progreso | Nombre                                          | Prioridad     |
 | --------- | ------ | -------- | ----------------------------------------------- | ------------- |
-| 12        | ⏳     | 0%       | Auth Real con Supabase (login, registro, OAuth) | 🔴 CRÍTICA    |
+| 12        | ✅     | 100%     | Auth Real con Supabase (login, registro, OAuth) | 🔴 CRÍTICA    |
 | 13        | ⏳     | 0%       | Supabase Backend (schema, RLS, sync real)       | 🔴 CRÍTICA    |
 | 14        | ⏳     | 0%       | Sistema de Billing con MercadoPago              | 🔴 ALTA       |
 | 16        | ⏳     | 0%       | Registro de Cosechas (UI)                       | 🟡 MEDIA      |
@@ -131,11 +132,11 @@ Cada archivo FASE_X.md incluye esta tarea de integración al final.
 
 ## 📍 Actual
 
-**Fase actual:** FASE_12 - Migración a Supabase (Backend Real)
+**Fase actual:** FASE_13 - Supabase Backend (schema PostgreSQL, RLS, sync real)
 
-**Completadas (24)**: Estructura, Tipos, Mapa, Zonas, Plantas, Selección Múltiple, Gestión Proyectos/Terrenos, Terreno Avanzado, Panel Clima, Panel Suelo, Agua Avanzada, Motor Recomendación, Catálogo Cultivos, Estanques, Control Agua, Alertas y Dashboard, PWA y Sync Offline, **Performance PixiJS**, **Mejoras UX/Agua/Datos**, **Autenticación JWT Mock**, **Segmentación UX Agua**, **Dashboard + Planificador**, **Economía/Escenarios/Plagas/Datos/Fixes**, **Bugs Críticos UX (15B)**
+**Completadas (25)**: Estructura, Tipos, Mapa, Zonas, Plantas, Selección Múltiple, Gestión Proyectos/Terrenos, Terreno Avanzado, Panel Clima, Panel Suelo, Agua Avanzada, Motor Recomendación, Catálogo Cultivos, Estanques, Control Agua, Alertas y Dashboard, PWA y Sync Offline, **Performance PixiJS**, **Mejoras UX/Agua/Datos**, **Autenticación JWT Mock**, **Segmentación UX Agua**, **Dashboard + Planificador**, **Economía/Escenarios/Plagas/Datos/Fixes**, **Bugs Críticos UX (15B)**, **Auth Real Supabase (12)**
 
-**Pendientes (8)**: Auth Supabase → Backend Supabase → Billing → Cosechas → PDF → Calendario → APIs → Historial
+**Pendientes (7)**: Backend Supabase → Billing → Cosechas → PDF → Calendario → APIs → Historial
 
 **Objetivo:** Transformar AgriPlan en un SaaS con backend real y sistema de suscripciones.
 

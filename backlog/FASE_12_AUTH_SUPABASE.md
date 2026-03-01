@@ -1,510 +1,93 @@
 # FASE 12: Autenticación Real con Supabase Auth
 
-**Status**: ⏳ PENDIENTE
+**Status**: ✅ COMPLETADA
 **Prioridad**: 🔴 CRÍTICA
 **Dependencias**: FASE_11 (auth mock existente)
-**Estimación**: 3-4 horas
 **Última revisión**: 2026-03-01
 
 ---
 
-## Contexto
+## Decisión: solo email + password
 
-Reemplazar el auth mock por Supabase Auth real. Esta fase instala los paquetes de Supabase,
-crea los clientes reutilizables, y migra el sistema de autenticación completo.
-
-El backend de datos (schema PostgreSQL, RLS, SupabaseAdapter) va en FASE_13 — depende de
-los clientes creados aquí.
+Google OAuth fue descartado — agrega complejidad (Google Cloud Console, redirect URIs)
+sin valor inmediato. El flujo email/password + reset por correo cubre todas las necesidades.
 
 ---
 
-## Estado Real del Código (auditado 2026-03-01)
-
-| Aspecto                                      | Estado                                                   |
-| -------------------------------------------- | -------------------------------------------------------- |
-| `@supabase/supabase-js`                      | ❌ NO instalado                                          |
-| `@supabase/ssr`                              | ❌ NO instalado                                          |
-| `src/lib/supabase/`                          | ❌ NO existe                                             |
-| `src/hooks/use-supabase-auth.ts`             | ❌ NO existe                                             |
-| `src/app/auth/callback/`                     | ❌ NO existe                                             |
-| `src/app/auth/login/page.tsx`                | ✅ Existe — auth mock, sin Google, sin password real     |
-| `src/app/auth/registro/page.tsx`             | ✅ Existe — sin campo password                           |
-| `src/components/providers/auth-provider.tsx` | ✅ Existe — wrappea `useAuth()` mock                     |
-| `src/hooks/use-auth.ts`                      | ✅ Existe — JWT mock, ignora password                    |
-| `src/proxy.ts`                               | ✅ Existe — guard correcto (Next.js 16), valida JWT mock |
-| `src/lib/auth/jwt.ts`                        | ✅ Existe — tokens triviales de falsificar               |
-
----
-
-## Objetivo
-
-El usuario se loguea una vez (requiere red) y puede usar la app indefinidamente sin conexión
-hasta que se desloguee explícitamente.
-
-**Entregables:**
-
-1. Instalar `@supabase/supabase-js` + `@supabase/ssr`
-2. Clientes Supabase reutilizables (`src/lib/supabase/`)
-3. Guard de rutas en `proxy.ts` actualizado (offline-safe con `getSession()`)
-4. Login/Registro con email + password real (bcrypt vía Supabase)
-5. OAuth con Google
-6. Sesión persistente en cookies del browser (funciona offline)
-7. Route Handler `/auth/callback` para OAuth
-
----
-
-## Decisión arquitectónica: `getSession()` en el guard, NO `getUser()`
+## Decisión arquitectónica: `getSession()` en el middleware, NO `getUser()`
 
 |                  | `getSession()`                  | `getUser()`                         |
 | ---------------- | ------------------------------- | ----------------------------------- |
 | Fuente           | Cookies locales del dispositivo | Supabase Auth API (requiere red)    |
 | Funciona offline | ✅ Sí                           | ❌ No — manda al login sin conexión |
-| Riesgo           | Token stale hasta 1h máx        | Ninguno                             |
 
-El usuario se loguea, las cookies quedan en el dispositivo. Sin red, `getSession()` las lee
-localmente y permite acceso. Cuando hay red, `onAuthStateChange` refresca el token en
-background automáticamente. El token stale de máx 1h es aceptable porque no hay API remota
-que proteger en el guard — los datos están en IndexedDB.
+El usuario se loguea una vez (requiere red). Las cookies quedan en el dispositivo.
+Sin red, `getSession()` las lee localmente. `onAuthStateChange` refresca el token
+en background cuando hay red. Token stale máx 1h — aceptable porque los datos están
+en IndexedDB, no en una API remota.
 
 ---
 
-## Tarea 1: Instalar dependencias
+## Archivos implementados
 
-```bash
-pnpm add @supabase/supabase-js @supabase/ssr
+| Archivo                                            | Acción                                          |
+| -------------------------------------------------- | ----------------------------------------------- |
+| `src/lib/supabase/client.ts`                       | ✅ Creado — `createBrowserClient`               |
+| `src/lib/supabase/middleware.ts`                   | ✅ Creado — `createSupabaseMiddlewareClient`    |
+| `src/lib/supabase/index.ts`                        | ✅ Creado — barrel export                       |
+| `src/middleware.ts`                                | ✅ Creado — guard global con `getSession()`     |
+| `src/hooks/use-supabase-auth.ts`                   | ✅ Creado — signIn, signUp, signOut             |
+| `src/components/providers/auth-provider.tsx`       | ✅ Modificado — usa nuevo hook                  |
+| `src/app/auth/login/page.tsx`                      | ✅ Modificado — password real                   |
+| `src/app/auth/registro/page.tsx`                   | ✅ Modificado — password + confirmPassword      |
+| `src/app/auth/recuperar/page.tsx`                  | ✅ Creado — reset password por email            |
+| `src/app/auth/nueva-password/page.tsx`             | ✅ Creado — setear nueva contraseña             |
+| `src/app/auth/recuperar/error.tsx`                 | ✅ Creado — error boundary                      |
+| `src/app/auth/nueva-password/error.tsx`            | ✅ Creado — error boundary                      |
+| `src/components/landing/landing-access-button.tsx` | ✅ Modificado — usa Supabase session            |
+| `src/lib/constants/routes.ts`                      | ✅ Agregado AUTH_RECUPERAR, AUTH_NUEVA_PASSWORD |
+| `src/hooks/use-auth.ts`                            | 🗑️ Eliminado — era JWT mock                     |
+| `src/lib/auth/jwt.ts`                              | 🗑️ Eliminado — era JWT mock                     |
+| `src/lib/auth/` (carpeta)                          | 🗑️ Eliminada — quedó vacía                      |
+
+---
+
+## Flujo de recuperación de contraseña
+
+```
+/auth/login → "¿Olvidaste tu contraseña?" → /auth/recuperar
+  → supabase.auth.resetPasswordForEmail() → email con magic link
+  → usuario clickea link → /auth/nueva-password
+  → supabase.auth.updateUser({ password }) → redirect a /auth/login
 ```
 
-**NO instalar** `@supabase/auth-helpers-nextjs` — deprecated desde Supabase v2.
+Rutas `/auth/recuperar` y `/auth/nueva-password` registradas como públicas en `src/middleware.ts`.
 
 ---
 
-## Tarea 2: Variables de entorno
-
-**Archivo**: `.env.local`
+## Variables de entorno requeridas
 
 ```env
 NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGc...
 ```
 
-Solo estas dos para el funcionamiento normal de la app.
 `SUPABASE_SERVICE_ROLE_KEY` se agrega en FASE_14 (billing webhooks).
-
----
-
-## Tarea 3: Clientes Supabase
-
-**Archivo**: `src/lib/supabase/client.ts` (browser — para hooks CSR)
-
-```typescript
-import { createBrowserClient } from "@supabase/ssr";
-
-export const supabase = createBrowserClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-);
-```
-
-**Archivo**: `src/lib/supabase/middleware.ts` (para proxy.ts)
-
-```typescript
-import { createServerClient } from "@supabase/ssr";
-import type { NextRequest, NextResponse } from "next/server";
-
-export function createSupabaseMiddlewareClient(
-  request: NextRequest,
-  response: NextResponse,
-) {
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll();
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) =>
-            request.cookies.set(name, value),
-          );
-          cookiesToSet.forEach(({ name, value, options }) =>
-            response.cookies.set(name, value, options),
-          );
-        },
-      },
-    },
-  );
-}
-```
-
-**Archivo**: `src/lib/supabase/index.ts` (barrel export)
-
-```typescript
-export { supabase } from "./client";
-export { createSupabaseMiddlewareClient } from "./middleware";
-```
-
----
-
-## Tarea 4: Actualizar `proxy.ts`
-
-**Archivo**: `src/proxy.ts` (modificar)
-
-```typescript
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
-import { createSupabaseMiddlewareClient } from "@/lib/supabase/middleware";
-import { ROUTES } from "@/lib/constants/routes";
-
-export async function proxy(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-
-  if (pathname.startsWith("/app")) {
-    const response = NextResponse.next({ request });
-    const supabase = createSupabaseMiddlewareClient(request, response);
-
-    // getSession() lee cookies locales — funciona offline
-    // NO usar getUser(): requiere red → rompe offline-first
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-
-    if (!session) {
-      const loginUrl = new URL(ROUTES.AUTH_LOGIN, request.url);
-      loginUrl.searchParams.set("redirect", pathname);
-      return NextResponse.redirect(loginUrl);
-    }
-
-    return response;
-  }
-
-  return NextResponse.next();
-}
-
-export const config = {
-  matcher: ["/app/:path*"],
-};
-```
-
----
-
-## Tarea 5: Hook `use-supabase-auth.ts`
-
-**Archivo**: `src/hooks/use-supabase-auth.ts` (crear)
-
-```typescript
-"use client";
-
-import { useEffect, useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase/client";
-import { usuariosDAL } from "@/lib/dal";
-import { getCurrentTimestamp } from "@/lib/utils";
-import { ROUTES } from "@/lib/constants/routes";
-import type { User } from "@supabase/supabase-js";
-import type { Usuario } from "@/types";
-
-export interface UseSupabaseAuth {
-  user: User | null;
-  usuario: Usuario | null;
-  loading: boolean;
-  isAuthenticated: boolean;
-  signIn: (email: string, password: string) => Promise<{ error?: string }>;
-  signUp: (
-    email: string,
-    password: string,
-    nombre: string,
-  ) => Promise<{ error?: string }>;
-  signOut: () => Promise<void>;
-  signInWithGoogle: () => Promise<void>;
-}
-
-// Crea o devuelve el perfil local del usuario en IndexedDB
-async function syncUsuarioLocal(user: User): Promise<Usuario> {
-  const existing = await usuariosDAL.getById(user.id);
-  if (existing) return existing;
-
-  const nuevo: Usuario = {
-    id: user.id,
-    email: user.email!,
-    nombre: user.user_metadata?.nombre ?? user.email!.split("@")[0],
-    created_at: user.created_at,
-    updated_at: getCurrentTimestamp(),
-  };
-  await usuariosDAL.add(nuevo);
-  return nuevo;
-}
-
-export function useSupabaseAuth(): UseSupabaseAuth {
-  const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
-  const [usuario, setUsuario] = useState<Usuario | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // Carga sesión inicial desde cookies locales (funciona offline)
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      const currentUser = session?.user ?? null;
-      setUser(currentUser);
-      if (currentUser) setUsuario(await syncUsuarioLocal(currentUser));
-      setLoading(false);
-    });
-
-    // Escucha cambios: login, logout, refresh de token
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      const currentUser = session?.user ?? null;
-      setUser(currentUser);
-      if (currentUser) {
-        setUsuario(await syncUsuarioLocal(currentUser));
-      } else {
-        setUsuario(null);
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, []);
-
-  const signIn = useCallback(async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    if (error) return { error: error.message };
-    return {};
-  }, []);
-
-  const signUp = useCallback(
-    async (email: string, password: string, nombre: string) => {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: { data: { nombre } },
-      });
-      if (error) return { error: error.message };
-      return {};
-    },
-    [],
-  );
-
-  const signOut = useCallback(async () => {
-    await supabase.auth.signOut();
-    router.push(ROUTES.AUTH_LOGIN);
-  }, [router]);
-
-  const signInWithGoogle = useCallback(async () => {
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
-    });
-  }, []);
-
-  return {
-    user,
-    usuario,
-    loading,
-    isAuthenticated: !!user,
-    signIn,
-    signUp,
-    signOut,
-    signInWithGoogle,
-  };
-}
-```
-
----
-
-## Tarea 6: Actualizar `auth-provider.tsx`
-
-**Archivo**: `src/components/providers/auth-provider.tsx` (modificar)
-
-```typescript
-"use client";
-
-import { createContext, useContext, type ReactNode } from "react";
-import { useSupabaseAuth, type UseSupabaseAuth } from "@/hooks/use-supabase-auth";
-
-const AuthContext = createContext<UseSupabaseAuth | null>(null);
-
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const auth = useSupabaseAuth();
-  return <AuthContext.Provider value={auth}>{children}</AuthContext.Provider>;
-}
-
-export function useAuthContext(): UseSupabaseAuth {
-  const context = useContext(AuthContext);
-  if (!context) throw new Error("useAuthContext debe usarse dentro de AuthProvider");
-  return context;
-}
-```
-
----
-
-## Tarea 7: Actualizar páginas de auth
-
-**`src/app/auth/login/page.tsx`** — cambios:
-
-- `login` → `signIn` (del nuevo hook)
-- Agregar botón Google
-- Agregar campo password con `autoComplete="current-password"`
-
-**`src/app/auth/registro/page.tsx`** — cambios:
-
-- Agregar campo `password` + `confirmPassword`
-- `registrar` → `signUp` (del nuevo hook)
-- Validar `password.length >= 6` antes de enviar
-
----
-
-## Tarea 8: Route Handler para OAuth callback
-
-**Archivo**: `src/app/auth/callback/route.ts` (crear)
-
-```typescript
-import { cookies } from "next/headers";
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
-import { createServerClient } from "@supabase/ssr";
-import { ROUTES } from "@/lib/constants/routes";
-
-export async function GET(request: NextRequest) {
-  const { searchParams, origin } = new URL(request.url);
-  const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? ROUTES.HOME;
-
-  if (code) {
-    const cookieStore = await cookies();
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll: () => cookieStore.getAll(),
-          setAll: (list) =>
-            list.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options),
-            ),
-        },
-      },
-    );
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
-    if (!error) return NextResponse.redirect(`${origin}${next}`);
-  }
-
-  return NextResponse.redirect(
-    `${origin}${ROUTES.AUTH_LOGIN}?error=oauth_callback`,
-  );
-}
-```
-
----
-
-## Tarea 9: Actualizar `LandingAccessButton`
-
-**Archivo**: `src/components/landing/landing-access-button.tsx` (modificar)
-
-```typescript
-"use client";
-
-import { useCallback, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase/client";
-import { ROUTES } from "@/lib/constants/routes";
-
-export function LandingAccessButton() {
-  const router = useRouter();
-  const [authed, setAuthed] = useState(false);
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setAuthed(!!session);
-    });
-  }, []);
-
-  const handlePrimary = useCallback(async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    router.push(session ? ROUTES.HOME : ROUTES.AUTH_LOGIN);
-  }, [router]);
-
-  return (
-    <div className="mt-8 flex flex-col gap-2">
-      <button
-        onClick={handlePrimary}
-        className="inline-flex items-center justify-center px-6 py-3 rounded-lg bg-green-600 text-white font-semibold shadow-md hover:bg-green-700 transition-colors"
-      >
-        {authed ? "Ver planner" : "Ingresar / Registrarse"}
-      </button>
-      <p className="text-sm text-gray-600">
-        {authed
-          ? "Ya tienes sesión: te llevamos directo al planner."
-          : "Si ya tienes sesión, te llevamos directo. Si no, verás el login/registro."}
-      </p>
-    </div>
-  );
-}
-```
-
----
-
-## Tarea 10: Deprecar auth mock
-
-```typescript
-// src/lib/auth/jwt.ts — agregar al inicio del archivo
-/** @deprecated Reemplazado por Supabase Auth en FASE_12. Eliminar en FASE_14+. */
-
-// src/hooks/use-auth.ts — agregar al inicio del archivo
-/** @deprecated Reemplazado por useSupabaseAuth() en FASE_12. Eliminar en FASE_14+. */
-```
-
----
-
-## Tarea 11: Configurar Google OAuth en Supabase Dashboard
-
-1. **Authentication → Providers → Google** → Habilitar
-2. En [Google Cloud Console](https://console.cloud.google.com): crear OAuth 2.0 Client ID
-   - Authorized redirect URI: `https://<project-ref>.supabase.co/auth/v1/callback`
-3. Pegar Client ID + Secret en Supabase Dashboard
-4. **Authentication → URL Configuration**:
-   - Site URL: `http://localhost:3000` (dev) / `https://tudominio.com` (prod)
-   - Redirect URLs: `http://localhost:3000/auth/callback` y `https://tudominio.com/auth/callback`
-5. **Authentication → Settings → Email confirmations**: deshabilitar en desarrollo
-
----
-
-## Resumen de archivos
-
-| Archivo                                            | Acción                                  |
-| -------------------------------------------------- | --------------------------------------- |
-| `src/lib/supabase/client.ts`                       | Crear — browser client                  |
-| `src/lib/supabase/middleware.ts`                   | Crear — server client para proxy        |
-| `src/lib/supabase/index.ts`                        | Crear — barrel export                   |
-| `src/proxy.ts`                                     | Modificar → `getSession()` offline-safe |
-| `src/hooks/use-supabase-auth.ts`                   | Crear                                   |
-| `src/components/providers/auth-provider.tsx`       | Modificar → usa nuevo hook              |
-| `src/app/auth/login/page.tsx`                      | Modificar → password + Google           |
-| `src/app/auth/registro/page.tsx`                   | Modificar → password real               |
-| `src/app/auth/callback/route.ts`                   | Crear → OAuth exchange                  |
-| `src/components/landing/landing-access-button.tsx` | Modificar → Supabase session            |
-| `src/lib/auth/jwt.ts`                              | @deprecated                             |
-| `src/hooks/use-auth.ts`                            | @deprecated                             |
 
 ---
 
 ## Criterios de Aceptación
 
-- [ ] `pnpm add @supabase/supabase-js @supabase/ssr` ejecutado sin errores
-- [ ] `.env.local` con `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- [ ] Login email/password valida contraseñas reales
-- [ ] Registro crea usuario en Supabase Auth + perfil en IndexedDB
-- [ ] OAuth Google: click → consent → callback → autenticado
-- [ ] Sesión persiste al cerrar y reabrir el browser
-- [ ] Sin conexión: navegar `/app/**` funciona con sesión previa
-- [ ] Sin conexión: ir a `/app` sin sesión → redirect a `/auth/login`
-- [ ] Logout limpia sesión, redirect a login
-- [ ] `pnpm type-check` sin errores
+- [x] `pnpm add @supabase/supabase-js @supabase/ssr` ejecutado sin errores
+- [x] `.env.local` con `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- [x] Login email/password valida contraseñas reales
+- [x] Registro crea usuario en Supabase Auth + perfil en IndexedDB
+- [x] Sesión persiste al cerrar y reabrir el browser
+- [x] Sin conexión: navegar `/app/**` funciona con sesión previa
+- [x] Sin conexión: ir a `/app` sin sesión → redirect a `/auth/login`
+- [x] Logout limpia sesión, redirect a login
+- [x] Reset password: llega email con link → nueva contraseña → login
+- [x] `pnpm type-check` sin errores · `pnpm lint` 0 errores
 
 ---
 

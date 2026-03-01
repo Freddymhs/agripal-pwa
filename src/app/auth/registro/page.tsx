@@ -9,11 +9,12 @@ import { logger } from "@/lib/logger";
 
 export default function RegistroPage() {
   const router = useRouter();
-  const { registrar } = useAuthContext();
+  const { signUp } = useAuthContext();
 
   const [nombre, setNombre] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -28,8 +29,14 @@ export default function RegistroPage() {
       return;
     }
 
+    if (password !== confirmPassword) {
+      setError("Las contraseñas no coinciden");
+      setLoading(false);
+      return;
+    }
+
     try {
-      const result = await registrar(email, nombre, password);
+      const result = await signUp(email, password, nombre);
 
       if (result.error) {
         setError(result.error);
@@ -38,7 +45,7 @@ export default function RegistroPage() {
         router.push(ROUTES.HOME);
       }
     } catch (err) {
-      logger.error("Registro: excepción en registrar()", {
+      logger.error("Registro: excepción en signUp()", {
         error:
           err instanceof Error
             ? { message: err.message, stack: err.stack }
@@ -78,6 +85,7 @@ export default function RegistroPage() {
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
               className="input-base"
+              autoComplete="name"
               required
             />
           </div>
@@ -89,6 +97,7 @@ export default function RegistroPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="input-base"
+              autoComplete="email"
               required
             />
           </div>
@@ -100,10 +109,26 @@ export default function RegistroPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="input-base"
+              autoComplete="new-password"
               minLength={6}
               required
             />
             <p className="text-xs text-gray-400 mt-1">Mínimo 6 caracteres</p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              Confirmar Contraseña
+            </label>
+            <input
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="input-base"
+              autoComplete="new-password"
+              minLength={6}
+              required
+            />
           </div>
 
           <button

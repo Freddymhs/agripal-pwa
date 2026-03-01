@@ -8,7 +8,7 @@ import { ROUTES } from "@/lib/constants/routes";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login } = useAuthContext();
+  const { signIn } = useAuthContext();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -21,7 +21,7 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const result = await login(email, password);
+      const result = await signIn(email, password);
 
       if (result.error) {
         setError(result.error);
@@ -64,6 +64,7 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="input-base"
+              autoComplete="email"
               required
             />
           </div>
@@ -75,8 +76,17 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="input-base"
+              autoComplete="current-password"
               required
             />
+            <div className="text-right mt-1">
+              <Link
+                href={ROUTES.AUTH_RECUPERAR}
+                className="text-sm text-green-600 hover:underline"
+              >
+                ¿Olvidaste tu contraseña?
+              </Link>
+            </div>
           </div>
 
           <button
@@ -100,13 +110,6 @@ export default function LoginPage() {
               Regístrate
             </Link>
           </div>
-
-          {process.env.NODE_ENV === "development" && (
-            <div className="mt-4 p-3 bg-yellow-50 rounded text-xs text-yellow-800">
-              <strong>Modo desarrollo:</strong> Cualquier email/password creará
-              usuario automáticamente
-            </div>
-          )}
         </form>
       </div>
     </div>

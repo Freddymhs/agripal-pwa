@@ -10,6 +10,8 @@ export const ROUTES = {
   // Authentication
   AUTH_LOGIN: "/auth/login",
   AUTH_REGISTRO: "/auth/registro",
+  AUTH_RECUPERAR: "/auth/recuperar",
+  AUTH_NUEVA_PASSWORD: "/auth/nueva-password",
 
   // Primary routes
   HOME: "/app",
