@@ -8,6 +8,7 @@
     "build": "next build",
     "start": "next start",
     "clean": "rm -rf node_modules .next",
+    "clean:lock": "rm -f .next/dev/lock",
     "clean:cache": "pnpm store prune && rm -rf node_modules .next",
     "prepare": "husky install",
     "format": "prettier --write .",

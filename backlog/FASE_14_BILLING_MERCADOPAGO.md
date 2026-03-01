@@ -45,7 +45,18 @@ El código del webhook usa `console.log/error` directamente.
 
 **Corrección**: mapear explícitamente los estados de MercadoPago al enum `estado_pago`.
 
----
+### 6. `supabaseAdmin` — para qué sirve
+
+El webhook de MercadoPago corre en el servidor sin sesión de usuario. Para actualizar la suscripción de un usuario necesita escribir en Supabase saltándose el RLS. Para eso existe `supabaseAdmin` (usa `SERVICE_ROLE_KEY`). Se agrega a `src/lib/supabase/client.ts` en esta fase:
+
+```typescript
+// Solo para uso server-side (Route Handlers) — NUNCA en código del browser
+export const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  { auth: { autoRefreshToken: false, persistSession: false } },
+);
+```
 
 ---
 
@@ -56,11 +67,12 @@ Implementar sistema de suscripciones mensuales con MercadoPago para convertir Ag
 **Características:**
 
 1. Suscripción mensual de **9,990 CLP** (~$10 USD)
-2. Verificación de pago activo en cada sesión
-3. Bloqueo de app si no hay suscripción válida
-4. Gestión de suscripciones (cancelar, renovar)
-5. Webhooks de MercadoPago para notificaciones
-6. Historial de pagos
+2. **Trial de 20 días gratis** al registrarse
+3. Verificación de pago activo en cada sesión
+4. Bloqueo de app si no hay suscripción válida
+5. Gestión de suscripciones (cancelar, renovar)
+6. Webhooks de MercadoPago para notificaciones
+7. Historial de pagos
 
 ---
 
@@ -73,7 +85,8 @@ Implementar sistema de suscripciones mensuales con MercadoPago para convertir Ag
 - **Precio:** 9,990 CLP/mes (Chile)
 - **Equivalente:** ~$10 USD / ~$10.000 CLP
 - **Facturación:** Mensual recurrente
-- **Trial:** 7 días gratis (opcional)
+- **Trial:** 20 días gratis (automático al registrarse, sin tarjeta)
+- **Alcance del plan:** Todo ilimitado — sin cuotas de terrenos, zonas, plantas ni almacenamiento
 
 ### Flujo de Usuario
 
@@ -87,7 +100,7 @@ Implementar sistema de suscripciones mensuales con MercadoPago para convertir Ag
     └────┬────┘
          │
     ┌────▼──────────────┐
-    │ Trial 7 días      │ (opcional)
+    │ Trial 20 días     │ (automático, sin tarjeta)
     └────┬──────────────┘
          │
     ┌────▼──────────────┐
@@ -426,7 +439,7 @@ export async function POST(request: Request) {
       pagoId: pago.id,
     });
   } catch (error) {
-    console.error("Error creando checkout:", error);
+    logger.error("billing.checkout", error);
     return NextResponse.json(
       { error: "Error al crear checkout" },
       { status: 500 },
@@ -445,12 +458,26 @@ export async function POST(request: Request) {
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/client";
 import { paymentClient } from "@/lib/mercadopago/client";
+import { logger } from "@/lib/logger";
+
+// Mapeo explícito de estados MercadoPago → enum estado_pago
+const MP_ESTADO_MAP: Record<string, string> = {
+  pending: "pending",
+  approved: "approved",
+  authorized: "authorized",
+  in_process: "in_process",
+  in_mediation: "in_mediation",
+  rejected: "rejected",
+  cancelled: "cancelled",
+  refunded: "refunded",
+  charged_back: "charged_back",
+};
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
 
-    console.log("Webhook recibido:", body);
+    logger.info("billing.webhook", { type: body.type, id: body.data?.id });
 
     if (body.type === "payment") {
       const paymentId = body.data.id;
@@ -473,7 +500,7 @@ export async function POST(request: Request) {
           usuario_id: metadata.user_id,
           monto: payment.transaction_amount || 0,
           moneda: payment.currency_id || "CLP",
-          estado: payment.status as any,
+          estado: MP_ESTADO_MAP[payment.status ?? ""] ?? "pending",
           mp_payment_id: paymentId.toString(),
           mp_merchant_order_id: payment.order?.id?.toString(),
           descripcion: payment.description || "",
@@ -483,7 +510,7 @@ export async function POST(request: Request) {
         await supabaseAdmin
           .from("pagos")
           .update({
-            estado: payment.status as any,
+            estado: MP_ESTADO_MAP[payment.status ?? ""] ?? "pending",
             updated_at: new Date().toISOString(),
           })
           .eq("id", pago.id);
@@ -530,7 +557,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Error procesando webhook:", error);
+    logger.error("billing.webhook", error);
     return NextResponse.json({ error: "Error interno" }, { status: 500 });
   }
 }
@@ -664,10 +691,11 @@ export async function proxy(request: NextRequest) {
 
   const supabase = createSupabaseMiddlewareClient(request, response);
 
-  // getUser() verifica con Supabase API — forma segura para guards
+  // getSession() lee cookies locales — funciona offline (ver decisión en FASE_13)
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
+  const user = session?.user ?? null;
 
   if (!user) {
     const loginUrl = new URL(ROUTES.AUTH_LOGIN, request.url);
@@ -711,6 +739,7 @@ export const config = {
 import { useState } from 'react'
 import { initMercadoPago, Wallet } from '@mercadopago/sdk-react'
 import { useAuthContext } from '@/components/providers/AuthProvider'
+import { logger } from '@/lib/logger'
 
 if (process.env.NEXT_PUBLIC_MP_PUBLIC_KEY) {
   initMercadoPago(process.env.NEXT_PUBLIC_MP_PUBLIC_KEY)
@@ -735,7 +764,7 @@ export default function SubscribePage() {
         setPreferenceId(data.preferenceId)
       }
     } catch (error) {
-      console.error('Error al crear checkout:', error)
+      logger.error("billing.subscribe", error)
     } finally {
       setLoading(false)
     }
@@ -1097,6 +1126,15 @@ export function SubscriptionBadge() {
 
 ---
 
+## Notas de Implementación
+
+- **Trial de 20 días**: Al registrarse en FASE_13, crear suscripción con `estado = 'trialing'`, `trial_start = NOW()`, `trial_end = NOW() + 20 days`. No requiere tarjeta. Al expirar, `proxy.ts` redirige a `/billing/subscribe`.
+- **Webhook signature**: Validar header `x-signature` de MercadoPago usando `MP_WEBHOOK_SECRET` antes de procesar cualquier evento. Sin esto, cualquier request puede falsificar pagos.
+- **RLS billing**: Las tablas `suscripciones` y `pagos` tienen RLS para SELECT del usuario. Solo el webhook (via `supabaseAdmin`) puede hacer INSERT/UPDATE — los usuarios no pueden modificar su propio estado de suscripción.
+- **Offline + suscripción**: `proxy.ts` usa `getSession()` (cookies locales) para auth, pero la verificación de suscripción requiere red. Si el usuario está offline y la cookie de sesión es válida, se le da paso — la verificación de suscripción se hace en background al reconectar.
+- **Logger**: Usar `src/lib/logger.ts` en todos los Route Handlers. Prohibido `console.log/error`.
+- **`as any` prohibido**: Usar `MP_ESTADO_MAP` para mapear estados de MercadoPago al enum `estado_pago`.
+
 ## Siguiente Fase
 
-**POST-MVP:** Features adicionales en `/backlog/futuro/`
+**FASE_16** — Registro de Cosechas (UI)
