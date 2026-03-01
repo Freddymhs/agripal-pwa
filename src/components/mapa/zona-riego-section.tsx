@@ -4,7 +4,10 @@ import { useState } from "react";
 import type { Zona, Planta, CatalogoCultivo } from "@/types";
 import { TIPO_RIEGO } from "@/lib/constants/entities";
 import { DIAS_POR_SEMANA } from "@/lib/constants/conversiones";
-import { calcularConsumoZona } from "@/lib/utils/agua";
+import {
+  calcularConsumoZona,
+  calcularConsumoRiegoZona,
+} from "@/lib/utils/agua";
 import { ConfigurarRiegoModal } from "@/components/agua";
 
 interface InfoLabelProps {
@@ -68,6 +71,9 @@ export function ZonaRiegoSection({
   const lPorPlantaDia =
     plantasVivas.length > 0 ? consumoRecLDia / plantasVivas.length : 0;
 
+  const consumoRiegoM3Sem = calcularConsumoRiegoZona(zona);
+  const consumoRiegoLDia = (consumoRiegoM3Sem * 1000) / DIAS_POR_SEMANA;
+
   return (
     <>
       <div
@@ -114,6 +120,15 @@ export function ZonaRiegoSection({
                   <span className="font-medium">
                     {zona.configuracion_riego.horario_inicio} -{" "}
                     {zona.configuracion_riego.horario_fin}
+                  </span>
+                </div>
+              )}
+              {consumoRiegoM3Sem > 0 && (
+                <div className="flex justify-between pt-1 border-t border-blue-100 mt-1">
+                  <span>Consumo estimado:</span>
+                  <span className="font-medium">
+                    ~{consumoRiegoLDia.toFixed(0)} L/día ·{" "}
+                    {consumoRiegoM3Sem.toFixed(2)} m³/sem
                   </span>
                 </div>
               )}

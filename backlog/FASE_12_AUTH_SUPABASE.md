@@ -1,10 +1,20 @@
-# FASE 13: Autenticación Real con Supabase Auth
+# FASE 12: Autenticación Real con Supabase Auth
 
 **Status**: ⏳ PENDIENTE
 **Prioridad**: 🔴 CRÍTICA
-**Dependencias**: FASE_12 (clientes Supabase instalados)
+**Dependencias**: FASE_11 (auth mock existente)
 **Estimación**: 3-4 horas
 **Última revisión**: 2026-03-01
+
+---
+
+## Contexto
+
+Reemplazar el auth mock por Supabase Auth real. Esta fase instala los paquetes de Supabase,
+crea los clientes reutilizables, y migra el sistema de autenticación completo.
+
+El backend de datos (schema PostgreSQL, RLS, SupabaseAdapter) va en FASE_13 — depende de
+los clientes creados aquí.
 
 ---
 
@@ -12,8 +22,9 @@
 
 | Aspecto                                      | Estado                                                   |
 | -------------------------------------------- | -------------------------------------------------------- |
-| `@supabase/ssr` instalado                    | ❌ NO (se instala en FASE_12)                            |
-| `src/lib/supabase/client.ts`                 | ❌ NO (se crea en FASE_12)                               |
+| `@supabase/supabase-js`                      | ❌ NO instalado                                          |
+| `@supabase/ssr`                              | ❌ NO instalado                                          |
+| `src/lib/supabase/`                          | ❌ NO existe                                             |
 | `src/hooks/use-supabase-auth.ts`             | ❌ NO existe                                             |
 | `src/app/auth/callback/`                     | ❌ NO existe                                             |
 | `src/app/auth/login/page.tsx`                | ✅ Existe — auth mock, sin Google, sin password real     |
@@ -27,21 +38,22 @@
 
 ## Objetivo
 
-Reemplazar el auth mock por Supabase Auth real. El usuario se loguea una vez (necesita red) y puede usar la app indefinidamente sin conexión hasta que se desloguee explícitamente.
+El usuario se loguea una vez (requiere red) y puede usar la app indefinidamente sin conexión
+hasta que se desloguee explícitamente.
 
 **Entregables:**
 
-1. Login/Registro con email + password real (bcrypt vía Supabase)
-2. OAuth con Google
-3. Sesión persistente en cookies del browser (funciona offline)
-4. Guard de rutas en `proxy.ts` actualizado (offline-safe)
-5. Route Handler `/auth/callback` para OAuth
+1. Instalar `@supabase/supabase-js` + `@supabase/ssr`
+2. Clientes Supabase reutilizables (`src/lib/supabase/`)
+3. Guard de rutas en `proxy.ts` actualizado (offline-safe con `getSession()`)
+4. Login/Registro con email + password real (bcrypt vía Supabase)
+5. OAuth con Google
+6. Sesión persistente en cookies del browser (funciona offline)
+7. Route Handler `/auth/callback` para OAuth
 
 ---
 
 ## Decisión arquitectónica: `getSession()` en el guard, NO `getUser()`
-
-El `proxy.ts` debe usar `getSession()`, no `getUser()`:
 
 |                  | `getSession()`                  | `getUser()`                         |
 | ---------------- | ------------------------------- | ----------------------------------- |
@@ -49,11 +61,92 @@ El `proxy.ts` debe usar `getSession()`, no `getUser()`:
 | Funciona offline | ✅ Sí                           | ❌ No — manda al login sin conexión |
 | Riesgo           | Token stale hasta 1h máx        | Ninguno                             |
 
-El usuario se loguea, las cookies quedan en el dispositivo. Sin red, `getSession()` las lee localmente y permite acceso. Cuando hay red, `onAuthStateChange` refresca el token en background automáticamente. El token stale de máx 1h es aceptable porque no hay API remota que proteger en el guard — los datos están en IndexedDB.
+El usuario se loguea, las cookies quedan en el dispositivo. Sin red, `getSession()` las lee
+localmente y permite acceso. Cuando hay red, `onAuthStateChange` refresca el token en
+background automáticamente. El token stale de máx 1h es aceptable porque no hay API remota
+que proteger en el guard — los datos están en IndexedDB.
 
 ---
 
-## Tarea 1: Actualizar `proxy.ts`
+## Tarea 1: Instalar dependencias
+
+```bash
+pnpm add @supabase/supabase-js @supabase/ssr
+```
+
+**NO instalar** `@supabase/auth-helpers-nextjs` — deprecated desde Supabase v2.
+
+---
+
+## Tarea 2: Variables de entorno
+
+**Archivo**: `.env.local`
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGc...
+```
+
+Solo estas dos para el funcionamiento normal de la app.
+`SUPABASE_SERVICE_ROLE_KEY` se agrega en FASE_14 (billing webhooks).
+
+---
+
+## Tarea 3: Clientes Supabase
+
+**Archivo**: `src/lib/supabase/client.ts` (browser — para hooks CSR)
+
+```typescript
+import { createBrowserClient } from "@supabase/ssr";
+
+export const supabase = createBrowserClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+);
+```
+
+**Archivo**: `src/lib/supabase/middleware.ts` (para proxy.ts)
+
+```typescript
+import { createServerClient } from "@supabase/ssr";
+import type { NextRequest, NextResponse } from "next/server";
+
+export function createSupabaseMiddlewareClient(
+  request: NextRequest,
+  response: NextResponse,
+) {
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value }) =>
+            request.cookies.set(name, value),
+          );
+          cookiesToSet.forEach(({ name, value, options }) =>
+            response.cookies.set(name, value, options),
+          );
+        },
+      },
+    },
+  );
+}
+```
+
+**Archivo**: `src/lib/supabase/index.ts` (barrel export)
+
+```typescript
+export { supabase } from "./client";
+export { createSupabaseMiddlewareClient } from "./middleware";
+```
+
+---
+
+## Tarea 4: Actualizar `proxy.ts`
 
 **Archivo**: `src/proxy.ts` (modificar)
 
@@ -95,7 +188,7 @@ export const config = {
 
 ---
 
-## Tarea 2: Hook `use-supabase-auth.ts`
+## Tarea 5: Hook `use-supabase-auth.ts`
 
 **Archivo**: `src/hooks/use-supabase-auth.ts` (crear)
 
@@ -224,7 +317,7 @@ export function useSupabaseAuth(): UseSupabaseAuth {
 
 ---
 
-## Tarea 3: Actualizar `auth-provider.tsx`
+## Tarea 6: Actualizar `auth-provider.tsx`
 
 **Archivo**: `src/components/providers/auth-provider.tsx` (modificar)
 
@@ -250,7 +343,7 @@ export function useAuthContext(): UseSupabaseAuth {
 
 ---
 
-## Tarea 4: Actualizar páginas de auth
+## Tarea 7: Actualizar páginas de auth
 
 **`src/app/auth/login/page.tsx`** — cambios:
 
@@ -266,7 +359,7 @@ export function useAuthContext(): UseSupabaseAuth {
 
 ---
 
-## Tarea 5: Route Handler para OAuth callback
+## Tarea 8: Route Handler para OAuth callback
 
 **Archivo**: `src/app/auth/callback/route.ts` (crear)
 
@@ -309,9 +402,7 @@ export async function GET(request: NextRequest) {
 
 ---
 
-## Tarea 6: Actualizar `LandingAccessButton`
-
-Al migrar a Supabase, `hasAuthToken()` busca la cookie JWT mock. Debe pasar a leer la sesión de Supabase.
+## Tarea 9: Actualizar `LandingAccessButton`
 
 **Archivo**: `src/components/landing/landing-access-button.tsx` (modificar)
 
@@ -358,19 +449,19 @@ export function LandingAccessButton() {
 
 ---
 
-## Tarea 7: Deprecar auth mock
+## Tarea 10: Deprecar auth mock
 
 ```typescript
-// src/lib/auth/jwt.ts — agregar al inicio
-/** @deprecated Reemplazado por Supabase Auth en FASE_13. Eliminar en FASE_14+. */
+// src/lib/auth/jwt.ts — agregar al inicio del archivo
+/** @deprecated Reemplazado por Supabase Auth en FASE_12. Eliminar en FASE_14+. */
 
-// src/hooks/use-auth.ts — agregar al inicio
-/** @deprecated Reemplazado por useSupabaseAuth() en FASE_13. Eliminar en FASE_14+. */
+// src/hooks/use-auth.ts — agregar al inicio del archivo
+/** @deprecated Reemplazado por useSupabaseAuth() en FASE_12. Eliminar en FASE_14+. */
 ```
 
 ---
 
-## Tarea 8: Configurar Google OAuth en Supabase Dashboard
+## Tarea 11: Configurar Google OAuth en Supabase Dashboard
 
 1. **Authentication → Providers → Google** → Habilitar
 2. En [Google Cloud Console](https://console.cloud.google.com): crear OAuth 2.0 Client ID
@@ -387,6 +478,9 @@ export function LandingAccessButton() {
 
 | Archivo                                            | Acción                                  |
 | -------------------------------------------------- | --------------------------------------- |
+| `src/lib/supabase/client.ts`                       | Crear — browser client                  |
+| `src/lib/supabase/middleware.ts`                   | Crear — server client para proxy        |
+| `src/lib/supabase/index.ts`                        | Crear — barrel export                   |
 | `src/proxy.ts`                                     | Modificar → `getSession()` offline-safe |
 | `src/hooks/use-supabase-auth.ts`                   | Crear                                   |
 | `src/components/providers/auth-provider.tsx`       | Modificar → usa nuevo hook              |
@@ -401,8 +495,10 @@ export function LandingAccessButton() {
 
 ## Criterios de Aceptación
 
+- [ ] `pnpm add @supabase/supabase-js @supabase/ssr` ejecutado sin errores
+- [ ] `.env.local` con `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - [ ] Login email/password valida contraseñas reales
-- [ ] Registro crea usuario en Supabase Auth + fila en tabla `usuarios` + perfil en IndexedDB
+- [ ] Registro crea usuario en Supabase Auth + perfil en IndexedDB
 - [ ] OAuth Google: click → consent → callback → autenticado
 - [ ] Sesión persiste al cerrar y reabrir el browser
 - [ ] Sin conexión: navegar `/app/**` funciona con sesión previa
@@ -414,4 +510,4 @@ export function LandingAccessButton() {
 
 ## Siguiente fase
 
-**FASE_14** — Billing con MercadoPago (suscripciones)
+**FASE_13** — Supabase Backend: schema PostgreSQL, RLS, SupabaseAdapter, sync real

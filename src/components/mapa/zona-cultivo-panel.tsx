@@ -248,6 +248,15 @@ export function ZonaCultivoPanel() {
                 <ScoreCalidadPanel score={score} />
               </div>
               <div className="bg-white border rounded-lg p-3">
+                <div className="flex items-center gap-1 mb-1">
+                  <span className="text-xs font-bold text-gray-700">
+                    Retorno de Inversión
+                  </span>
+                  <InfoLabel
+                    label=""
+                    tooltip="ROI estimado: ingresos proyectados por cosecha × plantas vivas, menos costos de agua y producción. Varía según etapa y condiciones reales."
+                  />
+                </div>
                 <ROIPanel roi={roi} />
               </div>
               <div className="bg-white border rounded-lg p-3">

@@ -1,10 +1,19 @@
-# FASE 12: Supabase — Base de datos + Infraestructura
+# FASE 13: Supabase Backend — Schema + RLS + Sync Real
 
 **Status**: ⏳ PENDIENTE
 **Prioridad**: 🔴 CRÍTICA
-**Dependencias**: FASE_11
+**Dependencias**: FASE_12 (`@supabase/supabase-js`, `@supabase/ssr` y clientes en `src/lib/supabase/`)
 **Estimación**: 4-5 horas
 **Última revisión**: 2026-03-01
+
+---
+
+## Contexto
+
+Con el auth real funcionando (FASE_12), esta fase conecta la app a PostgreSQL de Supabase.
+Los datos de cada usuario (terrenos, zonas, plantas, agua, etc.) se guardan en la nube y se
+sincronizan entre dispositivos, manteniendo el comportamiento offline-first con IndexedDB como
+caché local.
 
 ---
 
@@ -12,24 +21,22 @@
 
 | Aspecto                             | Estado                                                     |
 | ----------------------------------- | ---------------------------------------------------------- |
-| `@supabase/supabase-js`             | ❌ NO instalado                                            |
-| `@supabase/ssr`                     | ❌ NO instalado                                            |
-| `src/lib/supabase/`                 | ❌ NO existe                                               |
-| `src/lib/sync/adapters/supabase.ts` | ❌ NO existe — solo MockAdapter                            |
+| `@supabase/supabase-js`             | ✅ Instalado en FASE_12                                    |
+| `src/lib/supabase/client.ts`        | ✅ Creado en FASE_12                                       |
 | `supabase/migrations/`              | ❌ NO existe                                               |
+| `src/lib/sync/adapters/supabase.ts` | ❌ NO existe — solo MockAdapter                            |
 | `src/lib/db/index.ts`               | ✅ Dexie v4 schema v1+v2 completo                          |
 | `src/lib/sync/engine.ts`            | ✅ Motor de sync con cola implementado                     |
 | `src/lib/sync/types.ts`             | ✅ Interfaces `SyncAdapter`, `SyncRequest`, `SyncResponse` |
 | `src/hooks/use-sync.ts`             | ✅ Hook con intervalo 30s, reintentos, conflictos          |
 | `src/lib/constants/sync.ts`         | ✅ `SYNC_ENTIDADES` con 7 entidades definidas              |
 
-**Resumen**: La arquitectura de sync (cola, engine, tipos) está completa. Solo falta conectarla a Supabase real.
+**Resumen**: La arquitectura de sync (cola, engine, tipos) está completa. Solo falta
+conectarla a Supabase real y crear el schema.
 
 ---
 
 ## Objetivo
-
-Conectar la app a Supabase para que los datos de cada usuario (terrenos, zonas, plantas, agua, etc.) se guarden en PostgreSQL y se sincronicen entre dispositivos, manteniendo el comportamiento offline-first con IndexedDB como caché local.
 
 **Visión de arquitectura:**
 
@@ -49,11 +56,10 @@ SYNC (al reconectar):
 
 **Entregables:**
 
-1. Instalar `@supabase/supabase-js` + `@supabase/ssr`
-2. Crear clientes Supabase (browser + middleware)
-3. Schema PostgreSQL con RLS
-4. `SupabaseAdapter` que reemplaza `MockAdapter`
-5. Tipos TypeScript generados desde el schema
+1. Schema PostgreSQL con todas las tablas + triggers `updated_at`
+2. RLS policies — cada usuario solo ve sus datos
+3. `SupabaseAdapter` que implementa `SyncAdapter` (reemplaza `MockAdapter`)
+4. Activar `SupabaseAdapter` en `use-sync.ts`
 
 **NO en esta fase:**
 
@@ -61,82 +67,13 @@ SYNC (al reconectar):
 - ~~Página `/migrate`~~ → innecesario
 - ~~`supabaseAdmin` / `SERVICE_ROLE_KEY`~~ → solo necesario para webhooks de billing (FASE_14)
 
-**Decisión de conflictos sync**: Last-write-wins — el registro con `last_modified` más reciente reemplaza al otro. Sin intervención del usuario. Si en el futuro se desea resolución manual, existe `src/components/sync/conflict-modal.tsx` para ello.
+**Decisión de conflictos sync**: Last-write-wins — el registro con `last_modified` más reciente
+reemplaza al otro. Sin intervención del usuario. Si en el futuro se desea resolución manual,
+existe `src/components/sync/conflict-modal.tsx` para ello.
 
 ---
 
-## Tarea 1: Instalar dependencias
-
-```bash
-pnpm add @supabase/supabase-js @supabase/ssr
-```
-
-**NO instalar** `@supabase/auth-helpers-nextjs` — deprecated desde Supabase v2.
-
----
-
-## Tarea 2: Variables de entorno
-
-**Archivo**: `.env.local`
-
-```env
-NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGc...
-```
-
-Solo estas dos para el funcionamiento normal de la app.
-`SUPABASE_SERVICE_ROLE_KEY` se agrega en FASE_14 (billing webhooks).
-
----
-
-## Tarea 3: Clientes Supabase
-
-**Archivo**: `src/lib/supabase/client.ts` (browser — para hooks CSR)
-
-```typescript
-import { createBrowserClient } from "@supabase/ssr";
-
-export const supabase = createBrowserClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-);
-```
-
-**Archivo**: `src/lib/supabase/middleware.ts` (para proxy.ts)
-
-```typescript
-import { createServerClient } from "@supabase/ssr";
-import type { NextRequest, NextResponse } from "next/server";
-
-export function createSupabaseMiddlewareClient(
-  request: NextRequest,
-  response: NextResponse,
-) {
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll();
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) =>
-            request.cookies.set(name, value),
-          );
-          cookiesToSet.forEach(({ name, value, options }) =>
-            response.cookies.set(name, value, options),
-          );
-        },
-      },
-    },
-  );
-}
-```
-
----
-
-## Tarea 4: Schema PostgreSQL
+## Tarea 1: Schema PostgreSQL
 
 **Archivo**: `supabase/migrations/001_initial_schema.sql`
 
@@ -182,71 +119,71 @@ CREATE TABLE terrenos (
 
 -- ZONAS
 CREATE TABLE zonas (
+  id                  UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  terreno_id          UUID NOT NULL REFERENCES terrenos(id) ON DELETE CASCADE,
+  nombre              TEXT NOT NULL,
+  tipo                TEXT NOT NULL,
+  x                   FLOAT NOT NULL,
+  y                   FLOAT NOT NULL,
+  ancho               FLOAT NOT NULL,
+  alto                FLOAT NOT NULL,
+  color               TEXT,
+  area_m2             FLOAT,
+  estanque_config     JSONB,
+  configuracion_riego JSONB,
+  created_at          TIMESTAMPTZ DEFAULT NOW(),
+  updated_at          TIMESTAMPTZ DEFAULT NOW(),
+  last_modified       TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- PLANTAS
+CREATE TABLE plantas (
   id               UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  terreno_id       UUID NOT NULL REFERENCES terrenos(id) ON DELETE CASCADE,
-  nombre           TEXT NOT NULL,
-  tipo             TEXT NOT NULL,
+  zona_id          UUID NOT NULL REFERENCES zonas(id) ON DELETE CASCADE,
+  tipo_cultivo_id  UUID NOT NULL,
   x                FLOAT NOT NULL,
   y                FLOAT NOT NULL,
-  ancho            FLOAT NOT NULL,
-  alto             FLOAT NOT NULL,
-  color            TEXT,
-  area_m2          FLOAT,
-  estanque_config  JSONB,
-  configuracion_riego JSONB,
+  fecha_plantacion TIMESTAMPTZ,
+  estado           TEXT DEFAULT 'plantada',
+  etapa            TEXT,
+  notas            TEXT,
   created_at       TIMESTAMPTZ DEFAULT NOW(),
   updated_at       TIMESTAMPTZ DEFAULT NOW(),
   last_modified    TIMESTAMPTZ DEFAULT NOW()
 );
 
--- PLANTAS
-CREATE TABLE plantas (
-  id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  zona_id         UUID NOT NULL REFERENCES zonas(id) ON DELETE CASCADE,
-  tipo_cultivo_id UUID NOT NULL,
-  x               FLOAT NOT NULL,
-  y               FLOAT NOT NULL,
-  fecha_plantacion TIMESTAMPTZ,
-  estado          TEXT DEFAULT 'plantada',
-  etapa           TEXT,
-  notas           TEXT,
-  created_at      TIMESTAMPTZ DEFAULT NOW(),
-  updated_at      TIMESTAMPTZ DEFAULT NOW(),
-  last_modified   TIMESTAMPTZ DEFAULT NOW()
-);
-
 -- CATÁLOGO CULTIVOS (personalizable por proyecto)
 CREATE TABLE catalogo_cultivos (
-  id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  proyecto_id     UUID NOT NULL REFERENCES proyectos(id) ON DELETE CASCADE,
-  nombre          TEXT NOT NULL,
-  nombre_cientifico TEXT,
-  tier            TEXT,
-  espaciado_m     FLOAT,
-  agua_m3_ha_año  FLOAT,
-  dias_cosecha    INT,
-  color           TEXT,
+  id                 UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  proyecto_id        UUID NOT NULL REFERENCES proyectos(id) ON DELETE CASCADE,
+  nombre             TEXT NOT NULL,
+  nombre_cientifico  TEXT,
+  tier               TEXT,
+  espaciado_m        FLOAT,
+  agua_m3_ha_año     FLOAT,
+  dias_cosecha       INT,
+  color              TEXT,
   precio_semilla_clp FLOAT,
-  precio_kg_clp   FLOAT,
-  kg_por_planta_año FLOAT,
-  created_at      TIMESTAMPTZ DEFAULT NOW(),
-  updated_at      TIMESTAMPTZ DEFAULT NOW()
+  precio_kg_clp      FLOAT,
+  kg_por_planta_año  FLOAT,
+  created_at         TIMESTAMPTZ DEFAULT NOW(),
+  updated_at         TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- ENTRADAS AGUA
 CREATE TABLE entradas_agua (
-  id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  terreno_id      UUID NOT NULL REFERENCES terrenos(id) ON DELETE CASCADE,
-  tipo            TEXT NOT NULL,
-  cantidad_m3     FLOAT NOT NULL,
-  fecha           TIMESTAMPTZ DEFAULT NOW(),
-  costo_clp       FLOAT,
-  estanque_id     UUID REFERENCES zonas(id),
-  fuente          JSONB,
-  notas           TEXT,
-  created_at      TIMESTAMPTZ DEFAULT NOW(),
-  updated_at      TIMESTAMPTZ DEFAULT NOW(),
-  last_modified   TIMESTAMPTZ DEFAULT NOW()
+  id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  terreno_id  UUID NOT NULL REFERENCES terrenos(id) ON DELETE CASCADE,
+  tipo        TEXT NOT NULL,
+  cantidad_m3 FLOAT NOT NULL,
+  fecha       TIMESTAMPTZ DEFAULT NOW(),
+  costo_clp   FLOAT,
+  estanque_id UUID REFERENCES zonas(id),
+  fuente      JSONB,
+  notas       TEXT,
+  created_at  TIMESTAMPTZ DEFAULT NOW(),
+  updated_at  TIMESTAMPTZ DEFAULT NOW(),
+  last_modified TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- COSECHAS
@@ -265,21 +202,20 @@ CREATE TABLE cosechas (
 
 -- ALERTAS
 CREATE TABLE alertas (
-  id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  terreno_id      UUID NOT NULL REFERENCES terrenos(id) ON DELETE CASCADE,
-  tipo            TEXT NOT NULL,
-  severidad       TEXT NOT NULL,
-  estado          TEXT DEFAULT 'activa',
-  titulo          TEXT NOT NULL,
-  mensaje         TEXT NOT NULL,
-  zona_id         UUID REFERENCES zonas(id),
-  created_at      TIMESTAMPTZ DEFAULT NOW(),
-  updated_at      TIMESTAMPTZ DEFAULT NOW(),
-  last_modified   TIMESTAMPTZ DEFAULT NOW()
+  id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  terreno_id  UUID NOT NULL REFERENCES terrenos(id) ON DELETE CASCADE,
+  tipo        TEXT NOT NULL,
+  severidad   TEXT NOT NULL,
+  estado      TEXT DEFAULT 'activa',
+  titulo      TEXT NOT NULL,
+  mensaje     TEXT NOT NULL,
+  zona_id     UUID REFERENCES zonas(id),
+  created_at  TIMESTAMPTZ DEFAULT NOW(),
+  updated_at  TIMESTAMPTZ DEFAULT NOW(),
+  last_modified TIMESTAMPTZ DEFAULT NOW()
 );
 
--- TRIGGER: updated_at automático
--- Necesario para que el sync sepa qué cambió y cuándo (delta sync por last_modified)
+-- TRIGGER: updated_at automático (delta sync por last_modified)
 CREATE OR REPLACE FUNCTION set_updated_at()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -300,14 +236,14 @@ CREATE TRIGGER trg_alertas_updated_at       BEFORE UPDATE ON alertas       FOR E
 
 ---
 
-## Tarea 5: Row Level Security (RLS)
+## Tarea 2: Row Level Security (RLS)
 
-RLS garantiza que cada usuario solo pueda ver y modificar SUS propios datos, aunque estén en la misma base de datos. Sin esto, cualquier usuario autenticado podría leer los terrenos de otro.
+RLS garantiza que cada usuario solo pueda ver y modificar SUS propios datos, aunque estén en
+la misma base de datos. Sin esto, cualquier usuario autenticado podría leer los terrenos de otro.
 
 **Archivo**: `supabase/migrations/002_rls_policies.sql`
 
 ```sql
--- Habilitar RLS en todas las tablas
 ALTER TABLE usuarios          ENABLE ROW LEVEL SECURITY;
 ALTER TABLE proyectos         ENABLE ROW LEVEL SECURITY;
 ALTER TABLE terrenos          ENABLE ROW LEVEL SECURITY;
@@ -382,11 +318,12 @@ CREATE POLICY "alertas_own" ON alertas
 
 ---
 
-## Tarea 6: SupabaseAdapter
+## Tarea 3: SupabaseAdapter
 
-Reemplaza `MockAdapter`. Implementa la interfaz `SyncAdapter` que ya existe en `src/lib/sync/types.ts`.
+Reemplaza `MockAdapter`. Implementa la interfaz `SyncAdapter` que ya existe en
+`src/lib/sync/types.ts`.
 
-**Archivo**: `src/lib/sync/adapters/supabase.ts`
+**Archivo**: `src/lib/sync/adapters/supabase.ts` (crear)
 
 ```typescript
 import { supabase } from "@/lib/supabase/client";
@@ -441,22 +378,7 @@ export class SupabaseAdapter implements SyncAdapter {
           .eq("id", request.entidadId)
           .select()
           .single();
-        if (error) {
-          // Conflicto: alguien más modificó este registro
-          if (error.code === "23505") {
-            const { data: serverData } = await supabase
-              .from(table)
-              .select()
-              .eq("id", request.entidadId)
-              .single();
-            return {
-              success: false,
-              conflict: true,
-              serverData: serverData as Record<string, unknown>,
-            };
-          }
-          throw error;
-        }
+        if (error) throw error;
         return { success: true, data: data as Record<string, unknown> };
       }
 
@@ -482,11 +404,11 @@ export class SupabaseAdapter implements SyncAdapter {
   async pull(request: PullRequest): Promise<PullResponse> {
     const table = TABLE_MAP[request.entidad];
     try {
-      let query = supabase.from(table).select("*");
-      if (request.since) {
-        // Delta sync: solo trae registros modificados desde la última sincronización
-        query = query.gt("last_modified", request.since);
-      }
+      // Delta sync: solo trae registros modificados desde la última sincronización
+      const query = request.since
+        ? supabase.from(table).select("*").gt("last_modified", request.since)
+        : supabase.from(table).select("*");
+
       const { data, error } = await query;
       if (error) throw error;
       return {
@@ -510,25 +432,23 @@ export const supabaseAdapter = new SupabaseAdapter();
 
 ---
 
-## Tarea 7: Activar SupabaseAdapter en useSync
+## Tarea 4: Activar SupabaseAdapter en useSync
 
 **Archivo**: `src/hooks/use-sync.ts` (modificar una línea)
 
 ```typescript
 // Antes:
 import { mockAdapter } from "@/lib/sync/adapters";
-// ...
 setAdapter(mockAdapter);
 
 // Después:
 import { supabaseAdapter } from "@/lib/sync/adapters/supabase";
-// ...
 setAdapter(supabaseAdapter);
 ```
 
 ---
 
-## Tarea 8: Actualizar el barrel export de adapters
+## Tarea 5: Actualizar barrel export de adapters
 
 **Archivo**: `src/lib/sync/adapters/index.ts`
 
@@ -541,8 +461,6 @@ export { SupabaseAdapter, supabaseAdapter } from "./supabase";
 
 ## Criterios de Aceptación
 
-- [ ] `pnpm add @supabase/supabase-js @supabase/ssr` ejecutado sin errores
-- [ ] `.env.local` con `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - [ ] Migrations aplicadas en Supabase Dashboard (o via CLI)
 - [ ] RLS activo — verificar que un usuario no puede leer datos de otro
 - [ ] `SupabaseAdapter.isAvailable()` devuelve `true` con conexión
@@ -554,4 +472,4 @@ export { SupabaseAdapter, supabaseAdapter } from "./supabase";
 
 ## Siguiente fase
 
-**FASE_13** — Autenticación real con Supabase Auth (login, registro, Google OAuth)
+**FASE_14** — Billing con MercadoPago (suscripciones)

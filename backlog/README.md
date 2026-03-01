@@ -110,22 +110,22 @@ Cada archivo FASE_X.md incluye esta tarea de integración al final.
 | **11B** | ✅     | 100%     | Segmentación UX Agua (Experimentación vs Gestión)                   | 🔴 Alta    |
 | **11C** | ✅     | 100%     | Dashboard Mejorado + Planificador Económico                         | 🔴 CRÍTICA |
 | **11D** | ✅     | 100%     | Mejoras No Registradas (Economía, Escenarios, Plagas, Datos, Fixes) | 🔴 Alta    |
+| **15B** | ✅     | 100%     | Bugs Críticos de UX (pre-Supabase)                                  | 🔴 Alta    |
 
 ### Pendientes ⏳
 
-| Fase      | Status | Progreso | Nombre                                       | Prioridad     |
-| --------- | ------ | -------- | -------------------------------------------- | ------------- |
-| **15B**   | ⏳     | 0%       | Bugs Críticos de UX (pre-Supabase)           | 🔴 ALTA       |
-| 12        | ⏳     | 0%       | Migración a Supabase (Backend Real)          | 🔴 CRÍTICA    |
-| 13        | ⏳     | 0%       | Autenticación Real con Supabase Auth         | 🔴 CRÍTICA    |
-| 14        | ⏳     | 0%       | Sistema de Billing con MercadoPago           | 🔴 ALTA       |
-| 16        | ⏳     | 0%       | Registro de Cosechas (UI)                    | 🟡 MEDIA      |
-| 17        | ⏳     | 0%       | Reportes y Exportación PDF                   | 🟡 MEDIA      |
-| 18        | ⏳     | 0%       | Calendario de Eventos (Vista Mensual)        | 🟢 BAJA-MEDIA |
-| 19        | ⏳     | 0%       | Integraciones API Externas (Clima + Precios) | 🟢 BAJA       |
-| **FINAL** | ⏳     | 0%       | Historial de Cambios (UI)                    | 🟢 BAJA       |
+| Fase      | Status | Progreso | Nombre                                          | Prioridad     |
+| --------- | ------ | -------- | ----------------------------------------------- | ------------- |
+| 12        | ⏳     | 0%       | Auth Real con Supabase (login, registro, OAuth) | 🔴 CRÍTICA    |
+| 13        | ⏳     | 0%       | Supabase Backend (schema, RLS, sync real)       | 🔴 CRÍTICA    |
+| 14        | ⏳     | 0%       | Sistema de Billing con MercadoPago              | 🔴 ALTA       |
+| 16        | ⏳     | 0%       | Registro de Cosechas (UI)                       | 🟡 MEDIA      |
+| 17        | ⏳     | 0%       | Reportes y Exportación PDF                      | 🟡 MEDIA      |
+| 18        | ⏳     | 0%       | Calendario de Eventos (Vista Mensual)           | 🟢 BAJA-MEDIA |
+| 19        | ⏳     | 0%       | Integraciones API Externas (Clima + Precios)    | 🟢 BAJA       |
+| **FINAL** | ⏳     | 0%       | Historial de Cambios (UI)                       | 🟢 BAJA       |
 
-**Total fases**: 32 (23 completadas, 9 pendientes)
+**Total fases**: 32 (24 completadas, 8 pendientes)
 
 ---
 
@@ -133,11 +133,9 @@ Cada archivo FASE_X.md incluye esta tarea de integración al final.
 
 **Fase actual:** FASE_12 - Migración a Supabase (Backend Real)
 
-**Completadas (23)**: Estructura, Tipos, Mapa, Zonas, Plantas, Selección Múltiple, Gestión Proyectos/Terrenos, Terreno Avanzado, Panel Clima, Panel Suelo, Agua Avanzada, Motor Recomendación, Catálogo Cultivos, Estanques, Control Agua, Alertas y Dashboard, PWA y Sync Offline, **Performance PixiJS**, **Mejoras UX/Agua/Datos**, **Autenticación JWT Mock**, **Segmentación UX Agua**, **Dashboard + Planificador**, **Economía/Escenarios/Plagas/Datos/Fixes**
+**Completadas (24)**: Estructura, Tipos, Mapa, Zonas, Plantas, Selección Múltiple, Gestión Proyectos/Terrenos, Terreno Avanzado, Panel Clima, Panel Suelo, Agua Avanzada, Motor Recomendación, Catálogo Cultivos, Estanques, Control Agua, Alertas y Dashboard, PWA y Sync Offline, **Performance PixiJS**, **Mejoras UX/Agua/Datos**, **Autenticación JWT Mock**, **Segmentación UX Agua**, **Dashboard + Planificador**, **Economía/Escenarios/Plagas/Datos/Fixes**, **Bugs Críticos UX (15B)**
 
-**En progreso (1)**: FASE_15 — Landing Page SSG (75% — Story 5 pendiente)
-
-**Pendientes (9)**: Bugs UX → Supabase → Auth Real → Billing → Cosechas → PDF → Calendario → APIs → Historial
+**Pendientes (8)**: Auth Supabase → Backend Supabase → Billing → Cosechas → PDF → Calendario → APIs → Historial
 
 **Objetivo:** Transformar AgriPlan en un SaaS con backend real y sistema de suscripciones.
 
@@ -236,9 +234,9 @@ Cada archivo FASE_X.md incluye esta tarea de integración al final.
 
 ### Pendientes (15B–FINAL) ⏳
 
-- `FASE_15B_BUGS_UX.md` - Bugs Críticos de UX (BUG-01, BUG-05, BUG-10, UX-02, UX-04, UX-06) ⏳
-- `FASE_12_SUPABASE.md` - Migración a Supabase (Backend Real) ⏳
-- `FASE_13_AUTH_REAL.md` - Autenticación Real con Supabase Auth ⏳
+- `FASE_15B_BUGS_UX.md` - Bugs Críticos de UX (BUG-01, BUG-05, BUG-10, UX-02, UX-04, UX-06) ✅
+- `FASE_12_AUTH_SUPABASE.md` - Auth Real con Supabase (install, clientes, login, registro, OAuth) ⏳
+- `FASE_13_SUPABASE_BACKEND.md` - Supabase Backend (schema PostgreSQL, RLS, SupabaseAdapter, sync real) ⏳
 - `FASE_14_BILLING_MERCADOPAGO.md` - Sistema de Billing con MercadoPago ⏳
 - `FASE_16_COSECHAS.md` - Registro de Cosechas (UI) ⏳
 - `FASE_17_REPORTES_PDF.md` - Reportes y Exportación PDF ⏳
@@ -248,7 +246,7 @@ Cada archivo FASE_X.md incluye esta tarea de integración al final.
 
 ### Gap conocido
 
-- `src/app/proyecto/page.tsx` — NO existe (solo existe `error.tsx`). Crear página de gestión de proyectos/terrenos antes o durante FASE_15B.
+- `src/app/proyecto/page.tsx` — NO existe (solo existe `error.tsx`). Crear página de gestión de proyectos/terrenos como parte de FASE_12 o en fase separada.
 
 ### Documentos de arquitectura
 
@@ -316,10 +314,9 @@ pnpm type-check   # TypeScript check
 
 ### Próximas 🚀
 
-1. ⏳ **PRÓXIMO**: Migración a Supabase (FASE_12)
-2. ⏳ **PARALELA/SIGUIENTE**: Bugs Críticos UX (FASE_15B) — sin dependencia técnica con FASE_12
-3. ⏳ **LUEGO**: Autenticación Real (FASE_13)
-4. ⏳ **LUEGO**: Billing MercadoPago (FASE_14)
-5. ⏳ **POST-SAAS**: Cosechas → PDF → Calendario → APIs externas → Historial (FASE_16–FINAL)
+1. ⏳ **PRÓXIMO**: Auth Real con Supabase (FASE_12) — instala paquetes + clientes + auth completo
+2. ⏳ **LUEGO**: Backend Supabase (FASE_13) — schema PostgreSQL + RLS + SupabaseAdapter + sync
+3. ⏳ **LUEGO**: Billing MercadoPago (FASE_14)
+4. ⏳ **POST-SAAS**: Cosechas → PDF → Calendario → APIs externas → Historial (FASE_16–FINAL)
 
 **Objetivo:** Convertir AgriPlan en un SaaS funcional con suscripciones mensuales de 9,990 CLP.

@@ -473,6 +473,22 @@ export function useMapInteractions(deps: InteractionDeps) {
         if (planta) {
           p.onPlantaClick?.(planta);
         }
+        return;
+      }
+
+      if (currentModo === "zonas" && p.onZonaClick) {
+        const metrosX = worldPos.x / PIXELS_POR_METRO;
+        const metrosY = worldPos.y / PIXELS_POR_METRO;
+        const zonaHit = p.zonas.find(
+          (z) =>
+            metrosX >= z.x &&
+            metrosX <= z.x + z.ancho &&
+            metrosY >= z.y &&
+            metrosY <= z.y + z.alto,
+        );
+        if (zonaHit) {
+          p.onZonaClick(zonaHit);
+        }
       }
     };
 

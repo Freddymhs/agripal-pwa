@@ -187,7 +187,12 @@ export function ResumenAgua({
             <div className="text-2xl font-bold text-cyan-600">
               {consumoSemanal.toFixed(2)}
             </div>
-            <div className="text-xs text-gray-500">m³/semana</div>
+            <div
+              className="text-xs text-gray-500"
+              title="Suma del consumo semanal estimado de todas las zonas de cultivo activas según ficha, etapa y temporada."
+            >
+              m³/semana (?)
+            </div>
           </div>
           <div className="bg-purple-50 p-3 rounded text-center">
             <div className="text-2xl font-bold text-purple-600">
@@ -261,11 +266,11 @@ export function ResumenAgua({
                 </li>
                 <li>
                   O reduce el consumo en{" "}
-                  {Math.ceil(
+                  {(
                     (consumoDiario * Math.abs(diasFaltantes)) /
-                      diasHastaRecarga,
-                  ).toFixed(1)}{" "}
-                  L/día
+                    diasHastaRecarga
+                  ).toFixed(2)}{" "}
+                  m³/día
                 </li>
               </ul>
             </div>
