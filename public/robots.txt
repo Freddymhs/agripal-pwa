@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+# No indexar la app privada ni la API
+Disallow: /app/
+Disallow: /api/
+Disallow: /auth/
+
+# Sitemap
+Sitemap: https://agriplan.cl/sitemap.xml

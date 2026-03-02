@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Playfair_Display, Plus_Jakarta_Sans } from "next/font/google";
 import { ROUTES } from "@/lib/constants/routes";
@@ -6,6 +7,150 @@ import { NavAccessButton } from "@/components/landing/nav-access-button";
 
 export const dynamic = "force-static";
 export const revalidate = false;
+
+export const metadata: Metadata = {
+  title: "AgriPlan — Deja de plantar a ojo. Software agrícola para Chile.",
+  description:
+    "Controla el agua de tus zonas, proyecta el ROI de cada cultivo y recibe alertas automáticas. Hecho para agricultores del norte de Chile. 6 meses gratis, sin tarjeta.",
+  keywords: [
+    "software agrícola Chile",
+    "gestión riego norte Chile",
+    "planificación cultivos Arica",
+    "control agua cultivos",
+    "ROI agricultura Chile",
+    "app agrícola sin internet",
+    "software campo Tarapacá",
+    "software horticultura Chile",
+    "gestión agua cultivos norte Chile",
+    "app agricola offline Chile",
+    "cuaderno de campo digital Chile",
+    "planificación riego Azapa",
+    "software pequeños agricultores Chile",
+    "cultivos hortícolas norte Chile",
+    "evapotranspiración cultivos Chile",
+  ],
+  openGraph: {
+    title: "AgriPlan — Deja de plantar a ojo",
+    description:
+      "Calcula cuánta agua necesita cada zona, qué cultivos convienen y cuándo recuperas tu inversión. 6 meses gratis, sin tarjeta.",
+    type: "website",
+    url: "https://agriplan.cl",
+    locale: "es_CL",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "AgriPlan — Software agrícola para el norte de Chile",
+    description:
+      "Controla el agua, proyecta el ROI y gestiona tus cultivos desde el celular. Funciona sin internet.",
+  },
+  alternates: {
+    canonical: "https://agriplan.cl",
+  },
+};
+
+const JSON_LD = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareApplication",
+      name: "AgriPlan",
+      applicationCategory: "BusinessApplication",
+      operatingSystem: "Web, iOS, Android",
+      url: "https://agriplan.cl",
+      description:
+        "Software de planificación agrícola offline-first para agricultores del norte de Chile. Control de agua por zona, ROI proyectado por cultivo y alertas automáticas de riesgo.",
+      inLanguage: "es-CL",
+      offers: {
+        "@type": "Offer",
+        price: "9990",
+        priceCurrency: "CLP",
+        description: "6 meses de prueba gratuita, sin tarjeta de crédito",
+        availability: "https://schema.org/InStock",
+      },
+      featureList: [
+        "Control de agua por zona de cultivo",
+        "ROI proyectado por cultivo",
+        "Alertas automáticas de riesgo",
+        "Catálogo de 25+ cultivos del norte de Chile",
+        "Funciona 100% sin internet",
+        "Análisis de calidad de agua (boro, salinidad, pH)",
+      ],
+    },
+    {
+      "@type": "WebApplication",
+      name: "AgriPlan",
+      url: "https://agriplan.cl",
+      applicationCategory: "BusinessApplication",
+      browserRequirements: "Requires JavaScript. Requires HTML5.",
+      softwareVersion: "1.0",
+      operatingSystem: "Web",
+      description:
+        "Aplicación web progresiva (PWA) para gestión agrícola en el norte de Chile. Funciona sin conexión a internet.",
+      inLanguage: "es-CL",
+    },
+    {
+      "@type": "Organization",
+      name: "AgriPlan",
+      url: "https://agriplan.cl",
+      description:
+        "Software de planificación agrícola para pequeños y medianos agricultores del norte de Chile.",
+      areaServed: [
+        {
+          "@type": "State",
+          name: "Arica y Parinacota",
+          containedInPlace: { "@type": "Country", name: "Chile" },
+        },
+        {
+          "@type": "State",
+          name: "Tarapacá",
+          containedInPlace: { "@type": "Country", name: "Chile" },
+        },
+        {
+          "@type": "State",
+          name: "Antofagasta",
+          containedInPlace: { "@type": "Country", name: "Chile" },
+        },
+      ],
+      knowsAbout: [
+        "Gestión de agua agrícola",
+        "ROI cultivos",
+        "Horticultura norte Chile",
+        "Riego por goteo",
+        "Evapotranspiración",
+        "Coeficiente de cultivo Kc",
+      ],
+    },
+    {
+      "@type": "FAQPage",
+      mainEntity: [
+        {
+          "@type": "Question",
+          name: "¿Es realmente gratis por 6 meses?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Sí. Sin tarjeta de crédito, sin letra chica. Después del período de prueba, $9.990 CLP/mes si quieres continuar.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "¿Necesito internet para usar AgriPlan?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Para registrarte sí necesitas internet. Después funciona sin señal. Tus datos quedan guardados en el teléfono.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "¿Funciona en cualquier celular?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Sí. Funciona en Android e iPhone. No necesitas instalar nada, se usa desde el navegador del teléfono.",
+          },
+        },
+      ],
+    },
+  ],
+};
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -62,6 +207,52 @@ const ANIMATION_CSS = `
     background: rgba(127,179,138,0.15);
     color: #7fb38a;
     border-color: rgba(127,179,138,0.2);
+  }
+  @keyframes revealUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .scroll-reveal {
+    animation: revealUp 0.6s ease both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 25%;
+  }
+  details.faq-item summary {
+    list-style: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.25rem 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #f5f0e8;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    transition: color 0.2s ease;
+  }
+  details.faq-item summary::-webkit-details-marker { display: none; }
+  details.faq-item summary::after {
+    content: '+';
+    font-size: 1.4rem;
+    font-weight: 300;
+    color: #7fb38a;
+    flex-shrink: 0;
+    transition: transform 0.25s ease;
+  }
+  details.faq-item[open] summary::after {
+    transform: rotate(45deg);
+  }
+  details.faq-item[open] summary {
+    color: #7fb38a;
+    border-bottom-color: transparent;
+  }
+  details.faq-item .faq-answer {
+    padding: 0 0 1.25rem 0;
+    font-size: 1rem;
+    line-height: 1.75;
+    color: #9db89e;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
   }
 `;
 
@@ -245,6 +436,61 @@ const FEATURES = [
   },
 ] as const;
 
+const STEP_ICONS = [
+  // Mapa/grid
+  <svg
+    key="s1"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={1.6}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden
+  >
+    <path d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+  </svg>,
+  // Gota agua
+  <svg
+    key="s2"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={1.6}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden
+  >
+    <path d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z" />
+  </svg>,
+  // Planta/hoja
+  <svg
+    key="s3"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={1.6}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden
+  >
+    <path d="M12 22V12m0 0C12 7 8 4 4 5c0 4 2.5 8 8 7zm0 0c0-5 4-8 8-7-1 4-3.5 7-8 7z" />
+  </svg>,
+  // Tendencia/gráfico
+  <svg
+    key="s4"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={1.6}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden
+  >
+    <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+  </svg>,
+];
+
 const STEPS = [
   {
     num: "1",
@@ -313,6 +559,33 @@ const ROI_PUNTOS = [
   },
 ] as const;
 
+const FAQ_ITEMS = [
+  {
+    q: "¿Es realmente gratis por 6 meses?",
+    a: "Sí. Sin tarjeta de crédito, sin letra chica. Después del período de prueba, $9.990/mes si quieres continuar. Si no, no pasa nada.",
+  },
+  {
+    q: "¿Necesito internet para usarla?",
+    a: "Para registrarte sí necesitas internet una vez. Después funciona sin señal. Tus datos quedan guardados en tu teléfono.",
+  },
+  {
+    q: "¿Funciona en cualquier celular?",
+    a: "Sí. Android e iPhone. No necesitas instalar nada, se abre desde el navegador del teléfono.",
+  },
+  {
+    q: "¿Mis datos están seguros?",
+    a: "Sí. Se guardan en tu teléfono y en servidores seguros. No compartimos tu información con nadie.",
+  },
+  {
+    q: "¿Qué pasa si cancelo?",
+    a: "Nada. Tus datos siguen disponibles. No hay contratos ni multas. Cancelas cuando quieras.",
+  },
+  {
+    q: "¿Hay soporte si tengo problemas?",
+    a: "Sí. Puedes contactarnos por WhatsApp. Te respondemos en el día.",
+  },
+] as const;
+
 const CHECKLIST = [
   "Mapa de terreno con zonas y plantas",
   "Control de agua por zona y estanque",
@@ -333,6 +606,10 @@ export default function LandingPage() {
       }}
     >
       <style>{ANIMATION_CSS}</style>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }}
+      />
 
       {/* ─── NAV ─── */}
       <nav
@@ -741,7 +1018,7 @@ export default function LandingPage() {
           >
             Plantar sin datos cuesta caro
           </h2>
-          <p className="mb-16 max-w-lg text-base" style={{ color: "#5a6a50" }}>
+          <p className="mb-16 max-w-lg text-lg" style={{ color: "#5a6a50" }}>
             La mayoría de los agricultores operan sin información. Eso cuesta
             plata, agua y tiempo.
           </p>
@@ -750,7 +1027,7 @@ export default function LandingPage() {
             {PAIN_POINTS.map((p) => (
               <div
                 key={p.num}
-                className="rounded-xl p-7 relative overflow-hidden"
+                className="scroll-reveal rounded-xl p-7 relative overflow-hidden"
                 style={{
                   background: "#f5ede0",
                   borderLeft: "3px solid #c4622d",
@@ -774,7 +1051,7 @@ export default function LandingPage() {
                   {p.problema}
                 </h3>
                 <p
-                  className="text-sm leading-relaxed relative"
+                  className="text-base leading-relaxed relative"
                   style={{ color: "#4a5a40" }}
                 >
                   {p.solucion}
@@ -807,7 +1084,7 @@ export default function LandingPage() {
           >
             ¿Cómo vivías antes sin esto?
           </h2>
-          <p className="mb-14 max-w-lg text-base" style={{ color: "#5a6a50" }}>
+          <p className="mb-14 max-w-lg text-lg" style={{ color: "#5a6a50" }}>
             Esto es lo que cambia cuando tienes datos reales de tu campo en la
             palma de tu mano.
           </p>
@@ -816,7 +1093,7 @@ export default function LandingPage() {
             {BEFORE_AFTER.map((item, i) => (
               <div
                 key={i}
-                className="grid grid-cols-2 rounded-2xl overflow-hidden"
+                className="scroll-reveal grid grid-cols-2 rounded-2xl overflow-hidden"
                 style={{ border: "1px solid #ddd0ba" }}
               >
                 {/* ANTES */}
@@ -831,7 +1108,7 @@ export default function LandingPage() {
                     Antes
                   </span>
                   <p
-                    className="text-sm leading-relaxed"
+                    className="text-base leading-relaxed"
                     style={{ color: "#5a4030" }}
                   >
                     {item.before}
@@ -862,7 +1139,7 @@ export default function LandingPage() {
                     Con AgriPlan
                   </span>
                   <p
-                    className="text-sm leading-relaxed relative"
+                    className="text-base leading-relaxed relative"
                     style={{ color: "#c8dcc0" }}
                   >
                     {item.after}
@@ -896,7 +1173,7 @@ export default function LandingPage() {
           >
             Todo lo que necesitas, en tu celular
           </h2>
-          <p className="mb-14 max-w-lg" style={{ color: "#5a6a50" }}>
+          <p className="mb-14 max-w-lg text-lg" style={{ color: "#5a6a50" }}>
             Sin Excel, sin hojas de papel. Todo en el teléfono, aunque no tengas
             señal.
           </p>
@@ -905,14 +1182,14 @@ export default function LandingPage() {
             {FEATURES.map((f) => (
               <div
                 key={f.title}
-                className="rounded-xl p-6 group transition-all hover:-translate-y-0.5 hover:shadow-md"
+                className="scroll-reveal rounded-xl p-6 group transition-all hover:-translate-y-0.5 hover:shadow-md"
                 style={{ background: "#fdf9f2", border: "1px solid #ddd0ba" }}
               >
                 <div
-                  className="w-10 h-10 rounded-lg flex items-center justify-center mb-4"
+                  className="w-12 h-12 rounded-lg flex items-center justify-center mb-4"
                   style={{ background: "#dceede", color: "#2d6a4f" }}
                 >
-                  <div className="w-5 h-5">{f.icon}</div>
+                  <div className="w-6 h-6">{f.icon}</div>
                 </div>
                 <span
                   className="text-xs font-bold uppercase tracking-widest"
@@ -927,7 +1204,7 @@ export default function LandingPage() {
                   {f.title}
                 </h3>
                 <p
-                  className="text-sm leading-relaxed"
+                  className="text-base leading-relaxed"
                   style={{ color: "#4a5a40" }}
                 >
                   {f.description}
@@ -953,7 +1230,7 @@ export default function LandingPage() {
           >
             Listo en 10 minutos
           </h2>
-          <p className="mb-16 max-w-lg" style={{ color: "#5a6a50" }}>
+          <p className="mb-16 max-w-lg text-lg" style={{ color: "#5a6a50" }}>
             Sin configuración compleja. Sin manual. Cuatro pasos y tienes tu
             campo digitalizado.
           </p>
@@ -972,17 +1249,18 @@ export default function LandingPage() {
               aria-hidden
             />
 
-            {STEPS.map((s) => (
-              <div key={s.num} className="relative">
+            {STEPS.map((s, i) => (
+              <div key={s.num} className="scroll-reveal relative">
                 <div
-                  className="w-16 h-16 rounded-2xl flex items-center justify-center mb-6 font-extrabold text-xl relative z-10"
+                  className="w-16 h-16 rounded-2xl flex flex-col items-center justify-center gap-1 mb-6 font-extrabold text-xl relative z-10"
                   style={{
                     fontFamily: "var(--font-display)",
                     background: s.num === "4" ? "#c4622d" : "#1c2e1a",
                     color: s.num === "4" ? "#fff" : "#7fb38a",
                   }}
                 >
-                  {s.num}
+                  <span>{s.num}</span>
+                  <div className="w-4 h-4 opacity-70">{STEP_ICONS[i]}</div>
                 </div>
                 <h3
                   className="font-semibold mb-2"
@@ -991,7 +1269,7 @@ export default function LandingPage() {
                   {s.title}
                 </h3>
                 <p
-                  className="text-sm leading-relaxed"
+                  className="text-base leading-relaxed"
                   style={{ color: "#4a5a40" }}
                 >
                   {s.desc}
@@ -1022,7 +1300,7 @@ export default function LandingPage() {
             <br />
             no promedios nacionales
           </h2>
-          <p className="mb-14 max-w-xl" style={{ color: "#5a6a50" }}>
+          <p className="mb-14 max-w-xl text-lg" style={{ color: "#5a6a50" }}>
             El catálogo está calibrado para el clima desértico, la ventana de
             primor y las condiciones de agua del norte del país.
           </p>
@@ -1031,7 +1309,7 @@ export default function LandingPage() {
             {CULTIVOS.map((c) => (
               <div
                 key={c.nombre}
-                className="rounded-xl p-6 transition-transform hover:-translate-y-0.5"
+                className="scroll-reveal rounded-xl p-6 transition-transform hover:-translate-y-0.5"
                 style={{ background: "#1c2e1a" }}
               >
                 <span
@@ -1051,7 +1329,7 @@ export default function LandingPage() {
                   {c.nombre}
                 </h3>
                 <p
-                  className="text-sm leading-relaxed"
+                  className="text-base leading-relaxed"
                   style={{ color: "#9db89e" }}
                 >
                   {c.beneficio}
@@ -1101,7 +1379,7 @@ export default function LandingPage() {
             {ROI_PUNTOS.map((p) => (
               <div
                 key={p.num}
-                className="rounded-xl p-8 relative overflow-hidden group"
+                className="scroll-reveal rounded-xl p-8 relative overflow-hidden group"
                 style={{ background: "#f0e8d8", border: "1px solid #ddd0ba" }}
               >
                 {/* Decorative accent line top */}
@@ -1126,7 +1404,7 @@ export default function LandingPage() {
                   {p.context}
                 </div>
                 <p
-                  className="text-sm leading-relaxed"
+                  className="text-base leading-relaxed"
                   style={{ color: "#4a5a40" }}
                 >
                   {p.desc}
@@ -1177,7 +1455,7 @@ export default function LandingPage() {
                 ).map((tag) => (
                   <span
                     key={tag}
-                    className="text-sm font-medium rounded-lg px-3 py-1.5"
+                    className="text-base font-medium rounded-lg px-3 py-1.5"
                     style={{ background: "#2d6a4f", color: "#9db89e" }}
                   >
                     ✓ {tag}
@@ -1321,7 +1599,7 @@ export default function LandingPage() {
 
                 <ul className="space-y-3 mb-8">
                   {CHECKLIST.map((item) => (
-                    <li key={item} className="flex items-start gap-3 text-sm">
+                    <li key={item} className="flex items-start gap-3 text-base">
                       <span
                         className="shrink-0 mt-0.5 font-bold"
                         style={{ color: "#7fb38a" }}
@@ -1335,7 +1613,7 @@ export default function LandingPage() {
 
                 <Link
                   href={ROUTES.AUTH_REGISTRO}
-                  className="flex items-center justify-center w-full py-4 rounded-xl font-bold text-lg transition-opacity hover:opacity-90"
+                  className="flex items-center justify-center w-full py-4 min-h-[48px] rounded-xl font-bold text-lg transition-opacity hover:opacity-90"
                   style={{ background: "#2d6a4f", color: "#fff" }}
                 >
                   Crear cuenta gratis →
@@ -1353,6 +1631,33 @@ export default function LandingPage() {
                 Ingresa aquí
               </Link>
             </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── FAQ ─── */}
+      <section style={{ background: "#1c2e1a" }}>
+        <div className="max-w-3xl mx-auto px-6 py-20">
+          <div className="section-label light">Preguntas frecuentes</div>
+          <h2
+            style={{
+              fontFamily: "var(--font-display)",
+              fontSize: "clamp(1.8rem, 3.5vw, 2.6rem)",
+              fontWeight: 700,
+              color: "#f5f0e8",
+              lineHeight: 1.2,
+              marginBottom: "2.5rem",
+            }}
+          >
+            Resolvemos tus dudas
+          </h2>
+          <div>
+            {FAQ_ITEMS.map((item) => (
+              <details key={item.q} className="scroll-reveal faq-item">
+                <summary>{item.q}</summary>
+                <p className="faq-answer">{item.a}</p>
+              </details>
+            ))}
           </div>
         </div>
       </section>

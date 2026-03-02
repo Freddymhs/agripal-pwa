@@ -7,14 +7,31 @@ import { ProjectProvider } from "@/contexts/project-context";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "AgriPlan - Planificador Agrícola",
+  title: {
+    default: "AgriPlan — Software agrícola para el norte de Chile",
+    template: "%s | AgriPlan",
+  },
   description:
-    "Sistema de planificación agrícola offline-first para pequeños agricultores",
+    "Planifica tu campo, controla el agua y proyecta el ROI de tus cultivos. Software para agricultores del norte de Chile. 6 meses gratis, sin tarjeta.",
   manifest: "/manifest.json",
+  metadataBase: new URL("https://agriplan.cl"),
+  openGraph: {
+    siteName: "AgriPlan",
+    locale: "es_CL",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    site: "@agriplan_cl",
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
     title: "AgriPlan",
+  },
+  robots: {
+    index: true,
+    follow: true,
   },
 };
 

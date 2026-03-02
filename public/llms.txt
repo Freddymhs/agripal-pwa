@@ -1,0 +1,62 @@
+# AgriPlan
+
+> Software de planificación agrícola offline-first para pequeños y medianos agricultores del norte de Chile.
+
+AgriPlan es una aplicación web progresiva (PWA) diseñada para el clima desértico y las condiciones de agua del norte de Chile (Arica, Iquique, Tarapacá, Antofagasta). No requiere instalación y funciona 100% sin internet después del registro inicial.
+
+## Problema que resuelve
+
+Los agricultores del norte de Chile toman decisiones críticas sin datos: no saben cuánta agua tienen disponible, no calculan si un cultivo va a ser rentable antes de plantarlo, y no reciben alertas cuando hay riesgo de perder la cosecha. AgriPlan resuelve eso.
+
+## Funcionalidades principales
+
+- **Control de agua por zona**: Calcula consumo por cultivo, etapa y época. Alerta 7+ días antes de quedarse sin agua.
+- **ROI proyectado**: Muestra rentabilidad, punto de equilibrio y tiempo de recuperación de inversión para cada cultivo.
+- **Mapa de terreno**: Diseño de zonas de cultivo, estanques y bodegas sobre plano del campo.
+- **Alertas automáticas**: Riesgo de plagas, necesidad de replanta, lavado salino, encharcamiento.
+- **Catálogo regional**: 25+ cultivos calibrados para el norte de Chile con datos reales de clima y agua.
+- **Análisis de calidad de agua**: Salinidad (dS/m), boro (ppm) y pH — determina qué cultivos son viables.
+- **Modo offline**: Funciona sin señal. Datos guardados en el teléfono y sincronizados cuando hay conexión.
+
+## Cultivos incluidos
+
+Pitahaya, tuna, uva primor, maracuyá, tomate, palta, papaya, higuera, guayaba, mandarina, limón, y 15+ más. Todos calibrados para el clima árido del norte de Chile con datos de consumo de agua (m³/ha/año) por etapa de crecimiento.
+
+## Precio
+
+- **Prueba gratuita**: 6 meses gratis, sin tarjeta de crédito, sin letra chica.
+- **Plan único**: $9.990 CLP/mes. Incluye terrenos, zonas, cultivos, agua y alertas ilimitados.
+- **Sin contratos**: Cancelación libre en cualquier momento.
+
+## Audiencia objetivo
+
+- Agricultores pequeños y medianos del norte de Chile (50-70 años, baja afinidad tecnológica)
+- Hijos de agricultores que ayudan a digitalizar el campo familiar
+- Agricultores de regiones: Arica y Parinacota, Tarapacá, Antofagasta
+
+## Tecnología
+
+- PWA (Progressive Web App) — funciona desde el navegador, sin instalar nada
+- Compatible con Android e iPhone
+- Datos almacenados en el dispositivo (IndexedDB) y en la nube (Supabase)
+- Funciona 100% sin conexión a internet
+
+## Preguntas frecuentes
+
+**¿Es gratis?** Sí, 6 meses gratis sin tarjeta. Después $9.990 CLP/mes si quieres continuar.
+
+**¿Necesita internet?** Solo para el registro inicial. Después funciona sin señal.
+
+**¿Qué cultivos incluye?** 25+ cultivos del norte de Chile: pitahaya, tuna, uva primor, maracuyá, tomate, palta, papaya, higuera, guayaba y más.
+
+**¿Funciona en cualquier celular?** Sí, Android e iPhone desde el navegador. Sin instalación.
+
+**¿Qué pasa si cancelo?** Nada. Tus datos siguen disponibles. Sin contratos ni multas.
+
+## Información de contacto y soporte
+
+Soporte vía WhatsApp. Respuesta en el día.
+
+## URL
+
+https://agriplan.cl

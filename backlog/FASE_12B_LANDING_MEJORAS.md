@@ -164,38 +164,221 @@ export const metadata: Metadata = {
 
 ---
 
-### Tarea 7 — Integración y Verificación Final 🔴 CRÍTICA
+### Tarea 7 — Technical SEO: Sitemap + Security Headers 🔴 CRÍTICA
 
-**Checklist de integración:**
+**Problema:** `robots.txt` referenciaba `sitemap.xml` que no existía (404). Sin headers de seguridad, Lighthouse y herramientas SEO penalizan el sitio.
 
-- [ ] `pnpm build` sin errores TypeScript
-- [ ] `pnpm lint` sin warnings nuevos
+**Solución implementada:**
+
+- `src/app/sitemap.ts` — Genera `/sitemap.xml` vía Next.js App Router `MetadataRoute.Sitemap`. Apunta a `https://agriplan.cl` con `changeFrequency: "monthly"` y `priority: 1.0`.
+- `next.config.ts` — Agregado `headers()` con `SECURITY_HEADERS`:
+  - `X-Content-Type-Options: nosniff`
+  - `X-Frame-Options: DENY`
+  - `X-XSS-Protection: 1; mode=block`
+  - `Referrer-Policy: strict-origin-when-cross-origin`
+  - `Permissions-Policy: camera=(), microphone=(), geolocation=()`
+- `public/robots.txt` — Creado: permite todo, bloquea `/app/`, `/api/`, `/auth/`. Referencia `https://agriplan.cl/sitemap.xml`.
+
+---
+
+### Tarea 8 — GEO (Generative Engine Optimization) 🟢 MEDIA
+
+**Problema:** LLMs (ChatGPT Search, Perplexity, Claude) crawlean webs para responder preguntas. Sin `llms.txt`, el producto no aparece en respuestas generadas por IA sobre "software agrícola Chile".
+
+**Solución implementada:**
+
+- `public/llms.txt` — Archivo estructurado en Markdown que describe AgriPlan para LLMs: problema que resuelve, funcionalidades, cultivos incluidos, precio, audiencia, tecnología, FAQ. Estándar propuesto por Jeremy Howard (fast.ai, 2024), adoptado por Anthropic, Cloudflare y otros.
+
+---
+
+### Tarea 9 — Verificación Final ✅
+
+**Checklist:**
+
+- [x] `pnpm type-check` sin errores
+- [ ] `pnpm build` sin errores (verificar en deploy)
 - [ ] Verificar metadata aparece en `<head>` al hacer view-source
 - [ ] Verificar JSON-LD en Google Rich Results Test
 - [ ] Probar en móvil (iOS Safari + Android Chrome): tamaños de texto, touch targets
-- [ ] Verificar que `dynamic = "force-static"` sigue activo (no se convirtió en SSR por el metadata)
+- [ ] Verificar que `dynamic = "force-static"` sigue activo
 - [ ] Open Graph: compartir link por WhatsApp y verificar preview
-- [ ] Lighthouse score: apuntar a 90+ en Performance, 95+ en Accessibility, 90+ en SEO
-- [ ] NavAccessButton sigue funcionando (auth-aware, client component)
+- [ ] Lighthouse score: apuntar a 90+ Performance, 95+ Accessibility, 90+ SEO
+- [ ] Confirmar `/sitemap.xml` responde 200 en producción
+- [ ] Confirmar security headers presentes (`curl -I https://agriplan.cl`)
 
 ---
 
 ## Resumen de impacto esperado
 
-| Métrica                  | Antes        | Después                       |
-| ------------------------ | ------------ | ----------------------------- |
-| Visibilidad Google       | ❌ Invisible | ✅ Indexable con rich results |
-| Lighthouse SEO           | ~40          | ~90+                          |
-| Lighthouse Accessibility | ~70          | ~90+                          |
-| Legibilidad 50+          | ⚠️ 14px body | ✅ 16-18px body               |
-| Conversión landing       | ~7/10        | ~8.5/10                       |
-| Tiempo de implementación | —            | ~4-6h                         |
+| Métrica                  | Antes           | Después                       |
+| ------------------------ | --------------- | ----------------------------- |
+| Visibilidad Google       | ❌ Invisible    | ✅ Indexable con rich results |
+| Lighthouse SEO           | ~40             | ~90+                          |
+| Lighthouse Accessibility | ~70             | ~90+                          |
+| Legibilidad 50+          | ⚠️ 14px body    | ✅ 16-18px body               |
+| Conversión landing       | ~7/10           | ~8.5/10                       |
+| Seguridad headers        | ❌ Sin headers  | ✅ 5 headers de seguridad     |
+| Sitemap                  | ❌ 404          | ✅ Generado por App Router    |
+| GEO / AI Search          | ❌ Sin llms.txt | ✅ llms.txt estructurado      |
 
 ---
 
-## Skills a utilizar
+## Skills utilizados
 
-- `/seo` — Meta tags, Open Graph, keywords
-- `/seo-schema` — JSON-LD SoftwareApplication
-- `/seo-technical` — Core Web Vitals audit post-implementación
-- `/frontend-design` — Tamaños texto, iconografía, FAQ styling, animaciones
+- `/seo` ✅ — Meta tags, Open Graph, keywords, canonical
+- `/seo-schema` ✅ — JSON-LD SoftwareApplication + FAQPage
+- `/seo-technical` ✅ — Security headers, sitemap, robots.txt
+- `/seo-geo` ✅ — llms.txt para AI search engines
+- `/frontend-design` ✅ — Accesibilidad (text-base+), iconografía, FAQ, scroll animations
+
+## Archivos modificados / creados
+
+| Archivo                                        | Cambio                                                             |
+| ---------------------------------------------- | ------------------------------------------------------------------ |
+| `src/app/page.tsx`                             | metadata, JSON-LD, accesibilidad, FAQ, scroll-reveal, iconos STEPS |
+| `src/app/layout.tsx`                           | metadata base mejorada                                             |
+| `src/app/sitemap.ts`                           | **NUEVO** — genera /sitemap.xml                                    |
+| `src/components/landing/nav-access-button.tsx` | min-h-[44px] touch target                                          |
+| `next.config.ts`                               | security headers                                                   |
+| `public/robots.txt`                            | **NUEVO** — crawling rules                                         |
+| `public/llms.txt`                              | **NUEVO** — GEO para AI search                                     |
+
+---
+
+## Investigación SEO — Resultados de auditoría web (2026-03-01)
+
+> Investigación realizada con agente web sobre keywords, competidores y oportunidades SEO reales para el mercado agrícola chileno.
+
+### Competidores directos posicionados en Google Chile
+
+| Competidor | URL            | Foco                                   | Gap vs AgriPlan                                                  |
+| ---------- | -------------- | -------------------------------------- | ---------------------------------------------------------------- |
+| AGRI.cl    | agri.cl        | ERP agrícola empresas medianas/grandes | Sin precio público, sin foco norte Chile, web en inglés          |
+| AGROsmart  | agrosmart.cl   | Cuaderno de campo, fruticultura        | Sin precio público, sin offline, sin norte Chile                 |
+| SpaceAG    | spaceag.co     | Fitosanitario, riego, workers          | Funciona offline (competidor directo), sin precio público        |
+| Instacrops | instacrops.com | IoT + software                         | **No cubre norte de Chile** (Coquimbo a Los Lagos) — gap directo |
+
+**Conclusión clave:** El norte de Chile (Arica, Tarapacá, Antofagasta) es un blanco sin apuntar. Ningún competidor tiene SEO ni contenido específico para la región.
+
+---
+
+### Keywords con oportunidad real
+
+#### Volumen medio, competencia baja-media
+
+```
+"app para agricultores Chile"
+"control de riego Chile"
+"software riego por goteo Chile"
+"app control de agua cultivos Chile"
+"software agrícola pequeños agricultores Chile"
+"aplicación agrícola sin internet Chile"
+```
+
+#### Long-tail, competencia casi nula (máxima oportunidad)
+
+```
+"planificación agrícola norte de Chile"
+"app para agricultores Arica"
+"control de cultivos Arica Parinacota"
+"software horticultura Azapa"
+"gestión agua agrícola Tarapacá"
+"cuánta agua necesita el tomate en Arica"
+"manejo agua tomate valle Azapa"
+"cuánto riego necesita el tomate en Arica"
+"restricciones agua DGA Arica"
+"app agrícola sin internet"
+"gestión cultivos desierto norte Chile"
+```
+
+#### Por intención de compra alta
+
+```
+"software agrícola económico Chile"
+"prueba gratis software agrícola"
+"gestión agrícola bajo costo Chile"
+"cuánto gana un agricultor en Arica"
+"ROI cultivo hortalizas Chile"
+```
+
+---
+
+### Oportunidades de contenido SEO (estrategia Pillar + Cluster)
+
+#### Pilar 1 — Agua y Riego (diferenciador único de AgriPlan)
+
+- Guía completa: gestión del agua para agricultores del norte de Chile
+- Clusters: "Cuánta agua necesita el tomate en Azapa", "Cómo calcular evapotranspiración en clima desértico", "Restricciones DGA Arica 2025", "Qué es el Kc y cómo usarlo", "Cuándo hacer lavado salino en Azapa"
+
+#### Pilar 2 — ROI y Rentabilidad
+
+- Guía: cómo calcular la rentabilidad de tu cultivo en Chile
+- Clusters: "¿Es rentable el tomate en Arica? Análisis 2025", "Punto de equilibrio en horticultura", "ROI por ha: pimiento vs tomate norte Chile"
+
+#### Pilar 3 — Tecnología para pequeños productores
+
+- Clusters: "Las mejores apps agrícolas sin internet", "Comparativa: AGROsmart vs SpaceAG vs AgriPlan", "Qué es una PWA agrícola"
+
+#### Pilar 4 — Guías por cultivo (una página por especie — alta oportunidad)
+
+- Tomate Azapa, cebolla, pimiento, ajo, pepino, maracuyá, pitahaya, tuna, uva primor
+
+#### Landing pages geográficas (SEO local sin competencia)
+
+```
+/norte-chile  → "Software agrícola para el norte de Chile"
+/arica        → "Software agrícola para agricultores de Arica"
+/tarapaca     → "Gestión de cultivos en Tarapacá e Iquique"
+/antofagasta  → "Software para agricultura en Antofagasta"
+```
+
+---
+
+### Schema markup adicional identificado
+
+Lo ya implementado (SoftwareApplication + FAQPage) es correcto. Para fases futuras agregar:
+
+| Schema                                          | Cuándo                                      | Impacto                               |
+| ----------------------------------------------- | ------------------------------------------- | ------------------------------------- |
+| `WebApplication` (dual con SoftwareApplication) | Siguiente iteración                         | Rich results más específicos para PWA |
+| `Organization` con `areaServed: Chile`          | Siguiente iteración                         | Trust signals locales                 |
+| `HowTo`                                         | En artículos de blog técnicos               | Rich results paso a paso en Google    |
+| `ItemList`                                      | En página de catálogo de cultivos           | Snippets de lista en búsquedas        |
+| `Product` + `AggregateRating`                   | Cuando haya reseñas de usuarios             | Estrellas en SERP, CTR +15-30%        |
+| `LocalBusiness`                                 | Si hay presencia física o atención regional | Búsquedas geolocalizadas              |
+
+---
+
+### Keywords actuales en `page.tsx` vs keywords recomendadas
+
+**Implementadas:**
+
+```
+"software agrícola Chile", "gestión riego norte Chile",
+"planificación cultivos Arica", "control agua cultivos",
+"ROI agricultura Chile", "app agrícola sin internet",
+"software campo Tarapacá"
+```
+
+**Agregar en próxima iteración (FASE_12C):**
+
+```
+"software horticultura Chile", "gestión agua cultivos norte Chile",
+"app agricola offline Chile", "cuaderno de campo digital Chile",
+"planificación riego Azapa", "software pequeños agricultores Chile",
+"cultivos hortícolas norte Chile", "evapotranspiración cultivos Chile"
+```
+
+---
+
+## Próxima fase recomendada: FASE_12C — Contenido SEO
+
+Basado en la investigación, la mayor oportunidad no explotada es el **contenido**:
+
+1. Blog/guías por cultivo específico del norte (competencia nula)
+2. Landing pages geográficas `/arica`, `/tarapaca`, `/norte-chile`
+3. Actualizar keywords en `page.tsx` con los long-tail identificados
+4. Implementar schema `WebApplication` + `Organization` con `areaServed`
+5. Página de comparativa vs competidores (fondo de embudo, alta conversión)
+
+Skills a usar: `/seo-page`, `/seo-content`, `/seo-programmatic`, `/seo-geo`
