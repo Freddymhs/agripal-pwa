@@ -53,6 +53,8 @@ export function MapSidebar() {
     null,
   );
 
+  // Calcula la altura del aside dinámicamente para que tenga scroll propio
+  // sin depender de que los padres tengan h-screen.
   const { registrarEntrada } = useAgua(
     terrenoActual,
     zonas,
@@ -69,7 +71,10 @@ export function MapSidebar() {
   if (!terrenoActual) return null;
 
   return (
-    <aside className="w-80 bg-white border-l border-gray-200 flex flex-col overflow-hidden">
+    <aside
+      className="w-80 bg-white border-l border-gray-200 flex flex-col overflow-hidden"
+      style={{ maxHeight: "calc(100dvh - 130px)" }}
+    >
       <div className="p-4 border-b border-gray-200">
         <h2 className="text-lg font-bold text-gray-900">
           {plantasSeleccionadas.length > 0
@@ -92,7 +97,7 @@ export function MapSidebar() {
           )}
       </div>
 
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto min-h-0">
         {plantasSeleccionadas.length > 0 ? (
           <div className="p-4">
             <AccionesLote

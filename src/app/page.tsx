@@ -79,6 +79,33 @@ const STATS = [
   { value: "6 meses", label: "de prueba, sin tarjeta" },
 ] as const;
 
+const BEFORE_AFTER = [
+  {
+    before:
+      "Riegas por intuición y pierdes la cosecha porque el agua tenía boro sin saberlo.",
+    after:
+      "AgriPlan analiza tu calidad de agua y te dice exactamente qué puedes plantar.",
+  },
+  {
+    before:
+      "Calculas en papel cuánta agua tienes. Un día te quedas sin ella y ya es tarde.",
+    after:
+      "La app te avisa 7 días antes de quedarte sin agua. Sin sorpresas a mitad de temporada.",
+  },
+  {
+    before:
+      "Plantas lo mismo de siempre sin saber si conviene o si hay algo más rentable.",
+    after:
+      "Ves el ROI de cada cultivo antes de gastar un peso. Decides con datos, no con suerte.",
+  },
+  {
+    before:
+      "Sin señal en el campo no sabes nada. Excel en casa, campo a ciegas.",
+    after:
+      "Funciona 100% sin internet. Tus datos siempre contigo, aunque estés en el cerro.",
+  },
+] as const;
+
 const PAIN_POINTS = [
   {
     num: "01",
@@ -424,21 +451,26 @@ export default function LandingPage() {
                   marginBottom: "2rem",
                 }}
               >
-                AgriPlan te dice cuánta agua consume cada zona, cuándo recuperas
-                tu inversión y qué cultivos tienen mejor ROI{" "}
+                Cada temporada, agricultores del norte pierden agua, dinero y
+                cosechas enteras por no tener datos.{" "}
                 <strong style={{ color: "#d4c9b0" }}>
-                  antes de gastar un peso
+                  AgriPlan termina con eso.
                 </strong>
-                .
               </p>
 
-              <div className="anim-badges flex flex-wrap gap-5 mb-10">
+              <div className="anim-badges flex flex-wrap items-center gap-4 mb-10">
+                <span
+                  className="inline-flex items-center gap-2 text-sm font-bold px-4 py-1.5 rounded-full"
+                  style={{
+                    background: "rgba(196,98,45,0.15)",
+                    color: "#e8895a",
+                    border: "1px solid rgba(196,98,45,0.3)",
+                  }}
+                >
+                  ★ 6 meses gratis, sin tarjeta
+                </span>
                 {(
-                  [
-                    "6 meses gratis, sin tarjeta",
-                    "Funciona sin internet",
-                    "Datos del norte de Chile",
-                  ] as const
+                  ["Funciona sin internet", "Datos del norte de Chile"] as const
                 ).map((b) => (
                   <span
                     key={b}
@@ -753,6 +785,95 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ─── ANTES / AHORA ─── */}
+      <section
+        style={{
+          background: "#f5ede0",
+          borderTop: "1px solid #e0d4be",
+          borderBottom: "1px solid #e0d4be",
+        }}
+      >
+        <div className="max-w-6xl mx-auto px-6 py-20">
+          <div className="section-label">El antes y el después</div>
+          <h2
+            style={{
+              fontFamily: "var(--font-display)",
+              fontSize: "clamp(1.8rem, 3.5vw, 2.6rem)",
+              fontWeight: 700,
+              color: "#1c2e1a",
+              lineHeight: 1.2,
+              marginBottom: "0.75rem",
+            }}
+          >
+            ¿Cómo vivías antes sin esto?
+          </h2>
+          <p className="mb-14 max-w-lg text-base" style={{ color: "#5a6a50" }}>
+            Esto es lo que cambia cuando tienes datos reales de tu campo en la
+            palma de tu mano.
+          </p>
+
+          <div className="grid md:grid-cols-2 gap-4">
+            {BEFORE_AFTER.map((item, i) => (
+              <div
+                key={i}
+                className="grid grid-cols-2 rounded-2xl overflow-hidden"
+                style={{ border: "1px solid #ddd0ba" }}
+              >
+                {/* ANTES */}
+                <div
+                  className="p-6 flex flex-col gap-3"
+                  style={{ background: "#ede0ce" }}
+                >
+                  <span
+                    className="text-xs font-bold uppercase tracking-widest"
+                    style={{ color: "#a07050", letterSpacing: "0.14em" }}
+                  >
+                    Antes
+                  </span>
+                  <p
+                    className="text-sm leading-relaxed"
+                    style={{ color: "#5a4030" }}
+                  >
+                    {item.before}
+                  </p>
+                </div>
+                {/* AHORA */}
+                <div
+                  className="p-6 flex flex-col gap-3 relative overflow-hidden"
+                  style={{ background: "#1c2e1a" }}
+                >
+                  <div
+                    aria-hidden
+                    style={{
+                      position: "absolute",
+                      top: "-40%",
+                      right: "-20%",
+                      width: "70%",
+                      height: "120%",
+                      background:
+                        "radial-gradient(ellipse, rgba(44,106,79,0.2) 0%, transparent 70%)",
+                      pointerEvents: "none",
+                    }}
+                  />
+                  <span
+                    className="text-xs font-bold uppercase tracking-widest relative"
+                    style={{ color: "#7fb38a", letterSpacing: "0.14em" }}
+                  >
+                    Con AgriPlan
+                  </span>
+                  <p
+                    className="text-sm leading-relaxed relative"
+                    style={{ color: "#c8dcc0" }}
+                  >
+                    {item.after}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ─── FEATURES ─── */}
       <section
         id="funciones"
@@ -963,6 +1084,13 @@ export default function LandingPage() {
           >
             Los números hablan solos
           </h2>
+          <p
+            className="mb-5 max-w-xl text-base font-semibold"
+            style={{ color: "#1c2e1a" }}
+          >
+            Un agricultor que usa AgriPlan sabe exactamente cuándo recupera su
+            inversión. Uno que no lo usa, adivina.
+          </p>
           <p className="mb-14 max-w-xl" style={{ color: "#5a6a50" }}>
             Cálculo orientativo basado en cultivos de la región norte de Chile.
             Tu resultado exacto lo calcula AgriPlan con los datos de tu propio
