@@ -23,7 +23,7 @@ Auditoría realizada con equipo de agentes (design-auditor + skills-researcher) 
 
 ## Tareas
 
-### Tarea 1 — SEO Básico (Meta Tags + Open Graph) 🔴 CRÍTICA
+### Tarea 1 — SEO Básico (Meta Tags + Open Graph) ✅ COMPLETADA
 
 **Problema:** El landing no tiene `<title>`, `<meta description>` ni Open Graph. Invisible para Google y WhatsApp.
 
@@ -54,7 +54,7 @@ export const metadata: Metadata = {
 
 ---
 
-### Tarea 2 — Schema JSON-LD (Structured Data) 🔴 CRÍTICA
+### Tarea 2 — Schema JSON-LD (Structured Data) ✅ COMPLETADA
 
 **Problema:** Sin structured data, Google no puede mostrar rich results (precio, rating, trial).
 
@@ -84,7 +84,7 @@ export const metadata: Metadata = {
 
 ---
 
-### Tarea 3 — Accesibilidad Visual (Texto 18px+, Touch Targets) 🔴 CRÍTICA
+### Tarea 3 — Accesibilidad Visual (Texto 18px+, Touch Targets) ✅ COMPLETADA
 
 **Problema:** Audiencia 50-70 años. Body text actual usa `text-sm` (≈14px) en múltiples secciones. Botones CTA pueden ser muy pequeños en móvil. Mínimo recomendado: 18px body, 48px botones.
 
@@ -105,7 +105,7 @@ export const metadata: Metadata = {
 
 ---
 
-### Tarea 4 — Iconografía en Sección Funciones 🟡 ALTA
+### Tarea 4 — Iconografía en Sección Funciones ⚠️ PENDIENTE VERIFICAR
 
 **Problema:** La sección `#funciones` tiene 6 feature cards con texto puro. Score visual 5/10 según auditoría. Una persona mayor escanea con iconos, no lee párrafos.
 
@@ -115,7 +115,7 @@ export const metadata: Metadata = {
 
 ---
 
-### Tarea 5 — FAQ Mínimo 🟡 ALTA
+### Tarea 5 — FAQ Mínimo ✅ COMPLETADA
 
 **Problema:** Agricultores mayores tienen preguntas que, sin respuesta, no convierten. La landing no tiene FAQ.
 
@@ -134,7 +134,7 @@ export const metadata: Metadata = {
 
 ---
 
-### Tarea 6 — Animaciones Scroll-Triggered 🟢 MEDIA
+### Tarea 6 — Animaciones Scroll-Triggered ✅ COMPLETADA (hero)
 
 **Problema:** Solo el hero tiene animaciones. Las secciones de Problema, Antes/Ahora, Funciones, Cómo funciona, ROI entran estáticas al hacer scroll. Impacto percibido de "modernidad" y calidad.
 
@@ -164,7 +164,7 @@ export const metadata: Metadata = {
 
 ---
 
-### Tarea 7 — Technical SEO: Sitemap + Security Headers 🔴 CRÍTICA
+### Tarea 7 — Technical SEO: Sitemap + Security Headers ✅ COMPLETADA
 
 **Problema:** `robots.txt` referenciaba `sitemap.xml` que no existía (404). Sin headers de seguridad, Lighthouse y herramientas SEO penalizan el sitio.
 
@@ -181,7 +181,7 @@ export const metadata: Metadata = {
 
 ---
 
-### Tarea 8 — GEO (Generative Engine Optimization) 🟢 MEDIA
+### Tarea 8 — GEO (Generative Engine Optimization) ✅ COMPLETADA
 
 **Problema:** LLMs (ChatGPT Search, Perplexity, Claude) crawlean webs para responder preguntas. Sin `llms.txt`, el producto no aparece en respuestas generadas por IA sobre "software agrícola Chile".
 
