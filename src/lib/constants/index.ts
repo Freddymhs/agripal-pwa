@@ -1,5 +1,4 @@
 export { STORAGE_KEYS } from "./storage";
-export { QUERY_KEYS } from "./query-keys";
 export {
   TIPO_ZONA,
   ESTADO_PLANTA,

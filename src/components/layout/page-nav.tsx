@@ -60,7 +60,7 @@ const ADVANCED_ITEMS: DropdownItem[] = [
     description: "Seguimiento de costos y ganancias",
   },
   {
-    href: ROUTES.ECONOMIA_PROYECCION,
+    href: ROUTES.ECONOMIA_AVANZADO,
     label: "Proyección Financiera",
     icon: "📊",
     description: "Proyecta ROI y beneficios",
@@ -116,8 +116,8 @@ export function PageNav({ hoverColor, tieneEstanque }: PageNavProps) {
     return pathname === item.href;
   };
 
-  const isAdvancedActive = ADVANCED_ITEMS.some((item) =>
-    pathname.startsWith(item.href),
+  const isAdvancedActive = ADVANCED_ITEMS.some(
+    (item) => pathname === item.href,
   );
 
   return (
@@ -184,7 +184,7 @@ export function PageNav({ hoverColor, tieneEstanque }: PageNavProps) {
         {showAdvanced && (
           <div className="absolute top-full left-0 mt-1 w-72 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50">
             {ADVANCED_ITEMS.map((advItem) => {
-              const advActive = pathname.startsWith(advItem.href);
+              const advActive = pathname === advItem.href;
               return (
                 <Link
                   key={advItem.href}

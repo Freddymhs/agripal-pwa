@@ -11,7 +11,7 @@ export function usePixiApp(containerRef: RefObject<HTMLDivElement | null>): {
   const appRef = useRef<Application | null>(null);
   const [isReady, setIsReady] = useState(false);
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
-
+  //
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;

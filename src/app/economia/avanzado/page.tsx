@@ -1,8 +1,8 @@
 "use client";
 
 import { useMemo } from "react";
-import Link from "next/link";
 import { useTerrainData } from "@/hooks/use-terrain-data";
+import { PageLayout } from "@/components/layout/page-layout";
 import { ESTADO_PLANTA, TIPO_ZONA } from "@/lib/constants/entities";
 import { filtrarEstanques } from "@/lib/utils/helpers-cultivo";
 import { calcularROI, obtenerCostoAguaPromedio } from "@/lib/utils/roi";
@@ -19,8 +19,6 @@ interface ResumenAvanzado {
   zonaNombre: string;
   metricas: MetricasEconomicas;
 }
-
-import { ROUTES } from "@/lib/constants/routes";
 
 export default function EconomiaAvanzadaPage() {
   const { terreno, zonas, plantas, catalogoCultivos, loading } =
@@ -113,31 +111,7 @@ export default function EconomiaAvanzadaPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-emerald-600 text-white px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Link
-            href={ROUTES.ECONOMIA}
-            className="p-1 hover:bg-emerald-700 rounded"
-          >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
-          </Link>
-          <h1 className="text-xl font-bold">Economia Avanzada</h1>
-        </div>
-      </header>
-
+    <PageLayout headerColor="emerald" title="Economia Avanzada">
       <main className="p-4 space-y-4 max-w-4xl mx-auto">
         {global && <MetricasGlobales {...global} />}
 
@@ -178,6 +152,6 @@ export default function EconomiaAvanzadaPage() {
           </ul>
         </div>
       </main>
-    </div>
+    </PageLayout>
   );
 }

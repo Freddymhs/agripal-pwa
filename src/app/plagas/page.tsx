@@ -1,15 +1,14 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import Link from "next/link";
 import { useProjectContext } from "@/contexts/project-context";
+import { PageLayout } from "@/components/layout/page-layout";
 import {
   evaluarRiesgoPlagas,
   type RiesgoPlaga,
 } from "@/lib/utils/riesgo-plagas";
 import type { CatalogoCultivo, EtapaCrecimiento } from "@/types";
 import { TIPO_ZONA, ESTADO_PLANTA } from "@/lib/constants/entities";
-import { ROUTES } from "@/lib/constants/routes";
 
 const ALERT_COLORS: Record<RiesgoPlaga["alertaNivel"], string> = {
   bajo: "bg-green-50 border-green-200",
@@ -92,31 +91,7 @@ export default function PlagasPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-amber-600 text-white px-4 py-3 flex items-center gap-4">
-        <Link href={ROUTES.HOME} className="p-1 hover:bg-amber-700 rounded">
-          <svg
-            className="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 19l-7-7 7-7"
-            />
-          </svg>
-        </Link>
-        <h1 className="text-xl font-bold">Predicción de Plagas</h1>
-        {totalAlertas > 0 && (
-          <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
-            {totalAlertas}
-          </span>
-        )}
-      </header>
-
+    <PageLayout headerColor="amber" title="Predicción de Plagas">
       <main className="p-4 space-y-4 max-w-4xl mx-auto">
         <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-lg">
           <p className="text-sm text-amber-800">
@@ -271,6 +246,6 @@ export default function PlagasPage() {
           </div>
         )}
       </main>
-    </div>
+    </PageLayout>
   );
 }

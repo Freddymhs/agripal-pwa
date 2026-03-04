@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import Link from "next/link";
 import { useTerrainData } from "@/hooks/use-terrain-data";
 import { obtenerCostoAguaPromedio } from "@/lib/utils/roi";
 import {
@@ -15,7 +14,7 @@ import {
 } from "@/components/escenarios/tabla-comparativa";
 import { filtrarEstanques } from "@/lib/utils/helpers-cultivo";
 import { TIPO_ZONA } from "@/lib/constants/entities";
-import { ROUTES } from "@/lib/constants/routes";
+import { PageLayout } from "@/components/layout/page-layout";
 import type { CatalogoCultivo } from "@/types";
 
 const COLORES_LINEA = ["text-blue-600", "text-green-600", "text-purple-600"];
@@ -78,26 +77,7 @@ export default function EscenariosPage() {
   const zonasCultivo = zonas.filter((z) => z.tipo === TIPO_ZONA.CULTIVO);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-indigo-600 text-white px-4 py-3 flex items-center gap-4">
-        <Link href={ROUTES.HOME} className="p-1 hover:bg-indigo-700 rounded">
-          <svg
-            className="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 19l-7-7 7-7"
-            />
-          </svg>
-        </Link>
-        <h1 className="text-xl font-bold">Escenarios Comparativos</h1>
-      </header>
-
+    <PageLayout headerColor="green" title="Escenarios Comparativos">
       <main className="p-4 space-y-4 max-w-4xl mx-auto">
         <div className="bg-indigo-50 border-l-4 border-indigo-500 p-4 rounded-lg">
           <p className="text-sm text-indigo-800">
@@ -167,6 +147,6 @@ export default function EscenariosPage() {
           </div>
         )}
       </main>
-    </div>
+    </PageLayout>
   );
 }

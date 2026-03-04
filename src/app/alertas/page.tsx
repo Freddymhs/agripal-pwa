@@ -1,12 +1,10 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useProjectContext } from "@/contexts/project-context";
-import { ROUTES } from "@/lib/constants/routes";
+import { PageLayout } from "@/components/layout/page-layout";
 import { AlertasList } from "@/components/alertas/alertas-list";
 
 export default function AlertasPage() {
-  const router = useRouter();
   const { terrenoActual, loading, alertasHook } = useProjectContext();
 
   const {
@@ -26,27 +24,16 @@ export default function AlertasPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Alertas</h1>
-            <p className="text-gray-600 mt-1">
-              {alertas.length} alertas activas
-              {alertasCriticas > 0 && (
-                <span className="ml-2 text-red-600 font-medium">
-                  ({alertasCriticas} críticas)
-                </span>
-              )}
-            </p>
-          </div>
-          <button
-            onClick={() => router.push(ROUTES.HOME)}
-            className="px-4 py-2 bg-white border rounded-lg hover:bg-gray-50"
-          >
-            Volver al mapa
-          </button>
-        </div>
+    <PageLayout headerColor="green" title="Alertas">
+      <div className="p-6 max-w-4xl mx-auto">
+        <p className="text-gray-600 mb-6">
+          {alertas.length} alertas activas
+          {alertasCriticas > 0 && (
+            <span className="ml-2 text-red-600 font-medium">
+              ({alertasCriticas} críticas)
+            </span>
+          )}
+        </p>
 
         <AlertasList
           alertas={alertas}
@@ -54,6 +41,6 @@ export default function AlertasPage() {
           onIgnorar={ignorarAlerta}
         />
       </div>
-    </div>
+    </PageLayout>
   );
 }

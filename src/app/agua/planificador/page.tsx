@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import { useTerrainData } from "@/hooks/use-terrain-data";
+import { PageLayout } from "@/components/layout/page-layout";
 import { useEstanques } from "@/hooks/use-estanques";
 import { useAgua } from "@/hooks/use-agua";
 import { RecomendacionPanel } from "@/components/recomendacion/recomendacion-panel";
@@ -120,49 +121,41 @@ export default function PlanificadorAguaPage() {
 
   if (!terreno) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <header className="bg-blue-600 text-white px-4 py-3 flex items-center gap-4">
-          <Link href={ROUTES.AGUA} className="p-1 hover:bg-blue-700 rounded">
-            <BackIcon />
-          </Link>
-          <h1 className="text-xl font-bold">Planificador de Agua</h1>
-        </header>
+      <PageLayout headerColor="blue" title="Planificador de Agua">
         <main className="p-4">
           <div className="bg-yellow-50 border border-yellow-200 p-4 rounded">
             <p className="text-yellow-800">No hay terrenos creados.</p>
           </div>
         </main>
-      </div>
+      </PageLayout>
     );
   }
 
   const areaHa = terreno.area_m2 / M2_POR_HECTAREA;
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-blue-600 text-white px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Link href={ROUTES.AGUA} className="p-1 hover:bg-blue-700 rounded">
-            <BackIcon />
-          </Link>
-          <h1 className="text-xl font-bold">Planificador (12 meses)</h1>
-        </div>
-        <div className="flex items-center gap-2">
-          <Link
-            href={ROUTES.ECONOMIA}
-            className="text-sm bg-emerald-600 px-3 py-1 rounded hover:bg-emerald-700"
-          >
-            Economia
-          </Link>
-          <Link
-            href={ROUTES.AGUA}
-            className="text-sm bg-cyan-600 px-3 py-1 rounded hover:bg-cyan-700"
-          >
-            Gestion
-          </Link>
-        </div>
-      </header>
+  const headerActions = (
+    <>
+      <Link
+        href={ROUTES.ECONOMIA}
+        className="text-sm bg-emerald-600 px-3 py-1 rounded hover:bg-emerald-700"
+      >
+        Economia
+      </Link>
+      <Link
+        href={ROUTES.AGUA}
+        className="text-sm bg-cyan-600 px-3 py-1 rounded hover:bg-cyan-700"
+      >
+        Gestion
+      </Link>
+    </>
+  );
 
+  return (
+    <PageLayout
+      headerColor="blue"
+      title="Planificador (12 meses)"
+      headerActions={headerActions}
+    >
       <main className="p-4 space-y-4 max-w-4xl mx-auto">
         <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg">
           <h2 className="text-lg font-bold text-blue-900 mb-2">
@@ -235,24 +228,6 @@ export default function PlanificadorAguaPage() {
           </Link>
         </div>
       </main>
-    </div>
-  );
-}
-
-function BackIcon() {
-  return (
-    <svg
-      className="w-6 h-6"
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M15 19l-7-7 7-7"
-      />
-    </svg>
+    </PageLayout>
   );
 }

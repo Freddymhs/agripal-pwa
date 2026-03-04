@@ -28,7 +28,6 @@ export const ROUTES = {
   // Economía module
   ECONOMIA: "/economia",
   ECONOMIA_AVANZADO: "/economia/avanzado",
-  ECONOMIA_PROYECCION: "/economia/proyeccion",
 
   // Advanced features
   ESCENARIOS: "/escenarios",

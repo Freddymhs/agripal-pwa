@@ -105,7 +105,7 @@ export const metadata: Metadata = {
 
 ---
 
-### Tarea 4 — Iconografía en Sección Funciones ⚠️ PENDIENTE VERIFICAR
+### Tarea 4 — Iconografía en Sección Funciones ✅ COMPLETADA
 
 **Problema:** La sección `#funciones` tiene 6 feature cards con texto puro. Score visual 5/10 según auditoría. Una persona mayor escanea con iconos, no lee párrafos.
 
@@ -196,15 +196,15 @@ export const metadata: Metadata = {
 **Checklist:**
 
 - [x] `pnpm type-check` sin errores
-- [ ] `pnpm build` sin errores (verificar en deploy)
-- [ ] Verificar metadata aparece en `<head>` al hacer view-source
-- [ ] Verificar JSON-LD en Google Rich Results Test
+- [x] `pnpm build` sin errores — todas las rutas SSG generadas
+- [ ] Verificar metadata aparece en `<head>` al hacer view-source (requiere deploy)
+- [ ] Verificar JSON-LD en Google Rich Results Test (requiere deploy)
 - [ ] Probar en móvil (iOS Safari + Android Chrome): tamaños de texto, touch targets
-- [ ] Verificar que `dynamic = "force-static"` sigue activo
-- [ ] Open Graph: compartir link por WhatsApp y verificar preview
+- [x] Verificar que `dynamic = "force-static"` sigue activo
+- [ ] Open Graph: compartir link por WhatsApp y verificar preview (requiere deploy)
 - [ ] Lighthouse score: apuntar a 90+ Performance, 95+ Accessibility, 90+ SEO
-- [ ] Confirmar `/sitemap.xml` responde 200 en producción
-- [ ] Confirmar security headers presentes (`curl -I https://agriplan.cl`)
+- [ ] Confirmar `/sitemap.xml` responde 200 en producción (requiere deploy)
+- [ ] Confirmar security headers presentes (`curl -I https://agriplan.cl`) (requiere deploy)
 
 ---
 

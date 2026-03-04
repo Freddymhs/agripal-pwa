@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Toaster } from "sonner";
 import { AuthProvider } from "@/components/providers/auth-provider";
-import { QueryProvider } from "@/components/providers/query-provider";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { ProjectProvider } from "@/contexts/project-context";
 import "./globals.css";
@@ -56,9 +55,7 @@ export default function RootLayout({
       <body className="antialiased bg-gray-50">
         <ErrorBoundary>
           <AuthProvider>
-            <QueryProvider>
-              <ProjectProvider>{children}</ProjectProvider>
-            </QueryProvider>
+            <ProjectProvider>{children}</ProjectProvider>
           </AuthProvider>
         </ErrorBoundary>
         <Toaster position="bottom-right" richColors duration={3000} />

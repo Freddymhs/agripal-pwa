@@ -117,7 +117,9 @@ Cada archivo FASE_X.md incluye esta tarea de integración al final.
 
 | Fase      | Status | Progreso | Nombre                                            | Prioridad     |
 | --------- | ------ | -------- | ------------------------------------------------- | ------------- |
-| **12B**   | 🔄     | 85%      | Landing Page: SEO + Accesibilidad + UX Conversión | 🔴 CRÍTICA    |
+| **12B**   | ✅     | 100%     | Landing Page: SEO + Accesibilidad + UX Conversión | 🔴 CRÍTICA    |
+| **12C**   | ✅     | 100%     | Contenido SEO: Páginas Geográficas + Comparativa  | 🔴 CRÍTICA    |
+| **12D**   | ✅     | 100%     | Auditoría TanStack + migración a useLiveQuery     | 🟡 MEDIA      |
 | 13        | ⏳     | 0%       | Supabase Backend (schema, RLS, sync real)         | 🔴 CRÍTICA    |
 | 14        | ⏳     | 0%       | Sistema de Billing con MercadoPago                | 🔴 ALTA       |
 | 16        | ⏳     | 0%       | Registro de Cosechas (UI)                         | 🟡 MEDIA      |
@@ -132,7 +134,9 @@ Cada archivo FASE_X.md incluye esta tarea de integración al final.
 
 ## 📍 Actual
 
-**Fase actual:** FASE_12B - Landing Page SEO + Accesibilidad + UX Conversión (85% — pendiente: iconografía funciones + verificación final)
+**Fase actual:** FASE_13 - Supabase Backend (schema PostgreSQL, RLS, sync real)
+
+**Completadas (29)**: ...12B (Landing SEO), 12C (Páginas SEO), 12D (TanStack → useLiveQuery)
 
 **Completadas (26)**: Estructura, Tipos, Mapa, Zonas, Plantas, Selección Múltiple, Gestión Proyectos/Terrenos, Terreno Avanzado, Panel Clima, Panel Suelo, Agua Avanzada, Motor Recomendación, Catálogo Cultivos, Estanques, Control Agua, Alertas y Dashboard, PWA y Sync Offline, **Performance PixiJS**, **Mejoras UX/Agua/Datos**, **Autenticación JWT Mock**, **Segmentación UX Agua**, **Dashboard + Planificador**, **Economía/Escenarios/Plagas/Datos/Fixes**, **Bugs Críticos UX (15B)**, **Auth Real Supabase (12)**
 
