@@ -1,8 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Toaster } from "sonner";
-import { AuthProvider } from "@/components/providers/auth-provider";
 import { ErrorBoundary } from "@/components/error-boundary";
-import { ProjectProvider } from "@/contexts/project-context";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -53,11 +51,7 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/icons/icon.svg" />
       </head>
       <body className="antialiased bg-gray-50">
-        <ErrorBoundary>
-          <AuthProvider>
-            <ProjectProvider>{children}</ProjectProvider>
-          </AuthProvider>
-        </ErrorBoundary>
+        <ErrorBoundary>{children}</ErrorBoundary>
         <Toaster position="bottom-right" richColors duration={3000} />
       </body>
     </html>

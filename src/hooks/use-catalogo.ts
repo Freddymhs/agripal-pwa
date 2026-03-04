@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { catalogoDAL, plantasDAL, transaccionesDAL } from "@/lib/dal";
 import { generateUUID, getCurrentTimestamp } from "@/lib/utils";
@@ -27,18 +27,26 @@ interface UseCatalogo {
 }
 
 export function useCatalogo(proyectoId: UUID | null): UseCatalogo {
+  const seeded = useRef(false);
+
+  useEffect(() => {
+    if (!proyectoId) return;
+    seeded.current = false;
+
+    const seed = async () => {
+      const data = await catalogoDAL.getByProyectoId(proyectoId);
+      if (data.length === 0 && !seeded.current) {
+        seeded.current = true;
+        const cultivosIniciales = crearCatalogoInicial(proyectoId);
+        await transaccionesDAL.seedCatalogo(cultivosIniciales);
+      }
+    };
+    seed();
+  }, [proyectoId]);
+
   const cultivos = useLiveQuery(async () => {
     if (!proyectoId) return [];
-
-    const data = await catalogoDAL.getByProyectoId(proyectoId);
-
-    if (data.length === 0) {
-      const cultivosIniciales = crearCatalogoInicial(proyectoId);
-      await transaccionesDAL.seedCatalogo(cultivosIniciales);
-      return cultivosIniciales;
-    }
-
-    return data;
+    return catalogoDAL.getByProyectoId(proyectoId);
   }, [proyectoId]);
 
   const loading = cultivos === undefined;

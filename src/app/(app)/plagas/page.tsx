@@ -91,7 +91,17 @@ export default function PlagasPage() {
   }
 
   return (
-    <PageLayout headerColor="amber" title="Predicción de Plagas">
+    <PageLayout
+      headerColor="amber"
+      title="Predicción de Plagas"
+      headerActions={
+        totalAlertas > 0 ? (
+          <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
+            {totalAlertas}
+          </span>
+        ) : undefined
+      }
+    >
       <main className="p-4 space-y-4 max-w-4xl mx-auto">
         <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-lg">
           <p className="text-sm text-amber-800">

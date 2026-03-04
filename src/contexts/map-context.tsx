@@ -149,9 +149,7 @@ export function MapProvider({ children }: { children: ReactNode }) {
       if (!zonaActualizada) {
         // eslint-disable-next-line react-hooks/set-state-in-effect -- sincronización: zona eliminada externamente → limpiar selección
         setZonaSeleccionada(null);
-      } else if (
-        JSON.stringify(zonaActualizada) !== JSON.stringify(zonaSeleccionada)
-      ) {
+      } else if (zonaActualizada.updated_at !== zonaSeleccionada.updated_at) {
         setZonaSeleccionada(zonaActualizada);
       }
     }
@@ -166,7 +164,7 @@ export function MapProvider({ children }: { children: ReactNode }) {
         // eslint-disable-next-line react-hooks/set-state-in-effect -- sincronización: planta eliminada externamente → limpiar selección
         setPlantaSeleccionada(null);
       } else if (
-        JSON.stringify(plantaActualizada) !== JSON.stringify(plantaSeleccionada)
+        plantaActualizada.updated_at !== plantaSeleccionada.updated_at
       ) {
         setPlantaSeleccionada(plantaActualizada);
       }

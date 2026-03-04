@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useMemo } from "react";
 import { PageLayout } from "@/components/layout";
 import { useTerrainData } from "@/hooks/use-terrain-data";
 import { ESTADO_PLANTA, TIPO_ZONA } from "@/lib/constants/entities";
@@ -25,10 +25,8 @@ interface ResumenCultivo {
 export default function EconomiaPage() {
   const { terreno, zonas, plantas, catalogoCultivos, loading } =
     useTerrainData();
-  const [resumen, setResumen] = useState<ResumenCultivo[]>([]);
-
-  useEffect(() => {
-    if (!terreno || zonas.length === 0) return;
+  const resumen = useMemo<ResumenCultivo[]>(() => {
+    if (!terreno || zonas.length === 0) return [];
 
     const estanques = filtrarEstanques(zonas);
     const costoAguaM3 = obtenerCostoAguaPromedio(estanques, terreno);
@@ -81,8 +79,7 @@ export default function EconomiaPage() {
       }
     }
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- calcula resumen derivado cuando cambian los datos del terreno
-    setResumen(resumenCalculado);
+    return resumenCalculado;
   }, [terreno, zonas, plantas, catalogoCultivos]);
 
   const totalInversion = resumen.reduce(
