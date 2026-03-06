@@ -10,7 +10,7 @@ const PUBLIC_ROUTES = new Set<string>([
   ROUTES.AUTH_RECUPERAR,
   ROUTES.AUTH_NUEVA_PASSWORD,
 ]);
-
+//
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
