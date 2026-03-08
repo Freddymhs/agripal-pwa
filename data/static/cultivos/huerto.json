@@ -1,0 +1,333 @@
+[
+  {
+    "id": "huerto-tomate-cherry",
+    "proyecto_id": "proyecto-arica-piloto",
+    "categoria": "huerto_personal",
+    "nombre": "Tomate Cherry",
+    "nombre_cientifico": "Solanum lycopersicum var. cerasiforme",
+    "tipo": "hortaliza_fruto",
+    "escala": "huerto_personal",
+    "agua_m3_ha_año_min": 3000,
+    "agua_m3_ha_año_max": 5000,
+    "espaciado_min_m": 0.5,
+    "espaciado_recomendado_m": 0.7,
+    "ph_min": 6,
+    "ph_max": 7,
+    "salinidad_tolerancia_dS_m": 2.5,
+    "boro_tolerancia_ppm": 1.5,
+    "tolerancia_boro": "media",
+    "tolerancia_salinidad": "media",
+    "clima": {
+      "temp_min_c": 10,
+      "temp_max_c": 38,
+      "tolerancia_heladas": "nula"
+    },
+    "viabilidad_proyecto": "mejor_opcion",
+    "calendario": {
+      "meses_siembra": [1, 2, 3, 7, 8, 9],
+      "meses_cosecha": [4, 5, 6, 10, 11, 12],
+      "meses_descanso": []
+    },
+    "produccion": {
+      "produccion_kg_ha_año2": 30000,
+      "produccion_kg_ha_año3": 35000,
+      "produccion_kg_ha_año4": 35000,
+      "vida_util_dias": 14
+    },
+    "precio_kg_min_clp": 800,
+    "precio_kg_max_clp": 1800,
+    "precio_planta_clp": 300,
+    "plagas": [
+      {
+        "nombre": "Mosca blanca",
+        "nombre_cientifico": "Trialeurodes vaporariorum",
+        "grados_dia_base": 10,
+        "grados_dia_ciclo": 220,
+        "grados_dia_ovicida_ventana": 80,
+        "control_recomendado": "Jabón potásico + trampa amarilla adhesiva"
+      }
+    ],
+    "tiempo_produccion_meses": 3,
+    "vida_util_años": 1,
+    "tier": 1,
+    "riesgo": "bajo",
+    "notas": "Ciclo corto, alta producción, ideal para autoconsumo. Dos ciclos anuales posibles en Arica.",
+    "notas_arica": "Producción casi continua por ausencia de heladas. Requiere soporte (estaca/malla). Muy eficiente en agua con goteo."
+  },
+  {
+    "id": "huerto-sandia",
+    "proyecto_id": "proyecto-arica-piloto",
+    "categoria": "huerto_personal",
+    "nombre": "Sandía",
+    "nombre_cientifico": "Citrullus lanatus",
+    "tipo": "fruta",
+    "escala": "huerto_personal",
+    "agua_m3_ha_año_min": 3000,
+    "agua_m3_ha_año_max": 4500,
+    "espaciado_min_m": 1.5,
+    "espaciado_recomendado_m": 2,
+    "ph_min": 6,
+    "ph_max": 7.5,
+    "salinidad_tolerancia_dS_m": 3,
+    "boro_tolerancia_ppm": 2,
+    "tolerancia_boro": "media",
+    "tolerancia_salinidad": "media",
+    "clima": {
+      "temp_min_c": 15,
+      "temp_max_c": 40,
+      "tolerancia_heladas": "nula"
+    },
+    "viabilidad_proyecto": "mejor_opcion",
+    "calendario": {
+      "meses_siembra": [9, 10, 11],
+      "meses_cosecha": [12, 1, 2, 3],
+      "meses_descanso": [4, 5, 6, 7, 8]
+    },
+    "produccion": {
+      "produccion_kg_ha_año2": 25000,
+      "produccion_kg_ha_año3": 30000,
+      "produccion_kg_ha_año4": 30000,
+      "vida_util_dias": 21
+    },
+    "precio_kg_min_clp": 300,
+    "precio_kg_max_clp": 600,
+    "precio_planta_clp": 200,
+    "plagas": [
+      {
+        "nombre": "Araña roja",
+        "nombre_cientifico": "Tetranychus urticae",
+        "grados_dia_base": 10,
+        "grados_dia_ciclo": 200,
+        "grados_dia_ovicida_ventana": 60,
+        "control_recomendado": "Riego por aspersión esporádico + acaricida biológico"
+      }
+    ],
+    "tiempo_produccion_meses": 3,
+    "vida_util_años": 1,
+    "tier": 1,
+    "riesgo": "bajo",
+    "notas": "Ideal para clima desértico caluroso. Alta tolerancia al calor extremo de Arica en verano.",
+    "notas_arica": "Excelente en terreno expuesto. Ciclo dic-mar coincide con peak de calor. Alta producción con bajo costo de insumos."
+  },
+  {
+    "id": "huerto-melon",
+    "proyecto_id": "proyecto-arica-piloto",
+    "categoria": "huerto_personal",
+    "nombre": "Melón",
+    "nombre_cientifico": "Cucumis melo",
+    "tipo": "fruta",
+    "escala": "huerto_personal",
+    "agua_m3_ha_año_min": 3000,
+    "agua_m3_ha_año_max": 4500,
+    "espaciado_min_m": 1.2,
+    "espaciado_recomendado_m": 1.5,
+    "ph_min": 6,
+    "ph_max": 7.5,
+    "salinidad_tolerancia_dS_m": 2.2,
+    "boro_tolerancia_ppm": 2,
+    "tolerancia_boro": "media",
+    "tolerancia_salinidad": "media",
+    "clima": {
+      "temp_min_c": 15,
+      "temp_max_c": 40,
+      "tolerancia_heladas": "nula"
+    },
+    "viabilidad_proyecto": "mejor_opcion",
+    "calendario": {
+      "meses_siembra": [9, 10],
+      "meses_cosecha": [12, 1, 2],
+      "meses_descanso": [3, 4, 5, 6, 7, 8]
+    },
+    "produccion": {
+      "produccion_kg_ha_año2": 20000,
+      "produccion_kg_ha_año3": 25000,
+      "produccion_kg_ha_año4": 25000,
+      "vida_util_dias": 14
+    },
+    "precio_kg_min_clp": 400,
+    "precio_kg_max_clp": 900,
+    "precio_planta_clp": 200,
+    "plagas": [
+      {
+        "nombre": "Mosca del melón",
+        "nombre_cientifico": "Bactrocera cucurbitae",
+        "grados_dia_base": 10,
+        "grados_dia_ciclo": 250,
+        "grados_dia_ovicida_ventana": 80,
+        "control_recomendado": "Trampas proteicas + monitoreo en cuaje"
+      }
+    ],
+    "tiempo_produccion_meses": 3,
+    "vida_util_años": 1,
+    "tier": 1,
+    "riesgo": "bajo",
+    "notas": "Fruta de alta demanda estival. El calor seco de Arica favorece dulzor elevado (mayor Brix).",
+    "notas_arica": "El ambiente desértico seco produce melones de sabor más concentrado. Riego por goteo crítico en cuaje."
+  },
+  {
+    "id": "huerto-pepino-dulce",
+    "proyecto_id": "proyecto-arica-piloto",
+    "categoria": "huerto_personal",
+    "nombre": "Pepino Dulce",
+    "nombre_cientifico": "Solanum muricatum",
+    "tipo": "fruta",
+    "escala": "huerto_personal",
+    "agua_m3_ha_año_min": 1500,
+    "agua_m3_ha_año_max": 2500,
+    "espaciado_min_m": 0.8,
+    "espaciado_recomendado_m": 1,
+    "ph_min": 5.5,
+    "ph_max": 7.5,
+    "salinidad_tolerancia_dS_m": 3,
+    "boro_tolerancia_ppm": 2,
+    "tolerancia_boro": "media",
+    "tolerancia_salinidad": "media",
+    "clima": {
+      "temp_min_c": 5,
+      "temp_max_c": 35,
+      "tolerancia_heladas": "baja"
+    },
+    "viabilidad_proyecto": "mejor_opcion",
+    "calendario": {
+      "meses_siembra": [8, 9, 10],
+      "meses_cosecha": [12, 1, 2, 3, 4],
+      "meses_descanso": [5, 6, 7]
+    },
+    "produccion": {
+      "produccion_kg_ha_año2": 15000,
+      "produccion_kg_ha_año3": 20000,
+      "produccion_kg_ha_año4": 20000,
+      "vida_util_dias": 14
+    },
+    "precio_kg_min_clp": 600,
+    "precio_kg_max_clp": 1200,
+    "precio_planta_clp": 500,
+    "plagas": [
+      {
+        "nombre": "Araña roja",
+        "nombre_cientifico": "Tetranychus urticae",
+        "grados_dia_base": 10,
+        "grados_dia_ciclo": 200,
+        "grados_dia_ovicida_ventana": 60,
+        "control_recomendado": "Acaricida biológico + humidificación foliar esporádica"
+      }
+    ],
+    "tiempo_produccion_meses": 4,
+    "vida_util_años": 3,
+    "tier": 1,
+    "riesgo": "bajo",
+    "notas": "Fruta andina nativa, extremadamente rústica. Uno de los cultivos más eficientes en uso de agua.",
+    "notas_arica": "Origen andino árido — perfecta para este sitio. Muy bajo requerimiento hídrico. Producción sostenida con escaso manejo."
+  },
+  {
+    "id": "huerto-aji",
+    "proyecto_id": "proyecto-arica-piloto",
+    "categoria": "huerto_personal",
+    "nombre": "Ají / Pimiento",
+    "nombre_cientifico": "Capsicum annuum",
+    "tipo": "fruta",
+    "escala": "huerto_personal",
+    "agua_m3_ha_año_min": 2000,
+    "agua_m3_ha_año_max": 3500,
+    "espaciado_min_m": 0.4,
+    "espaciado_recomendado_m": 0.6,
+    "ph_min": 6,
+    "ph_max": 7.5,
+    "salinidad_tolerancia_dS_m": 1.5,
+    "boro_tolerancia_ppm": 1.5,
+    "tolerancia_boro": "media",
+    "tolerancia_salinidad": "media",
+    "clima": {
+      "temp_min_c": 10,
+      "temp_max_c": 38,
+      "tolerancia_heladas": "nula"
+    },
+    "viabilidad_proyecto": "mejor_opcion",
+    "calendario": {
+      "meses_siembra": [8, 9, 10],
+      "meses_cosecha": [12, 1, 2, 3, 4, 5],
+      "meses_descanso": [6, 7]
+    },
+    "produccion": {
+      "produccion_kg_ha_año2": 12000,
+      "produccion_kg_ha_año3": 18000,
+      "produccion_kg_ha_año4": 20000,
+      "vida_util_dias": 21
+    },
+    "precio_kg_min_clp": 800,
+    "precio_kg_max_clp": 2500,
+    "precio_planta_clp": 300,
+    "plagas": [
+      {
+        "nombre": "Trips",
+        "nombre_cientifico": "Frankliniella occidentalis",
+        "grados_dia_base": 10,
+        "grados_dia_ciclo": 280,
+        "grados_dia_ovicida_ventana": 100,
+        "control_recomendado": "Trampa azul adhesiva + spinosad en flor"
+      }
+    ],
+    "tiempo_produccion_meses": 4,
+    "vida_util_años": 2,
+    "tier": 1,
+    "riesgo": "bajo",
+    "notas": "Excelente rendimiento en climas cálidos. El calor intensifica el sabor y el nivel de capsaicina.",
+    "notas_arica": "Calor de Arica produce ajíes de alta concentración. Producción casi continua sin heladas. Bajo costo de establecimiento."
+  },
+  {
+    "id": "huerto-olivo",
+    "proyecto_id": "proyecto-arica-piloto",
+    "categoria": "huerto_personal",
+    "nombre": "Olivo",
+    "nombre_cientifico": "Olea europaea",
+    "tipo": "fruta",
+    "escala": "huerto_personal",
+    "agua_m3_ha_año_min": 2000,
+    "agua_m3_ha_año_max": 3500,
+    "espaciado_min_m": 5,
+    "espaciado_recomendado_m": 6,
+    "ph_min": 5.5,
+    "ph_max": 8.5,
+    "salinidad_tolerancia_dS_m": 5,
+    "boro_tolerancia_ppm": 3,
+    "tolerancia_boro": "media",
+    "tolerancia_salinidad": "alta",
+    "clima": {
+      "temp_min_c": -7,
+      "temp_max_c": 40,
+      "tolerancia_heladas": "alta",
+      "horas_frio_requeridas": 300
+    },
+    "viabilidad_proyecto": "recomendado",
+    "calendario": {
+      "meses_siembra": [6, 7, 8],
+      "meses_cosecha": [4, 5, 6],
+      "meses_descanso": [9, 10, 11, 12, 1, 2, 3]
+    },
+    "produccion": {
+      "produccion_kg_ha_año2": 0,
+      "produccion_kg_ha_año3": 500,
+      "produccion_kg_ha_año4": 3000,
+      "vida_util_dias": 180
+    },
+    "precio_kg_min_clp": 1500,
+    "precio_kg_max_clp": 3500,
+    "precio_planta_clp": 4000,
+    "plagas": [
+      {
+        "nombre": "Mosca del olivo",
+        "nombre_cientifico": "Bactrocera oleae",
+        "grados_dia_base": 10,
+        "grados_dia_ciclo": 400,
+        "grados_dia_ovicida_ventana": 150,
+        "control_recomendado": "Trampa proteica + kaolín en fruto"
+      }
+    ],
+    "tiempo_produccion_meses": 48,
+    "vida_util_años": 80,
+    "tier": 2,
+    "riesgo": "bajo",
+    "notas": "Árbol muy lento pero extremadamente longevo y rústico. Para autoconsumo 2-3 árboles son suficientes.",
+    "notas_arica": "Las mínimas de 4-6°C en invierno cubren las horas frío requeridas. Variedad Azapa recomendada por adaptación local probada."
+  }
+]

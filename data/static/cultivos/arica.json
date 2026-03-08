@@ -2,6 +2,7 @@
   {
     "id": "cultivo-tuna",
     "proyecto_id": "proyecto-arica-piloto",
+    "categoria": "produccion",
     "nombre": "Tuna",
     "nombre_cientifico": "Opuntia ficus-indica",
     "agua_m3_ha_año_min": 1500,
@@ -19,6 +20,44 @@
       "temp_max_c": 40,
       "tolerancia_heladas": "alta"
     },
+    "kc_mensual": [
+      0.3, 0.3, 0.28, 0.28, 0.25, 0.25, 0.25, 0.25, 0.27, 0.28, 0.3, 0.3
+    ],
+    "nutricion": {
+      "n_kg_ha_año": 40,
+      "p_kg_ha_año": 20,
+      "k_kg_ha_año": 30,
+      "aplicaciones_año": 2,
+      "timing": "Post-cosecha (abr) + brotación nueva (sep)",
+      "notas": "Planta CAM muy eficiente; evitar exceso N que promueve cladodios en detrimento de fruto"
+    },
+    "etapas_fenologicas": [
+      {
+        "nombre": "Dormancia relativa",
+        "meses": [6, 7, 8],
+        "descripcion": "Mínimo crecimiento; riego reducido 50%"
+      },
+      {
+        "nombre": "Brotación cladodios",
+        "meses": [9, 10],
+        "descripcion": "Inicio de nuevos cladodios; fertilizar N"
+      },
+      {
+        "nombre": "Floración",
+        "meses": [10, 11],
+        "descripcion": "Flores amarillas; monitorear cochinilla"
+      },
+      {
+        "nombre": "Cuaje y desarrollo fruto",
+        "meses": [11, 12],
+        "descripcion": "Riego regular; ajustar Kc a 0.35"
+      },
+      {
+        "nombre": "Cosecha",
+        "meses": [12, 1, 2, 3],
+        "descripcion": "Fruto maduro; cosechar con guantes y pinzas"
+      }
+    ],
     "viabilidad_proyecto": "mejor_opcion",
     "calendario": {
       "meses_siembra": [3, 4, 9, 10],
@@ -51,11 +90,12 @@
     "notas": "Cultivo base recomendado para Arica. Bajo consumo agua, tolera salinidad alta.",
     "notas_arica": "Ideal para piloto 0.3 ha. Requiere monitoreo cochinilla. Hospedero mosca fruta.",
     "created_at": "2024-12-01T00:00:00Z",
-    "updated_at": "2024-12-01T00:00:00Z"
+    "updated_at": "2026-03-07T00:00:00Z"
   },
   {
     "id": "cultivo-higuera",
     "proyecto_id": "proyecto-arica-piloto",
+    "categoria": "produccion",
     "nombre": "Higuera",
     "nombre_cientifico": "Ficus carica",
     "agua_m3_ha_año_min": 2000,
@@ -74,6 +114,44 @@
       "tolerancia_heladas": "alta",
       "horas_frio_requeridas": 200
     },
+    "kc_mensual": [
+      0.9, 0.9, 0.85, 0.7, 0.5, 0.4, 0.35, 0.4, 0.6, 0.75, 0.85, 0.9
+    ],
+    "nutricion": {
+      "n_kg_ha_año": 100,
+      "p_kg_ha_año": 50,
+      "k_kg_ha_año": 80,
+      "aplicaciones_año": 3,
+      "timing": "Brotación (sep): 40% N; cuaje breva (oct-nov): 30% NK; post-cosecha breva (dic): 30% PK",
+      "notas": "Sensible a boro; usar agua <1 ppm B. Dos cosechas anuales requieren fraccionamiento cuidadoso"
+    },
+    "etapas_fenologicas": [
+      {
+        "nombre": "Dormancia",
+        "meses": [6, 7, 8],
+        "descripcion": "Árbol sin hojas; poda de formación; riego mínimo"
+      },
+      {
+        "nombre": "Brotación",
+        "meses": [9, 10],
+        "descripcion": "Emisión de hojas y brevas; fertilizar N"
+      },
+      {
+        "nombre": "Cosecha breva",
+        "meses": [11, 12],
+        "descripcion": "Primera cosecha (fruto del año anterior); precio premium"
+      },
+      {
+        "nombre": "Floración e higo",
+        "meses": [12, 1],
+        "descripcion": "Desarrollo del higo nuevo; riego crítico"
+      },
+      {
+        "nombre": "Cosecha higo",
+        "meses": [1, 2, 3, 4, 5],
+        "descripcion": "Segunda cosecha; mayor volumen; vida poscosecha 3 días"
+      }
+    ],
     "viabilidad_proyecto": "recomendado",
     "calendario": {
       "meses_siembra": [6, 7, 8],
@@ -106,11 +184,12 @@
     "notas": "Dos cosechas anuales (breva nov-dic, higo ene-may). Vida útil muy corta.",
     "notas_arica": "Recomendado 0.2 ha. Breva precio premium. Hospedero mosca fruta.",
     "created_at": "2024-12-01T00:00:00Z",
-    "updated_at": "2024-12-01T00:00:00Z"
+    "updated_at": "2026-03-07T00:00:00Z"
   },
   {
     "id": "cultivo-pitahaya",
     "proyecto_id": "proyecto-arica-piloto",
+    "categoria": "produccion",
     "nombre": "Pitahaya",
     "nombre_cientifico": "Hylocereus spp.",
     "agua_m3_ha_año_min": 2000,
@@ -128,6 +207,49 @@
       "temp_max_c": 35,
       "tolerancia_heladas": "baja"
     },
+    "kc_mensual": [
+      0.5, 0.5, 0.45, 0.4, 0.35, 0.3, 0.3, 0.35, 0.4, 0.45, 0.5, 0.5
+    ],
+    "nutricion": {
+      "n_kg_ha_año": 120,
+      "p_kg_ha_año": 60,
+      "k_kg_ha_año": 100,
+      "aplicaciones_año": 4,
+      "timing": "Vegetativo (oct-nov): N alto; floración (dic-ene): PK; fructificación (ene-feb): K; post-cosecha (may): N+P",
+      "notas": "Cactus trepador; alta demanda K para calidad del fruto. Evitar exceso N que inhibe floración"
+    },
+    "etapas_fenologicas": [
+      {
+        "nombre": "Dormancia parcial",
+        "meses": [6, 7],
+        "descripcion": "Riego reducido para inducir floración posterior"
+      },
+      {
+        "nombre": "Crecimiento vegetativo",
+        "meses": [8, 9, 10],
+        "descripcion": "Extensión de tallos; fijar tutores; fertilizar N"
+      },
+      {
+        "nombre": "Inducción floral",
+        "meses": [11, 12],
+        "descripcion": "Noches cortas y estrés hídrico inducen botones"
+      },
+      {
+        "nombre": "Floración nocturna",
+        "meses": [12, 1],
+        "descripcion": "Flores abren solo 1 noche; polinización manual o por murciélagos"
+      },
+      {
+        "nombre": "Desarrollo fruto",
+        "meses": [1, 2],
+        "descripcion": "30-50 días de cuaje a cosecha; riego regular"
+      },
+      {
+        "nombre": "Cosecha",
+        "meses": [1, 2, 3, 4, 5],
+        "descripcion": "Fruto rojizo/amarillo uniforme; cosechar manualmente"
+      }
+    ],
     "viabilidad_proyecto": "mejor_opcion",
     "calendario": {
       "meses_siembra": [8, 9, 10],
@@ -160,11 +282,12 @@
     "notas": "Cultivo gourmet, alto precio. Produce en contra-estación.",
     "notas_arica": "Área limitada (0.1 ha). Mejor rentabilidad/agua. Requiere protección viento.",
     "created_at": "2024-12-01T00:00:00Z",
-    "updated_at": "2024-12-01T00:00:00Z"
+    "updated_at": "2026-03-07T00:00:00Z"
   },
   {
     "id": "cultivo-guayaba",
     "proyecto_id": "proyecto-arica-piloto",
+    "categoria": "produccion",
     "nombre": "Guayaba Rosada",
     "nombre_cientifico": "Psidium guajava",
     "agua_m3_ha_año_min": 2000,
@@ -182,6 +305,39 @@
       "temp_max_c": 35,
       "tolerancia_heladas": "baja"
     },
+    "kc_mensual": [
+      0.85, 0.85, 0.8, 0.75, 0.7, 0.65, 0.65, 0.7, 0.75, 0.8, 0.85, 0.85
+    ],
+    "nutricion": {
+      "n_kg_ha_año": 80,
+      "p_kg_ha_año": 40,
+      "k_kg_ha_año": 60,
+      "aplicaciones_año": 3,
+      "timing": "Pre-floración (oct): N+P; cuaje (nov-dic): K; post-cosecha (abr): N+PK completo",
+      "notas": "Árbol muy rústico; responde bien a materia orgánica. Fraccionamiento evita exceso salino"
+    },
+    "etapas_fenologicas": [
+      {
+        "nombre": "Crecimiento vegetativo",
+        "meses": [8, 9, 10],
+        "descripcion": "Extensión de ramas; momento de fertilización N"
+      },
+      {
+        "nombre": "Floración",
+        "meses": [10, 11],
+        "descripcion": "Flores blancas aromáticas; polinización por insectos"
+      },
+      {
+        "nombre": "Cuaje y desarrollo",
+        "meses": [11, 12],
+        "descripcion": "Fruto verde en engrosamiento; demanda hídrica alta"
+      },
+      {
+        "nombre": "Maduración y cosecha",
+        "meses": [1, 2, 3, 4],
+        "descripcion": "Amarillamiento y aroma; vida poscosecha 7 días sin refrigeración"
+      }
+    ],
     "viabilidad_proyecto": "viable",
     "calendario": {
       "meses_siembra": [9, 10, 11],
@@ -214,11 +370,12 @@
     "notas": "Nicho mercado local creciente. Rústica.",
     "notas_arica": "Alternativa para 0.05 ha. Mercado local. CRÍTICA: 14 brotes mosca fruta.",
     "created_at": "2024-12-01T00:00:00Z",
-    "updated_at": "2024-12-01T00:00:00Z"
+    "updated_at": "2026-03-07T00:00:00Z"
   },
   {
     "id": "cultivo-datil-medjool",
     "proyecto_id": "proyecto-arica-piloto",
+    "categoria": "produccion",
     "nombre": "Dátil Medjool",
     "nombre_cientifico": "Phoenix dactylifera",
     "agua_m3_ha_año_min": 12000,
@@ -236,6 +393,44 @@
       "temp_max_c": 45,
       "tolerancia_heladas": "baja"
     },
+    "kc_mensual": [
+      0.9, 0.9, 0.9, 0.85, 0.85, 0.8, 0.8, 0.85, 0.9, 0.95, 0.95, 0.9
+    ],
+    "nutricion": {
+      "n_kg_ha_año": 150,
+      "p_kg_ha_año": 60,
+      "k_kg_ha_año": 100,
+      "aplicaciones_año": 3,
+      "timing": "Polinización (feb-mar): N; engrosamiento fruto (may-jun): K alto; post-cosecha (nov): N+P",
+      "notas": "Alta demanda nutricional por producción elevada. Aplicación foliar de Zn y B recomendada para cuaje"
+    },
+    "etapas_fenologicas": [
+      {
+        "nombre": "Floración",
+        "meses": [2, 3],
+        "descripcion": "Palmas macho y hembra; polinización manual obligatoria (1 macho : 20-40 hembras)"
+      },
+      {
+        "nombre": "Desarrollo fruto (hababouk-kimri)",
+        "meses": [3, 4, 5, 6],
+        "descripcion": "Fruto verde en crecimiento activo; riego máximo"
+      },
+      {
+        "nombre": "Maduración (khalal-rutab)",
+        "meses": [7, 8, 9],
+        "descripcion": "Cambio de color verde a amarillo/rojo; reducir riego"
+      },
+      {
+        "nombre": "Cosecha (tamr)",
+        "meses": [9, 10, 11],
+        "descripcion": "Fruto maduro oscuro; cosechar en racimos completos"
+      },
+      {
+        "nombre": "Descanso post-cosecha",
+        "meses": [12, 1],
+        "descripcion": "Mantenimiento del follaje; fertilización P+K"
+      }
+    ],
     "viabilidad_proyecto": "limitado",
     "calendario": {
       "meses_siembra": [2, 3, 4],
@@ -268,11 +463,12 @@
     "notas": "Palmera de alto valor; tolera salinidad y boro. Requiere larga espera para retorno y agua abundante.",
     "notas_arica": "Escala muy chica por agua limitada (~1,040 m³/ha disponibles). Tolerante a sal y algo de boro de Lluta; ideal con agua Azapa/desalada.",
     "created_at": "2024-12-02T00:00:00Z",
-    "updated_at": "2024-12-02T00:00:00Z"
+    "updated_at": "2026-03-07T00:00:00Z"
   },
   {
     "id": "cultivo-maracuya",
     "proyecto_id": "proyecto-arica-piloto",
+    "categoria": "produccion",
     "nombre": "Maracuyá",
     "nombre_cientifico": "Passiflora edulis",
     "agua_m3_ha_año_min": 3500,
@@ -290,6 +486,44 @@
       "temp_max_c": 32,
       "tolerancia_heladas": "nula"
     },
+    "kc_mensual": [
+      1.05, 1.05, 1.0, 0.9, 0.7, 0.6, 0.55, 0.6, 0.75, 0.9, 1.0, 1.05
+    ],
+    "nutricion": {
+      "n_kg_ha_año": 180,
+      "p_kg_ha_año": 80,
+      "k_kg_ha_año": 120,
+      "aplicaciones_año": 4,
+      "timing": "Trasplante (sep): N+P raíz; floración (nov-dic): K+Ca; fructificación (ene-mar): N+K; post-cosecha (jun): P+K",
+      "notas": "Alta demanda nutricional. Sensible a salinidad; EC agua <1.5 dS/m obligatorio. Ca importante para evitar drupe drop"
+    },
+    "etapas_fenologicas": [
+      {
+        "nombre": "Establecimiento",
+        "meses": [9, 10],
+        "descripcion": "Trasplante a campo; instalación de espaldera; riego frecuente"
+      },
+      {
+        "nombre": "Crecimiento vegetativo",
+        "meses": [10, 11],
+        "descripcion": "Extensión de guías; fertilizar N para cobertura rápida"
+      },
+      {
+        "nombre": "Floración",
+        "meses": [11, 12],
+        "descripcion": "Flores ornamentales; polinización por abejorros; sensible a viento"
+      },
+      {
+        "nombre": "Cosecha principal",
+        "meses": [2, 3, 4, 5, 6],
+        "descripcion": "Frutos caen solos al madurar; cosechar diario del piso"
+      },
+      {
+        "nombre": "Renovación o poda",
+        "meses": [7, 8],
+        "descripcion": "Poda drástica o replante; ciclo de 2-3 años antes de renovar"
+      }
+    ],
     "viabilidad_proyecto": "recomendado",
     "calendario": {
       "meses_siembra": [8, 9, 10],
@@ -322,11 +556,12 @@
     "notas": "Retorno rápido y buen flujo de caja; sensible a salinidad y viento fuerte.",
     "notas_arica": "Excelente para rotación corta en valles bajos. Requiere agua <2 dS/m y protección de viento.",
     "created_at": "2024-12-02T00:00:00Z",
-    "updated_at": "2024-12-02T00:00:00Z"
+    "updated_at": "2026-03-07T00:00:00Z"
   },
   {
     "id": "cultivo-uva-mesa-primor",
     "proyecto_id": "proyecto-arica-piloto",
+    "categoria": "produccion",
     "nombre": "Uva de Mesa Primor",
     "nombre_cientifico": "Vitis vinifera",
     "agua_m3_ha_año_min": 4500,
@@ -345,6 +580,49 @@
       "tolerancia_heladas": "media",
       "horas_frio_requeridas": 100
     },
+    "kc_mensual": [
+      0.85, 0.85, 0.75, 0.5, 0.4, 0.35, 0.3, 0.35, 0.55, 0.7, 0.8, 0.85
+    ],
+    "nutricion": {
+      "n_kg_ha_año": 100,
+      "p_kg_ha_año": 40,
+      "k_kg_ha_año": 150,
+      "aplicaciones_año": 4,
+      "timing": "Brotación (ago-sep): N; floración (sep-oct): P+K; envero (oct-nov): K alto; post-cosecha (ene-feb): N+P",
+      "notas": "Alta demanda K para calidad de baya. Mg y Zn foliares en brotación. Evitar N tardío que reduce color"
+    },
+    "etapas_fenologicas": [
+      {
+        "nombre": "Dormancia",
+        "meses": [4, 5, 6, 7],
+        "descripcion": "Sin hojas; poda de invierno (jun-jul); aplicar cianamida si < 100 h frío"
+      },
+      {
+        "nombre": "Lloro y brotación",
+        "meses": [8, 9],
+        "descripcion": "Inicio de ciclo; aplicar N y Ca; monitorear polilla"
+      },
+      {
+        "nombre": "Floración y cuaje",
+        "meses": [9, 10],
+        "descripcion": "Racimos en desarrollo; aplicación de GA3 para elongar racimo si necesario"
+      },
+      {
+        "nombre": "Engrosamiento y envero",
+        "meses": [10, 11],
+        "descripcion": "Cambio de color; máxima demanda K; reducir N"
+      },
+      {
+        "nombre": "Cosecha primor",
+        "meses": [11, 12, 1],
+        "descripcion": "Ventana nov-ene: precio premium de primor; cosechar con hidrómetro Brix>15"
+      },
+      {
+        "nombre": "Post-cosecha",
+        "meses": [1, 2, 3],
+        "descripcion": "Defoliación; fertilización basal PK; control de hongos"
+      }
+    ],
     "viabilidad_proyecto": "recomendado",
     "calendario": {
       "meses_siembra": [7, 8],
@@ -377,11 +655,12 @@
     "notas": "Necesita manejo técnico alto para primores tempranos.",
     "notas_arica": "Ventaja de ventana temprana (nov-ene). Requiere riego preciso y manejo de salinidad.",
     "created_at": "2024-12-02T00:00:00Z",
-    "updated_at": "2024-12-02T00:00:00Z"
+    "updated_at": "2026-03-07T00:00:00Z"
   },
   {
     "id": "cultivo-limon",
     "proyecto_id": "proyecto-arica-piloto",
+    "categoria": "produccion",
     "nombre": "Limón",
     "nombre_cientifico": "Citrus limon",
     "agua_m3_ha_año_min": 5000,
@@ -399,6 +678,44 @@
       "temp_max_c": 40,
       "tolerancia_heladas": "baja"
     },
+    "kc_mensual": [
+      0.7, 0.7, 0.7, 0.7, 0.65, 0.65, 0.65, 0.65, 0.65, 0.7, 0.7, 0.7
+    ],
+    "nutricion": {
+      "n_kg_ha_año": 120,
+      "p_kg_ha_año": 50,
+      "k_kg_ha_año": 100,
+      "aplicaciones_año": 4,
+      "timing": "Pre-floración (ago-sep): N+P; cuaje (oct-nov): Ca+K; engrosamiento (dic-feb): K; post-cosecha (abr-may): N+P",
+      "notas": "Cítrico sensible a sales; Cl y Na tóxicos. Mg y Mn foliares anuales. Acidificar riego si pH agua > 7.5"
+    },
+    "etapas_fenologicas": [
+      {
+        "nombre": "Floración principal",
+        "meses": [8, 9, 10],
+        "descripcion": "Flores blancas perfumadas; polinización autógama; monitorear minador"
+      },
+      {
+        "nombre": "Cuaje y caída junio",
+        "meses": [10, 11],
+        "descripcion": "Caída natural de frutos pequeños; aplicar GA3 o boro para reducir caída"
+      },
+      {
+        "nombre": "Engrosamiento",
+        "meses": [11, 12, 1, 2],
+        "descripcion": "Fase de mayor demanda hídrica; mantener Kc constante"
+      },
+      {
+        "nombre": "Cosecha",
+        "meses": [4, 5, 6, 7, 8, 9, 10],
+        "descripcion": "Cosecha escalonada; índice Brix:Acidez >8:1 para fruta lista"
+      },
+      {
+        "nombre": "Floración secundaria",
+        "meses": [1, 2, 3],
+        "descripcion": "Flores fuera de estación; gestión de carga para evitar bienalidad"
+      }
+    ],
     "viabilidad_proyecto": "limitado",
     "calendario": {
       "meses_siembra": [7, 8, 9],
@@ -431,11 +748,12 @@
     "notas": "Requiere riego y portainjerto tolerante a sales.",
     "notas_arica": "Usar patrón tolerante (C-35/Swingle) por sales y boro. Ajustar riego presurizado; agua Lluta no recomendable.",
     "created_at": "2024-12-02T00:00:00Z",
-    "updated_at": "2024-12-02T00:00:00Z"
+    "updated_at": "2026-03-07T00:00:00Z"
   },
   {
     "id": "cultivo-mandarina-w-murcott",
     "proyecto_id": "proyecto-arica-piloto",
+    "categoria": "produccion",
     "nombre": "Mandarina W. Murcott",
     "nombre_cientifico": "Citrus reticulata",
     "agua_m3_ha_año_min": 5000,
@@ -453,6 +771,44 @@
       "temp_max_c": 38,
       "tolerancia_heladas": "baja"
     },
+    "kc_mensual": [
+      0.7, 0.7, 0.7, 0.7, 0.65, 0.65, 0.65, 0.65, 0.65, 0.7, 0.7, 0.7
+    ],
+    "nutricion": {
+      "n_kg_ha_año": 120,
+      "p_kg_ha_año": 50,
+      "k_kg_ha_año": 100,
+      "aplicaciones_año": 4,
+      "timing": "Floración (sep-oct): N+B foliar; cuaje (oct-nov): Ca; engrosamiento (dic-mar): K; pre-cosecha (may-jun): P+Mg",
+      "notas": "Variedad tardía; necesita diferenciar con temperatura nocturna. Mg y Zn foliares para color y calidad"
+    },
+    "etapas_fenologicas": [
+      {
+        "nombre": "Floración",
+        "meses": [9, 10],
+        "descripcion": "Floración masiva; aplicar boro para cuaje. Proteger de viento"
+      },
+      {
+        "nombre": "Cuaje y caída fisiológica",
+        "meses": [10, 11],
+        "descripcion": "Reducción natural de la carga; no aplicar GA3 en mandarina"
+      },
+      {
+        "nombre": "Engrosamiento",
+        "meses": [11, 12, 1, 2, 3],
+        "descripcion": "Período largo de desarrollo; 6-7 meses desde cuaje a cosecha"
+      },
+      {
+        "nombre": "Coloración y maduración",
+        "meses": [4, 5, 6],
+        "descripcion": "Requiere diferencia térmica día-noche >10°C para buen color; riego se reduce"
+      },
+      {
+        "nombre": "Cosecha tardía",
+        "meses": [6, 7, 8, 9],
+        "descripcion": "Fruta puede quedar en árbol hasta sep; alto Brix tardío"
+      }
+    ],
     "viabilidad_proyecto": "limitado",
     "calendario": {
       "meses_siembra": [7, 8, 9],
@@ -485,11 +841,12 @@
     "notas": "Buena calidad tardía; exige manejo de riego uniforme.",
     "notas_arica": "Usar portainjerto tolerante a sales; evitar Lluta sin mezcla. Proteger de viento durante floración.",
     "created_at": "2024-12-02T00:00:00Z",
-    "updated_at": "2024-12-02T00:00:00Z"
+    "updated_at": "2026-03-07T00:00:00Z"
   },
   {
     "id": "cultivo-arandano-maceta",
     "proyecto_id": "proyecto-arica-piloto",
+    "categoria": "produccion",
     "nombre": "Arándano en Maceta",
     "nombre_cientifico": "Vaccinium corymbosum",
     "agua_m3_ha_año_min": 3000,
@@ -508,6 +865,44 @@
       "tolerancia_heladas": "media",
       "horas_frio_requeridas": 200
     },
+    "kc_mensual": [
+      0.7, 0.7, 0.65, 0.6, 0.5, 0.45, 0.4, 0.45, 0.55, 0.65, 0.7, 0.7
+    ],
+    "nutricion": {
+      "n_kg_ha_año": 80,
+      "p_kg_ha_año": 30,
+      "k_kg_ha_año": 60,
+      "aplicaciones_año": 4,
+      "timing": "Pre-brotación (jun-jul): N sulfato amonio; floración (ago): Ca+B; fructificación (sep-oct): K; post-cosecha (nov-dic): N+P",
+      "notas": "CRÍTICO: usar solo sulfato de amonio (acidifica). Jamás urea ni nitrato que suben pH. EC sustrato <0.5 dS/m. Riego con agua desalada obligatorio"
+    },
+    "etapas_fenologicas": [
+      {
+        "nombre": "Dormancia con frío",
+        "meses": [5, 6, 7],
+        "descripcion": "Acumulación de horas frío (200 h <7°C); riego mínimo; poda de producción"
+      },
+      {
+        "nombre": "Brotación y floración",
+        "meses": [8, 9],
+        "descripcion": "Flores en racimos antes que hojas; riesgo de heladas; fertilizar N ácido"
+      },
+      {
+        "nombre": "Cuaje y desarrollo",
+        "meses": [9, 10],
+        "descripcion": "Frutos verdes en engrosamiento; monitorear Drosophila"
+      },
+      {
+        "nombre": "Cosecha escalonada",
+        "meses": [10, 11, 12],
+        "descripcion": "Cosecha manual cada 5-7 días; prioridad fruta 8mm+; refrigeración inmediata"
+      },
+      {
+        "nombre": "Post-cosecha",
+        "meses": [1, 2, 3, 4],
+        "descripcion": "Fertilización basal; control pH sustrato; preparar para nuevo ciclo"
+      }
+    ],
     "viabilidad_proyecto": "viable",
     "calendario": {
       "meses_siembra": [6, 7],
@@ -540,11 +935,12 @@
     "notas": "Manejo intensivo en maceta; costo inicial alto pero control de pH y sales.",
     "notas_arica": "Usar sustrato acidificado y riego con agua tratada/desalada (<0.8 dS/m, boro <0.2 ppm). Viable en patio/pequeña escala.",
     "created_at": "2024-12-02T00:00:00Z",
-    "updated_at": "2024-12-02T00:00:00Z"
+    "updated_at": "2026-03-07T00:00:00Z"
   },
   {
     "id": "cultivo-lucuma",
     "proyecto_id": "proyecto-arica-piloto",
+    "categoria": "produccion",
     "nombre": "Lúcuma",
     "nombre_cientifico": "Pouteria lucuma",
     "agua_m3_ha_año_min": 3500,
@@ -562,6 +958,44 @@
       "temp_max_c": 32,
       "tolerancia_heladas": "baja"
     },
+    "kc_mensual": [
+      0.8, 0.8, 0.75, 0.7, 0.65, 0.6, 0.6, 0.65, 0.7, 0.75, 0.8, 0.8
+    ],
+    "nutricion": {
+      "n_kg_ha_año": 80,
+      "p_kg_ha_año": 40,
+      "k_kg_ha_año": 60,
+      "aplicaciones_año": 3,
+      "timing": "Pre-floración (oct-nov): N+P; cuaje (dic-ene): K+Ca; post-cosecha (jun-jul): N+P completo",
+      "notas": "Árbol lento; demanda moderada. Materia orgánica mejora establecimiento. Sensible a encharcamiento"
+    },
+    "etapas_fenologicas": [
+      {
+        "nombre": "Crecimiento vegetativo",
+        "meses": [9, 10, 11],
+        "descripcion": "Extensión de ramas; árbol joven prioriza estructura sobre producción"
+      },
+      {
+        "nombre": "Floración",
+        "meses": [11, 12],
+        "descripcion": "Flores pequeñas axilares; polinización por insectos; sensible a temperaturas >30°C"
+      },
+      {
+        "nombre": "Desarrollo de fruto",
+        "meses": [12, 1, 2, 3, 4],
+        "descripcion": "Período largo de 7-8 meses desde flor a fruto maduro; riego constante"
+      },
+      {
+        "nombre": "Cosecha",
+        "meses": [2, 3, 4, 5, 6],
+        "descripcion": "Fruto cae solo o se cosecha con leve torsión; pulpa anaranjada textura harinosa"
+      },
+      {
+        "nombre": "Reposo parcial",
+        "meses": [7, 8, 9],
+        "descripcion": "Menor actividad; fertilización de mantención; poda de saneamiento"
+      }
+    ],
     "viabilidad_proyecto": "limitado",
     "calendario": {
       "meses_siembra": [8, 9],
@@ -594,11 +1028,105 @@
     "notas": "Producto nicho; árbol lento en establecer.",
     "notas_arica": "Rendimiento lento; probar en áreas con menor viento y buen drenaje. Mercado pequeño local.",
     "created_at": "2024-12-02T00:00:00Z",
-    "updated_at": "2024-12-02T00:00:00Z"
+    "updated_at": "2026-03-07T00:00:00Z"
+  },
+  {
+    "id": "cultivo-granada",
+    "proyecto_id": "proyecto-arica-piloto",
+    "categoria": "produccion",
+    "nombre": "Granada",
+    "nombre_cientifico": "Punica granatum",
+    "agua_m3_ha_año_min": 2500,
+    "agua_m3_ha_año_max": 4000,
+    "espaciado_min_m": 4,
+    "espaciado_recomendado_m": 5,
+    "ph_min": 5.5,
+    "ph_max": 8.5,
+    "salinidad_tolerancia_dS_m": 5,
+    "boro_tolerancia_ppm": 3,
+    "tolerancia_boro": "media",
+    "tolerancia_salinidad": "alta",
+    "clima": {
+      "temp_min_c": -5,
+      "temp_max_c": 42,
+      "tolerancia_heladas": "alta"
+    },
+    "kc_mensual": [
+      0.75, 0.75, 0.7, 0.6, 0.5, 0.4, 0.35, 0.4, 0.55, 0.65, 0.7, 0.75
+    ],
+    "nutricion": {
+      "n_kg_ha_año": 80,
+      "p_kg_ha_año": 40,
+      "k_kg_ha_año": 80,
+      "aplicaciones_año": 3,
+      "timing": "Brotación (ago-sep): N+P; floración-cuaje (oct-nov): K+Ca+B foliar; post-cosecha (abr-may): N+PK completo",
+      "notas": "B foliar en floración reduce caída de flores. Ca mejora grosor de piel. Árbol rústico; tolera fertilización moderada"
+    },
+    "etapas_fenologicas": [
+      {
+        "nombre": "Dormancia",
+        "meses": [6, 7, 8],
+        "descripcion": "Arbusto sin hojas; poda de formación; riego mínimo mensual"
+      },
+      {
+        "nombre": "Brotación",
+        "meses": [9, 10],
+        "descripcion": "Emisión de hojas y primeras flores naranjas; fertilizar N"
+      },
+      {
+        "nombre": "Floración intensa",
+        "meses": [10, 11],
+        "descripcion": "Flores hermafroditas y masculinas; temperatura >35°C reduce cuaje"
+      },
+      {
+        "nombre": "Cuaje y desarrollo",
+        "meses": [11, 12, 1],
+        "descripcion": "Fruto en rápido crecimiento; riego regular; evitar déficit que parte corteza"
+      },
+      {
+        "nombre": "Maduración y cosecha",
+        "meses": [3, 4, 5],
+        "descripcion": "Color rojo intenso; golpe produce sonido metálico; cosechar con tijera"
+      }
+    ],
+    "viabilidad_proyecto": "mejor_opcion",
+    "calendario": {
+      "meses_siembra": [7, 8, 9],
+      "meses_cosecha": [3, 4, 5],
+      "meses_descanso": [6, 10, 11, 12, 1, 2]
+    },
+    "produccion": {
+      "produccion_kg_ha_año2": 2000,
+      "produccion_kg_ha_año3": 8000,
+      "produccion_kg_ha_año4": 15000,
+      "vida_util_dias": 60
+    },
+    "precio_kg_min_clp": 1500,
+    "precio_kg_max_clp": 3000,
+    "precio_planta_clp": 3000,
+    "plagas": [
+      {
+        "nombre": "Trips del granado",
+        "nombre_cientifico": "Frankliniella occidentalis",
+        "grados_dia_base": 10,
+        "grados_dia_ciclo": 280,
+        "grados_dia_ovicida_ventana": 100,
+        "control_recomendado": "Monitoreo en flor + spinosad o aceite mineral"
+      }
+    ],
+    "tiempo_produccion_meses": 24,
+    "vida_util_años": 30,
+    "tier": 1,
+    "riesgo": "bajo",
+    "notas": "Una de las frutas más tolerantes a sequía, calor y salinidad. Producción alta con bajo insumo hídrico.",
+    "notas_arica": "Perfecta para zonas expuestas y desérticas. Variedad Wonderful. Tolera viento mejor que cítricos. ROI sólido desde año 2.",
+    "created_at": "2026-03-07T00:00:00Z",
+    "updated_at": "2026-03-07T00:00:00Z"
   },
   {
     "id": "cultivo-zapote-blanco",
     "proyecto_id": "proyecto-arica-piloto",
+    "categoria": "produccion",
     "nombre": "Zapote Blanco",
     "nombre_cientifico": "Casimiroa edulis",
     "agua_m3_ha_año_min": 3500,
@@ -616,6 +1144,44 @@
       "temp_max_c": 32,
       "tolerancia_heladas": "media"
     },
+    "kc_mensual": [
+      0.75, 0.75, 0.7, 0.65, 0.6, 0.55, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75
+    ],
+    "nutricion": {
+      "n_kg_ha_año": 80,
+      "p_kg_ha_año": 40,
+      "k_kg_ha_año": 60,
+      "aplicaciones_año": 3,
+      "timing": "Pre-floración (nov): N+P; cuaje (dic-ene): K+Ca; post-cosecha (may-jun): N+PK completo",
+      "notas": "Árbol de porte grande; responde bien a materia orgánica. Fruta muy perecedera requiere manejo poscosecha cuidadoso"
+    },
+    "etapas_fenologicas": [
+      {
+        "nombre": "Crecimiento vegetativo",
+        "meses": [9, 10, 11],
+        "descripcion": "Extensión de copa; árbol siempreverde; mantener riego constante"
+      },
+      {
+        "nombre": "Floración",
+        "meses": [11, 12],
+        "descripcion": "Flores pequeñas en racimos; polinización cruzada recomendada"
+      },
+      {
+        "nombre": "Desarrollo de fruto",
+        "meses": [12, 1, 2, 3],
+        "descripcion": "Fruto grande (200-600 g); 6-7 meses desde flor a madurez"
+      },
+      {
+        "nombre": "Cosecha",
+        "meses": [1, 2, 3, 4],
+        "descripcion": "Fruto cae al suelo al madurar; cosechar en estado pre-maduro (verde-amarillo); vida útil 10 días"
+      },
+      {
+        "nombre": "Post-cosecha y reposo",
+        "meses": [5, 6, 7, 8],
+        "descripcion": "Menor actividad; poda de saneamiento; fertilización de base"
+      }
+    ],
     "viabilidad_proyecto": "limitado",
     "calendario": {
       "meses_siembra": [9, 10],
@@ -648,6 +1214,105 @@
     "notas": "Fruta exótica de mercado pequeño; árbol rústico.",
     "notas_arica": "Experimental; probar en microparcelas. Agua moderada y cierta tolerancia a sales.",
     "created_at": "2024-12-02T00:00:00Z",
-    "updated_at": "2024-12-02T00:00:00Z"
+    "updated_at": "2026-03-07T00:00:00Z"
+  },
+  {
+    "id": "cultivo-olivo",
+    "proyecto_id": "proyecto-arica-piloto",
+    "categoria": "produccion",
+    "nombre": "Olivo",
+    "nombre_cientifico": "Olea europaea",
+    "agua_m3_ha_año_min": 2500,
+    "agua_m3_ha_año_max": 5000,
+    "espaciado_min_m": 5,
+    "espaciado_recomendado_m": 6,
+    "ph_min": 5.5,
+    "ph_max": 8.5,
+    "salinidad_tolerancia_dS_m": 4,
+    "boro_tolerancia_ppm": 2,
+    "tolerancia_boro": "media",
+    "tolerancia_salinidad": "alta",
+    "clima": {
+      "temp_min_c": -8,
+      "temp_max_c": 40,
+      "tolerancia_heladas": "alta",
+      "horas_frio_requeridas": 300
+    },
+    "kc_mensual": [
+      0.65, 0.65, 0.6, 0.55, 0.5, 0.45, 0.45, 0.5, 0.55, 0.6, 0.65, 0.65
+    ],
+    "nutricion": {
+      "n_kg_ha_año": 60,
+      "p_kg_ha_año": 25,
+      "k_kg_ha_año": 50,
+      "aplicaciones_año": 2,
+      "timing": "Pre-floración (sep-oct): 60% N+P+K; post-cosecha (abr-may): 40% N+P+K",
+      "notas": "Baja demanda nutricional; exceso N reduce floración. B foliar en brotación mejora cuaje. Árbol longevo que responde bien a mantenimiento con compost"
+    },
+    "etapas_fenologicas": [
+      {
+        "nombre": "Reposo invernal",
+        "meses": [5, 6, 7, 8],
+        "descripcion": "Acumulación horas frío necesarias para floración; riego mínimo; poda bianual"
+      },
+      {
+        "nombre": "Brotación y floración",
+        "meses": [9, 10],
+        "descripcion": "Flores pequeñas en panículas; viento necesario para polinización; evitar lluvia en floración"
+      },
+      {
+        "nombre": "Cuaje y endurecimiento hueso",
+        "meses": [10, 11],
+        "descripcion": "Caída fisiológica de 80-90% normal; endurecimiento del hueso; demanda hídrica moderada"
+      },
+      {
+        "nombre": "Crecimiento del mesocarpio",
+        "meses": [11, 12, 1],
+        "descripcion": "Acumulación de aceite; máxima demanda hídrica del ciclo"
+      },
+      {
+        "nombre": "Maduración",
+        "meses": [2, 3],
+        "descripcion": "Cambio color verde a morado/negro; índice de madurez 3-4 para aceite; 5-6 para consumo mesa"
+      },
+      {
+        "nombre": "Cosecha",
+        "meses": [3, 4],
+        "descripcion": "Vareo, vibrador o manual según escala; procesamiento mismo día para aceite calidad extra virgen"
+      }
+    ],
+    "viabilidad_proyecto": "mejor_opcion",
+    "calendario": {
+      "meses_siembra": [5, 6, 7],
+      "meses_cosecha": [3, 4],
+      "meses_descanso": [8, 9, 10, 11, 12, 1, 2]
+    },
+    "produccion": {
+      "produccion_kg_ha_año2": 0,
+      "produccion_kg_ha_año3": 2000,
+      "produccion_kg_ha_año4": 6000,
+      "vida_util_dias": 180
+    },
+    "precio_kg_min_clp": 800,
+    "precio_kg_max_clp": 1800,
+    "precio_planta_clp": 4000,
+    "plagas": [
+      {
+        "nombre": "Mosca del olivo",
+        "nombre_cientifico": "Bactrocera oleae",
+        "grados_dia_base": 10,
+        "grados_dia_ciclo": 350,
+        "grados_dia_ovicida_ventana": 130,
+        "control_recomendado": "Trampas Mcphail + GF-120 (spinosad cebo); monitorear desde envero"
+      }
+    ],
+    "tiempo_produccion_meses": 36,
+    "vida_util_años": 50,
+    "tier": 1,
+    "riesgo": "bajo",
+    "notas": "Árbol longevísimo y muy rústico. Doble uso: aceite y mesa. Baja demanda hídrica relativa.",
+    "notas_arica": "Variedad Arbequina o Picual adaptadas a Azapa. Clima seco y caluroso favorece calidad del aceite. Precaución con boro de agua Lluta (>1 ppm limita rendimiento).",
+    "created_at": "2024-12-01T00:00:00Z",
+    "updated_at": "2026-03-07T00:00:00Z"
   }
 ]

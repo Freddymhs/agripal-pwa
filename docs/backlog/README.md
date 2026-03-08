@@ -112,23 +112,25 @@ Cada archivo FASE_X.md incluye esta tarea de integración al final.
 | **11D** | ✅     | 100%     | Mejoras No Registradas (Economía, Escenarios, Plagas, Datos, Fixes) | 🔴 Alta    |
 | **15B** | ✅     | 100%     | Bugs Críticos de UX (pre-Supabase)                                  | 🔴 Alta    |
 | **12**  | ✅     | 100%     | Auth Real con Supabase (login, registro, OAuth)                     | 🔴 CRÍTICA |
+| **12B** | ✅     | 100%     | Landing Page: SEO + Accesibilidad + UX Conversión                   | 🔴 CRÍTICA |
+| **12C** | ✅     | 100%     | Contenido SEO: Páginas Geográficas + Comparativa                    | 🔴 CRÍTICA |
+| **12D** | ✅     | 100%     | Auditoría TanStack + migración a useLiveQuery                       | 🟡 Media   |
 
 ### Pendientes ⏳
 
-| Fase      | Status | Progreso | Nombre                                            | Prioridad     |
-| --------- | ------ | -------- | ------------------------------------------------- | ------------- |
-| **12B**   | ✅     | 100%     | Landing Page: SEO + Accesibilidad + UX Conversión | 🔴 CRÍTICA    |
-| **12C**   | ✅     | 100%     | Contenido SEO: Páginas Geográficas + Comparativa  | 🔴 CRÍTICA    |
-| **12D**   | ✅     | 100%     | Auditoría TanStack + migración a useLiveQuery     | 🟡 MEDIA      |
-| 13        | ⏳     | 0%       | Supabase Backend (schema, RLS, sync real)         | 🔴 CRÍTICA    |
-| 14        | ⏳     | 0%       | Sistema de Billing con MercadoPago                | 🔴 ALTA       |
-| 16        | ⏳     | 0%       | Registro de Cosechas (UI)                         | 🟡 MEDIA      |
-| 17        | ⏳     | 0%       | Reportes y Exportación PDF                        | 🟡 MEDIA      |
-| 18        | ⏳     | 0%       | Calendario de Eventos (Vista Mensual)             | 🟢 BAJA-MEDIA |
-| 19        | ⏳     | 0%       | Integraciones API Externas (Clima + Precios)      | 🟢 BAJA       |
-| **FINAL** | ⏳     | 0%       | Historial de Cambios (UI)                         | 🟢 BAJA       |
+| Fase       | Status | Progreso | Nombre                                         | Prioridad     |
+| ---------- | ------ | -------- | ---------------------------------------------- | ------------- |
+| 13         | ⏳     | 0%       | Supabase Backend (schema, RLS, sync real)      | 🔴 CRÍTICA    |
+| 14         | ⏳     | 0%       | Sistema de Billing con MercadoPago             | 🔴 ALTA       |
+| **15**     | 🟡     | 66%      | Homepage SSG (4/6 stories, falta tests + docs) | 🟢 BAJA       |
+| 16         | ⏳     | 0%       | Registro de Cosechas (UI)                      | 🟡 MEDIA      |
+| 17         | ⏳     | 0%       | Reportes y Exportación PDF                     | 🟡 MEDIA      |
+| 18         | ⏳     | 0%       | Calendario de Eventos (Vista Mensual)          | 🟢 BAJA-MEDIA |
+| 19         | ⏳     | 0%       | Integraciones API Externas (Clima + Precios)   | 🟢 BAJA       |
+| **FINAL**  | ⏳     | 0%       | Historial de Cambios (UI)                      | 🟢 BAJA       |
+| **LAUNCH** | ⏳     | 0%       | Checklist de Lanzamiento (dominio, GSC, SEO)   | 🟢 BAJA       |
 
-**Total fases**: 33 (25 completadas, 8 pendientes)
+**Total fases**: 37 (28 completadas, 9 pendientes)
 
 ---
 
@@ -136,11 +138,9 @@ Cada archivo FASE_X.md incluye esta tarea de integración al final.
 
 **Fase actual:** FASE_13 - Supabase Backend (schema PostgreSQL, RLS, sync real)
 
-**Completadas (29)**: ...12B (Landing SEO), 12C (Páginas SEO), 12D (TanStack → useLiveQuery)
+**Completadas (28)**: Estructura, Tipos, Mapa, Zonas, Plantas, Selección Múltiple, Gestión Proyectos/Terrenos, Terreno Avanzado, Panel Clima, Panel Suelo, Agua Avanzada, Motor Recomendación, Catálogo Cultivos, Estanques, Control Agua, Alertas y Dashboard, PWA y Sync Offline, Performance PixiJS, Mejoras UX/Agua/Datos, Autenticación JWT Mock, Segmentación UX Agua, Dashboard + Planificador, Economía/Escenarios/Plagas/Datos/Fixes, Bugs Críticos UX (15B), Auth Real Supabase (12), Landing SEO (12B), Contenido SEO (12C), TanStack Audit (12D)
 
-**Completadas (26)**: Estructura, Tipos, Mapa, Zonas, Plantas, Selección Múltiple, Gestión Proyectos/Terrenos, Terreno Avanzado, Panel Clima, Panel Suelo, Agua Avanzada, Motor Recomendación, Catálogo Cultivos, Estanques, Control Agua, Alertas y Dashboard, PWA y Sync Offline, **Performance PixiJS**, **Mejoras UX/Agua/Datos**, **Autenticación JWT Mock**, **Segmentación UX Agua**, **Dashboard + Planificador**, **Economía/Escenarios/Plagas/Datos/Fixes**, **Bugs Críticos UX (15B)**, **Auth Real Supabase (12)**
-
-**Pendientes (8)**: Landing SEO/Accesibilidad → Backend Supabase → Billing → Cosechas → PDF → Calendario → APIs → Historial
+**Pendientes (9)**: Backend Supabase (13) → Billing (14) → Homepage SSG tests (15) → Cosechas → PDF → Calendario → APIs → Historial → Launch Checklist
 
 **Objetivo:** Transformar AgriPlan en un SaaS con backend real y sistema de suscripciones.
 
@@ -237,29 +237,43 @@ Cada archivo FASE_X.md incluye esta tarea de integración al final.
   - Context Providers (map-context, project-context)
   - Bug fixes y mejoras UI
 
-### Pendientes (15B–FINAL) ⏳
+### Completadas (15B, 12, 12B–12D) ✅
 
 - `FASE_15B_BUGS_UX.md` - Bugs Críticos de UX (BUG-01, BUG-05, BUG-10, UX-02, UX-04, UX-06) ✅
 - `FASE_12_AUTH_SUPABASE.md` - Auth Real con Supabase (install, clientes, login, registro, OAuth) ✅
-- `FASE_12B_LANDING_MEJORAS.md` - Landing Page: SEO + Accesibilidad + UX Conversión ⏳
+- `FASE_12B_LANDING_MEJORAS.md` - Landing Page: SEO + Accesibilidad + UX Conversión ✅
+- `FASE_12C_CONTENIDO_SEO.md` - Contenido SEO: Páginas Geográficas + Comparativa ✅
+- `FASE_12D_TANSTACK_AUDIT.md` - Auditoría TanStack + migración a useLiveQuery ✅
+
+### Pendientes (13–LAUNCH) ⏳
+
 - `FASE_13_SUPABASE_BACKEND.md` - Supabase Backend (schema PostgreSQL, RLS, SupabaseAdapter, sync real) ⏳
 - `FASE_14_BILLING_MERCADOPAGO.md` - Sistema de Billing con MercadoPago ⏳
+- `FASE_15/` - Homepage SSG (tests + docs pendientes) 🟡
 - `FASE_16_COSECHAS.md` - Registro de Cosechas (UI) ⏳
 - `FASE_17_REPORTES_PDF.md` - Reportes y Exportación PDF ⏳
 - `FASE_18_CALENDARIO.md` - Calendario de Eventos (Vista Mensual) ⏳
 - `FASE_19_INTEGRACIONES_API.md` - Integraciones API Externas (Open-Meteo + ODEPA) ⏳
 - `FASE_FINAL_HISTORIAL.md` - Historial de Cambios (UI) ⏳
+- `FASE_LAUNCH_CHECKLIST.md` - Checklist de Lanzamiento (dominio, GSC, Lighthouse) ⏳
 
 ### Gap conocido
 
 - `src/app/proyecto/page.tsx` — NO existe (solo existe `error.tsx`). Crear página de gestión de proyectos/terrenos como parte de FASE_12 o en fase separada.
 
-### Documentos de arquitectura
+### Decisiones tecnicas
 
-- `ARQUITECTURA_RENDERING.md` - Hoja de ruta de estrategias de rendering por ruta (SSG/CSR/SSR/ISR) — actual y post-Supabase
-- `MODELO_DATOS.md` - Tipos TypeScript completos
-- `INVESTIGACION_A_CODIGO.md` - Mapeo investigación → código
-- `UX_AUDIT_USUARIO_REAL.md` - Auditoría completa de usuario real (2026-02-05)
+- `../decisions/DECISION_RENDERING.md` - Estrategias de rendering por ruta (SSG/CSR/SSR/ISR) — actual y post-Supabase
+
+### Diagramas de referencia
+
+| Archivo                                | Tipo       | Contenido                     |
+| -------------------------------------- | ---------- | ----------------------------- |
+| `../diagrams/DIAGRAMAS_COMPONENTES.md` | Flowcharts | Topologia del sistema         |
+| `../diagrams/DIAGRAMAS_SECUENCIA.md`   | Sequences  | Login, sync offline, checkout |
+| `../diagrams/DIAGRAMAS_ESTADOS.md`     | States     | Suscripcion, sync queue       |
+
+Referencia estructural estable. Las fases no repiten esta info — la referencian.
 
 ---
 
@@ -309,20 +323,16 @@ pnpm type-check   # TypeScript check
 
 ### Completadas ✅
 
-1. ✅ **Completado**: Mejoras No Registradas - Economía, Escenarios, Plagas, Datos, Fixes (FASE_11D)
-2. ✅ **Completado**: Dashboard + Planificador Económico (FASE_11C)
-3. ✅ **Completado**: Segmentación UX Agua (FASE_11B)
-4. ✅ **Completado**: Autenticación JWT Mock (FASE_11)
-5. ✅ **Completado**: Mejoras UX + Datos Agrícolas (FASE_10C)
-6. ✅ **Completado**: Performance PixiJS WebGL (FASE_10B)
-7. ✅ **Completado**: PWA y Sync Offline (FASE_10)
-8. ✅ **Completado**: Todas las fases anteriores (0-9)
+1. ✅ Todas las fases anteriores (0-9)
+2. ✅ PWA y Sync Offline (FASE_10), Performance PixiJS (10B), Mejoras UX (10C)
+3. ✅ Auth JWT Mock (11), Segmentación Agua (11B), Dashboard+Planificador (11C), Mejoras (11D)
+4. ✅ Bugs UX (15B), Auth Supabase (12)
+5. ✅ Landing SEO (12B), Contenido SEO (12C), TanStack Audit (12D)
 
-### Próximas 🚀
+### Proximas 🚀
 
-1. ⏳ **PRÓXIMO**: Landing SEO + Accesibilidad (FASE_12B) — meta tags, schema JSON-LD, texto 18px, FAQ, animaciones scroll
-2. ⏳ **LUEGO**: Backend Supabase (FASE_13) — schema PostgreSQL + RLS + SupabaseAdapter + sync
-3. ⏳ **LUEGO**: Billing MercadoPago (FASE_14)
-4. ⏳ **POST-SAAS**: Cosechas → PDF → Calendario → APIs externas → Historial (FASE_16–FINAL)
+1. ⏳ **PROXIMO**: Backend Supabase (FASE_13) — schema PostgreSQL + RLS + SupabaseAdapter + sync
+2. ⏳ **LUEGO**: Billing MercadoPago (FASE_14)
+3. ⏳ **POST-SAAS**: Cosechas → PDF → Calendario → APIs externas → Historial → Launch (FASE_16–LAUNCH)
 
 **Objetivo:** Convertir AgriPlan en un SaaS funcional con suscripciones mensuales de 9,990 CLP.

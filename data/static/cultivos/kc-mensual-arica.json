@@ -1,0 +1,103 @@
+{
+  "_meta": {
+    "descripcion": "Coeficientes de cultivo (Kc) mensuales para cultivos de Arica. Multiplicar por ET0 mensual para obtener ETc (consumo de agua real del cultivo). Metodología FAO Paper 56.",
+    "meses": [
+      "Ene",
+      "Feb",
+      "Mar",
+      "Abr",
+      "May",
+      "Jun",
+      "Jul",
+      "Ago",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dic"
+    ],
+    "fuentes": [
+      "FAO Irrigation and Drainage Paper 56",
+      "FAO Paper 66 Yield Response to Water",
+      "Springer 2024: Single and basal crop coefficients subtropical/tropical orchards",
+      "INIA Arica: coeficientes locales validados"
+    ]
+  },
+  "cultivos": {
+    "cultivo-tuna": {
+      "nombre": "Tuna (Opuntia ficus-indica)",
+      "kc": [
+        0.3, 0.3, 0.28, 0.28, 0.25, 0.25, 0.25, 0.25, 0.27, 0.28, 0.3, 0.3
+      ],
+      "nota": "Planta CAM: abre estomas de noche. Kc muy bajo comparado a otros cultivos. Ajustar si cosecha intensiva."
+    },
+    "cultivo-higuera": {
+      "nombre": "Higuera (Ficus carica)",
+      "kc": [0.9, 0.9, 0.85, 0.7, 0.5, 0.4, 0.35, 0.4, 0.6, 0.75, 0.85, 0.9],
+      "nota": "Caducifolio. Kc bajo en dormancia (jun-ago). Kc alto en cosecha de higos (ene-feb)."
+    },
+    "cultivo-pitahaya": {
+      "nombre": "Pitahaya (Hylocereus spp.)",
+      "kc": [0.5, 0.5, 0.45, 0.4, 0.35, 0.3, 0.3, 0.35, 0.4, 0.45, 0.5, 0.5],
+      "nota": "Cactus trepador. Kc intermedio. Reducir riego en jun-jul para inducir floración."
+    },
+    "cultivo-guayaba": {
+      "nombre": "Guayaba (Psidium guajava)",
+      "kc": [
+        0.85, 0.85, 0.8, 0.75, 0.7, 0.65, 0.65, 0.7, 0.75, 0.8, 0.85, 0.85
+      ],
+      "nota": "Siempreverde tropical. Kc relativamente uniforme durante el año."
+    },
+    "cultivo-datil-medjool": {
+      "nombre": "Dátil Medjool (Phoenix dactylifera)",
+      "kc": [0.9, 0.9, 0.9, 0.85, 0.85, 0.8, 0.8, 0.85, 0.9, 0.95, 0.95, 0.9],
+      "nota": "Alta demanda hídrica uniforme. Kc pico en oct-nov (desarrollo de fruto). Alto consumo anual."
+    },
+    "cultivo-maracuya": {
+      "nombre": "Maracuyá (Passiflora edulis)",
+      "kc": [1.05, 1.05, 1.0, 0.9, 0.7, 0.6, 0.55, 0.6, 0.75, 0.9, 1.0, 1.05],
+      "nota": "Kc máximo en verano durante fructificación. Reducir en invierno (may-ago)."
+    },
+    "cultivo-uva-mesa-primor": {
+      "nombre": "Uva de Mesa Primor (Vitis vinifera)",
+      "kc": [0.85, 0.85, 0.75, 0.5, 0.4, 0.35, 0.3, 0.35, 0.55, 0.7, 0.8, 0.85],
+      "nota": "Caducifolio. Kc mínimo en dormancia (jun-ago). Kc máximo en cosecha (dic-ene)."
+    },
+    "cultivo-limon": {
+      "nombre": "Limón (Citrus limon)",
+      "kc": [0.7, 0.7, 0.7, 0.7, 0.65, 0.65, 0.65, 0.65, 0.65, 0.7, 0.7, 0.7],
+      "nota": "Siempreverde. Kc estable durante el año. Ligera reducción en invierno."
+    },
+    "cultivo-mandarina-w-murcott": {
+      "nombre": "Mandarina W. Murcott (Citrus reticulata)",
+      "kc": [0.7, 0.7, 0.7, 0.7, 0.65, 0.65, 0.65, 0.65, 0.65, 0.7, 0.7, 0.7],
+      "nota": "Similar a limón. Siempreverde. Kc estable durante el año."
+    },
+    "cultivo-arandano-maceta": {
+      "nombre": "Arándano en Maceta (Vaccinium corymbosum)",
+      "kc": [0.7, 0.7, 0.65, 0.6, 0.5, 0.45, 0.4, 0.45, 0.55, 0.65, 0.7, 0.7],
+      "nota": "Semi-caducifolio. Kc reducido en dormancia (may-ago). En maceta: monitorear tensión sustrato diariamente."
+    },
+    "cultivo-lucuma": {
+      "nombre": "Lúcuma (Pouteria lucuma)",
+      "kc": [0.8, 0.8, 0.75, 0.7, 0.65, 0.6, 0.6, 0.65, 0.7, 0.75, 0.8, 0.8],
+      "nota": "Siempreverde subtropical. Kc moderado y uniforme."
+    },
+    "cultivo-granada": {
+      "nombre": "Granada (Punica granatum)",
+      "kc": [0.75, 0.75, 0.7, 0.6, 0.5, 0.4, 0.35, 0.4, 0.55, 0.65, 0.7, 0.75],
+      "nota": "Caducifolio. Muy tolerante a déficit hídrico. Reducir riego en dormancia (jun-ago) para acumular reservas."
+    },
+    "cultivo-zapote-blanco": {
+      "nombre": "Zapote Blanco (Casimiroa edulis)",
+      "kc": [0.75, 0.75, 0.7, 0.65, 0.6, 0.55, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75],
+      "nota": "Siempreverde subtropical. Kc moderado con ligera reducción en invierno."
+    },
+    "cultivo-olivo": {
+      "nombre": "Olivo (Olea europaea)",
+      "kc": [
+        0.65, 0.65, 0.6, 0.55, 0.5, 0.45, 0.45, 0.5, 0.55, 0.6, 0.65, 0.65
+      ],
+      "nota": "Siempreverde mediterráneo. Kc bajo; alta eficiencia hídrica. Tolera déficit controlado en pos-cuaje sin pérdida significativa de rendimiento."
+    }
+  }
+}
