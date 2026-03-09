@@ -82,3 +82,28 @@ Dar al usuario una UI para registrar sus cosechas reales y compararlas con las p
 - Para gráficos: usar la misma librería que `/economia` para consistencia
 - Calidad A/B/C afecta el precio: A = precio lleno, B = 80%, C = 60% (ajustar según catálogo)
 - Las cosechas son parte del sync via `SupabaseAdapter` (entidad `cosecha` ya está en `SYNC_ENTIDADES`)
+
+---
+
+## Extensión pendiente: Vida útil poscosecha
+
+Al registrar una cosecha → mostrar alerta con días disponibles antes del vencimiento.
+
+**Dato fuente:** `produccion.vida_util_dias` en `data/static/cultivos/arica.json` — calibrado a 30°C sin refrigeración (condiciones reales de Arica).
+
+Ejemplos:
+
+- Higo: 3 días → alerta urgente al registrar cosecha
+- Granada: 60 días → sin urgencia
+- Olivo: 180 días → holgado
+
+**Lógica sugerida:**
+
+```typescript
+// Al guardar cosecha → calcular fecha_vencimiento
+const diasUtiles = cultivo.produccion.vida_util_dias;
+const fechaVencimiento = addDays(cosecha.fecha, diasUtiles);
+// Si diasUtiles < 7 → alerta tipo `cosecha_vida_util` en sistema de alertas
+```
+
+Ver `MEJORAS_CONOCIMIENTO_AGRICOLA.md` (item 6) para contexto completo.

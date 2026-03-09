@@ -1,0 +1,201 @@
+{
+  "insumos": [
+    {
+      "id": "sulfato-calcio",
+      "nombre": "Sulfato de Calcio (Yeso)",
+      "tipo": "enmienda",
+      "descripcion": "Mejora estructura del suelo; reduce sodicidad"
+    },
+    {
+      "id": "fosfato-monoamonico",
+      "nombre": "Fosfato Monoamónico (MAP)",
+      "tipo": "fertilizante",
+      "descripcion": "12-61-0. Alta concentración de fósforo disponible"
+    },
+    {
+      "id": "fosfato-diamonico",
+      "nombre": "Fosfato Diamónico (DAP)",
+      "tipo": "fertilizante",
+      "descripcion": "18-46-0. Fuente de P y N. Común en fertirrigación"
+    },
+    {
+      "id": "nitrato-calcio",
+      "nombre": "Nitrato de Calcio",
+      "tipo": "fertilizante",
+      "descripcion": "15.5-0-0 + 19% Ca. N inmediatamente disponible"
+    },
+    {
+      "id": "sulfato-magnesio",
+      "nombre": "Sulfato de Magnesio (Kieserita)",
+      "tipo": "fertilizante",
+      "descripcion": "16% Mg + 13% S. Corrige deficiencias de Mg"
+    },
+    {
+      "id": "cloruro-potasio",
+      "nombre": "Cloruro de Potasio (KCl)",
+      "tipo": "fertilizante",
+      "descripcion": "0-0-60. Fuente de K de bajo costo"
+    },
+    {
+      "id": "sulfato-potasio",
+      "nombre": "Sulfato de Potasio (SOP)",
+      "tipo": "fertilizante",
+      "descripcion": "0-0-50 + 18% S. Sin cloro; para cultivos sensibles"
+    },
+    {
+      "id": "oxicloruro-cobre",
+      "nombre": "Oxicloruro de Cobre",
+      "tipo": "fungicida-bactericida",
+      "descripcion": "Fungicida de contacto. Residuo tolerancia regulada"
+    },
+    {
+      "id": "fosfonato-potasio",
+      "nombre": "Fosfonato de Potasio",
+      "tipo": "fungicida",
+      "descripcion": "Control Phytophthora y mildiu. Sistémico"
+    },
+    {
+      "id": "abamectina",
+      "nombre": "Abamectina 1.8% EC",
+      "tipo": "acaricida-insecticida",
+      "descripcion": "Control ácaros y minadores. LMR estricto"
+    },
+    {
+      "id": "aceite-mineral",
+      "nombre": "Aceite Mineral Parafínico",
+      "tipo": "coadyuvante-insecticida",
+      "descripcion": "Sofoca insectos de cuerpo blando y cochinillas"
+    },
+    {
+      "id": "quelato-fe",
+      "nombre": "Quelato Fe-EDTA",
+      "tipo": "corrector",
+      "descripcion": "Hierro quelado; corrige clorosis férrica"
+    },
+    {
+      "id": "hipoclorito-sodio",
+      "nombre": "Hipoclorito de Sodio",
+      "tipo": "desinfectante",
+      "descripcion": "Desinfección de equipos y sistemas de riego"
+    },
+    {
+      "id": "acido-fosforico",
+      "nombre": "Ácido Fosfórico 75%",
+      "tipo": "acidificante-fertilizante",
+      "descripcion": "Baja pH solución nutritiva; aporte P. Corrosivo"
+    },
+    {
+      "id": "nitrato-amonio",
+      "nombre": "Nitrato de Amonio",
+      "tipo": "fertilizante",
+      "descripcion": "34-0-0. Alta concentración N. Regulado SAG"
+    }
+  ],
+  "incompatibilidades": [
+    {
+      "insumo_a": "sulfato-calcio",
+      "insumo_b": "fosfato-monoamonico",
+      "nivel": "alto",
+      "razon": "El calcio reacciona con los fosfatos formando fosfato dicálcico insoluble (Ca₃(PO₄)₂), precipitando en el sistema de riego y tapando goteros.",
+      "recomendacion": "Aplicar en días separados o en camas de riego distintas. Lavar la línea entre aplicaciones."
+    },
+    {
+      "insumo_a": "sulfato-calcio",
+      "insumo_b": "fosfato-diamonico",
+      "nivel": "alto",
+      "razon": "Misma reacción de precipitación que MAP con calcio. Fosfato dicálcico obstruye emisores.",
+      "recomendacion": "No mezclar en el mismo tanque. Aplicar separados por al menos 24 horas."
+    },
+    {
+      "insumo_a": "nitrato-calcio",
+      "insumo_b": "fosfato-monoamonico",
+      "nivel": "alto",
+      "razon": "El Ca²⁺ del nitrato de calcio precipita el fosfato antes de llegar a las raíces, formando sólido que tapona líneas de riego.",
+      "recomendacion": "Usar tanques separados en fertirrigación. Inyectar en distintos puntos de la línea."
+    },
+    {
+      "insumo_a": "nitrato-calcio",
+      "insumo_b": "sulfato-magnesio",
+      "nivel": "medio",
+      "razon": "Puede formar sulfato de calcio (yeso) que precipita lentamente en concentraciones altas.",
+      "recomendacion": "Diluir bien antes de mezclar. En fertirrigación: inyectar por separado si la CE es alta."
+    },
+    {
+      "insumo_a": "oxicloruro-cobre",
+      "insumo_b": "fosfonato-potasio",
+      "nivel": "alto",
+      "razon": "El cobre quelata el fosfonato formando complejos Cu-fosfonato inactivos, anulando la eficacia del fungicida sistémico.",
+      "recomendacion": "Separar aplicaciones al menos 7 días. Aplicar fosfonato primero; cobre después como tratamiento distinto."
+    },
+    {
+      "insumo_a": "abamectina",
+      "insumo_b": "aceite-mineral",
+      "nivel": "alto",
+      "razon": "La mezcla aumenta drásticamente la absorción foliar de abamectina causando fitotoxicidad (quemaduras, necrosis foliar) especialmente en temperaturas >25°C.",
+      "recomendacion": "No mezclar bajo ninguna circunstancia. Separar aplicaciones al menos 14 días."
+    },
+    {
+      "insumo_a": "quelato-fe",
+      "insumo_b": "fosfato-monoamonico",
+      "nivel": "medio",
+      "razon": "Los fosfatos compiten con el quelato y pueden desplazar el Fe, reduciéndolo a fosfato férrico insoluble con el tiempo.",
+      "recomendacion": "Aplicar el quelato foliar por separado. En drench: dar 48 h de diferencia."
+    },
+    {
+      "insumo_a": "hipoclorito-sodio",
+      "insumo_b": "acido-fosforico",
+      "nivel": "alto",
+      "razon": "La mezcla libera cloro gaseoso (Cl₂) tóxico. Reacción violenta con riesgo de quemaduras e intoxicación del operador.",
+      "recomendacion": "NUNCA mezclar. Son incompatibles químicamente. Usar protección completa al manipular por separado."
+    },
+    {
+      "insumo_a": "hipoclorito-sodio",
+      "insumo_b": "nitrato-amonio",
+      "nivel": "alto",
+      "razon": "Mezcla potencialmente explosiva. El hipoclorito oxida el nitrato de amonio. Prohibido por normativa SAG.",
+      "recomendacion": "PROHIBIDO mezclar. Almacenar en bodegas separadas. Informar al operador de riesgo químico."
+    },
+    {
+      "insumo_a": "oxicloruro-cobre",
+      "insumo_b": "aceite-mineral",
+      "nivel": "medio",
+      "razon": "El aceite puede aumentar la fitotoxicidad del cobre, especialmente en hojas jóvenes o bajo temperaturas altas.",
+      "recomendacion": "Evitar mezcla en días calurosos (>28°C). Si es necesario, aplicar en horario fresco y con dosis reducida de cobre."
+    },
+    {
+      "insumo_a": "cloruro-potasio",
+      "insumo_b": "nitrato-calcio",
+      "nivel": "medio",
+      "razon": "El Cl⁻ del KCl puede interferir con la absorción de Ca²⁺ del nitrato de calcio en exceso. En suelos salinos el efecto se amplifica.",
+      "recomendacion": "Usar sulfato de potasio (SOP) como alternativa sin cloro cuando se combine con calcio."
+    },
+    {
+      "insumo_a": "acido-fosforico",
+      "insumo_b": "sulfato-calcio",
+      "nivel": "medio",
+      "razon": "El ácido fosfórico puede disolver el yeso liberando Ca²⁺ que luego precipita como fosfato de calcio en la solución.",
+      "recomendacion": "Diluir el ácido fosfórico antes de agregar cualquier fuente de calcio. Verificar CE de la solución resultante."
+    },
+    {
+      "insumo_a": "abamectina",
+      "insumo_b": "fosfonato-potasio",
+      "nivel": "medio",
+      "razon": "La mezcla puede reducir la eficacia de ambos productos por cambios en el pH de la solución y alteración de la absorción foliar.",
+      "recomendacion": "Separar aplicaciones al menos 5 días. Verificar pH de la mezcla si se aplican juntos por necesidad."
+    },
+    {
+      "insumo_a": "quelato-fe",
+      "insumo_b": "sulfato-magnesio",
+      "nivel": "medio",
+      "razon": "En pH alto o con calcio presente, el Mg²⁺ puede competir con el Fe³⁺ del quelato, reduciendo su estabilidad.",
+      "recomendacion": "Aplicar el quelato de Fe en horario de menor temperatura. Verificar pH de la solución (óptimo 5.5-6.5)."
+    },
+    {
+      "insumo_a": "nitrato-calcio",
+      "insumo_b": "cloruro-potasio",
+      "nivel": "medio",
+      "razon": "En fertirrigación a alta CE, la mezcla aumenta la presión osmótica de la solución pudiendo causar estrés hídrico a las plantas.",
+      "recomendacion": "Aplicar en soluciones diluidas. Monitorear CE del suelo. Preferir SOP sobre KCl en suelos salinos."
+    }
+  ]
+}

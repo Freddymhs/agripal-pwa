@@ -41,8 +41,8 @@ Actualizar datos de clima y precios con fuentes reales cuando hay internet, mant
 
 ```
 GET https://api.open-meteo.com/v1/forecast
-  ?latitude=-18.4783
-  &longitude=-70.3126
+  ?latitude=-18.3660
+  &longitude=-70.0450
   &daily=temperature_2m_max,temperature_2m_min,et0_fao_evapotranspiration,precipitation_sum
   &timezone=America%2FSantiago
   &forecast_days=16
@@ -129,5 +129,5 @@ export async function getPreciosMercado(): Promise<PreciosMercado> {
 - Las funciones pasan de síncronas a async — verificar que los componentes que las usan manejen el loading
 - Los mappers (`mapOpenMeteoToClimaData`, `mapOdepaToPrecios`) adaptan el formato de la API al formato interno de la app
 - ODEPA puede no tener datos de todas las frutas de Arica — mantener fallback por cultivo individual
-- Open-Meteo: coordenadas de Arica (-18.4783, -70.3126)
+- Open-Meteo: coordenadas exactas del terreno piloto (-18.3660, -70.0450) — pampa elevada ~1086m, NO ciudad Arica
 - No bloquear el render con estos fetches — cargar en background y actualizar cuando lleguen

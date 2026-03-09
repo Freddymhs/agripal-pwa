@@ -12,6 +12,7 @@ import type {
   HistorialEntrada,
   SyncItem,
   SyncMeta,
+  InsumoUsuario,
 } from "@/types";
 
 export class AgriPlanDB extends Dexie {
@@ -27,6 +28,7 @@ export class AgriPlanDB extends Dexie {
   historial!: Table<HistorialEntrada>;
   sync_queue!: Table<SyncItem>;
   sync_meta!: Table<SyncMeta>;
+  insumos_usuario!: Table<InsumoUsuario>;
 
   constructor() {
     super("AgriPlanDB");
@@ -59,6 +61,23 @@ export class AgriPlanDB extends Dexie {
       sync_queue:
         "id, entidad, entidad_id, estado, created_at, nextRetryAt, [entidad+entidad_id]",
       sync_meta: "key",
+    });
+
+    this.version(3).stores({
+      usuarios: "id, email",
+      proyectos: "id, usuario_id, nombre, lastModified",
+      terrenos: "id, proyecto_id, nombre, lastModified",
+      zonas: "id, terreno_id, tipo, nombre, lastModified",
+      plantas: "id, zona_id, tipo_cultivo_id, estado, lastModified",
+      catalogo_cultivos: "id, proyecto_id, nombre, tier",
+      entradas_agua: "id, terreno_id, fecha, lastModified",
+      cosechas: "id, zona_id, tipo_cultivo_id, fecha, lastModified",
+      alertas: "id, terreno_id, tipo, estado, severidad, lastModified",
+      historial: "id, usuario_id, terreno_id, tipo_accion, created_at",
+      sync_queue:
+        "id, entidad, entidad_id, estado, created_at, nextRetryAt, [entidad+entidad_id]",
+      sync_meta: "key",
+      insumos_usuario: "id, terreno_id, nombre, tipo, created_at",
     });
   }
 }

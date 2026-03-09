@@ -1,5 +1,23 @@
 [
   {
+    "id": "var-olivo-azapa",
+    "cultivo_id": "cultivo-olivo",
+    "nombre": "Azapa",
+    "origen": "Valle de Azapa, Arica (Chile)",
+    "ventajas": [
+      "Única variedad probada en Arica",
+      "Requiere solo ~70h <10°C",
+      "Doble uso: mesa y aceite",
+      "Patrimonio Slow Food (Arca del Gusto)"
+    ],
+    "desventajas": [
+      "Rendimiento en aceite menor que europeas",
+      "Disponibilidad de plantines limitada"
+    ],
+    "rendimiento_relativo": 1.0,
+    "precio_planta_clp": 4000
+  },
+  {
     "id": "var-olivo-arbequina",
     "cultivo_id": "cultivo-olivo",
     "nombre": "Arbequina",
@@ -7,39 +25,17 @@
     "ventajas": [
       "Aceite de alta calidad",
       "Porte bajo (fácil cosecha)",
-      "Producción temprana (año 3)"
+      "Producción temprana (año 3)",
+      "Zero-chill demostrado en Florida/Texas"
     ],
-    "desventajas": ["Sensible a mosca del olivo", "Fruto pequeño"],
+    "desventajas": [
+      "Sin validación local en Arica",
+      "Calidad aceite puede bajar en clima cálido",
+      "Sensible a mosca del olivo"
+    ],
     "rendimiento_relativo": 1.0,
-    "precio_planta_clp": 8000
-  },
-  {
-    "id": "var-olivo-picual",
-    "cultivo_id": "cultivo-olivo",
-    "nombre": "Picual",
-    "origen": "España (Jaén)",
-    "ventajas": [
-      "Alto rendimiento en aceite (22-25%)",
-      "Resistente a frío",
-      "Vigor medio-alto"
-    ],
-    "desventajas": ["Porte alto", "Sensible a suelo muy húmedo"],
-    "rendimiento_relativo": 1.15,
-    "precio_planta_clp": 7500
-  },
-  {
-    "id": "var-olivo-frantoio",
-    "cultivo_id": "cultivo-olivo",
-    "nombre": "Frantoio",
-    "origen": "Italia (Toscana)",
-    "ventajas": [
-      "Excelente aceite virgen extra",
-      "Buena adaptabilidad",
-      "Polinizador universal"
-    ],
-    "desventajas": ["Producción más tardía", "Vecería marcada"],
-    "rendimiento_relativo": 0.95,
-    "precio_planta_clp": 9000
+    "precio_planta_clp": 8000,
+    "viable_arica": "experimental"
   },
   {
     "id": "var-tuna-roja",
@@ -73,9 +69,13 @@
     "ventajas": [
       "Higo seco de alta calidad",
       "Resistente a sequía",
-      "Doble cosecha (breva + higo)"
+      "Cosecha principal sin horas frío"
     ],
-    "desventajas": ["Porte alto", "Fruto mediano"],
+    "desventajas": [
+      "Porte alto",
+      "Fruto mediano",
+      "Brevas solo con dormancia parcial"
+    ],
     "rendimiento_relativo": 1.0,
     "precio_planta_clp": 6000
   },
@@ -87,7 +87,8 @@
     "ventajas": [
       "Higo verde claro dulce",
       "Excelente para conservas",
-      "Piel delgada"
+      "Piel delgada",
+      "Baja exigencia de frío"
     ],
     "desventajas": ["Necesita más agua", "Menor resistencia a salinidad"],
     "rendimiento_relativo": 0.9,

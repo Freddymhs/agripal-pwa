@@ -63,7 +63,7 @@ Usuario (Supabase Auth)
 - **Predicción plagas**: Riesgo basado en temperatura y etapa de crecimiento
 - **Guía paso a paso**: Onboarding completo de 10 pasos con links directos
 - **Suelo → ROI**: Factor suelo penaliza producción según calidad real del terreno
-- **Suelo default Azapa**: Valores típicos del valle aplicados automáticamente
+- **Suelo default pampa**: Valores típicos de pampa elevada sobre Azapa (~1086m) aplicados automáticamente — el usuario debe reemplazar con análisis real
 
 ---
 
@@ -118,19 +118,21 @@ Cada archivo FASE_X.md incluye esta tarea de integración al final.
 
 ### Pendientes ⏳
 
-| Fase       | Status | Progreso | Nombre                                         | Prioridad     |
-| ---------- | ------ | -------- | ---------------------------------------------- | ------------- |
-| 13         | ⏳     | 0%       | Supabase Backend (schema, RLS, sync real)      | 🔴 CRÍTICA    |
-| 14         | ⏳     | 0%       | Sistema de Billing con MercadoPago             | 🔴 ALTA       |
-| **15**     | 🟡     | 66%      | Homepage SSG (4/6 stories, falta tests + docs) | 🟢 BAJA       |
-| 16         | ⏳     | 0%       | Registro de Cosechas (UI)                      | 🟡 MEDIA      |
-| 17         | ⏳     | 0%       | Reportes y Exportación PDF                     | 🟡 MEDIA      |
-| 18         | ⏳     | 0%       | Calendario de Eventos (Vista Mensual)          | 🟢 BAJA-MEDIA |
-| 19         | ⏳     | 0%       | Integraciones API Externas (Clima + Precios)   | 🟢 BAJA       |
-| **FINAL**  | ⏳     | 0%       | Historial de Cambios (UI)                      | 🟢 BAJA       |
-| **LAUNCH** | ⏳     | 0%       | Checklist de Lanzamiento (dominio, GSC, SEO)   | 🟢 BAJA       |
+| Fase       | Status | Progreso | Nombre                                                                          | Prioridad     |
+| ---------- | ------ | -------- | ------------------------------------------------------------------------------- | ------------- |
+| **20**     | ✅     | 100%     | Datos Agronómicos Enriquecidos (NPK etapa, poda, vecería, alelopatía, quelatos) | 🔴 Alta       |
+| **21**     | ✅     | 100%     | Módulo Insumos y Compatibilidad Química                                         | 🔴 Alta       |
+| 13         | ⏳     | 0%       | Supabase Backend (schema, RLS, sync real)                                       | 🔴 CRÍTICA    |
+| 14         | ⏳     | 0%       | Sistema de Billing con MercadoPago                                              | 🔴 ALTA       |
+| **15**     | 🟡     | 66%      | Homepage SSG (4/6 stories, falta tests + docs)                                  | 🟢 BAJA       |
+| 16         | ⏳     | 0%       | Registro de Cosechas (UI)                                                       | 🟡 MEDIA      |
+| 17         | ⏳     | 0%       | Reportes y Exportación PDF                                                      | 🟡 MEDIA      |
+| 18         | ⏳     | 0%       | Calendario de Eventos (Vista Mensual)                                           | 🟢 BAJA-MEDIA |
+| 19         | ⏳     | 0%       | Integraciones API Externas (Clima + Precios)                                    | 🟢 BAJA       |
+| **FINAL**  | ⏳     | 0%       | Historial de Cambios (UI)                                                       | 🟢 BAJA       |
+| **LAUNCH** | ⏳     | 0%       | Checklist de Lanzamiento (dominio, GSC, SEO)                                    | 🟢 BAJA       |
 
-**Total fases**: 37 (28 completadas, 9 pendientes)
+**Total fases**: 39 (30 completadas, 9 pendientes)
 
 ---
 
@@ -237,13 +239,15 @@ Cada archivo FASE_X.md incluye esta tarea de integración al final.
   - Context Providers (map-context, project-context)
   - Bug fixes y mejoras UI
 
-### Completadas (15B, 12, 12B–12D) ✅
+### Completadas (15B, 12, 12B–12D, 20, 21) ✅
 
 - `FASE_15B_BUGS_UX.md` - Bugs Críticos de UX (BUG-01, BUG-05, BUG-10, UX-02, UX-04, UX-06) ✅
 - `FASE_12_AUTH_SUPABASE.md` - Auth Real con Supabase (install, clientes, login, registro, OAuth) ✅
 - `FASE_12B_LANDING_MEJORAS.md` - Landing Page: SEO + Accesibilidad + UX Conversión ✅
 - `FASE_12C_CONTENIDO_SEO.md` - Contenido SEO: Páginas Geográficas + Comparativa ✅
 - `FASE_12D_TANSTACK_AUDIT.md` - Auditoría TanStack + migración a useLiveQuery ✅
+- `FASE_20_DATOS_AGRONOMICOS.md` - Datos Agronómicos Enriquecidos (NPK etapa, poda, vecería, alelopatía, quelatos) ✅
+- `FASE_21_INSUMOS_COMPATIBILIDAD.md` - Módulo Insumos y Compatibilidad Química ✅
 
 ### Pendientes (13–LAUNCH) ⏳
 

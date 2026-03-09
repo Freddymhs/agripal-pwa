@@ -94,5 +94,53 @@
     "tiempo_efecto_dias": 7,
     "costo_kg_clp": 800,
     "notas": "Fertilizante balanceado. Efecto rápido. Usar con precaución en suelos salinos."
+  },
+  {
+    "id": "quelato-fe-edta",
+    "nombre": "Quelato de Hierro Fe-EDTA (13%)",
+    "tipo": "quelato",
+    "npk": { "n": 0, "p": 0, "k": 0 },
+    "micronutriente": "Fe",
+    "concentracion_pct": 13,
+    "efecto_ph": 0,
+    "dosis_kg_m2": 0.005,
+    "dosis_foliar_g_l": 3,
+    "frecuencia_meses": 2,
+    "tiempo_efecto_dias": 7,
+    "ph_maximo_eficacia": 7.5,
+    "costo_kg_clp": 8000,
+    "notas": "Para suelos alcalinos (pH >7.5) donde Fe se insolubiliza. Síntomas: clorosis interveinal hojas jóvenes. Aplicar foliar o drench radicular. EDTA estable hasta pH 7.5; usar EDDHA sobre pH 8."
+  },
+  {
+    "id": "quelato-zn-edta",
+    "nombre": "Quelato de Zinc Zn-EDTA (15%)",
+    "tipo": "quelato",
+    "npk": { "n": 0, "p": 0, "k": 0 },
+    "micronutriente": "Zn",
+    "concentracion_pct": 15,
+    "efecto_ph": 0,
+    "dosis_kg_m2": 0.003,
+    "dosis_foliar_g_l": 2,
+    "frecuencia_meses": 3,
+    "tiempo_efecto_dias": 5,
+    "ph_maximo_eficacia": 7.5,
+    "costo_kg_clp": 7500,
+    "notas": "Para suelos alcalinos donde Zn se fija. Síntomas: hojas pequeñas, internudos cortos (hoja pequeña). Común en cítricos y olivo. Aplicar foliar en brotación."
+  },
+  {
+    "id": "quelato-mn-edta",
+    "nombre": "Quelato de Manganeso Mn-EDTA (13%)",
+    "tipo": "quelato",
+    "npk": { "n": 0, "p": 0, "k": 0 },
+    "micronutriente": "Mn",
+    "concentracion_pct": 13,
+    "efecto_ph": 0,
+    "dosis_kg_m2": 0.003,
+    "dosis_foliar_g_l": 2,
+    "frecuencia_meses": 3,
+    "tiempo_efecto_dias": 5,
+    "ph_maximo_eficacia": 7.5,
+    "costo_kg_clp": 7000,
+    "notas": "Manganeso se insolubiliza sobre pH 6.5. Síntomas: clorosis interveinal hojas maduras. Aplicar foliar. No mezclar con fosfatos en el caldo (precipita)."
   }
 ]

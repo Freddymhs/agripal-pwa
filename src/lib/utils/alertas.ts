@@ -1,4 +1,14 @@
-import type { Alerta, Terreno, Zona, Planta, CatalogoCultivo } from "@/types";
+import type {
+  Alerta,
+  Terreno,
+  Zona,
+  Planta,
+  CatalogoCultivo,
+  NutricionEtapa,
+  AlelopatiaCultivo,
+  VeceriaCultivo,
+  IncompatibilidadQuimica,
+} from "@/types";
 import { generateUUID, getCurrentTimestamp } from "@/lib/utils";
 import {
   calcularConsumoTerreno,
@@ -270,7 +280,149 @@ function generarAlertas(
     }
   }
 
+  // --- Alertas FASE_20: datos agronómicos enriquecidos ---
+
+  // fertilizacion_etapa: cuando la planta entra a una nueva etapa con recomendación de fertilización
+  for (const zona of zonas) {
+    const plantasZona = plantas.filter((p) => p.zona_id === zona.id);
+    for (const planta of plantasZona) {
+      if (planta.estado === ESTADO_PLANTA.MUERTA || !planta.etapa_actual)
+        continue;
+      const cultivo = catalogoCultivos.find(
+        (c) => c.id === planta.tipo_cultivo_id,
+      );
+      if (!cultivo) continue;
+
+      const nutricionPorEtapa = (
+        cultivo as CatalogoCultivo & { nutricion_por_etapa?: NutricionEtapa[] }
+      ).nutricion_por_etapa;
+      if (!nutricionPorEtapa) continue;
+
+      const nutricionEtapa = nutricionPorEtapa.find(
+        (n) => n.etapa === planta.etapa_actual,
+      );
+      if (!nutricionEtapa) continue;
+
+      alertas.push({
+        terreno_id: terreno.id,
+        zona_id: zona.id,
+        planta_id: planta.id,
+        tipo: "fertilizacion_etapa",
+        severidad: SEVERIDAD_ALERTA.INFO,
+        estado: ESTADO_ALERTA.ACTIVA,
+        titulo: `Fertilización recomendada — ${cultivo.nombre} en etapa ${planta.etapa_actual}`,
+        descripcion: `N: ${nutricionEtapa.nitrogeno_kg_ha} kg/ha · P: ${nutricionEtapa.fosforo_kg_ha} kg/ha · K: ${nutricionEtapa.potasio_kg_ha} kg/ha. Aplicar cada ${nutricionEtapa.frecuencia_dias} días.`,
+        sugerencia:
+          nutricionEtapa.timing ??
+          "Fraccionar aplicaciones para evitar quema radicular.",
+      });
+    }
+  }
+
+  // deficiencia_micronutrientes: si el pH del suelo supera 7.5
+  const phSuelo = terreno.suelo?.fisico?.ph;
+  const PH_LIMITE_MICRONUTRIENTES = 7.5;
+  if (phSuelo !== undefined && phSuelo > PH_LIMITE_MICRONUTRIENTES) {
+    alertas.push({
+      terreno_id: terreno.id,
+      tipo: "deficiencia_micronutrientes",
+      severidad: SEVERIDAD_ALERTA.WARNING,
+      estado: ESTADO_ALERTA.ACTIVA,
+      titulo: `⚠️ pH alto (${phSuelo}) — riesgo de deficiencia de micronutrientes`,
+      descripcion: `Con pH > ${PH_LIMITE_MICRONUTRIENTES}, el Fe, Zn y Mn se insolubilizan y no están disponibles para las plantas. Síntomas: clorosis interveinal en hojas jóvenes.`,
+      sugerencia:
+        "Aplicar quelatos Fe-EDTA, Zn-EDTA y/o Mn-EDTA (foliar o drench). Considera incorporar azufre agrícola para bajar pH gradualmente.",
+    });
+  }
+
+  // alelopatia_riesgo: cuando cultivos incompatibles están plantados juntos
+  for (const zona of zonas) {
+    const plantasZona = plantas.filter((p) => p.zona_id === zona.id);
+    for (let i = 0; i < plantasZona.length; i++) {
+      const plantaA = plantasZona[i];
+      const cultivoA = catalogoCultivos.find(
+        (c) => c.id === plantaA.tipo_cultivo_id,
+      );
+      if (!cultivoA) continue;
+
+      const alelopatia = (
+        cultivoA as CatalogoCultivo & { alelopatia?: AlelopatiaCultivo }
+      ).alelopatia;
+      if (!alelopatia?.negativa?.length) continue;
+
+      for (let j = i + 1; j < plantasZona.length; j++) {
+        const plantaB = plantasZona[j];
+        const cultivoB = catalogoCultivos.find(
+          (c) => c.id === plantaB.tipo_cultivo_id,
+        );
+        if (!cultivoB) continue;
+
+        const nombreBNorm = cultivoB.nombre.toLowerCase();
+        const esIncompatible = alelopatia.negativa.some((nombre) =>
+          nombreBNorm.includes(nombre.toLowerCase()),
+        );
+
+        if (!esIncompatible) continue;
+
+        alertas.push({
+          terreno_id: terreno.id,
+          zona_id: zona.id,
+          planta_id: plantaA.id,
+          tipo: "alelopatia_riesgo",
+          severidad: SEVERIDAD_ALERTA.WARNING,
+          estado: ESTADO_ALERTA.ACTIVA,
+          titulo: `⚠️ Alelopatía: ${cultivoA.nombre} incompatible con ${cultivoB.nombre}`,
+          descripcion: `${cultivoA.nombre} libera compuestos que inhiben el crecimiento de ${cultivoB.nombre}. Distancia mínima recomendada: ${alelopatia.distancia_minima_m}m.`,
+          sugerencia: `Separa estas plantas al menos ${alelopatia.distancia_minima_m}m o ubícalas en zonas distintas.`,
+        });
+        break;
+      }
+    }
+  }
+
+  // veceria_riesgo: informativa para cultivos susceptibles en etapa madura con producción alta
+  for (const zona of zonas) {
+    const plantasZona = plantas.filter((p) => p.zona_id === zona.id);
+    for (const planta of plantasZona) {
+      if (planta.etapa_actual !== ETAPA.MADURA) continue;
+      const cultivo = catalogoCultivos.find(
+        (c) => c.id === planta.tipo_cultivo_id,
+      );
+      if (!cultivo) continue;
+
+      const veceria = (
+        cultivo as CatalogoCultivo & { veceria?: VeceriaCultivo }
+      ).veceria;
+      if (!veceria || veceria.susceptibilidad === "baja") continue;
+
+      alertas.push({
+        terreno_id: terreno.id,
+        zona_id: zona.id,
+        planta_id: planta.id,
+        tipo: "veceria_riesgo",
+        severidad: SEVERIDAD_ALERTA.INFO,
+        estado: ESTADO_ALERTA.ACTIVA,
+        titulo: `Vecería — ${cultivo.nombre} susceptible a alternancia productiva`,
+        descripcion: `${cultivo.nombre} tiene susceptibilidad ${veceria.susceptibilidad} a vecería. Los árboles alternan años de alta y baja producción.`,
+        sugerencia: veceria.manejo,
+      });
+    }
+  }
+
   return alertas;
+}
+
+export function generarAlertasIncompatibilidadQuimica(
+  insumosSeleccionados: string[],
+  incompatibilidades: IncompatibilidadQuimica[],
+): IncompatibilidadQuimica[] {
+  if (insumosSeleccionados.length < 2) return [];
+
+  return incompatibilidades.filter(
+    (inc) =>
+      insumosSeleccionados.includes(inc.insumo_a) &&
+      insumosSeleccionados.includes(inc.insumo_b),
+  );
 }
 
 export async function sincronizarAlertas(

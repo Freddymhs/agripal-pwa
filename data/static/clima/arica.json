@@ -1,15 +1,16 @@
 {
   "region": "Arica y Parinacota",
-  "zona": "costa",
+  "zona": "pampa_interior",
+  "elevacion_m": 1086,
+  "coordenadas": { "lat": -18.366, "lon": -70.045 },
   "lluvia": {
-    "anual_mm": 1,
+    "anual_mm": 23,
     "max_24h_mm": 10,
-    "meses_lluviosos": ["ene", "feb"],
+    "meses_lluviosos": ["ene", "feb", "jun"],
     "meses_secos": [
       "mar",
       "abr",
       "may",
-      "jun",
       "jul",
       "ago",
       "sep",
@@ -19,28 +20,30 @@
     ]
   },
   "temperatura": {
-    "minima_historica_c": 11,
-    "maxima_verano_c": 32,
-    "promedio_anual_c": 19,
-    "horas_frio_aprox": 40
+    "minima_historica_c": 10,
+    "maxima_verano_c": 26,
+    "promedio_anual_c": 18,
+    "horas_frio_aprox": 50,
+    "horas_frio_nota": "~50h <10°C/año. Esencialmente 0h <7°C. Suficiente para olivo cv. Azapa (requiere ~70h <10°C)."
   },
   "heladas": {
-    "anuales": 0.2,
-    "meses_riesgo": ["jun", "jul"],
+    "anuales": 0,
+    "meses_riesgo": ["jul", "ago"],
     "plantas_sensibles": ["papaya", "mango", "pitahaya"]
   },
   "viento": {
-    "max_kmh": 25,
+    "max_kmh": 56,
     "direccion_predominante": "S-SW",
-    "meses_fuerte": ["ago", "sep"]
+    "meses_fuerte": ["dic", "ene", "feb"],
+    "nota": "Pampa expuesta sin protección topográfica; viento significativamente mayor que en valle"
   },
   "humedad_radiacion": {
-    "humedad_relativa_pct": 70,
+    "humedad_relativa_pct": 65,
     "radiacion_mj_m2_dia": 18
   },
   "evapotranspiracion": {
-    "et0_mm_dia": 4.8,
-    "nota": "Promedio costa/interior; en verano pampas puede subir a 5-6 mm/día (ERA5 Open-Meteo)"
+    "et0_mm_dia": 4.2,
+    "nota": "Promedio anual real Open-Meteo 2025. Menor que costa por elevación y temperatura moderada."
   },
   "estacionalidad": {
     "verano": {

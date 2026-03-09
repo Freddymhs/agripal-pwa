@@ -9,3 +9,4 @@ export { alertasDAL } from "./alertas";
 export { aguaDAL } from "./agua";
 export { usuariosDAL } from "./usuarios";
 export { transaccionesDAL } from "./transactions";
+export { insumosDAL } from "./insumos";

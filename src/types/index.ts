@@ -475,7 +475,73 @@ export type TipoAlerta =
   | "cosecha_pendiente"
   | "mantenimiento"
   | "estanque_sin_fuente"
-  | "zona_sin_riego";
+  | "zona_sin_riego"
+  | "fertilizacion_etapa"
+  | "deficiencia_micronutrientes"
+  | "alelopatia_riesgo"
+  | "veceria_riesgo"
+  | "incompatibilidad_quimica";
+
+export interface NutricionEtapa {
+  etapa: string;
+  nitrogeno_kg_ha: number;
+  fosforo_kg_ha: number;
+  potasio_kg_ha: number;
+  frecuencia_dias: number;
+  timing?: string;
+}
+
+export interface PodaCultivo {
+  tipo: string;
+  epoca: string;
+  descripcion: string;
+}
+
+export interface PropagacionCultivo {
+  metodo_principal: string;
+  descripcion: string;
+}
+
+export interface VeceriaCultivo {
+  susceptibilidad: "alta" | "media" | "baja";
+  manejo: string;
+}
+
+export interface AlelopatiaCultivo {
+  negativa: string[];
+  distancia_minima_m: number;
+}
+
+export interface InsumoCompatibilidad {
+  id: string;
+  nombre: string;
+  tipo: string;
+  descripcion?: string;
+}
+
+export interface IncompatibilidadQuimica {
+  insumo_a: string;
+  insumo_b: string;
+  nivel: "alto" | "medio";
+  razon: string;
+  recomendacion: string;
+}
+
+export interface MatrizCompatibilidad {
+  insumos: InsumoCompatibilidad[];
+  incompatibilidades: IncompatibilidadQuimica[];
+}
+
+export interface InsumoUsuario {
+  id: string;
+  terreno_id: string;
+  nombre: string;
+  tipo: string;
+  fecha_registro: string;
+  notas?: string;
+  created_at: string;
+  updated_at: string;
+}
 
 export type SeveridadAlerta = "info" | "warning" | "critical";
 export type EstadoAlerta = "activa" | "resuelta" | "ignorada";
