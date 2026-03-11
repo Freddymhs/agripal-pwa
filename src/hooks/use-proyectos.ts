@@ -12,6 +12,7 @@ import {
 } from "@/lib/dal";
 import { generateUUID, getCurrentTimestamp } from "@/lib/utils";
 import { crearCatalogoInicial } from "@/lib/data/cultivos-arica";
+import { useAuthContext } from "@/components/providers/auth-provider";
 import type { Proyecto, UUID } from "@/types";
 
 interface EliminacionCascada {
@@ -39,22 +40,30 @@ interface UseProyectos {
   contarContenido: (id: UUID) => Promise<EliminacionCascada>;
 }
 
-const USUARIO_ID = "usuario-demo";
-
 export function useProyectos(): UseProyectos {
-  const proyectos = useLiveQuery(
-    () => proyectosDAL.getByUsuarioId(USUARIO_ID),
-    [],
+  const { user } = useAuthContext();
+  const usuarioId = user?.id ?? "sin-sesion";
+
+  // Tag the result with the queried userId to detect stale cached results.
+  // useLiveQuery returns the previous result (not undefined) when deps change,
+  // causing the initialLoad effect to fire with stale empty data.
+  const result = useLiveQuery(
+    async () => ({
+      id: usuarioId,
+      data: await proyectosDAL.getByUsuarioId(usuarioId),
+    }),
+    [usuarioId],
   );
 
-  const loading = proyectos === undefined;
+  const loading = result === undefined || result.id !== usuarioId;
+  const proyectos = (result?.id === usuarioId ? result.data : undefined) ?? [];
 
   const crearProyecto = useCallback(
     async (data: { nombre: string; ubicacion: string }): Promise<Proyecto> => {
       const timestamp = getCurrentTimestamp();
       const nuevoProyecto: Proyecto = {
         id: generateUUID(),
-        usuario_id: USUARIO_ID,
+        usuario_id: usuarioId,
         nombre: data.nombre,
         ubicacion_referencia: data.ubicacion,
         created_at: timestamp,
@@ -67,7 +76,7 @@ export function useProyectos(): UseProyectos {
       );
       return nuevoProyecto;
     },
-    [],
+    [usuarioId],
   );
 
   const editarProyecto = useCallback(

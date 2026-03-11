@@ -193,8 +193,32 @@ export function getTabla(entidad: SyncEntidad) {
     entrada_agua: db.entradas_agua,
     cosecha: db.cosechas,
     alerta: db.alertas,
+    catalogo_cultivo: db.catalogo_cultivos,
+    insumo_usuario: db.insumos_usuario,
   };
   return tablas[entidad];
+}
+
+export async function limpiarErroresPermanentes(): Promise<number> {
+  const items = await db.sync_queue
+    .where("estado")
+    .equals("error")
+    .filter((item) => item.intentos >= MAX_RETRY_ATTEMPTS)
+    .toArray();
+
+  for (const item of items) {
+    await db.sync_queue.delete(item.id);
+  }
+
+  return items.length;
+}
+
+export async function contarErroresPermanentes(): Promise<number> {
+  return db.sync_queue
+    .where("estado")
+    .equals("error")
+    .filter((item) => item.intentos >= MAX_RETRY_ATTEMPTS)
+    .count();
 }
 
 export async function limpiarColaAntigua(): Promise<number> {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { useTerrainData } from "@/hooks/use-terrain-data";
+import { useProjectContext } from "@/contexts/project-context";
 import { obtenerCostoAguaPromedio } from "@/lib/utils/roi";
 import {
   compararCultivos,
@@ -21,9 +21,12 @@ const COLORES_LINEA = ["text-blue-600", "text-green-600", "text-purple-600"];
 const COLORES_BG = ["bg-blue-50", "bg-green-50", "bg-purple-50"];
 
 export default function EscenariosPage() {
-  const { terreno, zonas, catalogoCultivos, loading } = useTerrainData({
-    skipPlants: true,
-  });
+  const {
+    terrenoActual: terreno,
+    zonas,
+    catalogoCultivos,
+    loading,
+  } = useProjectContext();
   const [zonaId, setZonaId] = useState<string>("");
   const [seleccion, setSeleccion] = useState<string[]>([]);
 
@@ -99,7 +102,7 @@ export default function EscenariosPage() {
               <option value="">Seleccionar zona...</option>
               {zonasCultivo.map((z) => (
                 <option key={z.id} value={z.id}>
-                  {z.nombre} ({z.area_m2} m2)
+                  {z.nombre} ({z.area_m2 || z.ancho * z.alto} m²)
                 </option>
               ))}
             </select>

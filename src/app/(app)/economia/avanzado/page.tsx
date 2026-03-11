@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { useTerrainData } from "@/hooks/use-terrain-data";
+import { useProjectContext } from "@/contexts/project-context";
 import { PageLayout } from "@/components/layout/page-layout";
 import { ESTADO_PLANTA, TIPO_ZONA } from "@/lib/constants/entities";
 import { filtrarEstanques } from "@/lib/utils/helpers-cultivo";
@@ -21,8 +21,13 @@ interface ResumenAvanzado {
 }
 
 export default function EconomiaAvanzadaPage() {
-  const { terreno, zonas, plantas, catalogoCultivos, loading } =
-    useTerrainData();
+  const {
+    terrenoActual: terreno,
+    zonas,
+    plantas,
+    catalogoCultivos,
+    loading,
+  } = useProjectContext();
 
   const resumen = useMemo<ResumenAvanzado[]>(() => {
     if (!terreno || zonas.length === 0) return [];

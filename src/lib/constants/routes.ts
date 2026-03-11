@@ -16,9 +16,7 @@ export const ROUTES = {
   // Primary routes
   HOME: "/app",
   TERRENOS: "/terrenos",
-  CATALOGO: "/catalogo",
-  CLIMA: "/clima",
-  SUELO: "/suelo",
+  TERRENOS_SUELO: "/terrenos/suelo",
 
   // Agua module
   AGUA: "/agua",
@@ -28,12 +26,18 @@ export const ROUTES = {
   // Economía module
   ECONOMIA: "/economia",
   ECONOMIA_AVANZADO: "/economia/avanzado",
+  ECONOMIA_ESCENARIOS: "/economia/escenarios",
 
-  // Advanced features
-  ESCENARIOS: "/escenarios",
-  PLAGAS: "/plagas",
+  // Datos de referencia
+  DATOS_CATALOGO: "/datos/catalogo",
+  DATOS_CLIMA: "/datos/clima",
+  DATOS_PLAGAS: "/datos/plagas",
+  DATOS_INSUMOS: "/datos/insumos",
+
+  // Operaciones
   ALERTAS: "/alertas",
   GUIA: "/guia",
+  CONFIGURACION: "/configuracion",
 } as const;
 
 export type RouteKey = keyof typeof ROUTES;

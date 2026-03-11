@@ -231,6 +231,33 @@ export function CultivoForm({
         </div>
       </div>
 
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <label className="block text-sm font-medium mb-1">
+            Precio mín (CLP/kg)
+          </label>
+          <input
+            type="number"
+            value={precioMin}
+            onChange={(e) => setPrecioMin(Number(e.target.value))}
+            className="w-full px-3 py-2 border rounded"
+            min={0}
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">
+            Precio máx (CLP/kg)
+          </label>
+          <input
+            type="number"
+            value={precioMax}
+            onChange={(e) => setPrecioMax(Number(e.target.value))}
+            className="w-full px-3 py-2 border rounded"
+            min={0}
+          />
+        </div>
+      </div>
+
       <CultivoClimaFields
         tempMin={tempMin}
         tempMax={tempMax}

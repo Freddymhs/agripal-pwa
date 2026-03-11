@@ -64,7 +64,11 @@ export function MapInfoBar() {
         <div className="flex items-center gap-3 overflow-x-auto flex-wrap">
           <Metrica
             icon={<span className="text-gray-600">📏</span>}
-            value={`${terrenoActual.ancho_m}×${terrenoActual.alto_m}`}
+            value={
+              terrenoActual.ancho_m && terrenoActual.alto_m
+                ? `${terrenoActual.ancho_m}×${terrenoActual.alto_m}`
+                : "—"
+            }
             label="m"
             sublabel={`${dashboard.area_total_m2} m²`}
           />
@@ -73,7 +77,11 @@ export function MapInfoBar() {
 
           <Metrica
             icon={<span className="text-blue-500">📐</span>}
-            value={`${dashboard.porcentaje_uso.toFixed(0)}%`}
+            value={
+              isFinite(dashboard.porcentaje_uso)
+                ? `${dashboard.porcentaje_uso.toFixed(0)}%`
+                : "0%"
+            }
             label="uso"
             sublabel={`${dashboard.area_usada_m2} m² usados`}
           />

@@ -254,10 +254,10 @@ export function GuiaPasoEconomia() {
           <li>
             En{" "}
             <Link
-              href={ROUTES.ESCENARIOS}
+              href={ROUTES.ECONOMIA_ESCENARIOS}
               className="font-mono text-emerald-700 underline hover:text-emerald-800"
             >
-              {ROUTES.ESCENARIOS}
+              {ROUTES.ECONOMIA_ESCENARIOS}
             </Link>{" "}
             puedes comparar escenarios &quot;que pasa si&quot; (cultivo A vs
             cultivo B, diferentes disenos de zona, etc.).
@@ -265,10 +265,10 @@ export function GuiaPasoEconomia() {
           <li>
             En{" "}
             <Link
-              href={ROUTES.PLAGAS}
+              href={ROUTES.DATOS_PLAGAS}
               className="font-mono text-emerald-700 underline hover:text-emerald-800"
             >
-              {ROUTES.PLAGAS}
+              {ROUTES.DATOS_PLAGAS}
             </Link>{" "}
             veras un panel de riesgo de plagas que cruza clima, fenologia
             (Grados Dia) y cultivo para anticipar problemas sanitarios antes de

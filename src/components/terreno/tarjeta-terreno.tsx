@@ -39,12 +39,12 @@ export function TarjetaTerreno({
         <div
           className="bg-green-500/30 border-2 border-green-600 rounded"
           style={{
-            width: `${Math.min(80, terreno.ancho_m * 2)}px`,
-            height: `${Math.min(60, terreno.alto_m * 2)}px`,
+            width: `${Math.min(80, (terreno.ancho_m ?? 0) * 2)}px`,
+            height: `${Math.min(60, (terreno.alto_m ?? 0) * 2)}px`,
           }}
         />
         <div className="absolute bottom-2 right-2 text-xs text-green-700 bg-white/80 px-2 py-0.5 rounded">
-          {terreno.ancho_m}m x {terreno.alto_m}m
+          {terreno.ancho_m ?? "?"}m x {terreno.alto_m ?? "?"}m
         </div>
       </div>
 
@@ -130,7 +130,12 @@ export function TarjetaTerreno({
             </div>
 
             <div className="text-sm text-gray-600 space-y-1 mb-3">
-              <p>Area: {formatArea(terreno.area_m2)}</p>
+              <p>
+                Area:{" "}
+                {formatArea(
+                  terreno.area_m2 ?? terreno.ancho_m * terreno.alto_m,
+                )}
+              </p>
               <p>
                 Zonas: {terreno.zonasCount} - Plantas: {terreno.plantasCount}
               </p>

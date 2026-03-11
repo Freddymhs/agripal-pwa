@@ -83,7 +83,7 @@ export function GuiaPasoCatalogo() {
           </p>
         </div>
         <Link
-          href={ROUTES.CATALOGO}
+          href={ROUTES.DATOS_CATALOGO}
           className="inline-flex items-center gap-1 px-3 py-1.5 rounded bg-green-600 text-white text-sm font-medium hover:bg-green-700"
         >
           Abrir Catalogo
@@ -99,10 +99,10 @@ export function GuiaPasoCatalogo() {
             <li>
               En{" "}
               <Link
-                href={ROUTES.CATALOGO}
+                href={ROUTES.DATOS_CATALOGO}
                 className="font-mono text-green-700 underline hover:text-green-800"
               >
-                {ROUTES.CATALOGO}
+                {ROUTES.DATOS_CATALOGO}
               </Link>
               , arriba a la derecha selecciona el proyecto sobre el que quieres
               trabajar.

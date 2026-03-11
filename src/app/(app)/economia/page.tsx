@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { PageLayout } from "@/components/layout";
-import { useTerrainData } from "@/hooks/use-terrain-data";
+import { useProjectContext } from "@/contexts/project-context";
 import { ESTADO_PLANTA, TIPO_ZONA } from "@/lib/constants/entities";
 import { filtrarEstanques } from "@/lib/utils/helpers-cultivo";
 import {
@@ -23,8 +23,13 @@ interface ResumenCultivo {
 }
 
 export default function EconomiaPage() {
-  const { terreno, zonas, plantas, catalogoCultivos, loading } =
-    useTerrainData();
+  const {
+    terrenoActual: terreno,
+    zonas,
+    plantas,
+    catalogoCultivos,
+    loading,
+  } = useProjectContext();
   const resumen = useMemo<ResumenCultivo[]>(() => {
     if (!terreno || zonas.length === 0) return [];
 
@@ -165,6 +170,15 @@ export default function EconomiaPage() {
               </div>
             </div>
           </div>
+
+          {totalCostoAgua === 0 && resumen.length > 0 && (
+            <div className="mb-3 p-3 rounded-lg text-sm bg-orange-50 text-orange-800 border border-orange-200">
+              ⚠️ <strong>Costo del agua no configurado.</strong> El ROI no
+              incluye gastos de agua. Configura el costo en{" "}
+              <strong>Agua → Configurar Recarga</strong> para obtener una
+              proyección real.
+            </div>
+          )}
 
           <div
             className={`p-3 rounded-lg text-sm ${roiGlobal > 50 ? "bg-green-100 text-green-800" : roiGlobal > 0 ? "bg-yellow-100 text-yellow-800" : "bg-red-100 text-red-800"}`}

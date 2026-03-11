@@ -3,8 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { zonasDAL } from "@/lib/dal";
-import { useTerrainData } from "@/hooks/use-terrain-data";
-import { useEstanques } from "@/hooks/use-estanques";
+import { useProjectContext } from "@/contexts/project-context";
 import { useAgua } from "@/hooks/use-agua";
 import { logger } from "@/lib/logger";
 import { PageLayout } from "@/components/layout";
@@ -23,16 +22,25 @@ import { TIPO_ZONA } from "@/lib/constants/entities";
 import { ROUTES } from "@/lib/constants/routes";
 
 export default function AguaPage() {
-  const { terreno, zonas, plantas, catalogoCultivos, loading, refetch } =
-    useTerrainData();
+  const {
+    terrenoActual: terreno,
+    zonas,
+    plantas,
+    catalogoCultivos,
+    loading,
+    cargarDatosTerreno: refetch,
+    estanquesHook: {
+      estanques,
+      aguaTotalDisponible,
+      aguaTotalActual,
+      agregarAgua,
+    },
+  } = useProjectContext();
   const [showEntradaForm, setShowEntradaForm] = useState(false);
   const [showConfigRecarga, setShowConfigRecarga] = useState(false);
   const [estanqueSeleccionadoId, setEstanqueSeleccionadoId] = useState<
     string | null
   >(null);
-
-  const { estanques, aguaTotalDisponible, aguaTotalActual, agregarAgua } =
-    useEstanques(zonas, refetch);
 
   const { entradas, consumoSemanal, estadoAgua, registrarEntrada } = useAgua(
     terreno,

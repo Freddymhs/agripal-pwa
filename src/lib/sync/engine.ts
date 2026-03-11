@@ -15,6 +15,7 @@ import {
 import type { SyncAdapter } from "./types";
 import type { SyncItem } from "@/types";
 import { SYNC_ENTIDADES } from "@/lib/constants/sync";
+import { suppressSyncEnqueue } from "./db-hooks";
 
 const SYNC_TIMEOUT_MS = 30_000;
 const PULL_TIMEOUT_MS = 60_000;
@@ -133,6 +134,17 @@ async function ejecutarSyncInternal(
 async function pushChanges(
   adapter: SyncAdapter,
 ): Promise<{ success: number; conflicts: number; errors: number }> {
+  suppressSyncEnqueue(true);
+  try {
+    return await pushChangesInternal(adapter);
+  } finally {
+    suppressSyncEnqueue(false);
+  }
+}
+
+async function pushChangesInternal(
+  adapter: SyncAdapter,
+): Promise<{ success: number; conflicts: number; errors: number }> {
   const pendientes = await obtenerPendientes();
   let success = 0;
   let conflicts = 0;
@@ -193,6 +205,17 @@ async function pushChanges(
 }
 
 async function pullChanges(adapter: SyncAdapter): Promise<{ count: number }> {
+  suppressSyncEnqueue(true);
+  try {
+    return await pullChangesInternal(adapter);
+  } finally {
+    suppressSyncEnqueue(false);
+  }
+}
+
+async function pullChangesInternal(
+  adapter: SyncAdapter,
+): Promise<{ count: number }> {
   const lastSyncAt = await getLastSyncAt();
   let totalPulled = 0;
   let maxTimestamp: string | null = null;
@@ -235,6 +258,15 @@ async function pullChanges(adapter: SyncAdapter): Promise<{ count: number }> {
         const localItem = await tabla.get(id);
 
         if (!localItem) {
+          // Do not re-insert items that have a pending local delete.
+          // Otherwise the pull would restore a record the user just deleted,
+          // causing it to be re-uploaded in the next push cycle.
+          const pendingDelete = await db.sync_queue
+            .where("[entidad+entidad_id]")
+            .equals([entidad, id])
+            .first();
+          if (pendingDelete && pendingDelete.accion === "delete") continue;
+
           const newItem = {
             ...serverItem,
             lastModified: serverItem.updated_at,

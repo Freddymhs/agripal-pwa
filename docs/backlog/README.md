@@ -85,36 +85,38 @@ Cada archivo FASE_X.md incluye esta tarea de integración al final.
 
 ### Completadas ✅
 
-| Fase    | Status | Progreso | Nombre                                                              | Prioridad  |
-| ------- | ------ | -------- | ------------------------------------------------------------------- | ---------- |
-| 0       | ✅     | 100%     | Estructura Base                                                     | 🔴 Alta    |
-| 1       | ✅     | 100%     | Modelo de Datos (Tipos + Dexie)                                     | 🔴 Alta    |
-| 2       | ✅     | 100%     | Mapa SVG Interactivo                                                | 🔴 Alta    |
-| 3       | ✅     | 100%     | CRUD Zonas + Integración                                            | 🔴 Alta    |
-| 4       | ✅     | 100%     | Sistema de Plantas + Integración                                    | 🔴 Alta    |
-| 4B      | ✅     | 100%     | Selección Múltiple + Mover Plantas                                  | 🟡 Media   |
-| 4C      | ✅     | 100%     | Gestión Proyectos/Terrenos                                          | 🔴 Alta    |
-| 5       | ✅     | 100%     | Configuración Terreno Avanzada (legal, ubicación)                   | 🟡 Media   |
-| 5B      | ✅     | 100%     | Panel Clima (datos estáticos)                                       | 🟢 Baja    |
-| 5C      | ✅     | 100%     | Panel Suelo (análisis, umbrales)                                    | 🟡 Media   |
-| 5D      | ✅     | 100%     | Agua Avanzada (calidad, proveedores)                                | 🟡 Media   |
-| 6       | ✅     | 100%     | Motor Recomendación Inteligente                                     | 🔴 Alta    |
-| 7       | ✅     | 100%     | Catálogo de Cultivos (CRUD editable)                                | 🟡 Media   |
-| 8A      | ✅     | 100%     | Estanques de Agua (zona física)                                     | 🔴 Alta    |
-| 8       | ✅     | 100%     | Control de Agua (entradas, consumo)                                 | 🟡 Media   |
-| 9       | ✅     | 100%     | Alertas y Dashboard                                                 | 🟡 Media   |
-| 10      | ✅     | 100%     | PWA y Sync Offline                                                  | 🔴 Alta    |
-| **10B** | ✅     | 100%     | Fix Performance: SVG → PixiJS v8 WebGL                              | 🔴 Alta    |
-| **10C** | ✅     | 100%     | Mejoras UX + Agua Funcional + Datos Agrícolas                       | 🔴 Alta    |
-| 11      | ✅     | 100%     | Autenticación JWT Mock                                              | 🟢 Baja    |
-| **11B** | ✅     | 100%     | Segmentación UX Agua (Experimentación vs Gestión)                   | 🔴 Alta    |
-| **11C** | ✅     | 100%     | Dashboard Mejorado + Planificador Económico                         | 🔴 CRÍTICA |
-| **11D** | ✅     | 100%     | Mejoras No Registradas (Economía, Escenarios, Plagas, Datos, Fixes) | 🔴 Alta    |
-| **15B** | ✅     | 100%     | Bugs Críticos de UX (pre-Supabase)                                  | 🔴 Alta    |
-| **12**  | ✅     | 100%     | Auth Real con Supabase (login, registro, OAuth)                     | 🔴 CRÍTICA |
-| **12B** | ✅     | 100%     | Landing Page: SEO + Accesibilidad + UX Conversión                   | 🔴 CRÍTICA |
-| **12C** | ✅     | 100%     | Contenido SEO: Páginas Geográficas + Comparativa                    | 🔴 CRÍTICA |
-| **12D** | ✅     | 100%     | Auditoría TanStack + migración a useLiveQuery                       | 🟡 Media   |
+| Fase    | Status | Progreso | Nombre                                                                    | Prioridad  |
+| ------- | ------ | -------- | ------------------------------------------------------------------------- | ---------- |
+| 0       | ✅     | 100%     | Estructura Base                                                           | 🔴 Alta    |
+| 1       | ✅     | 100%     | Modelo de Datos (Tipos + Dexie)                                           | 🔴 Alta    |
+| 2       | ✅     | 100%     | Mapa SVG Interactivo                                                      | 🔴 Alta    |
+| 3       | ✅     | 100%     | CRUD Zonas + Integración                                                  | 🔴 Alta    |
+| 4       | ✅     | 100%     | Sistema de Plantas + Integración                                          | 🔴 Alta    |
+| 4B      | ✅     | 100%     | Selección Múltiple + Mover Plantas                                        | 🟡 Media   |
+| 4C      | ✅     | 100%     | Gestión Proyectos/Terrenos                                                | 🔴 Alta    |
+| 5       | ✅     | 100%     | Configuración Terreno Avanzada (legal, ubicación)                         | 🟡 Media   |
+| 5B      | ✅     | 100%     | Panel Clima (datos estáticos)                                             | 🟢 Baja    |
+| 5C      | ✅     | 100%     | Panel Suelo (análisis, umbrales)                                          | 🟡 Media   |
+| 5D      | ✅     | 100%     | Agua Avanzada (calidad, proveedores)                                      | 🟡 Media   |
+| 6       | ✅     | 100%     | Motor Recomendación Inteligente                                           | 🔴 Alta    |
+| 7       | ✅     | 100%     | Catálogo de Cultivos (CRUD editable)                                      | 🟡 Media   |
+| 8A      | ✅     | 100%     | Estanques de Agua (zona física)                                           | 🔴 Alta    |
+| 8       | ✅     | 100%     | Control de Agua (entradas, consumo)                                       | 🟡 Media   |
+| **8B**  | ✅     | 100%     | Multi-Estanque: asignación zona-cultivo → estanque fuente                 | 🟡 Media   |
+| 9       | ✅     | 100%     | Alertas y Dashboard                                                       | 🟡 Media   |
+| 10      | ✅     | 100%     | PWA y Sync Offline                                                        | 🔴 Alta    |
+| **10B** | ✅     | 100%     | Fix Performance: SVG → PixiJS v8 WebGL                                    | 🔴 Alta    |
+| **10C** | ✅     | 100%     | Mejoras UX + Agua Funcional + Datos Agrícolas                             | 🔴 Alta    |
+| 11      | ✅     | 100%     | Autenticación JWT Mock                                                    | 🟢 Baja    |
+| **11B** | ✅     | 100%     | Segmentación UX Agua (Experimentación vs Gestión)                         | 🔴 Alta    |
+| **11C** | ✅     | 100%     | Dashboard Mejorado + Planificador Económico                               | 🔴 CRÍTICA |
+| **11D** | ✅     | 100%     | Mejoras No Registradas (Economía, Escenarios, Plagas, Datos, Fixes)       | 🔴 Alta    |
+| **15B** | ✅     | 100%     | Bugs Críticos de UX (pre-Supabase)                                        | 🔴 Alta    |
+| **15C** | ✅     | 100%     | Bugs y Gaps — Registro Retroactivo Tests E2E FASE_13 (10 bugs corregidos) | 🔴 Alta    |
+| **12**  | ✅     | 100%     | Auth Real con Supabase (login, registro, OAuth)                           | 🔴 CRÍTICA |
+| **12B** | ✅     | 100%     | Landing Page: SEO + Accesibilidad + UX Conversión                         | 🔴 CRÍTICA |
+| **12C** | ✅     | 100%     | Contenido SEO: Páginas Geográficas + Comparativa                          | 🔴 CRÍTICA |
+| **12D** | ✅     | 100%     | Auditoría TanStack + migración a useLiveQuery                             | 🟡 Media   |
 
 ### Pendientes ⏳
 
@@ -122,7 +124,7 @@ Cada archivo FASE_X.md incluye esta tarea de integración al final.
 | ---------- | ------ | -------- | ------------------------------------------------------------------------------- | ------------- |
 | **20**     | ✅     | 100%     | Datos Agronómicos Enriquecidos (NPK etapa, poda, vecería, alelopatía, quelatos) | 🔴 Alta       |
 | **21**     | ✅     | 100%     | Módulo Insumos y Compatibilidad Química                                         | 🔴 Alta       |
-| 13         | ⏳     | 0%       | Supabase Backend (schema, RLS, sync real)                                       | 🔴 CRÍTICA    |
+| 13         | ✅     | 100%     | Supabase Backend (schema, RLS, sync opt-in, Dexie hooks, /configuracion)        | 🔴 CRÍTICA    |
 | 14         | ⏳     | 0%       | Sistema de Billing con MercadoPago                                              | 🔴 ALTA       |
 | **15**     | 🟡     | 66%      | Homepage SSG (4/6 stories, falta tests + docs)                                  | 🟢 BAJA       |
 | 16         | ⏳     | 0%       | Registro de Cosechas (UI)                                                       | 🟡 MEDIA      |
@@ -132,17 +134,17 @@ Cada archivo FASE_X.md incluye esta tarea de integración al final.
 | **FINAL**  | ⏳     | 0%       | Historial de Cambios (UI)                                                       | 🟢 BAJA       |
 | **LAUNCH** | ⏳     | 0%       | Checklist de Lanzamiento (dominio, GSC, SEO)                                    | 🟢 BAJA       |
 
-**Total fases**: 39 (30 completadas, 9 pendientes)
+**Total fases**: 42 (34 completadas, 8 pendientes)
 
 ---
 
 ## 📍 Actual
 
-**Fase actual:** FASE_13 - Supabase Backend (schema PostgreSQL, RLS, sync real)
+**Fase actual:** FASE_13 + FASE_15C + FASE_8B completadas — pipeline end-to-end verificado, todos los bugs retroactivos corregidos, multi-estanque implementado y verificado. Siguiente: FASE_14 Billing.
 
-**Completadas (28)**: Estructura, Tipos, Mapa, Zonas, Plantas, Selección Múltiple, Gestión Proyectos/Terrenos, Terreno Avanzado, Panel Clima, Panel Suelo, Agua Avanzada, Motor Recomendación, Catálogo Cultivos, Estanques, Control Agua, Alertas y Dashboard, PWA y Sync Offline, Performance PixiJS, Mejoras UX/Agua/Datos, Autenticación JWT Mock, Segmentación UX Agua, Dashboard + Planificador, Economía/Escenarios/Plagas/Datos/Fixes, Bugs Críticos UX (15B), Auth Real Supabase (12), Landing SEO (12B), Contenido SEO (12C), TanStack Audit (12D)
+**Completadas (33)**: Estructura, Tipos, Mapa, Zonas, Plantas, Selección Múltiple, Gestión Proyectos/Terrenos, Terreno Avanzado, Panel Clima, Panel Suelo, Agua Avanzada, Motor Recomendación, Catálogo Cultivos, Estanques (8A), Control Agua, Multi-Estanque (8B), Alertas y Dashboard, PWA y Sync Offline, Performance PixiJS, Mejoras UX/Agua/Datos, Autenticación JWT Mock, Segmentación UX Agua, Dashboard + Planificador, Economía/Escenarios/Plagas/Datos/Fixes (11D), Datos Agronómicos (20), Insumos (21), Bugs UX (15B), Auth Supabase (12), Landing SEO (12B), Contenido SEO (12C), TanStack Audit (12D), Backend Supabase (13), Bugs Testing Retroactivos (15C)
 
-**Pendientes (9)**: Backend Supabase (13) → Billing (14) → Homepage SSG tests (15) → Cosechas → PDF → Calendario → APIs → Historial → Launch Checklist
+**Pendientes (9)**: Billing (14) → Homepage SSG tests (15) → Cosechas (16) → PDF (17) → Calendario (18) → APIs (19) → Historial → Launch Checklist
 
 **Objetivo:** Transformar AgriPlan en un SaaS con backend real y sistema de suscripciones.
 
@@ -239,9 +241,10 @@ Cada archivo FASE_X.md incluye esta tarea de integración al final.
   - Context Providers (map-context, project-context)
   - Bug fixes y mejoras UI
 
-### Completadas (15B, 12, 12B–12D, 20, 21) ✅
+### Completadas (15B, 15C, 12, 12B–12D, 20, 21) ✅
 
 - `FASE_15B_BUGS_UX.md` - Bugs Críticos de UX (BUG-01, BUG-05, BUG-10, UX-02, UX-04, UX-06) ✅
+- `FASE_15C_BUGS_TESTING_RETROACTIVO.md` - Bugs y Gaps encontrados en Tests E2E FASE_13 (13 bugs corregidos, GAP-01 implementado en FASE_8B) ✅
 - `FASE_12_AUTH_SUPABASE.md` - Auth Real con Supabase (install, clientes, login, registro, OAuth) ✅
 - `FASE_12B_LANDING_MEJORAS.md` - Landing Page: SEO + Accesibilidad + UX Conversión ✅
 - `FASE_12C_CONTENIDO_SEO.md` - Contenido SEO: Páginas Geográficas + Comparativa ✅
@@ -249,9 +252,15 @@ Cada archivo FASE_X.md incluye esta tarea de integración al final.
 - `FASE_20_DATOS_AGRONOMICOS.md` - Datos Agronómicos Enriquecidos (NPK etapa, poda, vecería, alelopatía, quelatos) ✅
 - `FASE_21_INSUMOS_COMPATIBILIDAD.md` - Módulo Insumos y Compatibilidad Química ✅
 
+### Completada (8B) ✅
+
+- `FASE_8B_MULTI_ESTANQUE.md` - Multi-Estanque: asignación zona-cultivo → estanque fuente, alertas per-estanque, consumo per-estanque ✅
+
 ### Pendientes (13–LAUNCH) ⏳
 
-- `FASE_13_SUPABASE_BACKEND.md` - Supabase Backend (schema PostgreSQL, RLS, SupabaseAdapter, sync real) ⏳
+- `FASE_13_SUPABASE_BACKEND.md` - Supabase Backend (schema, RLS, Dexie hooks, sync opt-in) ✅ (95%)
+- `FASE_13_TEST_BROWSER.md` - 8 flujos de test manuales para sync
+- `FASE_13_TEST_BACKEND.md` - Comandos de verificación Supabase
 - `FASE_14_BILLING_MERCADOPAGO.md` - Sistema de Billing con MercadoPago ⏳
 - `FASE_15/` - Homepage SSG (tests + docs pendientes) 🟡
 - `FASE_16_COSECHAS.md` - Registro de Cosechas (UI) ⏳
@@ -335,8 +344,10 @@ pnpm type-check   # TypeScript check
 
 ### Proximas 🚀
 
-1. ⏳ **PROXIMO**: Backend Supabase (FASE_13) — schema PostgreSQL + RLS + SupabaseAdapter + sync
-2. ⏳ **LUEGO**: Billing MercadoPago (FASE_14)
-3. ⏳ **POST-SAAS**: Cosechas → PDF → Calendario → APIs externas → Historial → Launch (FASE_16–LAUNCH)
+1. ✅ **COMPLETADA (100%)**: Backend Supabase (FASE_13) — schema + RLS + Dexie hooks + sync opt-in + /configuracion + tests browser verificados
+2. ✅ **COMPLETADA (100%)**: Multi-Estanque (FASE_8B) — selector por zona, alertas per-estanque, migration Supabase
+3. ✅ **COMPLETADA (100%)**: Bugs Testing Retroactivos (FASE_15C) — 13 bugs corregidos, todos los gaps resueltos
+4. ⏳ **SIGUIENTE**: Billing MercadoPago (FASE_14)
+5. ⏳ **POST-SAAS**: Cosechas → PDF → Calendario → APIs externas → Historial → Launch (FASE_16–LAUNCH)
 
 **Objetivo:** Convertir AgriPlan en un SaaS funcional con suscripciones mensuales de 9,990 CLP.

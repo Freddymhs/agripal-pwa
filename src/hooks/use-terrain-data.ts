@@ -5,6 +5,7 @@ import { logger } from "@/lib/logger";
 import { terrenosDAL, zonasDAL, catalogoDAL, plantasDAL } from "@/lib/dal";
 import type { Terreno, Zona, Planta, CatalogoCultivo } from "@/types";
 import { TIPO_ZONA } from "@/lib/constants/entities";
+import { STORAGE_KEYS } from "@/lib/constants/storage";
 
 interface UseTerrainDataOptions {
   skipPlants?: boolean;
@@ -49,7 +50,13 @@ export function useTerrainData(
         return;
       }
 
-      const t = terrenos[0];
+      const savedId =
+        typeof window !== "undefined"
+          ? localStorage.getItem(STORAGE_KEYS.TERRENO)
+          : null;
+      const t =
+        (savedId ? terrenos.find((x) => x.id === savedId) : null) ??
+        terrenos[0];
       setTerreno(t);
 
       const [z, c] = await Promise.all([

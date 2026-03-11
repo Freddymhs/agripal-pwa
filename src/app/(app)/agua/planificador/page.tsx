@@ -2,9 +2,8 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
-import { useTerrainData } from "@/hooks/use-terrain-data";
+import { useProjectContext } from "@/contexts/project-context";
 import { PageLayout } from "@/components/layout/page-layout";
-import { useEstanques } from "@/hooks/use-estanques";
 import { useAgua } from "@/hooks/use-agua";
 import { RecomendacionPanel } from "@/components/recomendacion/recomendacion-panel";
 import { PlanificadorProyeccionTab } from "@/components/agua/planificador-proyeccion-tab";
@@ -29,11 +28,17 @@ const TABS = [
 import { ROUTES } from "@/lib/constants/routes";
 
 export default function PlanificadorAguaPage() {
-  const { terreno, zonas, plantas, catalogoCultivos, loading, refetch } =
-    useTerrainData();
+  const {
+    terrenoActual: terreno,
+    zonas,
+    plantas,
+    catalogoCultivos,
+    loading,
+    cargarDatosTerreno: refetch,
+    estanquesHook: { estanques },
+  } = useProjectContext();
   const [tabActiva, setTabActiva] = useState<TabActiva>("viabilidad");
 
-  const { estanques } = useEstanques(zonas, refetch);
   const { entradas } = useAgua(
     terreno,
     zonas,

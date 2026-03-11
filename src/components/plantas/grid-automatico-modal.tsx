@@ -5,6 +5,7 @@ import {
   generarGridPlantas,
   validarGridPlantas,
 } from "@/lib/validations/planta";
+import { resolverAreaZona } from "@/lib/utils/helpers-cultivo";
 import type { Zona, CatalogoCultivo, Planta } from "@/types";
 
 interface GridAutomaticoModalProps {
@@ -55,7 +56,7 @@ export function GridAutomaticoModal({
           </div>
           <div>
             <strong className="text-gray-900">Zona:</strong> {zona.nombre} (
-            {zona.area_m2} m²)
+            {resolverAreaZona(zona)} m²)
           </div>
           <div>
             <strong className="text-gray-900">Espaciado recomendado:</strong>{" "}

@@ -8,6 +8,8 @@ export const SYNC_ENTIDADES: SyncEntidad[] = [
   "entrada_agua",
   "cosecha",
   "alerta",
+  "catalogo_cultivo",
+  "insumo_usuario",
 ];
 
 export const RETRY_DELAYS = [1000, 5000, 30000, 120000, 300000];

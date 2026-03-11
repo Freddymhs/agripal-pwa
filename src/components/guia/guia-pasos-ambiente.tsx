@@ -19,7 +19,7 @@ export function GuiaPasoSuelo() {
           </p>
         </div>
         <Link
-          href={ROUTES.SUELO}
+          href={ROUTES.TERRENOS_SUELO}
           className="inline-flex items-center gap-1 px-3 py-1.5 rounded bg-amber-600 text-white text-sm font-medium hover:bg-amber-700"
         >
           Abrir modulo Suelo
@@ -115,7 +115,7 @@ export function GuiaPasoClima() {
           </p>
         </div>
         <Link
-          href={ROUTES.CLIMA}
+          href={ROUTES.DATOS_CLIMA}
           className="inline-flex items-center gap-1 px-3 py-1.5 rounded bg-blue-600 text-white text-sm font-medium hover:bg-blue-700"
         >
           Abrir modulo Clima

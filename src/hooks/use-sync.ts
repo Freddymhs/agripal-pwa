@@ -8,7 +8,8 @@ import {
   obtenerConflictos,
   resolverConflicto as resolverConflictoQueue,
 } from "@/lib/sync/queue";
-import { mockAdapter } from "@/lib/sync/adapters";
+import { supabaseAdapter } from "@/lib/sync/adapters";
+import { syncMetaDAL } from "@/lib/dal/sync-meta";
 import type { SyncItem, UUID } from "@/types";
 
 interface SyncState {
@@ -59,6 +60,9 @@ export function useSync() {
   const doSync = useCallback(async () => {
     if (!isMountedRef.current || isSyncingRef.current || !isOnlineRef.current)
       return;
+
+    const syncHabilitado = await syncMetaDAL.isSyncHabilitado();
+    if (!syncHabilitado) return;
 
     isSyncingRef.current = true;
     setState((prev) => ({ ...prev, isSyncing: true, error: null }));
@@ -114,7 +118,7 @@ export function useSync() {
 
   useEffect(() => {
     isMountedRef.current = true;
-    setAdapter(mockAdapter);
+    setAdapter(supabaseAdapter);
 
     const timeouts: ReturnType<typeof setTimeout>[] = [];
     let intervalId: ReturnType<typeof setInterval> | null = null;

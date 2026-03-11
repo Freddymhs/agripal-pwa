@@ -14,6 +14,11 @@ export const PRECIO_PLANTA_FACTOR = 0.5;
 export const COSTO_VARIABLE_FACTOR = 0.6;
 export const COSTO_VARIABLE_FALLBACK_FACTOR = 0.4;
 
+// Umbral a partir del cual el chequeo O(n²) de solapamiento se omite.
+// Plantas colocadas por grid automático nunca se solapan; el check es inútil
+// para zonas grandes y bloquea el hilo principal.
+export const MAX_PLANTAS_OVERLAP_CHECK = 80;
+
 export const DIAS_POR_MES_PROMEDIO = 30;
 export const DIAS_POR_AÑO = 365;
 export const HORAS_POR_DIA = 24;

@@ -70,8 +70,14 @@ save-scrappers/**
 
 # Temp
 /tmp/
+checklist_*.md
+docs/tests/e2e/results/
+.playwright-cli/
+supabase/.temp/
 
 
 # skills
 .agent
 .agents
+# MCP virtual env
+.venv-mcp/

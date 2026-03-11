@@ -161,6 +161,16 @@ export function useMapInteractions(deps: InteractionDeps) {
           }
           return;
         }
+        // Si hay una planta bajo el cursor (aunque no esté en la selección actual),
+        // no iniciar pan ni trackear drag — dejar que onPointerTap maneje el click.
+        const plantaEnPos = hitTestRef.current?.hitTestPoint(
+          worldPos.x,
+          worldPos.y,
+        );
+        if (plantaEnPos) {
+          pointerDownScreenRef.current = null;
+          return;
+        }
       }
 
       viewport.startPan(e.clientX, e.clientY);
@@ -450,6 +460,25 @@ export function useMapInteractions(deps: InteractionDeps) {
     };
 
     const onPointerTap = (e: MouseEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      const screenPos = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+      const worldPos = screenToWorld(screenPos.x, screenPos.y);
+      const currentModo = modoRef.current;
+      const p = propsRef.current;
+
+      // En modo plantas: siempre verificar hitTest primero.
+      // Si el click aterriza sobre una planta, seleccionarla sin importar wasDragging.
+      // (Si el usuario arrastró mucho, el browser no dispara click en absoluto.)
+      if (currentModo === "plantas") {
+        const planta = hitTestRef.current?.hitTestPoint(worldPos.x, worldPos.y);
+        wasDraggingRef.current = false;
+        pointerDownScreenRef.current = null;
+        if (planta) {
+          p.onPlantaClick?.(planta);
+        }
+        return;
+      }
+
       if (wasDraggingRef.current) {
         wasDraggingRef.current = false;
         pointerDownScreenRef.current = null;
@@ -457,22 +486,8 @@ export function useMapInteractions(deps: InteractionDeps) {
       }
       pointerDownScreenRef.current = null;
 
-      const rect = canvas.getBoundingClientRect();
-      const screenPos = { x: e.clientX - rect.left, y: e.clientY - rect.top };
-      const worldPos = screenToWorld(screenPos.x, screenPos.y);
-      const currentModo = modoRef.current;
-      const p = propsRef.current;
-
       if (currentModo === "plantar" && p.onMapClick) {
         handlePlantarTap(worldPos, p);
-        return;
-      }
-
-      if (currentModo === "plantas") {
-        const planta = hitTestRef.current?.hitTestPoint(worldPos.x, worldPos.y);
-        if (planta) {
-          p.onPlantaClick?.(planta);
-        }
         return;
       }
 

@@ -27,6 +27,14 @@ export function calcularPlantasPorHa(espaciadoM: number): number {
   return espaciadoM2 > 0 ? M2_POR_HECTAREA / espaciadoM2 : 0;
 }
 
+/**
+ * Resolves zona area_m2, falling back to ancho * alto for zones created before
+ * area_m2 was stored explicitly (e.g. zones inserted via old IDB scripts).
+ */
+export function resolverAreaZona(zona: Zona): number {
+  return zona.area_m2 || zona.ancho * zona.alto;
+}
+
 export function filtrarEstanques(zonas: Zona[]): Zona[] {
   return zonas.filter(
     (z) => z.tipo === TIPO_ZONA.ESTANQUE && z.estanque_config,

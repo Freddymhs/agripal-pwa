@@ -7,6 +7,8 @@ export { plantasDAL } from "./plantas";
 export { catalogoDAL } from "./catalogo";
 export { alertasDAL } from "./alertas";
 export { aguaDAL } from "./agua";
+export { cosechasDAL } from "./cosechas";
 export { usuariosDAL } from "./usuarios";
 export { transaccionesDAL } from "./transactions";
 export { insumosDAL } from "./insumos";
+export { syncMetaDAL } from "./sync-meta";

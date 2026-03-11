@@ -60,8 +60,20 @@ const SECURITY_HEADERS = [
   },
 ];
 
+const ROUTE_REDIRECTS = [
+  { source: "/escenarios", destination: "/economia/escenarios" },
+  { source: "/catalogo", destination: "/datos/catalogo" },
+  { source: "/clima", destination: "/datos/clima" },
+  { source: "/plagas", destination: "/datos/plagas" },
+  { source: "/insumos", destination: "/datos/insumos" },
+  { source: "/suelo", destination: "/terrenos/suelo" },
+].map((r) => ({ ...r, permanent: true }));
+
 const nextConfig: NextConfig = {
   turbopack: {},
+  async redirects() {
+    return ROUTE_REDIRECTS;
+  },
   async headers() {
     return [
       {

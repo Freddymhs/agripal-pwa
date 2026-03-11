@@ -39,7 +39,7 @@ export function HistorialAgua({ entradas, estanques }: HistorialAguaProps) {
             <div className="flex justify-between items-start">
               <div>
                 <div className="font-medium text-cyan-700">
-                  +{entrada.cantidad_m3.toFixed(1)} m³
+                  +{(entrada.cantidad_m3 ?? 0).toFixed(1)} m³
                 </div>
                 <div className="text-xs text-gray-500">
                   {formatDate(entrada.fecha)}

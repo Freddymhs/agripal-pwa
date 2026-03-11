@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useProjectContext } from "@/contexts/project-context";
 import {
@@ -14,8 +14,10 @@ import type {
   ProveedorAgua,
   ContingenciasAgua,
   TecnicasAhorroAgua,
+  AguaAvanzadaTerreno,
 } from "@/types";
 import { ROUTES } from "@/lib/constants/routes";
+import { terrenosDAL } from "@/lib/dal";
 
 type TabId = "calidad" | "proveedores" | "contingencias" | "ahorro";
 
@@ -26,29 +28,90 @@ const TABS: { id: TabId; label: string }[] = [
   { id: "ahorro", label: "Técnicas Ahorro" },
 ];
 
+const DEFAULT_CONTINGENCIAS: ContingenciasAgua = {
+  buffer_minimo_pct: 30,
+  alerta_critica_pct: 20,
+  plan_si_no_llega: [],
+};
+
 export default function AguaConfiguracionPage() {
-  const { terrenoActual } = useProjectContext();
+  const { terrenoActual: terreno } = useProjectContext();
   const [activeTab, setActiveTab] = useState<TabId>("calidad");
+  const loadedTerrenoId = useRef<string | null>(null);
 
   const [calidad, setCalidad] = useState<CalidadAguaTerreno>({});
   const [proveedores, setProveedores] = useState<ProveedorAgua[]>([]);
-  const [contingencias, setContingencias] = useState<ContingenciasAgua>({
-    buffer_minimo_pct: 30,
-    alerta_critica_pct: 20,
-    plan_si_no_llega: [],
-  });
+  const [contingencias, setContingencias] = useState<ContingenciasAgua>(
+    DEFAULT_CONTINGENCIAS,
+  );
   const [tecnicas, setTecnicas] = useState<TecnicasAhorroAgua>({});
 
-  const aguaActualPct = useMemo(() => {
-    if (!terrenoActual || terrenoActual.agua_disponible_m3 <= 0) return 100;
-    return (
-      (terrenoActual.agua_actual_m3 / terrenoActual.agua_disponible_m3) * 100
-    );
-  }, [terrenoActual]);
+  // Cargar agua_avanzada al montar o cambiar terreno (solo una vez por terreno)
+  useEffect(() => {
+    if (!terreno || loadedTerrenoId.current === terreno.id) return;
+    loadedTerrenoId.current = terreno.id;
+    const avanzada = terreno.agua_avanzada ?? {};
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- sincronización: carga inicial desde IndexedDB, nunca produce cascada (ref guard lo evita)
+    setCalidad(avanzada.calidad ?? {});
 
-  const handleCalidadChange = useCallback((c: CalidadAguaTerreno) => {
-    setCalidad(c);
-  }, []);
+    setProveedores(avanzada.proveedores ?? []);
+
+    setContingencias(avanzada.contingencias ?? DEFAULT_CONTINGENCIAS);
+
+    setTecnicas(avanzada.tecnicas_ahorro ?? {});
+  }, [terreno]);
+
+  const persistir = useCallback(
+    async (patch: Partial<AguaAvanzadaTerreno>) => {
+      if (!terreno) return;
+      const prev = terreno.agua_avanzada ?? {};
+      await terrenosDAL.update(terreno.id, {
+        agua_avanzada: { ...prev, ...patch },
+      });
+    },
+    [terreno],
+  );
+
+  const aguaActualPct = useMemo(() => {
+    if (!terreno) return 100;
+    const actual = terreno.agua_actual_m3 ?? 0;
+    const capacidad = terreno.agua_disponible_m3;
+    if (!capacidad || capacidad <= 0) return 100;
+    const pct = (actual / capacidad) * 100;
+    return isFinite(pct) ? Math.round(pct) : 100;
+  }, [terreno]);
+
+  const handleCalidadChange = useCallback(
+    (c: CalidadAguaTerreno) => {
+      setCalidad(c);
+      persistir({ calidad: c });
+    },
+    [persistir],
+  );
+
+  const handleProveedoresChange = useCallback(
+    (p: ProveedorAgua[]) => {
+      setProveedores(p);
+      persistir({ proveedores: p });
+    },
+    [persistir],
+  );
+
+  const handleContingenciasChange = useCallback(
+    (c: ContingenciasAgua) => {
+      setContingencias(c);
+      persistir({ contingencias: c });
+    },
+    [persistir],
+  );
+
+  const handleTecnicasChange = useCallback(
+    (t: TecnicasAhorroAgua) => {
+      setTecnicas(t);
+      persistir({ tecnicas_ahorro: t });
+    },
+    [persistir],
+  );
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -112,7 +175,7 @@ export default function AguaConfiguracionPage() {
           {activeTab === "proveedores" && (
             <ProveedoresAgua
               proveedores={proveedores}
-              onChange={setProveedores}
+              onChange={handleProveedoresChange}
             />
           )}
 
@@ -121,12 +184,15 @@ export default function AguaConfiguracionPage() {
               contingencias={contingencias}
               proveedores={proveedores}
               aguaActualPct={aguaActualPct}
-              onChange={setContingencias}
+              onChange={handleContingenciasChange}
             />
           )}
 
           {activeTab === "ahorro" && (
-            <TecnicasAhorro tecnicas={tecnicas} onChange={setTecnicas} />
+            <TecnicasAhorro
+              tecnicas={tecnicas}
+              onChange={handleTecnicasChange}
+            />
           )}
         </div>
       </div>

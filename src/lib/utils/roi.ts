@@ -15,6 +15,7 @@ import {
 } from "@/lib/constants/conversiones";
 import {
   calcularPrecioKgPromedio,
+  resolverAreaZona,
   calcularAguaPromedioHaAño,
   calcularPlantasPorHa,
 } from "@/lib/utils/helpers-cultivo";
@@ -74,11 +75,19 @@ export function obtenerCostoAguaPromedio(
   for (const est of estanques) {
     const fuenteId = est.estanque_config?.fuente_id;
     const fuente = fuenteId ? (obtenerFuente(fuenteId) ?? null) : null;
-    const costo = obtenerCostoAguaM3(
-      fuente,
-      terreno,
-      est.estanque_config?.recarga,
-    );
+    // Prioridad: fuente > terreno > recarga (por litros) > recarga (por capacidad_m3) > costo_por_m3 directo
+    const costoRecargaM3 = (() => {
+      const recarga = est.estanque_config?.recarga;
+      const capacidad = est.estanque_config?.capacidad_m3;
+      if (recarga?.costo_recarga_clp && capacidad && capacidad > 0) {
+        return recarga.costo_recarga_clp / capacidad;
+      }
+      return 0;
+    })();
+    const costo =
+      obtenerCostoAguaM3(fuente, terreno, est.estanque_config?.recarga) ||
+      est.estanque_config?.costo_por_m3 ||
+      costoRecargaM3;
     if (costo > 0) costos.push(costo);
   }
   if (costos.length > 0)
@@ -94,7 +103,7 @@ export function calcularROI(
   consumoSemanalReal?: number,
   suelo?: SueloTerreno | null,
 ): ProyeccionROI {
-  const areaHa = zona.area_m2 / M2_POR_HECTAREA;
+  const areaHa = resolverAreaZona(zona) / M2_POR_HECTAREA;
   const plantasPorHa = calcularPlantasPorHa(cultivo.espaciado_recomendado_m);
 
   const precioKgPromedio = calcularPrecioKgPromedio(cultivo);

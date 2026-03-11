@@ -266,6 +266,7 @@ export interface EstanqueConfig {
   capacidad_m3: MetrosCubicos;
   nivel_actual_m3: MetrosCubicos;
   fuente_id?: string;
+  costo_por_m3?: number;
   material?: MaterialEstanque;
   tiene_tapa?: boolean;
   tiene_filtro?: boolean;
@@ -287,6 +288,7 @@ export interface Zona {
   sistema_riego_override?: SistemaRiego;
   configuracion_riego?: ConfiguracionRiego;
   estanque_config?: EstanqueConfig;
+  estanque_id?: UUID; // Solo zonas tipo 'cultivo' — estanque que la riega
   notas: string;
   created_at: Timestamp;
   updated_at: Timestamp;
@@ -602,7 +604,9 @@ export type SyncEntidad =
   | "planta"
   | "entrada_agua"
   | "cosecha"
-  | "alerta";
+  | "alerta"
+  | "catalogo_cultivo"
+  | "insumo_usuario";
 export type SyncAccion = "create" | "update" | "delete";
 
 export interface SyncItem {

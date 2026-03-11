@@ -93,7 +93,9 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
   );
 
   useEffect(() => {
-    if (initialLoad && !proyectosHook.loading) {
+    // Esperar a que auth Y proyectos estén resueltos antes de fijar el proyecto inicial.
+    // Sin este guard, el efecto dispara con usuarioId="sin-sesion" y proyectos vacíos.
+    if (initialLoad && !authLoading && !proyectosHook.loading) {
       const savedId = localStorage.getItem(STORAGE_KEYS.PROYECTO);
       if (savedId) {
         const p = proyectosHook.proyectos.find((p) => p.id === savedId);
@@ -103,7 +105,12 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
         setProyectoActual(proyectosHook.proyectos[0]);
       setInitialLoad(false);
     }
-  }, [proyectosHook.loading, proyectosHook.proyectos, initialLoad]);
+  }, [
+    authLoading,
+    proyectosHook.loading,
+    proyectosHook.proyectos,
+    initialLoad,
+  ]);
 
   useEffect(() => {
     if (proyectoActual && !terrenosHook.loading) {

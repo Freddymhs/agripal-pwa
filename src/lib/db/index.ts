@@ -83,3 +83,22 @@ export class AgriPlanDB extends Dexie {
 }
 
 export const db = new AgriPlanDB();
+
+// Exponer db en window solo en desarrollo (facilita testing E2E)
+if (process.env.NODE_ENV === "development" && typeof window !== "undefined") {
+  (window as Window & { __agriplanDb__?: AgriPlanDB }).__agriplanDb__ = db;
+}
+
+// Auto-enqueue sync en cada escritura a tablas sincronizables
+import("@/lib/sync/db-hooks")
+  .then(({ registerSyncHooks }) => {
+    registerSyncHooks(db);
+    // Warm in-memory sync flag immediately so hooks can check it synchronously
+    // from the very first write, without waiting for the 2s doSync delay.
+    import("@/lib/dal/sync-meta").then(({ syncMetaDAL }) => {
+      syncMetaDAL.isSyncHabilitado().catch(() => {});
+    });
+  })
+  .catch(() => {
+    // Sync hooks son opcionales — si falla el import, la app sigue funcionando
+  });

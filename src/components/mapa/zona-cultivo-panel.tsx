@@ -271,6 +271,34 @@ export function ZonaCultivoPanel() {
           );
         })()}
 
+      {/* Selector de estanque fuente — solo si hay 2+ estanques en el terreno */}
+      {estanquesHook.estanques.length > 1 && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 space-y-2">
+          <h4 className="text-xs font-bold text-blue-800">Estanque de riego</h4>
+          <select
+            value={zonaSeleccionada.estanque_id ?? ""}
+            onChange={async (e) => {
+              await zonasHook.actualizarZona(zonaSeleccionada.id, {
+                estanque_id: e.target.value || undefined,
+              });
+            }}
+            className="w-full px-2 py-1.5 text-sm border border-blue-300 rounded bg-white text-gray-900 focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
+          >
+            <option value="">Sin asignar (usa pool global)</option>
+            {estanquesHook.estanques.map((est) => (
+              <option key={est.id} value={est.id}>
+                {est.nombre} (
+                {(est.estanque_config?.nivel_actual_m3 ?? 0).toFixed(1)} /{" "}
+                {est.estanque_config?.capacidad_m3 ?? 0} m³)
+              </option>
+            ))}
+          </select>
+          <p className="text-xs text-blue-600">
+            Las alertas de escasez se evaluar&aacute;n por este estanque.
+          </p>
+        </div>
+      )}
+
       <ZonaRiegoSection
         zona={zonaSeleccionada}
         plantasVivas={plantasVivas}

@@ -29,7 +29,8 @@ export function useProjectDashboard(
     if (!terrenoActual) return null;
 
     const areaUsada = zonas.reduce((sum, z) => sum + z.area_m2, 0);
-    const areaTotal = terrenoActual.ancho_m * terrenoActual.alto_m;
+    const areaTotal =
+      (terrenoActual.ancho_m ?? 0) * (terrenoActual.alto_m ?? 0);
     const estanques = zonas.filter(
       (z) => z.tipo === TIPO_ZONA.ESTANQUE && z.estanque_config,
     );
@@ -38,7 +39,9 @@ export function useProjectDashboard(
       0,
     );
     const aguaDisponible =
-      estanques.length > 0 ? aguaEstanques : terrenoActual.agua_actual_m3;
+      estanques.length > 0
+        ? aguaEstanques
+        : (terrenoActual.agua_actual_m3 ?? 0);
     const aguaNecesaria = calcularConsumoTerreno(
       zonas,
       plantas,

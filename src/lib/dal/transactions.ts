@@ -142,8 +142,8 @@ export const transaccionesDAL = {
       for (const r of resolver) {
         await db.alertas.update(r.id, r.cambios);
       }
-      for (const n of nuevas) {
-        await db.alertas.add(n);
+      if (nuevas.length > 0) {
+        await db.alertas.bulkAdd(nuevas);
       }
     }),
 

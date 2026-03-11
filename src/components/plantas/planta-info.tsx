@@ -35,7 +35,11 @@ export function PlantaInfo({
   onClose,
 }: PlantaInfoProps) {
   const estados: EstadoPlanta[] = ESTADOS_PLANTA_LIST;
-  const etapaActual = planta.etapa_actual || ETAPA.ADULTA;
+  // Fallback defensivo: valores corruptos en IDB (e.g. sin acento) no deben crashear el render.
+  const etapaActual: EtapaCrecimiento =
+    planta.etapa_actual && ETAPA_INFO[planta.etapa_actual]
+      ? planta.etapa_actual
+      : ETAPA.ADULTA;
   const kc = cultivo ? getKc(cultivo.nombre, etapaActual) : 1.0;
   const diasRestantes =
     cultivo && planta.fecha_plantacion
@@ -99,7 +103,7 @@ export function PlantaInfo({
         </div>
         <div className="text-gray-900">
           <span className="text-gray-700 font-medium">Posición:</span> (
-          {planta.x.toFixed(1)}m, {planta.y.toFixed(1)}m)
+          {(planta.x ?? 0).toFixed(1)}m, {(planta.y ?? 0).toFixed(1)}m)
         </div>
         {cultivo && (
           <>

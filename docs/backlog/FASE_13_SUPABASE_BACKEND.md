@@ -1,475 +1,158 @@
-# FASE 13: Supabase Backend — Schema + RLS + Sync Real
+# FASE 13: Supabase Backend — Schema + RLS + Sync Opt-In
 
-**Status**: ⏳ PENDIENTE
+**Status**: ✅ COMPLETADA — pipeline end-to-end verificado en browser real
 **Prioridad**: 🔴 CRÍTICA
 **Dependencias**: FASE_12 (`@supabase/supabase-js`, `@supabase/ssr` y clientes en `src/lib/supabase/`)
-**Estimación**: 4-5 horas
-**Última revisión**: 2026-03-01
+**Última revisión**: 2026-03-10
 
 ---
 
 ## Contexto
 
 Con el auth real funcionando (FASE_12), esta fase conecta la app a PostgreSQL de Supabase.
-Los datos de cada usuario (terrenos, zonas, plantas, agua, etc.) se guardan en la nube y se
-sincronizan entre dispositivos, manteniendo el comportamiento offline-first con IndexedDB como
-caché local.
+
+**Filosofía clave**: privacidad primero. El sync es **opt-in** — el usuario puede activarlo
+desde `/configuracion`. Si no lo activa, la app sigue funcionando 100% offline con IndexedDB
+exactamente igual que hoy.
+
+**Regla de sync**: Activar sync = subir todo lo local a la nube. Siempre. Local gana.
 
 ---
 
-## Estado Real del Código (auditado 2026-03-01)
+## Arquitectura
 
-| Aspecto                             | Estado                                                     |
-| ----------------------------------- | ---------------------------------------------------------- |
-| `@supabase/supabase-js`             | ✅ Instalado en FASE_12                                    |
-| `src/lib/supabase/client.ts`        | ✅ Creado en FASE_12                                       |
-| `supabase/migrations/`              | ❌ NO existe                                               |
-| `src/lib/sync/adapters/supabase.ts` | ❌ NO existe — solo MockAdapter                            |
-| `src/lib/db/index.ts`               | ✅ Dexie v4 schema v1+v2 completo                          |
-| `src/lib/sync/engine.ts`            | ✅ Motor de sync con cola implementado                     |
-| `src/lib/sync/types.ts`             | ✅ Interfaces `SyncAdapter`, `SyncRequest`, `SyncResponse` |
-| `src/hooks/use-sync.ts`             | ✅ Hook con intervalo 30s, reintentos, conflictos          |
-| `src/lib/constants/sync.ts`         | ✅ `SYNC_ENTIDADES` con 7 entidades definidas              |
+```
+IndexedDB (siempre, offline-first)
+     ↕ Dexie hooks (auto-enqueue)
+ sync_queue (si sync activo)
+     ↕
+ sync engine (push + pull cada 30s)
+     ↕
+ SupabaseAdapter (serializa/deserializa JSONB)
+     ↕
+ Supabase PostgreSQL (RLS por usuario)
+```
 
-**Resumen**: La arquitectura de sync (cola, engine, tipos) está completa. Solo falta
-conectarla a Supabase real y crear el schema.
+### Flujo de datos
+
+1. **Cualquier escritura** a las 9 tablas → Dexie hook intercepta → encola en `sync_queue` (si sync habilitado)
+2. **Push**: sync engine procesa cola → upsert/delete en Supabase
+3. **Pull**: sync engine consulta Supabase → actualiza IndexedDB (solo si server es más reciente)
+4. **suppressSyncEnqueue**: flag global que el engine activa durante push/pull/carga inicial para evitar loops
+
+### Reglas de activación
+
+| Acción            | Comportamiento                                                      |
+| ----------------- | ------------------------------------------------------------------- |
+| Activar sync      | Sube TODO lo local a la nube (upsert batch) + pull inmediato        |
+| Desactivar sync   | Solo apaga el flag. Nube queda congelada.                           |
+| Reactivar sync    | Mismo flujo que activar: sube todo local (sobreescribe nube) + pull |
+| CRUD con sync ON  | Auto-enqueue via Dexie hooks → push periódico                       |
+| CRUD con sync OFF | Solo local, hooks no encolan                                        |
 
 ---
 
-## Objetivo
+## Qué sube a Supabase (datos del usuario)
 
-**Visión de arquitectura:**
+| SyncEntidad        | Tabla Supabase      | Por qué sube                   |
+| ------------------ | ------------------- | ------------------------------ |
+| `proyecto`         | `proyectos`         | Contenedor raíz                |
+| `terreno`          | `terrenos`          | Unidad de trabajo principal    |
+| `zona`             | `zonas`             | Áreas del terreno              |
+| `planta`           | `plantas`           | Plantas individuales           |
+| `entrada_agua`     | `entradas_agua`     | Historial de agua              |
+| `cosecha`          | `cosechas`          | Registro de cosechas           |
+| `alerta`           | `alertas`           | Estado de alertas              |
+| `catalogo_cultivo` | `catalogo_cultivos` | Personalizaciones por proyecto |
+| `insumo_usuario`   | `insumos_usuario`   | Insumos del usuario            |
 
-```
-WRITE (con red):
-  Usuario edita → IndexedDB (inmediato, optimista) → cola sync → Supabase PostgreSQL
+## Qué NO sube (datos estáticos de referencia)
 
-WRITE (sin red):
-  Usuario edita → IndexedDB → cola pendiente (se envía cuando vuelve la red)
-
-READ (siempre):
-  IndexedDB local → instantáneo, sin red
-
-SYNC (al reconectar):
-  Cola pendiente → push a Supabase → pull cambios remotos → actualiza IndexedDB
-```
-
-**Entregables:**
-
-1. Schema PostgreSQL con todas las tablas + triggers `updated_at`
-2. RLS policies — cada usuario solo ve sus datos
-3. `SupabaseAdapter` que implementa `SyncAdapter` (reemplaza `MockAdapter`)
-4. Activar `SupabaseAdapter` en `use-sync.ts`
-
-**NO en esta fase:**
-
-- ~~Script de migración de datos existentes~~ → no hay datos de producción aún
-- ~~Página `/migrate`~~ → innecesario
-- ~~`supabaseAdmin` / `SERVICE_ROLE_KEY`~~ → solo necesario para webhooks de billing (FASE_14)
-
-**Decisión de conflictos sync**: Last-write-wins — el registro con `last_modified` más reciente
-reemplaza al otro. Sin intervención del usuario. Si en el futuro se desea resolución manual,
-existe `src/components/sync/conflict-modal.tsx` para ello.
+Viven en `data/static/` y nunca cambian por usuario. No se sincronizan.
 
 ---
 
-## Tarea 1: Schema PostgreSQL
+## Archivos Implementados
 
-**Archivo**: `supabase/migrations/001_initial_schema.sql`
+### Creados
 
-```sql
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+| Archivo                                      | Función                                                 |
+| -------------------------------------------- | ------------------------------------------------------- |
+| `supabase/migrations/001_initial_schema.sql` | 9 tablas + RLS + triggers + índices                     |
+| `src/lib/sync/supabase-adapter.ts`           | Implementa SyncAdapter (push/pull/isAvailable)          |
+| `src/lib/sync/schema.ts`                     | Constantes compartidas: mapeos, serialización JSONB     |
+| `src/lib/sync/db-hooks.ts`                   | Dexie hooks: auto-enqueue en todas las tablas           |
+| `src/lib/sync/enqueue.ts`                    | Helper fire-and-forget con check de sync habilitado     |
+| `src/lib/sync/initial-upload.ts`             | Carga batch al activar sync                             |
+| `src/lib/dal/sync-meta.ts`                   | DAL para sync_meta (isSyncHabilitado/setSyncHabilitado) |
+| `src/lib/dal/cosechas.ts`                    | DAL para cosechas (faltaba)                             |
+| `src/app/(app)/configuracion/page.tsx`       | Toggle UI con confirmación + progreso                   |
+| `src/app/(app)/configuracion/error.tsx`      | Error boundary                                          |
+| `scripts/verify-sync.ts`                     | Script CLI para verificar datos en Supabase             |
+| `docs/backlog/FASE_13_TEST_BROWSER.md`       | 8 flujos de test manuales                               |
+| `docs/backlog/FASE_13_TEST_BACKEND.md`       | Comandos de verificación backend                        |
 
--- USUARIOS (espejo de Supabase Auth)
-CREATE TABLE usuarios (
-  id          UUID PRIMARY KEY,  -- mismo id que auth.users
-  email       TEXT UNIQUE NOT NULL,
-  nombre      TEXT NOT NULL,
-  created_at  TIMESTAMPTZ DEFAULT NOW(),
-  updated_at  TIMESTAMPTZ DEFAULT NOW()
-);
+### Modificados
 
--- PROYECTOS
-CREATE TABLE proyectos (
-  id            UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  usuario_id    UUID NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
-  nombre        TEXT NOT NULL,
-  descripcion   TEXT,
-  created_at    TIMESTAMPTZ DEFAULT NOW(),
-  updated_at    TIMESTAMPTZ DEFAULT NOW(),
-  last_modified TIMESTAMPTZ DEFAULT NOW()
-);
+| Archivo                              | Cambio                                                |
+| ------------------------------------ | ----------------------------------------------------- |
+| `src/lib/db/index.ts`                | Registra Dexie hooks al inicializar                   |
+| `src/lib/sync/engine.ts`             | suppressSyncEnqueue durante push/pull                 |
+| `src/lib/sync/adapters/index.ts`     | Exporta SupabaseAdapter                               |
+| `src/hooks/use-sync.ts`              | supabaseAdapter + check syncHabilitado                |
+| `src/hooks/use-proyectos.ts`         | useAuthContext() en vez de "usuario-demo"             |
+| `src/lib/constants/sync.ts`          | 9 entidades (agregó catalogo_cultivo, insumo_usuario) |
+| `src/lib/constants/routes.ts`        | Ruta /configuracion                                   |
+| `src/lib/sync/queue.ts`              | getTabla() con 9 entidades                            |
+| `src/types/index.ts`                 | SyncEntidad con 9 entidades                           |
+| `src/components/layout/page-nav.tsx` | Link a /configuracion en dropdown                     |
+| `src/lib/dal/index.ts`               | Exporta cosechasDAL y syncMetaDAL                     |
 
--- TERRENOS
-CREATE TABLE terrenos (
-  id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  proyecto_id     UUID NOT NULL REFERENCES proyectos(id) ON DELETE CASCADE,
-  nombre          TEXT NOT NULL,
-  ancho_m         FLOAT NOT NULL,
-  alto_m          FLOAT NOT NULL,
-  area_m2         FLOAT,
-  suelo           JSONB,
-  ubicacion       JSONB,
-  legal           JSONB,
-  infraestructura JSONB,
-  created_at      TIMESTAMPTZ DEFAULT NOW(),
-  updated_at      TIMESTAMPTZ DEFAULT NOW(),
-  last_modified   TIMESTAMPTZ DEFAULT NOW()
-);
+### No modificados (intactos)
 
--- ZONAS
-CREATE TABLE zonas (
-  id                  UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  terreno_id          UUID NOT NULL REFERENCES terrenos(id) ON DELETE CASCADE,
-  nombre              TEXT NOT NULL,
-  tipo                TEXT NOT NULL,
-  x                   FLOAT NOT NULL,
-  y                   FLOAT NOT NULL,
-  ancho               FLOAT NOT NULL,
-  alto                FLOAT NOT NULL,
-  color               TEXT,
-  area_m2             FLOAT,
-  estanque_config     JSONB,
-  configuracion_riego JSONB,
-  created_at          TIMESTAMPTZ DEFAULT NOW(),
-  updated_at          TIMESTAMPTZ DEFAULT NOW(),
-  last_modified       TIMESTAMPTZ DEFAULT NOW()
-);
-
--- PLANTAS
-CREATE TABLE plantas (
-  id               UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  zona_id          UUID NOT NULL REFERENCES zonas(id) ON DELETE CASCADE,
-  tipo_cultivo_id  UUID NOT NULL,
-  x                FLOAT NOT NULL,
-  y                FLOAT NOT NULL,
-  fecha_plantacion TIMESTAMPTZ,
-  estado           TEXT DEFAULT 'plantada',
-  etapa            TEXT,
-  notas            TEXT,
-  created_at       TIMESTAMPTZ DEFAULT NOW(),
-  updated_at       TIMESTAMPTZ DEFAULT NOW(),
-  last_modified    TIMESTAMPTZ DEFAULT NOW()
-);
-
--- CATÁLOGO CULTIVOS (personalizable por proyecto)
-CREATE TABLE catalogo_cultivos (
-  id                 UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  proyecto_id        UUID NOT NULL REFERENCES proyectos(id) ON DELETE CASCADE,
-  nombre             TEXT NOT NULL,
-  nombre_cientifico  TEXT,
-  tier               TEXT,
-  espaciado_m        FLOAT,
-  agua_m3_ha_año     FLOAT,
-  dias_cosecha       INT,
-  color              TEXT,
-  precio_semilla_clp FLOAT,
-  precio_kg_clp      FLOAT,
-  kg_por_planta_año  FLOAT,
-  created_at         TIMESTAMPTZ DEFAULT NOW(),
-  updated_at         TIMESTAMPTZ DEFAULT NOW()
-);
-
--- ENTRADAS AGUA
-CREATE TABLE entradas_agua (
-  id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  terreno_id  UUID NOT NULL REFERENCES terrenos(id) ON DELETE CASCADE,
-  tipo        TEXT NOT NULL,
-  cantidad_m3 FLOAT NOT NULL,
-  fecha       TIMESTAMPTZ DEFAULT NOW(),
-  costo_clp   FLOAT,
-  estanque_id UUID REFERENCES zonas(id),
-  fuente      JSONB,
-  notas       TEXT,
-  created_at  TIMESTAMPTZ DEFAULT NOW(),
-  updated_at  TIMESTAMPTZ DEFAULT NOW(),
-  last_modified TIMESTAMPTZ DEFAULT NOW()
-);
-
--- COSECHAS
-CREATE TABLE cosechas (
-  id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  zona_id         UUID NOT NULL REFERENCES zonas(id) ON DELETE CASCADE,
-  tipo_cultivo_id UUID NOT NULL,
-  cantidad_kg     FLOAT NOT NULL,
-  fecha           TIMESTAMPTZ DEFAULT NOW(),
-  precio_venta_kg FLOAT,
-  notas           TEXT,
-  created_at      TIMESTAMPTZ DEFAULT NOW(),
-  updated_at      TIMESTAMPTZ DEFAULT NOW(),
-  last_modified   TIMESTAMPTZ DEFAULT NOW()
-);
-
--- ALERTAS
-CREATE TABLE alertas (
-  id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  terreno_id  UUID NOT NULL REFERENCES terrenos(id) ON DELETE CASCADE,
-  tipo        TEXT NOT NULL,
-  severidad   TEXT NOT NULL,
-  estado      TEXT DEFAULT 'activa',
-  titulo      TEXT NOT NULL,
-  mensaje     TEXT NOT NULL,
-  zona_id     UUID REFERENCES zonas(id),
-  created_at  TIMESTAMPTZ DEFAULT NOW(),
-  updated_at  TIMESTAMPTZ DEFAULT NOW(),
-  last_modified TIMESTAMPTZ DEFAULT NOW()
-);
-
--- TRIGGER: updated_at automático (delta sync por last_modified)
-CREATE OR REPLACE FUNCTION set_updated_at()
-RETURNS TRIGGER AS $$
-BEGIN
-  NEW.updated_at = NOW();
-  NEW.last_modified = NOW();
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER trg_proyectos_updated_at     BEFORE UPDATE ON proyectos     FOR EACH ROW EXECUTE FUNCTION set_updated_at();
-CREATE TRIGGER trg_terrenos_updated_at      BEFORE UPDATE ON terrenos      FOR EACH ROW EXECUTE FUNCTION set_updated_at();
-CREATE TRIGGER trg_zonas_updated_at         BEFORE UPDATE ON zonas         FOR EACH ROW EXECUTE FUNCTION set_updated_at();
-CREATE TRIGGER trg_plantas_updated_at       BEFORE UPDATE ON plantas       FOR EACH ROW EXECUTE FUNCTION set_updated_at();
-CREATE TRIGGER trg_entradas_agua_updated_at BEFORE UPDATE ON entradas_agua FOR EACH ROW EXECUTE FUNCTION set_updated_at();
-CREATE TRIGGER trg_cosechas_updated_at      BEFORE UPDATE ON cosechas      FOR EACH ROW EXECUTE FUNCTION set_updated_at();
-CREATE TRIGGER trg_alertas_updated_at       BEFORE UPDATE ON alertas       FOR EACH ROW EXECUTE FUNCTION set_updated_at();
-```
+- Todos los DALs originales (proyectos, terrenos, zonas, plantas, agua, alertas, catalogo, insumos) — limpios, sin lógica de sync (Dexie hooks lo cubren)
+- `src/lib/dal/transactions.ts` — cubierto automáticamente por Dexie hooks
+- Todos los hooks de features existentes
 
 ---
 
-## Tarea 2: Row Level Security (RLS)
+## Schema PostgreSQL
 
-RLS garantiza que cada usuario solo pueda ver y modificar SUS propios datos, aunque estén en
-la misma base de datos. Sin esto, cualquier usuario autenticado podría leer los terrenos de otro.
+9 tablas con estructura híbrida: columnas explícitas (FKs, identificadores) + `datos JSONB` (resto del modelo Dexie).
 
-**Archivo**: `supabase/migrations/002_rls_policies.sql`
-
-```sql
-ALTER TABLE usuarios          ENABLE ROW LEVEL SECURITY;
-ALTER TABLE proyectos         ENABLE ROW LEVEL SECURITY;
-ALTER TABLE terrenos          ENABLE ROW LEVEL SECURITY;
-ALTER TABLE zonas             ENABLE ROW LEVEL SECURITY;
-ALTER TABLE plantas           ENABLE ROW LEVEL SECURITY;
-ALTER TABLE catalogo_cultivos ENABLE ROW LEVEL SECURITY;
-ALTER TABLE entradas_agua     ENABLE ROW LEVEL SECURITY;
-ALTER TABLE cosechas          ENABLE ROW LEVEL SECURITY;
-ALTER TABLE alertas           ENABLE ROW LEVEL SECURITY;
-
--- USUARIOS: solo ver/editar el propio perfil
-CREATE POLICY "usuario_own" ON usuarios
-  USING (auth.uid() = id);
-
--- PROYECTOS: solo los del usuario autenticado
-CREATE POLICY "proyectos_own" ON proyectos
-  USING (usuario_id = auth.uid())
-  WITH CHECK (usuario_id = auth.uid());
-
--- TERRENOS: solo los de proyectos del usuario
-CREATE POLICY "terrenos_own" ON terrenos
-  USING (proyecto_id IN (SELECT id FROM proyectos WHERE usuario_id = auth.uid()))
-  WITH CHECK (proyecto_id IN (SELECT id FROM proyectos WHERE usuario_id = auth.uid()));
-
--- ZONAS: solo las de terrenos del usuario
-CREATE POLICY "zonas_own" ON zonas
-  USING (terreno_id IN (
-    SELECT t.id FROM terrenos t
-    JOIN proyectos p ON t.proyecto_id = p.id
-    WHERE p.usuario_id = auth.uid()
-  ));
-
--- PLANTAS: solo las de zonas del usuario
-CREATE POLICY "plantas_own" ON plantas
-  USING (zona_id IN (
-    SELECT z.id FROM zonas z
-    JOIN terrenos t ON z.terreno_id = t.id
-    JOIN proyectos p ON t.proyecto_id = p.id
-    WHERE p.usuario_id = auth.uid()
-  ));
-
--- CATÁLOGO: solo el del usuario
-CREATE POLICY "catalogo_own" ON catalogo_cultivos
-  USING (proyecto_id IN (SELECT id FROM proyectos WHERE usuario_id = auth.uid()))
-  WITH CHECK (proyecto_id IN (SELECT id FROM proyectos WHERE usuario_id = auth.uid()));
-
--- ENTRADAS AGUA: solo las del usuario
-CREATE POLICY "entradas_agua_own" ON entradas_agua
-  USING (terreno_id IN (
-    SELECT t.id FROM terrenos t
-    JOIN proyectos p ON t.proyecto_id = p.id
-    WHERE p.usuario_id = auth.uid()
-  ));
-
--- COSECHAS: solo las del usuario
-CREATE POLICY "cosechas_own" ON cosechas
-  USING (zona_id IN (
-    SELECT z.id FROM zonas z
-    JOIN terrenos t ON z.terreno_id = t.id
-    JOIN proyectos p ON t.proyecto_id = p.id
-    WHERE p.usuario_id = auth.uid()
-  ));
-
--- ALERTAS: solo las del usuario
-CREATE POLICY "alertas_own" ON alertas
-  USING (terreno_id IN (
-    SELECT t.id FROM terrenos t
-    JOIN proyectos p ON t.proyecto_id = p.id
-    WHERE p.usuario_id = auth.uid()
-  ));
-```
-
----
-
-## Tarea 3: SupabaseAdapter
-
-Reemplaza `MockAdapter`. Implementa la interfaz `SyncAdapter` que ya existe en
-`src/lib/sync/types.ts`.
-
-**Archivo**: `src/lib/sync/adapters/supabase.ts` (crear)
-
-```typescript
-import { supabase } from "@/lib/supabase/client";
-import { getCurrentTimestamp } from "@/lib/utils";
-import { logger } from "@/lib/logger";
-import type {
-  SyncAdapter,
-  SyncRequest,
-  SyncResponse,
-  PullRequest,
-  PullResponse,
-} from "../types";
-import type { SyncEntidad } from "@/types";
-
-const TABLE_MAP: Record<SyncEntidad, string> = {
-  proyecto: "proyectos",
-  terreno: "terrenos",
-  zona: "zonas",
-  planta: "plantas",
-  entrada_agua: "entradas_agua",
-  cosecha: "cosechas",
-  alerta: "alertas",
-};
-
-export class SupabaseAdapter implements SyncAdapter {
-  async isAvailable(): Promise<boolean> {
-    try {
-      const { error } = await supabase.from("proyectos").select("id").limit(1);
-      return !error;
-    } catch {
-      return false;
-    }
-  }
-
-  async push(request: SyncRequest): Promise<SyncResponse> {
-    const table = TABLE_MAP[request.entidad];
-    try {
-      if (request.accion === "create") {
-        const { data, error } = await supabase
-          .from(table)
-          .insert({ ...request.datos, id: request.entidadId })
-          .select()
-          .single();
-        if (error) throw error;
-        return { success: true, data: data as Record<string, unknown> };
-      }
-
-      if (request.accion === "update") {
-        const { data, error } = await supabase
-          .from(table)
-          .update({ ...request.datos, last_modified: getCurrentTimestamp() })
-          .eq("id", request.entidadId)
-          .select()
-          .single();
-        if (error) throw error;
-        return { success: true, data: data as Record<string, unknown> };
-      }
-
-      if (request.accion === "delete") {
-        const { error } = await supabase
-          .from(table)
-          .delete()
-          .eq("id", request.entidadId);
-        if (error) throw error;
-        return { success: true };
-      }
-
-      throw new Error(`Acción desconocida: ${request.accion}`);
-    } catch (err) {
-      logger.error("SupabaseAdapter.push", err);
-      return {
-        success: false,
-        error: err instanceof Error ? err.message : "Error desconocido",
-      };
-    }
-  }
-
-  async pull(request: PullRequest): Promise<PullResponse> {
-    const table = TABLE_MAP[request.entidad];
-    try {
-      // Delta sync: solo trae registros modificados desde la última sincronización
-      const query = request.since
-        ? supabase.from(table).select("*").gt("last_modified", request.since)
-        : supabase.from(table).select("*");
-
-      const { data, error } = await query;
-      if (error) throw error;
-      return {
-        success: true,
-        data: (data ?? []) as Record<string, unknown>[],
-        lastModified: getCurrentTimestamp(),
-      };
-    } catch (err) {
-      logger.error("SupabaseAdapter.pull", err);
-      return {
-        success: false,
-        data: [],
-        error: err instanceof Error ? err.message : "Error desconocido",
-      };
-    }
-  }
-}
-
-export const supabaseAdapter = new SupabaseAdapter();
-```
-
----
-
-## Tarea 4: Activar SupabaseAdapter en useSync
-
-**Archivo**: `src/hooks/use-sync.ts` (modificar una línea)
-
-```typescript
-// Antes:
-import { mockAdapter } from "@/lib/sync/adapters";
-setAdapter(mockAdapter);
-
-// Después:
-import { supabaseAdapter } from "@/lib/sync/adapters/supabase";
-setAdapter(supabaseAdapter);
-```
-
----
-
-## Tarea 5: Actualizar barrel export de adapters
-
-**Archivo**: `src/lib/sync/adapters/index.ts`
-
-```typescript
-export { MockAdapter, mockAdapter } from "./mock";
-export { SupabaseAdapter, supabaseAdapter } from "./supabase";
-```
+- RLS por usuario en todas las tablas (via `auth.uid()`)
+- FK con `ON DELETE CASCADE` (cascade deletes manejados por PostgreSQL)
+- Triggers `updated_at` automáticos
+- Índices en FKs + `updated_at` para sync incremental
 
 ---
 
 ## Criterios de Aceptación
 
-- [ ] Migrations aplicadas en Supabase Dashboard (o via CLI)
-- [ ] RLS activo — verificar que un usuario no puede leer datos de otro
-- [ ] `SupabaseAdapter.isAvailable()` devuelve `true` con conexión
-- [ ] Crear un proyecto en la app → aparece en Supabase Dashboard
-- [ ] Modificar un terreno offline → cambio queda en cola → al reconectar se sincroniza
-- [ ] `pnpm type-check` sin errores
+- [x] `pnpm type-check` sin errores
+- [x] `pnpm lint` sin errores (solo warnings pre-existentes)
+- [x] App funciona offline sin activar sync
+- [x] Toggle OFF (default) → use-sync no procesa la cola
+- [x] Toggle ON → datos suben a Supabase en batch
+- [x] CRUD con sync activo → auto-enqueue via Dexie hooks
+- [x] transactions.ts cubierto por hooks (cascade, batch, agua, alertas)
+- [x] 9 entidades sincronizables (incluye catalogo_cultivo, insumo_usuario)
+- [x] Pull trae datos de la nube sin sobreescribir cambios locales más recientes
+- [x] RLS: usuario A no puede ver datos de usuario B
+- [x] Migration aplicada en Supabase
+- [x] isAvailable() usa session check (liviano)
+- [ ] Remote deletes (pendiente FASE 13.5)
+
+---
+
+## Pendiente: FASE 13.5 — Remote Deletes
+
+El pull actual no detecta eliminaciones remotas. Si se borra en dispositivo A, dispositivo B no lo sabe.
+
+**Solución propuesta**: columna `deleted_at` (soft-delete) + migración SQL + lógica en pull para marcar/ocultar registros eliminados.
 
 ---
 
 ## Siguiente fase
 
-**FASE_14** — Billing con MercadoPago (suscripciones)
+**FASE_14** — Billing con MercadoPago (suscripciones 9,990 CLP/mes)

@@ -70,7 +70,10 @@ export function ContingenciasAguaPanel({
               {nivelAlerta === ESTADO_AGUA.AJUSTADO && "Estado: Ajustado"}
               {nivelAlerta === ESTADO_AGUA.DEFICIT && "ALERTA CRÍTICA"}
             </h3>
-            <p className="text-sm">Nivel actual: {aguaActualPct}%</p>
+            <p className="text-sm">
+              Nivel actual:{" "}
+              {isFinite(aguaActualPct) ? `${aguaActualPct}%` : "—"}
+            </p>
           </div>
           <div className="text-3xl">
             {nivelAlerta === ESTADO_AGUA.OK && "✅"}

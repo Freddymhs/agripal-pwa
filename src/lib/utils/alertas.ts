@@ -12,6 +12,7 @@ import type {
 import { generateUUID, getCurrentTimestamp } from "@/lib/utils";
 import {
   calcularConsumoTerreno,
+  calcularConsumoZona,
   calcularStockEstanques,
   calcularDiasRestantes,
 } from "@/lib/utils/agua";
@@ -23,6 +24,7 @@ import {
   DIAS_ALERTA_AGUA_CRITICA,
   DIAS_LAVADO_SALINO,
   PORCENTAJE_CICLO_REPLANTA,
+  MAX_PLANTAS_OVERLAP_CHECK,
 } from "@/lib/constants/conversiones";
 import {
   ESTADO_PLANTA,
@@ -99,6 +101,39 @@ function generarAlertas(
     });
   }
 
+  // Alertas de agua_critica per-estanque (solo cuando hay zonas asignadas a estanques específicos)
+  for (const est of estanques) {
+    const zonasAsignadas = zonas.filter(
+      (z) => z.tipo === TIPO_ZONA.CULTIVO && z.estanque_id === est.id,
+    );
+    if (zonasAsignadas.length === 0) continue;
+
+    const nivelEst = est.estanque_config?.nivel_actual_m3 ?? 0;
+    const consumoSemanalEst = zonasAsignadas.reduce(
+      (sum, z) => sum + calcularConsumoZona(z, plantas, catalogoCultivos),
+      0,
+    );
+    if (consumoSemanalEst <= 0) continue;
+
+    const diasEst = calcularDiasRestantes(nivelEst, consumoSemanalEst);
+    if (
+      diasEst !== Infinity &&
+      diasEst <= DIAS_ALERTA_AGUA_CRITICA &&
+      diasEst > 0
+    ) {
+      alertas.push({
+        terreno_id: terreno.id,
+        zona_id: est.id,
+        tipo: "agua_critica",
+        severidad: SEVERIDAD_ALERTA.CRITICAL,
+        estado: ESTADO_ALERTA.ACTIVA,
+        titulo: `⚠️ ${est.nombre}: solo ${Math.floor(diasEst)} días de agua`,
+        descripcion: `El estanque "${est.nombre}" tiene ${nivelEst.toFixed(1)} m³ para ${zonasAsignadas.length} zona(s) asignada(s). Consumo estimado: ${consumoSemanalEst.toFixed(2)} m³/sem.`,
+        sugerencia: "Recarga este estanque o reduce el consumo de sus zonas.",
+      });
+    }
+  }
+
   for (const est of estanques) {
     if (!est.estanque_config?.fuente_id) {
       alertas.push({
@@ -150,24 +185,28 @@ function generarAlertas(
       });
     }
 
-    for (let i = 0; i < plantasZona.length; i++) {
-      if (plantasZona[i].x == null || plantasZona[i].y == null) continue;
-      for (let j = i + 1; j < plantasZona.length; j++) {
-        if (plantasZona[j].x == null || plantasZona[j].y == null) continue;
-        const dist = distancia(plantasZona[i], plantasZona[j]);
-        if (dist < ESPACIADO_MINIMO_M) {
-          alertas.push({
-            terreno_id: terreno.id,
-            zona_id: zona.id,
-            planta_id: plantasZona[i].id,
-            tipo: "espaciado_incorrecto",
-            severidad: SEVERIDAD_ALERTA.WARNING,
-            estado: ESTADO_ALERTA.ACTIVA,
-            titulo: "Plantas muy cercanas",
-            descripcion: `Dos plantas están a ${dist.toFixed(2)}m de distancia (mínimo: ${ESPACIADO_MINIMO_M}m).`,
-            sugerencia: "Mueve una de las plantas o elimínala.",
-          });
-          break;
+    // Chequeo O(n²): se omite en zonas grandes porque bloquea el hilo principal.
+    // Zonas plantadas con grid automático nunca generan solapamientos.
+    if (plantasZona.length <= MAX_PLANTAS_OVERLAP_CHECK) {
+      for (let i = 0; i < plantasZona.length; i++) {
+        if (plantasZona[i].x == null || plantasZona[i].y == null) continue;
+        for (let j = i + 1; j < plantasZona.length; j++) {
+          if (plantasZona[j].x == null || plantasZona[j].y == null) continue;
+          const dist = distancia(plantasZona[i], plantasZona[j]);
+          if (dist < ESPACIADO_MINIMO_M) {
+            alertas.push({
+              terreno_id: terreno.id,
+              zona_id: zona.id,
+              planta_id: plantasZona[i].id,
+              tipo: "espaciado_incorrecto",
+              severidad: SEVERIDAD_ALERTA.WARNING,
+              estado: ESTADO_ALERTA.ACTIVA,
+              titulo: "Plantas muy cercanas",
+              descripcion: `Dos plantas están a ${dist.toFixed(2)}m de distancia (mínimo: ${ESPACIADO_MINIMO_M}m).`,
+              sugerencia: "Mueve una de las plantas o elimínala.",
+            });
+            break;
+          }
         }
       }
     }
