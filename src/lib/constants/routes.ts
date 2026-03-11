@@ -34,6 +34,12 @@ export const ROUTES = {
   DATOS_PLAGAS: "/datos/plagas",
   DATOS_INSUMOS: "/datos/insumos",
 
+  // Billing
+  BILLING_SUBSCRIBE: "/billing/subscribe",
+  BILLING_MANAGE: "/billing/manage",
+  BILLING_SUCCESS: "/billing/success",
+  BILLING_FAILURE: "/billing/failure",
+
   // Operaciones
   ALERTAS: "/alertas",
   GUIA: "/guia",

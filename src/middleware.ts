@@ -10,7 +10,12 @@ const PUBLIC_ROUTES = new Set<string>([
   ROUTES.AUTH_RECUPERAR,
   ROUTES.AUTH_NUEVA_PASSWORD,
 ]);
-//
+
+const SUB_COOKIE_PREFIX = "agriplan-sub-";
+const SUB_COOKIE_MAX_AGE = 300; // 5 minutos
+
+const ALLOWED_SUB_STATES = new Set(["active", "trialing", "past_due"]);
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -35,7 +40,50 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  return response;
+  // Billing pages: autenticado pero sin verificar suscripcion
+  const isBillingPage = pathname.startsWith("/billing");
+  if (isBillingPage) {
+    return response;
+  }
+
+  // Check cookie cache primero — per-user para evitar leak entre sesiones
+  const cookieName = `${SUB_COOKIE_PREFIX}${session.user.id.slice(0, 8)}`;
+  const cachedStatus = request.cookies.get(cookieName)?.value;
+  if (cachedStatus && ALLOWED_SUB_STATES.has(cachedStatus)) {
+    return response;
+  }
+
+  // Cookie expirada o no existe — consultar DB con fecha
+  const { data: suscripcion } = await supabase
+    .from("suscripciones")
+    .select("estado, trial_end, current_period_end")
+    .eq("usuario_id", session.user.id)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .single();
+
+  const estado = suscripcion?.estado ?? "";
+  const endDate =
+    estado === "trialing"
+      ? suscripcion?.trial_end
+      : suscripcion?.current_period_end;
+  const isNotExpired = endDate ? new Date(endDate) > new Date() : false;
+  const isActiveSubscription = ALLOWED_SUB_STATES.has(estado) && isNotExpired;
+
+  if (isActiveSubscription) {
+    // Cachear en cookie per-user para evitar queries repetidas
+    response.cookies.set(cookieName, estado, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: SUB_COOKIE_MAX_AGE,
+      path: "/",
+    });
+    return response;
+  }
+
+  // Sin suscripcion activa — redirigir a billing
+  return NextResponse.redirect(new URL(ROUTES.BILLING_SUBSCRIBE, request.url));
 }
 
 export const config = {

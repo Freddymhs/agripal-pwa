@@ -1,6 +1,6 @@
 # FASE 14: Sistema de Billing con MercadoPago
 
-**Status**: ⏳ PENDIENTE
+**Status**: ✅ COMPLETADA
 **Prioridad**: 🔴 ALTA
 **Dependencias**: FASE_13
 **Estimación**: 8-10 horas
@@ -1128,12 +1128,15 @@ export function SubscriptionBadge() {
 
 ## Notas de Implementación
 
-- **Trial de 20 días**: Al registrarse en FASE_13, crear suscripción con `estado = 'trialing'`, `trial_start = NOW()`, `trial_end = NOW() + 20 days`. No requiere tarjeta. Al expirar, `proxy.ts` redirige a `/billing/subscribe`.
-- **Webhook signature**: Validar header `x-signature` de MercadoPago usando `MP_WEBHOOK_SECRET` antes de procesar cualquier evento. Sin esto, cualquier request puede falsificar pagos.
-- **RLS billing**: Las tablas `suscripciones` y `pagos` tienen RLS para SELECT del usuario. Solo el webhook (via `supabaseAdmin`) puede hacer INSERT/UPDATE — los usuarios no pueden modificar su propio estado de suscripción.
-- **Offline + suscripción**: `proxy.ts` usa `getSession()` (cookies locales) para auth, pero la verificación de suscripción requiere red. Si el usuario está offline y la cookie de sesión es válida, se le da paso — la verificación de suscripción se hace en background al reconectar.
+- **Trial de 6 meses**: Trigger SQL `create_trial_on_signup` crea suscripción `trialing` automáticamente al registrarse (180 días, sin tarjeta). Al expirar, middleware + BillingGuard bloquean la app.
+- **Webhook signature**: HMAC-SHA256 con `x-signature` + `x-request-id` validado en `webhooks/mercadopago/route.ts`.
+- **RLS billing**: `has_active_subscription(uid)` bloquea INSERT/UPDATE en 8 tablas de datos si la suscripción expiró. SELECT sigue libre.
+- **Offline + suscripción**: Middleware (server-side) + BillingGuard (client-side con localStorage per-user). BillingGuard re-chequea cada 5 min. Offline usa fecha de expiración cacheada.
+- **Cookie cache per-user**: `agriplan-sub-{userId[:8]}` con TTL 5min para evitar query DB en cada navegación.
+- **Validación de fecha**: Middleware y BillingGuard verifican que `trial_end` o `current_period_end` no haya pasado, además del estado.
 - **Logger**: Usar `src/lib/logger.ts` en todos los Route Handlers. Prohibido `console.log/error`.
 - **`as any` prohibido**: Usar `MP_ESTADO_MAP` para mapear estados de MercadoPago al enum `estado_pago`.
+- **Cron pendiente**: No hay scheduled function para transicionar `trialing` → `inactive` o `past_due` → `inactive` automáticamente. El sistema depende de validación en runtime (middleware + BillingGuard chequean fechas). Considerar `pg_cron` en Supabase para limpieza periódica de estados expirados.
 
 ## Siguiente Fase
 

@@ -17,6 +17,7 @@ export default function RegistroPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [registrado, setRegistrado] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,7 +43,7 @@ export default function RegistroPage() {
         setError(result.error);
         setLoading(false);
       } else {
-        router.push(ROUTES.HOME);
+        setRegistrado(true);
       }
     } catch (err) {
       logger.error("Registro: excepción en signUp()", {
@@ -55,6 +56,45 @@ export default function RegistroPage() {
       setLoading(false);
     }
   };
+
+  if (registrado) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+        <div className="max-w-md w-full bg-white p-8 rounded-lg shadow text-center space-y-4">
+          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+            <svg
+              className="w-8 h-8 text-green-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+              />
+            </svg>
+          </div>
+          <h2 className="text-xl font-bold text-gray-900">Revisá tu email</h2>
+          <p className="text-gray-600 text-sm">
+            Te enviamos un enlace de confirmación a <strong>{email}</strong>.
+            Hacé clic en ese enlace para activar tu cuenta y empezar tu prueba
+            gratuita de 6 meses.
+          </p>
+          <p className="text-gray-400 text-xs">
+            ¿No lo ves? Revisá la carpeta de spam.
+          </p>
+          <Link
+            href={ROUTES.AUTH_LOGIN}
+            className="inline-block mt-2 text-green-600 hover:underline text-sm"
+          >
+            Volver al inicio de sesión
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">

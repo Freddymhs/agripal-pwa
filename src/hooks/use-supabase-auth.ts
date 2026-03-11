@@ -75,7 +75,19 @@ export function useSupabaseAuth(): UseSupabaseAuth {
       email,
       password,
     });
-    if (error) return { error: error.message };
+    if (error) {
+      const MSG: Record<string, string> = {
+        "Email not confirmed":
+          "Debes confirmar tu email antes de ingresar. Revisá tu bandeja de entrada (y la carpeta de spam).",
+        "Invalid login credentials": "Email o contraseña incorrectos.",
+        "Too many requests":
+          "Demasiados intentos. Esperá unos minutos e intentá de nuevo.",
+      };
+      return {
+        error:
+          MSG[error.message] ?? "Error al iniciar sesión. Intentá de nuevo.",
+      };
+    }
     return {};
   }, []);
 
