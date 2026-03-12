@@ -118,33 +118,38 @@ Cada archivo FASE_X.md incluye esta tarea de integración al final.
 | **12C** | ✅     | 100%     | Contenido SEO: Páginas Geográficas + Comparativa                          | 🔴 CRÍTICA |
 | **12D** | ✅     | 100%     | Auditoría TanStack + migración a useLiveQuery                             | 🟡 Media   |
 
+### Completadas adicionales ✅
+
+| Fase   | Status | Progreso | Nombre                                                                          | Prioridad  |
+| ------ | ------ | -------- | ------------------------------------------------------------------------------- | ---------- |
+| 13     | ✅     | 100%     | Supabase Backend (schema, RLS, sync opt-in, Dexie hooks, /configuracion)        | 🔴 CRÍTICA |
+| 14     | ✅     | 100%     | Sistema de Billing con MercadoPago                                              | 🔴 Alta    |
+| **15** | ✅     | 100%     | Homepage SSG (6/6 stories: SSG, partición, datos estáticos, PWA, tests, docs)   | 🟢 Baja    |
+| **20** | ✅     | 100%     | Datos Agronómicos Enriquecidos (NPK etapa, poda, vecería, alelopatía, quelatos) | 🔴 Alta    |
+| **21** | ✅     | 100%     | Módulo Insumos y Compatibilidad Química                                         | 🔴 Alta    |
+
 ### Pendientes ⏳
 
-| Fase       | Status | Progreso | Nombre                                                                          | Prioridad     |
-| ---------- | ------ | -------- | ------------------------------------------------------------------------------- | ------------- |
-| **20**     | ✅     | 100%     | Datos Agronómicos Enriquecidos (NPK etapa, poda, vecería, alelopatía, quelatos) | 🔴 Alta       |
-| **21**     | ✅     | 100%     | Módulo Insumos y Compatibilidad Química                                         | 🔴 Alta       |
-| 13         | ✅     | 100%     | Supabase Backend (schema, RLS, sync opt-in, Dexie hooks, /configuracion)        | 🔴 CRÍTICA    |
-| 14         | ✅     | 100%     | Sistema de Billing con MercadoPago                                              | 🔴 ALTA       |
-| **15**     | 🟡     | 66%      | Homepage SSG (4/6 stories, falta tests + docs)                                  | 🟢 BAJA       |
-| 16         | ⏳     | 0%       | Registro de Cosechas (UI)                                                       | 🟡 MEDIA      |
-| 17         | ⏳     | 0%       | Reportes y Exportación PDF                                                      | 🟡 MEDIA      |
-| 18         | ⏳     | 0%       | Calendario de Eventos (Vista Mensual)                                           | 🟢 BAJA-MEDIA |
-| 19         | ⏳     | 0%       | Integraciones API Externas (Clima + Precios)                                    | 🟢 BAJA       |
-| **FINAL**  | ⏳     | 0%       | Historial de Cambios (UI)                                                       | 🟢 BAJA       |
-| **LAUNCH** | ⏳     | 0%       | Checklist de Lanzamiento (dominio, GSC, SEO)                                    | 🟢 BAJA       |
+| Fase       | Status | Progreso | Nombre                                       | Prioridad     |
+| ---------- | ------ | -------- | -------------------------------------------- | ------------- |
+| 16         | ⏳     | 0%       | Registro de Cosechas (UI)                    | 🟡 MEDIA      |
+| 17         | ⏳     | 0%       | Reportes y Exportación PDF                   | 🟡 MEDIA      |
+| 18         | ⏳     | 0%       | Calendario de Eventos (Vista Mensual)        | 🟢 BAJA-MEDIA |
+| 19         | ⏳     | 0%       | Integraciones API Externas (Clima + Precios) | 🟢 BAJA       |
+| **FINAL**  | ⏳     | 0%       | Historial de Cambios (UI)                    | 🟢 BAJA       |
+| **LAUNCH** | ⏳     | 0%       | Checklist de Lanzamiento (dominio, GSC, SEO) | 🟢 BAJA       |
 
-**Total fases**: 42 (35 completadas, 7 pendientes)
+**Total fases**: 42 (36 completadas, 6 pendientes)
 
 ---
 
 ## 📍 Actual
 
-**Fase actual:** FASE_14 completada — billing con MercadoPago implementado (checkout, webhook, middleware guard, UI subscribe/manage/success/failure, SubscriptionBadge). Siguiente: FASE_15 Homepage SSG tests.
+**Fase actual:** FASE_15 completada — Homepage SSG (tests arquitectónicos + docs architecture.md). Siguiente: FASE_16 Registro de Cosechas.
 
-**Completadas (33)**: Estructura, Tipos, Mapa, Zonas, Plantas, Selección Múltiple, Gestión Proyectos/Terrenos, Terreno Avanzado, Panel Clima, Panel Suelo, Agua Avanzada, Motor Recomendación, Catálogo Cultivos, Estanques (8A), Control Agua, Multi-Estanque (8B), Alertas y Dashboard, PWA y Sync Offline, Performance PixiJS, Mejoras UX/Agua/Datos, Autenticación JWT Mock, Segmentación UX Agua, Dashboard + Planificador, Economía/Escenarios/Plagas/Datos/Fixes (11D), Datos Agronómicos (20), Insumos (21), Bugs UX (15B), Auth Supabase (12), Landing SEO (12B), Contenido SEO (12C), TanStack Audit (12D), Backend Supabase (13), Bugs Testing Retroactivos (15C)
+**Completadas (36)**: Estructura, Tipos, Mapa, Zonas, Plantas, Selección Múltiple, Gestión Proyectos/Terrenos, Terreno Avanzado, Panel Clima, Panel Suelo, Agua Avanzada, Motor Recomendación, Catálogo Cultivos, Estanques (8A), Control Agua, Multi-Estanque (8B), Alertas y Dashboard, PWA y Sync Offline, Performance PixiJS, Mejoras UX/Agua/Datos, Autenticación JWT Mock, Segmentación UX Agua, Dashboard + Planificador, Economía/Escenarios/Plagas/Datos/Fixes (11D), Datos Agronómicos (20), Insumos (21), Bugs UX (15B), Auth Supabase (12), Landing SEO (12B), Contenido SEO (12C), TanStack Audit (12D), Backend Supabase (13), Bugs Testing Retroactivos (15C), Billing MercadoPago (14), Homepage SSG (15)
 
-**Pendientes (9)**: Billing (14) → Homepage SSG tests (15) → Cosechas (16) → PDF (17) → Calendario (18) → APIs (19) → Historial → Launch Checklist
+**Pendientes (6)**: Cosechas (16) → PDF (17) → Calendario (18) → APIs externas (19) → Historial → Launch Checklist
 
 **Objetivo:** Transformar AgriPlan en un SaaS con backend real y sistema de suscripciones.
 
@@ -256,13 +261,16 @@ Cada archivo FASE_X.md incluye esta tarea de integración al final.
 
 - `FASE_8B_MULTI_ESTANQUE.md` - Multi-Estanque: asignación zona-cultivo → estanque fuente, alertas per-estanque, consumo per-estanque ✅
 
-### Pendientes (13–LAUNCH) ⏳
+### Completadas (13–15) ✅
 
-- `FASE_13_SUPABASE_BACKEND.md` - Supabase Backend (schema, RLS, Dexie hooks, sync opt-in) ✅ (95%)
-- `FASE_13_TEST_BROWSER.md` - 8 flujos de test manuales para sync
-- `FASE_13_TEST_BACKEND.md` - Comandos de verificación Supabase
-- `FASE_14_BILLING_MERCADOPAGO.md` - Sistema de Billing con MercadoPago ⏳
-- `FASE_15/` - Homepage SSG (tests + docs pendientes) 🟡
+- `FASE_13_SUPABASE_BACKEND.md` - Supabase Backend (schema, RLS, Dexie hooks, sync opt-in) ✅
+- `FASE_13_TEST/BROWSER.md` - 8 flujos de test manuales para sync ✅
+- `FASE_13_TEST/BACKEND.md` - Comandos de verificación Supabase ✅
+- `FASE_14_BILLING_MERCADOPAGO.md` - Sistema de Billing con MercadoPago ✅
+- `FASE_15/` - Homepage SSG (6/6 stories, tests + docs) ✅
+
+### Pendientes (16–LAUNCH) ⏳
+
 - `FASE_16_COSECHAS.md` - Registro de Cosechas (UI) ⏳
 - `FASE_17_REPORTES_PDF.md` - Reportes y Exportación PDF ⏳
 - `FASE_18_CALENDARIO.md` - Calendario de Eventos (Vista Mensual) ⏳
@@ -348,7 +356,7 @@ pnpm type-check   # TypeScript check
 2. ✅ **COMPLETADA (100%)**: Multi-Estanque (FASE_8B) — selector por zona, alertas per-estanque, migration Supabase
 3. ✅ **COMPLETADA (100%)**: Bugs Testing Retroactivos (FASE_15C) — 13 bugs corregidos, todos los gaps resueltos
 4. ✅ **COMPLETADA (100%)**: Billing MercadoPago (FASE_14) — checkout, webhook, middleware guard, UI, SubscriptionBadge
-5. ⏳ **SIGUIENTE**: Homepage SSG tests (FASE_15)
-6. ⏳ **POST-SAAS**: Cosechas → PDF → Calendario → APIs externas → Historial → Launch (FASE_16–LAUNCH)
+5. ✅ **COMPLETADA (100%)**: Homepage SSG (FASE_15) — tests arquitectónicos + docs/architecture.md
+6. ⏳ **SIGUIENTE**: Cosechas (FASE_16) → PDF → Calendario → APIs externas → Historial → Launch
 
 **Objetivo:** Convertir AgriPlan en un SaaS funcional con suscripciones mensuales de 9,990 CLP.

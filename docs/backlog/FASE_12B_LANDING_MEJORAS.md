@@ -1,5 +1,11 @@
 # FASE 12B — Landing Page: SEO + Accesibilidad + UX Conversión
 
+**Status**: ✅ COMPLETA
+**Prioridad**: 🔴 CRÍTICA
+**Fecha**: 2026-03-01
+
+---
+
 ## Contexto
 
 El landing SSG (`src/app/page.tsx`) fue rediseñado visualmente en sesiones anteriores y tiene una base sólida (paleta verde-tierra, Playfair Display, sección Antes/Ahora, copy orientado a dolor). Sin embargo, una auditoría multi-agente detectó problemas críticos de SEO, accesibilidad y conversión que deben corregirse antes de lanzar el producto al público.

@@ -1,5 +1,11 @@
 # FASE 12D — Auditoría TanStack Query: Estado Actual y Decisión de Arquitectura
 
+**Status**: ✅ COMPLETA
+**Prioridad**: 🟡 Media
+**Fecha**: 2026-03-01
+
+---
+
 ## Contexto
 
 Auditoría realizada para entender el rol real de `@tanstack/react-query` en el proyecto y evaluar si su uso es justificado dado el modelo offline-first con Dexie.js.

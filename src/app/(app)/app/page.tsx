@@ -21,7 +21,7 @@ import {
   CrearTerrenoModal,
   ConfiguracionAvanzadaModal,
 } from "@/components/terreno";
-import type { Alerta, Proyecto, Terreno } from "@/types";
+import type { Alerta } from "@/types";
 
 import { ROUTES } from "@/lib/constants/routes";
 
@@ -50,7 +50,6 @@ function HomeContent() {
     setShowConfigAvanzada,
     handleGuardarConfigAvanzada,
     alertasHook,
-    syncHook,
     handleCrearProyecto,
     handleCrearTerreno,
     handleSelectProyecto,
@@ -167,23 +166,31 @@ function HomeContent() {
     );
   }
 
+  const proyectoActualObj = proyectoActual ?? null;
+  const terrenoActualObj = terrenoActual ?? null;
+
   return (
     <PageLayout
       headerColor="green"
+      headerContext={
+        <SelectorTerreno
+          proyectos={proyectos}
+          terrenos={terrenos}
+          proyectoActual={proyectoActualObj}
+          terrenoActual={terrenoActualObj}
+          onSelectProyecto={handleSelectProyecto}
+          onSelectTerreno={handleSelectTerreno}
+          onCrearProyecto={() => setShowCrearProyecto(true)}
+          onCrearTerreno={() => setShowCrearTerreno(true)}
+          onGestionarTerrenos={() => router.push(ROUTES.TERRENOS)}
+        />
+      }
       headerActions={
         <HeaderActions
           usuarioNombre={usuario?.nombre ?? ""}
           logout={logout}
           alertas={alertasHook.alertas}
           alertasCriticas={alertasHook.alertasCriticas}
-          proyectos={proyectos}
-          terrenos={terrenos}
-          proyectoActualId={proyectoActual?.id ?? null}
-          terrenoActualId={terrenoActual?.id ?? null}
-          onSelectProyecto={handleSelectProyecto}
-          onSelectTerreno={handleSelectTerreno}
-          onCrearProyecto={() => setShowCrearProyecto(true)}
-          onCrearTerreno={() => setShowCrearTerreno(true)}
         />
       }
     >
@@ -353,61 +360,21 @@ function MapView() {
 interface HeaderActionsProps {
   usuarioNombre: string;
   logout: () => void;
-  proyectos: Proyecto[];
-  terrenos: Terreno[];
   alertas: Alerta[];
   alertasCriticas: number;
-  proyectoActualId: string | null;
-  terrenoActualId: string | null;
-  onSelectProyecto: (p: Proyecto) => void;
-  onSelectTerreno: (t: Terreno) => void;
-  onCrearProyecto: () => void;
-  onCrearTerreno: () => void;
 }
 
 function HeaderActions({
   usuarioNombre,
   logout,
-  proyectos,
-  terrenos,
   alertas,
   alertasCriticas,
-  proyectoActualId,
-  terrenoActualId,
-  onSelectProyecto,
-  onSelectTerreno,
-  onCrearProyecto,
-  onCrearTerreno,
 }: HeaderActionsProps) {
-  const router = useRouter();
-
-  const proyectoActual = proyectoActualId
-    ? (proyectos.find((p) => p.id === proyectoActualId) ?? null)
-    : null;
-
-  const terrenoActual = terrenoActualId
-    ? (terrenos.find((t) => t.id === terrenoActualId) ?? null)
-    : null;
-
   return (
     <>
-      <AlertasDropdown alertas={alertas} alertasCriticas={alertasCriticas} />
-
       <SyncIndicator />
 
-      <div className="border-l border-green-500 pl-3 ml-1">
-        <SelectorTerreno
-          proyectos={proyectos}
-          terrenos={terrenos}
-          proyectoActual={proyectoActual}
-          terrenoActual={terrenoActual}
-          onSelectProyecto={onSelectProyecto}
-          onSelectTerreno={onSelectTerreno}
-          onCrearProyecto={onCrearProyecto}
-          onCrearTerreno={onCrearTerreno}
-          onGestionarTerrenos={() => router.push(ROUTES.TERRENOS)}
-        />
-      </div>
+      <AlertasDropdown alertas={alertas} alertasCriticas={alertasCriticas} />
 
       <div className="flex items-center gap-2 border-l border-green-500 pl-3">
         <span className="text-xs text-white/80">{usuarioNombre}</span>

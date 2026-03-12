@@ -1,10 +1,9 @@
 # FASE 15B: Bugs Críticos de UX (Pre-Supabase)
 
-**Status**: ⏳ PENDIENTE
-**Prioridad**: 🔴 ALTA — puede implementarse en paralelo o después de FASE_12
+**Status**: ✅ COMPLETA
+**Prioridad**: 🔴 ALTA
 **Dependencias**: ninguna
-**Estimación**: 2-3 horas
-**Última revisión**: 2026-03-01
+**Última revisión**: 2026-03-12
 
 ---
 

@@ -1,9 +1,9 @@
 # FASE 15: Homepage SSG
 
-**Status**: 🟡 PARCIALMENTE IMPLEMENTADO
+**Status**: ✅ COMPLETA
 **Prioridad**: 🟢 BAJA (las stories críticas ya están hechas)
 **Dependencias**: ninguna (independiente)
-**Última revisión**: 2026-03-01 (auditado)
+**Última revisión**: 2026-03-12
 
 ---
 
@@ -15,8 +15,8 @@
 | Story 2: Datos estáticos         | ✅ Implementado — `features[]` inline en la página, sin Dexie ni React Query                  |
 | Story 3: SSG configurado         | ✅ Implementado — `export const dynamic = "force-static"`, build genera HTML estático         |
 | Story 4: Integración PWA         | ✅ Implementado en concepto — service worker precachea `/`, links al planner son CSR normales |
-| Story 5: Test snapshot           | ❌ Pendiente — no existe ningún test del home                                                 |
-| Story 5: Docs architecture.md    | ❌ Pendiente — no existe el archivo                                                           |
+| Story 5: Test snapshot           | ✅ Implementado — `src/__tests__/homepage-ssg.test.ts` (4 tests, valida SSG arquitectónico)   |
+| Story 5: Docs architecture.md    | ✅ Implementado — `docs/architecture.md` con modelo híbrido y links a docs detallados         |
 
 ---
 
@@ -143,7 +143,7 @@ Crear `docs/architecture.md` con el modelo híbrido:
 - SW precachea el homepage, navegación al planner es CSR.
 - Criterio: el SW sirve HTML estático offline para `/`. **CUMPLIDO EN CONCEPTO**
 
-### Story 5: Observabilidad y DX ❌
+### Story 5: Observabilidad y DX ✅
 
 - Test snapshot/render del home.
 - Documento `docs/architecture.md`.

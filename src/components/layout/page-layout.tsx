@@ -13,6 +13,7 @@ interface PageLayoutProps {
   children: ReactNode;
   title?: string;
   headerColor?: "green" | "cyan" | "blue" | "amber" | "emerald";
+  headerContext?: ReactNode;
   headerActions?: ReactNode;
 }
 
@@ -44,6 +45,7 @@ export function PageLayout({
   children,
   title,
   headerColor = "green",
+  headerContext,
   headerActions,
 }: PageLayoutProps) {
   const pathname = usePathname();
@@ -62,12 +64,22 @@ export function PageLayout({
           <div className="flex items-center gap-1">
             <Link
               href={ROUTES.HOME}
-              className="text-xl font-bold mr-4 hover:opacity-80 transition-opacity"
+              className="text-xl font-bold hover:opacity-80 transition-opacity"
             >
               AgriPlan
             </Link>
 
-            <PageNav hoverColor={hoverColor} tieneEstanque={tieneEstanque} />
+            {headerContext && (
+              <div
+                className={`ml-2 pl-3 border-l ${borderColor} flex items-center`}
+              >
+                {headerContext}
+              </div>
+            )}
+
+            <div className={`ml-2 pl-3 border-l ${borderColor}`}>
+              <PageNav hoverColor={hoverColor} tieneEstanque={tieneEstanque} />
+            </div>
 
             {title && (
               <div className={`ml-4 pl-4 border-l ${borderColor}`}>

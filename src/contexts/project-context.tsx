@@ -93,9 +93,18 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
   );
 
   useEffect(() => {
-    // Esperar a que auth Y proyectos estén resueltos antes de fijar el proyecto inicial.
-    // Sin este guard, el efecto dispara con usuarioId="sin-sesion" y proyectos vacíos.
-    if (initialLoad && !authLoading && !proyectosHook.loading) {
+    if (!initialLoad || authLoading) return;
+
+    // Si no está autenticado, no hay proyectos que cargar — salir del estado de carga.
+    if (!isAuthenticated) {
+      setInitialLoad(false);
+      return;
+    }
+
+    // Esperar a que los proyectos del usuario real estén disponibles en IndexedDB.
+    // Sin este guard, el efecto disparaba antes del login con proyectos vacíos y marcaba
+    // initialLoad=false prematuramente — proyectos no aparecían tras reiniciar el equipo.
+    if (!proyectosHook.loading) {
       const savedId = localStorage.getItem(STORAGE_KEYS.PROYECTO);
       if (savedId) {
         const p = proyectosHook.proyectos.find((p) => p.id === savedId);
@@ -107,6 +116,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
     }
   }, [
     authLoading,
+    isAuthenticated,
     proyectosHook.loading,
     proyectosHook.proyectos,
     initialLoad,
