@@ -487,8 +487,7 @@ export async function sincronizarAlertas(
       (n) =>
         n.tipo === existente.tipo &&
         n.zona_id === existente.zona_id &&
-        n.planta_id === existente.planta_id &&
-        (n.zona_id !== undefined || n.planta_id !== undefined),
+        n.planta_id === existente.planta_id,
     );
 
     if (!sigueSiendo) {

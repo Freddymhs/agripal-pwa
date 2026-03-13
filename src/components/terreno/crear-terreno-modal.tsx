@@ -86,6 +86,7 @@ export function CrearTerrenoModal({
                 type="number"
                 value={ancho}
                 onChange={(e) => setAncho(Number(e.target.value))}
+                onFocus={(e) => e.target.select()}
                 min={1}
                 step={1}
                 className="w-full px-3 py-2 border rounded text-gray-900"
@@ -99,6 +100,7 @@ export function CrearTerrenoModal({
                 type="number"
                 value={alto}
                 onChange={(e) => setAlto(Number(e.target.value))}
+                onFocus={(e) => e.target.select()}
                 min={1}
                 step={1}
                 className="w-full px-3 py-2 border rounded text-gray-900"

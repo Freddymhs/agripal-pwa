@@ -1,22 +1,81 @@
-import { db } from "@/lib/db";
+import { supabase } from "@/lib/supabase/client";
+import {
+  serializarParaSupabase,
+  deserializarDesdeSupabase,
+} from "@/lib/supabase/schema";
 import type { Zona } from "@/types";
 
+const TABLA = "zonas";
+
 export const zonasDAL = {
-  getByTerrenoId: (terrenoId: string) =>
-    db.zonas.where("terreno_id").equals(terrenoId).toArray(),
+  getByTerrenoId: async (terrenoId: string): Promise<Zona[]> => {
+    const { data, error } = await supabase
+      .from(TABLA)
+      .select("*")
+      .eq("terreno_id", terrenoId);
+    if (error) throw error;
+    return (data ?? []).map((row) => deserializarDesdeSupabase<Zona>(row));
+  },
 
-  getByTerrenoIds: (terrenoIds: string[]) =>
-    db.zonas.where("terreno_id").anyOf(terrenoIds).toArray(),
+  getByTerrenoIds: async (terrenoIds: string[]): Promise<Zona[]> => {
+    if (terrenoIds.length === 0) return [];
+    const { data, error } = await supabase
+      .from(TABLA)
+      .select("*")
+      .in("terreno_id", terrenoIds);
+    if (error) throw error;
+    return (data ?? []).map((row) => deserializarDesdeSupabase<Zona>(row));
+  },
 
-  add: (zona: Zona) => db.zonas.add(zona),
+  add: async (zona: Zona): Promise<void> => {
+    const payload = serializarParaSupabase(
+      TABLA,
+      zona as unknown as Record<string, unknown>,
+    );
+    const { error } = await supabase.from(TABLA).insert(payload);
+    if (error) throw error;
+  },
 
-  update: (id: string, changes: Partial<Zona>) => db.zonas.update(id, changes),
+  update: async (id: string, changes: Partial<Zona>): Promise<void> => {
+    const payload = serializarParaSupabase(TABLA, { id, ...changes } as Record<
+      string,
+      unknown
+    >);
+    const newDatos = payload.datos as Record<string, unknown> | undefined;
 
-  delete: (id: string) => db.zonas.delete(id),
+    if (newDatos && Object.keys(newDatos).length > 0) {
+      // Merge JSONB datos to avoid overwriting fields not included in `changes`
+      const { data: current } = await supabase
+        .from(TABLA)
+        .select("datos")
+        .eq("id", id)
+        .single();
+      payload.datos = { ...((current?.datos as object) ?? {}), ...newDatos };
+    }
 
-  deleteByTerrenoId: (terrenoId: string) =>
-    db.zonas.where("terreno_id").equals(terrenoId).delete(),
+    const { error } = await supabase.from(TABLA).update(payload).eq("id", id);
+    if (error) throw error;
+  },
 
-  deleteByTerrenoIds: (terrenoIds: string[]) =>
-    db.zonas.where("terreno_id").anyOf(terrenoIds).delete(),
+  delete: async (id: string): Promise<void> => {
+    const { error } = await supabase.from(TABLA).delete().eq("id", id);
+    if (error) throw error;
+  },
+
+  deleteByTerrenoId: async (terrenoId: string): Promise<void> => {
+    const { error } = await supabase
+      .from(TABLA)
+      .delete()
+      .eq("terreno_id", terrenoId);
+    if (error) throw error;
+  },
+
+  deleteByTerrenoIds: async (terrenoIds: string[]): Promise<void> => {
+    if (terrenoIds.length === 0) return;
+    const { error } = await supabase
+      .from(TABLA)
+      .delete()
+      .in("terreno_id", terrenoIds);
+    if (error) throw error;
+  },
 };

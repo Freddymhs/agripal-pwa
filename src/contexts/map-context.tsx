@@ -27,7 +27,13 @@ import type {
   EstanqueConfig,
 } from "@/types";
 
-export type Modo = "terreno" | "zonas" | "plantas" | "crear_zona" | "plantar";
+export type Modo =
+  | "terreno"
+  | "zonas"
+  | "plantas"
+  | "crear_zona"
+  | "plantar"
+  | "espaciado";
 
 interface MapContextType {
   modo: Modo;
@@ -130,7 +136,7 @@ export function MapProvider({ children }: { children: ReactNode }) {
     return () => window.removeEventListener("keydown", handleEscape);
   }, [plantasSeleccionadas.length]);
 
-  // Sincronización estado seleccionado con datos externos (IndexedDB → React).
+  // Sincronización estado seleccionado con datos externos.
   // El setState dentro de effects es intencional: sincroniza estado derivado
   // cuando la fuente de datos cambia (zona eliminada, planta actualizada, etc.)
   useEffect(() => {

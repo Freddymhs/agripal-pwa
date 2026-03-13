@@ -10,6 +10,7 @@ import {
 } from "@/components/suelo";
 import { useProjectContext } from "@/contexts/project-context";
 import { terrenosDAL } from "@/lib/dal";
+import { getCurrentTimestamp } from "@/lib/utils";
 import { ENMIENDAS_SUELO, sugerirEnmiendas } from "@/lib/data/enmiendas-suelo";
 import {
   evaluarCompatibilidadSueloMultiple,
@@ -62,7 +63,7 @@ export default function SueloPage() {
       setGuardando(true);
       await terrenosDAL.update(terreno.id, {
         suelo: newSuelo,
-        updated_at: new Date().toISOString(),
+        updated_at: getCurrentTimestamp(),
       });
       setGuardando(false);
     },

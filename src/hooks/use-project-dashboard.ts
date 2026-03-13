@@ -28,7 +28,7 @@ export function useProjectDashboard(
   return useMemo(() => {
     if (!terrenoActual) return null;
 
-    const areaUsada = zonas.reduce((sum, z) => sum + z.area_m2, 0);
+    const areaUsada = zonas.reduce((sum, z) => sum + (z.area_m2 ?? 0), 0);
     const areaTotal =
       (terrenoActual.ancho_m ?? 0) * (terrenoActual.alto_m ?? 0);
     const estanques = zonas.filter(

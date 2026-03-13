@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import { useProjectContext } from "@/contexts/project-context";
 import { PageLayout } from "@/components/layout/page-layout";
 import { useInsumos } from "@/hooks/use-insumos";
+import { getCurrentTimestamp } from "@/lib/utils";
 import {
   getInsumos,
   verificarCompatibilidad,
@@ -68,7 +69,7 @@ export default function InsumosPage() {
       terreno_id: terrenoActual.id,
       nombre: insumoRef.nombre,
       tipo: insumoRef.tipo,
-      fecha_registro: new Date().toISOString(),
+      fecha_registro: getCurrentTimestamp(),
     });
     setInsumoSeleccionadoId("");
   };

@@ -1,10 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useRef } from "react";
-import { useLiveQuery } from "dexie-react-hooks";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { catalogoDAL, plantasDAL, transaccionesDAL } from "@/lib/dal";
 import { generateUUID, getCurrentTimestamp } from "@/lib/utils";
 import { crearCatalogoInicial } from "@/lib/data/cultivos-arica";
+import { ejecutarMutacion } from "@/lib/helpers/dal-mutation";
+import { logger } from "@/lib/logger";
 import type { CatalogoCultivo, UUID } from "@/types";
 
 interface UseCatalogo {
@@ -27,29 +28,62 @@ interface UseCatalogo {
 }
 
 export function useCatalogo(proyectoId: UUID | null): UseCatalogo {
+  const [cultivos, setCultivos] = useState<CatalogoCultivo[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
   const seeded = useRef(false);
 
-  useEffect(() => {
-    if (!proyectoId) return;
-    seeded.current = false;
-
-    const seed = async () => {
+  const fetchCatalogo = useCallback(async () => {
+    if (!proyectoId) {
+      setCultivos([]);
+      setLoading(false);
+      return;
+    }
+    try {
+      setLoading(true);
       const data = await catalogoDAL.getByProyectoId(proyectoId);
-      if (data.length === 0 && !seeded.current) {
-        seeded.current = true;
-        const cultivosIniciales = crearCatalogoInicial(proyectoId);
-        await transaccionesDAL.seedCatalogo(cultivosIniciales);
+      setCultivos(data);
+      setError(null);
+    } catch (err) {
+      const e =
+        err instanceof Error ? err : new Error("Error cargando catálogo");
+      logger.error("Error cargando catálogo", {
+        error: { message: e.message },
+      });
+      setError(e);
+    } finally {
+      setLoading(false);
+    }
+  }, [proyectoId]);
+
+  useEffect(() => {
+    fetchCatalogo();
+  }, [fetchCatalogo]);
+
+  useEffect(() => {
+    if (!proyectoId || loading || seeded.current) return;
+    if (cultivos.length > 0) return;
+
+    seeded.current = true;
+    // Verify DB count before seeding to avoid race conditions when multiple
+    // hook instances exist (e.g. layout context + page component)
+    catalogoDAL.countByProyectoId(proyectoId).then((count) => {
+      if (count > 0) {
+        fetchCatalogo();
+        return;
       }
-    };
-    seed();
-  }, [proyectoId]);
+      const cultivosIniciales = crearCatalogoInicial(proyectoId);
+      transaccionesDAL.seedCatalogo(cultivosIniciales).then(() => {
+        fetchCatalogo();
+      });
+    });
+  }, [proyectoId, loading, cultivos.length, fetchCatalogo]);
 
-  const cultivos = useLiveQuery(async () => {
-    if (!proyectoId) return [];
-    return catalogoDAL.getByProyectoId(proyectoId);
+  useEffect(() => {
+    if (proyectoId) {
+      seeded.current = false;
+    }
   }, [proyectoId]);
-
-  const loading = cultivos === undefined;
 
   const agregarCultivo = useCallback(
     async (
@@ -68,46 +102,62 @@ export function useCatalogo(proyectoId: UUID | null): UseCatalogo {
         updated_at: getCurrentTimestamp(),
       };
 
-      await catalogoDAL.add(nuevo);
+      await ejecutarMutacion(
+        () => catalogoDAL.add(nuevo),
+        "agregando cultivo",
+        fetchCatalogo,
+      );
       return nuevo;
     },
-    [proyectoId],
+    [proyectoId, fetchCatalogo],
   );
 
   const actualizarCultivo = useCallback(
     async (id: UUID, cambios: Partial<CatalogoCultivo>): Promise<void> => {
-      await catalogoDAL.update(id, {
-        ...cambios,
-        updated_at: getCurrentTimestamp(),
-      });
+      await ejecutarMutacion(
+        () =>
+          catalogoDAL.update(id, {
+            ...cambios,
+            updated_at: getCurrentTimestamp(),
+          }),
+        "actualizando cultivo",
+        fetchCatalogo,
+      );
     },
-    [],
+    [fetchCatalogo],
   );
 
-  const eliminarCultivo = useCallback(async (id: UUID): Promise<void> => {
-    const todasPlantas = await plantasDAL.getAll();
-    const plantasUsandoCultivo = todasPlantas.filter(
-      (p) => p.tipo_cultivo_id === id,
-    );
-    if (plantasUsandoCultivo.length > 0) {
-      throw new Error(
-        `No se puede eliminar: ${plantasUsandoCultivo.length} planta(s) usan este cultivo. Elimina o cambia las plantas primero.`,
+  const eliminarCultivo = useCallback(
+    async (id: UUID): Promise<void> => {
+      const todasPlantas = await plantasDAL.getAll();
+      const plantasUsandoCultivo = todasPlantas.filter(
+        (p) => p.tipo_cultivo_id === id,
       );
-    }
-    await catalogoDAL.delete(id);
-  }, []);
+      if (plantasUsandoCultivo.length > 0) {
+        throw new Error(
+          `No se puede eliminar: ${plantasUsandoCultivo.length} planta(s) usan este cultivo. Elimina o cambia las plantas primero.`,
+        );
+      }
+      await ejecutarMutacion(
+        () => catalogoDAL.delete(id),
+        "eliminando cultivo",
+        fetchCatalogo,
+      );
+    },
+    [fetchCatalogo],
+  );
 
   const obtenerCultivo = useCallback(
     (id: UUID) => {
-      return (cultivos ?? []).find((c) => c.id === id);
+      return cultivos.find((c) => c.id === id);
     },
     [cultivos],
   );
 
   return {
-    cultivos: cultivos ?? [],
+    cultivos,
     loading,
-    error: null,
+    error,
     agregarCultivo,
     actualizarCultivo,
     eliminarCultivo,

@@ -1,5 +1,4 @@
 import type { useAlertas } from "@/hooks/use-alertas";
-import type { useSync } from "@/hooks/use-sync";
 import type { useEstanques } from "@/hooks/use-estanques";
 import type { useZonas } from "@/hooks/use-zonas";
 import type { usePlantas } from "@/hooks/use-plantas";
@@ -33,7 +32,6 @@ export interface ProjectContextType {
   initialLoad: boolean;
 
   alertasHook: ReturnType<typeof useAlertas>;
-  syncHook: ReturnType<typeof useSync>;
   estanquesHook: ReturnType<typeof useEstanques>;
   zonasHook: ReturnType<typeof useZonas>;
   plantasHook: ReturnType<typeof usePlantas>;

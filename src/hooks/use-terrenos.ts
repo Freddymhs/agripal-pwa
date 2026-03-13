@@ -1,9 +1,10 @@
 "use client";
 
-import { useCallback } from "react";
-import { useLiveQuery } from "dexie-react-hooks";
+import { useCallback, useEffect, useState } from "react";
 import { terrenosDAL, zonasDAL, plantasDAL, transaccionesDAL } from "@/lib/dal";
 import { generateUUID, getCurrentTimestamp } from "@/lib/utils";
+import { ejecutarMutacion } from "@/lib/helpers/dal-mutation";
+import { logger } from "@/lib/logger";
 import type { Terreno, UUID } from "@/types";
 import { SUELO_DEFAULT_AZAPA } from "@/lib/data";
 
@@ -42,15 +43,36 @@ interface UseTerrenos {
 }
 
 export function useTerrenos(proyectoId: UUID | null): UseTerrenos {
-  const terrenos = useLiveQuery<Terreno[]>(
-    () =>
-      proyectoId
-        ? terrenosDAL.getByProyectoId(proyectoId)
-        : Promise.resolve([]),
-    [proyectoId],
-  );
+  const [terrenos, setTerrenos] = useState<Terreno[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
-  const loading = terrenos === undefined;
+  const fetchTerrenos = useCallback(async () => {
+    if (!proyectoId) {
+      setTerrenos([]);
+      setLoading(false);
+      return;
+    }
+    try {
+      setLoading(true);
+      const data = await terrenosDAL.getByProyectoId(proyectoId);
+      setTerrenos(data);
+      setError(null);
+    } catch (err) {
+      const e =
+        err instanceof Error ? err : new Error("Error cargando terrenos");
+      logger.error("Error cargando terrenos", {
+        error: { message: e.message },
+      });
+      setError(e);
+    } finally {
+      setLoading(false);
+    }
+  }, [proyectoId]);
+
+  useEffect(() => {
+    fetchTerrenos();
+  }, [fetchTerrenos]);
 
   const crearTerreno = useCallback(
     async (data: {
@@ -80,10 +102,14 @@ export function useTerrenos(proyectoId: UUID | null): UseTerrenos {
         updated_at: timestamp,
       };
 
-      await terrenosDAL.add(nuevoTerreno);
+      await ejecutarMutacion(
+        () => terrenosDAL.add(nuevoTerreno),
+        "creando terreno",
+        fetchTerrenos,
+      );
       return nuevoTerreno;
     },
-    [],
+    [fetchTerrenos],
   );
 
   const editarTerreno = useCallback(
@@ -122,10 +148,14 @@ export function useTerrenos(proyectoId: UUID | null): UseTerrenos {
         updates.area_m2 = nuevoAncho * nuevoAlto;
       }
 
-      await terrenosDAL.update(id, updates);
+      await ejecutarMutacion(
+        () => terrenosDAL.update(id, updates),
+        "editando terreno",
+        fetchTerrenos,
+      );
       return {};
     },
-    [],
+    [fetchTerrenos],
   );
 
   const actualizarTerreno = useCallback(
@@ -138,9 +168,13 @@ export function useTerrenos(proyectoId: UUID | null): UseTerrenos {
       delete updates.proyecto_id;
       delete updates.created_at;
 
-      await terrenosDAL.update(id, updates);
+      await ejecutarMutacion(
+        () => terrenosDAL.update(id, updates),
+        "actualizando terreno",
+        fetchTerrenos,
+      );
     },
-    [],
+    [fetchTerrenos],
   );
 
   const contarContenido = useCallback(
@@ -162,17 +196,21 @@ export function useTerrenos(proyectoId: UUID | null): UseTerrenos {
   const eliminarTerreno = useCallback(
     async (id: UUID): Promise<{ eliminados: EliminacionCascada }> => {
       const conteo = await contarContenido(id);
-      await transaccionesDAL.eliminarTerrenoCascade(id);
+      await ejecutarMutacion(
+        () => transaccionesDAL.eliminarTerrenoCascade(id),
+        "eliminando terreno",
+        fetchTerrenos,
+      );
       return { eliminados: conteo };
     },
-    [contarContenido],
+    [contarContenido, fetchTerrenos],
   );
 
   return {
-    terrenos: terrenos ?? [],
+    terrenos,
     loading,
-    error: null,
-    refetch: async () => {},
+    error,
+    refetch: fetchTerrenos,
     crearTerreno,
     editarTerreno,
     actualizarTerreno,

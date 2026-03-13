@@ -5,13 +5,13 @@
 - **Framework**: Next.js 16 (App Router)
 - **Language**: TypeScript (Strict)
 - **Styling**: TailwindCSS 4
-- **State**: React Query (TanStack) + React Hooks
-- **Persistence**: IndexedDB (Dexie.js)
+- **State**: React Hooks (useState, useEffect, useCallback, useMemo)
+- **Persistence**: Supabase (PostgreSQL) — sin almacenamiento local
 - **PWA**: @ducanh2912/next-pwa
 
 ## Architecture
 
-- **Offline-First**: UI optimistic, sync background queue.
+- **Supabase-direct**: UI ↔ Supabase via DAL. Sin capa de cache intermedia.
 - **Data Model**: Defined in `src/types/index.ts`.
 - **Components**: Functional, composed, strictly typed props.
 - **Logic**: Custom hooks (`src/hooks/`) for logic separation.
@@ -43,19 +43,28 @@
 
 - APIs en `src/lib/dal/` por dominio (ej: `terrenosDAL`, `plantasDAL`).
 - Los DALs devuelven tipos/DTOs, nunca `any` ni objetos sueltos.
-- Base de datos: patrón Singleton para conexiones.
+- Base de datos: patrón Singleton (`supabase` client en `src/lib/supabase/client.ts`).
+- Serialización: usar `serializarParaSupabase()` / `deserializarDesdeSupabase()` de `src/lib/supabase/schema.ts` en todos los DAL.
+
+### Patrón único de data fetching y mutaciones
+
+- **Prohibido TanStack Query** y cualquier librería de cache/fetching externa.
+- **Fetching en hooks**: `useState` + `useEffect` + `useCallback` → DAL.
+- **Mutaciones siempre via `ejecutarMutacion()`** de `src/lib/helpers/dal-mutation.ts`. Wraps DAL call + refetch + logging. Sin excepciones.
+- **Error handling en mutaciones**: validación → retornar `{ error: string }`. Errores de DAL → `ejecutarMutacion` logea y hace throw.
+- **Timestamps**: siempre usar `getCurrentTimestamp()` de `@/lib/utils`. Prohibido `new Date().toISOString()` inline en hooks/componentes.
+- **UUIDs**: siempre usar `generateUUID()` de `@/lib/utils`.
 
 ### Centralización obligatoria
 
 - **Constantes**: centralizar en `src/lib/constants/`. No hardcodear valores repetidos.
-- **Query Keys**: centralizar en `src/lib/constants/query-keys.ts`.
 - **Logger**: usar logger centralizado. Prohibido `console.log/warn/error` directo en código de producción.
 - **Funciones utilitarias**: antes de crear una función, verificar si ya existe en `src/lib/utils/`.
 
 ### Error Handling
 
 - Todas las rutas deben tener su `error.tsx` con UX coherente.
-- Toda llamada a API pasa por un helper común con manejo de errores y logging.
+- Toda llamada a API pasa por `ejecutarMutacion` con manejo de errores y logging.
 
 ### Testing (cuando esté implementado)
 

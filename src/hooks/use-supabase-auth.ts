@@ -3,8 +3,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase/client";
-import { usuariosDAL } from "@/lib/dal";
-import { getCurrentTimestamp } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants/routes";
 import type { User } from "@supabase/supabase-js";
 import type { Usuario } from "@/types";
@@ -23,20 +21,14 @@ export interface UseSupabaseAuth {
   signOut: () => Promise<void>;
 }
 
-async function syncUsuarioLocal(user: User): Promise<Usuario> {
-  const existing = await usuariosDAL.getById(user.id);
-  if (existing) return existing;
-
-  const nuevo: Usuario = {
+function userToUsuario(user: User): Usuario {
+  return {
     id: user.id,
     email: user.email!,
     nombre: user.user_metadata?.nombre ?? user.email!.split("@")[0],
     created_at: user.created_at,
-    updated_at: getCurrentTimestamp(),
+    updated_at: user.updated_at ?? user.created_at,
   };
-
-  await usuariosDAL.add(nuevo);
-  return nuevo;
 }
 
 export function useSupabaseAuth(): UseSupabaseAuth {
@@ -46,23 +38,19 @@ export function useSupabaseAuth(): UseSupabaseAuth {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
       const currentUser = session?.user ?? null;
       setUser(currentUser);
-      if (currentUser) setUsuario(await syncUsuarioLocal(currentUser));
+      if (currentUser) setUsuario(userToUsuario(currentUser));
       setLoading(false);
     });
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       const currentUser = session?.user ?? null;
       setUser(currentUser);
-      if (currentUser) {
-        setUsuario(await syncUsuarioLocal(currentUser));
-      } else {
-        setUsuario(null);
-      }
+      setUsuario(currentUser ? userToUsuario(currentUser) : null);
     });
 
     return () => {

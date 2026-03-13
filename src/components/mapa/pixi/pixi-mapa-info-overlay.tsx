@@ -58,6 +58,11 @@ export function ModoBadge({ modo, showSeleccionHint }: ModoBadgeProps) {
           Modo: Plantar
         </div>
       )}
+      {modo === "espaciado" && (
+        <div className="absolute top-4 left-4 bg-blue-600 text-white px-3 py-1.5 rounded shadow text-sm">
+          Modo: Plano Tecnico
+        </div>
+      )}
       {showSeleccionHint && (
         <div className="absolute top-4 right-4 bg-gray-700/80 text-white px-2 py-1 rounded text-xs">
           Shift + arrastrar = seleccion multiple

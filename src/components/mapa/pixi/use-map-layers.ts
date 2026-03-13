@@ -6,6 +6,7 @@ import { PixiTextureFactory } from "./pixi-texture-factory";
 import { PixiPlantasLayer } from "./pixi-plantas-layer";
 import { PixiHitTest } from "./pixi-hit-test";
 import { PixiOverlayLayer } from "./pixi-overlay-layer";
+import { PixiSpacingLayer } from "./pixi-spacing-layer";
 import { PIXELS_POR_METRO, COLOR_BORDE_TERRENO } from "./pixi-constants";
 import type { Terreno, Zona, Planta } from "@/types";
 import { TIPO_ZONA } from "@/lib/constants/entities";
@@ -18,6 +19,7 @@ interface LayerRefs {
   plantasLayerRef: MutableRefObject<PixiPlantasLayer | null>;
   hitTestRef: MutableRefObject<PixiHitTest | null>;
   overlayLayerRef: MutableRefObject<PixiOverlayLayer | null>;
+  spacingLayerRef: MutableRefObject<PixiSpacingLayer | null>;
   borderRef: MutableRefObject<Graphics | null>;
 }
 
@@ -61,6 +63,7 @@ export function useMapLayers(
     plantasLayerRef,
     hitTestRef,
     overlayLayerRef,
+    spacingLayerRef,
     borderRef,
   } = refs;
 
@@ -137,6 +140,10 @@ export function useMapLayers(
       propsRef.current.cultivosEspaciado,
     );
 
+    const spacingLayer = new PixiSpacingLayer();
+    worldRef.current.addChild(spacingLayer.container);
+    spacingLayerRef.current = spacingLayer;
+
     const overlay = new PixiOverlayLayer();
     worldRef.current.addChild(overlay.container);
     overlayLayerRef.current = overlay;
@@ -145,10 +152,12 @@ export function useMapLayers(
       grid.destroy();
       zonasLayer.destroy();
       hitTest.destroy();
+      spacingLayer.destroy();
       overlay.destroy();
       gridLayerRef.current = null;
       zonasLayerRef.current = null;
       hitTestRef.current = null;
+      spacingLayerRef.current = null;
       overlayLayerRef.current = null;
     };
   }, [
@@ -159,6 +168,7 @@ export function useMapLayers(
     gridLayerRef,
     zonasLayerRef,
     hitTestRef,
+    spacingLayerRef,
     overlayLayerRef,
     propsRef,
   ]);
@@ -217,6 +227,7 @@ export function useMapLayers(
   useEffect(() => {
     if (!zonasLayerRef.current) return;
     const zonasInteractivas = modo === "zonas" || modo === "plantar";
+    const modoPlano = modo === "espaciado";
     zonasLayerRef.current.build(
       zonas,
       zonaSeleccionadaId || null,
@@ -224,6 +235,7 @@ export function useMapLayers(
       (zona) => onZonaClick?.(zona),
       zonaCultivoColor,
       zonasInteractivas,
+      modoPlano,
     );
   }, [
     zonas,
@@ -276,6 +288,14 @@ export function useMapLayers(
     }
   }, [modo, zonaSeleccionadaId, overlayLayerRef]);
 
+  // En modo plano, reducir opacidad de plantas para que no tapen los labels técnicos
+  useEffect(() => {
+    if (!plantasLayerRef.current) return;
+    const OPACIDAD_PLANO = 0.15;
+    plantasLayerRef.current.container.alpha =
+      modo === "espaciado" ? OPACIDAD_PLANO : 1;
+  }, [modo, plantasLayerRef]);
+
   useEffect(() => {
     if (!overlayLayerRef.current) return;
     if (zonaPreview) {
@@ -293,4 +313,13 @@ export function useMapLayers(
       overlayLayerRef.current.clearZonaPreview();
     }
   }, [zonaPreview, viewport, overlayLayerRef]);
+
+  useEffect(() => {
+    if (!spacingLayerRef.current) return;
+    if (modo === "espaciado") {
+      spacingLayerRef.current.build(zonas, terreno, viewport.getScale());
+    } else {
+      spacingLayerRef.current.clear();
+    }
+  }, [modo, zonas, terreno, viewport, spacingLayerRef]);
 }

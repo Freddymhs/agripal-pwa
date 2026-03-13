@@ -596,46 +596,6 @@ export interface HistorialEntrada {
   created_at: Timestamp;
 }
 
-export type SyncEstado = "pendiente" | "sincronizando" | "error" | "conflicto";
-export type SyncEntidad =
-  | "proyecto"
-  | "terreno"
-  | "zona"
-  | "planta"
-  | "entrada_agua"
-  | "cosecha"
-  | "alerta"
-  | "catalogo_cultivo"
-  | "insumo_usuario";
-export type SyncAccion = "create" | "update" | "delete";
-
-export interface SyncItem {
-  id: UUID;
-  entidad: SyncEntidad;
-  entidad_id: UUID;
-  accion: SyncAccion;
-  datos: Record<string, unknown>;
-  datos_servidor?: Record<string, unknown>;
-  estado: SyncEstado;
-  error?: string;
-  intentos: number;
-  nextRetryAt?: Timestamp;
-  resuelto_por?: "local" | "servidor";
-  created_at: Timestamp;
-  updated_at: Timestamp;
-}
-
-export interface SyncMeta {
-  key: string;
-  value: string;
-}
-
-export interface SyncConflict {
-  item: SyncItem;
-  localData: Record<string, unknown>;
-  serverData: Record<string, unknown>;
-}
-
 export type TipoFuenteAgua =
   | "aljibe"
   | "pozo"

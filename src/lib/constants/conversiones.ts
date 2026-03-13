@@ -23,3 +23,11 @@ export const DIAS_POR_MES_PROMEDIO = 30;
 export const DIAS_POR_AÑO = 365;
 export const HORAS_POR_DIA = 24;
 export const MESES_POR_AÑO = 12;
+
+/** Terreno piloto de referencia: pampa elevada sobre Valle de Azapa, Arica */
+export const UBICACION_PILOTO = {
+  coordenadas: "-18.3660, -70.0450",
+  altitud_m: 1086,
+  region: "Arica y Parinacota",
+  zona: "Pampa elevada sobre Valle de Azapa",
+} as const;

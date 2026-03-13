@@ -1,7 +1,6 @@
 "use client";
 
-import { useCallback } from "react";
-import { useLiveQuery } from "dexie-react-hooks";
+import { useCallback, useEffect, useState } from "react";
 import {
   proyectosDAL,
   terrenosDAL,
@@ -13,6 +12,8 @@ import {
 import { generateUUID, getCurrentTimestamp } from "@/lib/utils";
 import { crearCatalogoInicial } from "@/lib/data/cultivos-arica";
 import { useAuthContext } from "@/components/providers/auth-provider";
+import { ejecutarMutacion } from "@/lib/helpers/dal-mutation";
+import { logger } from "@/lib/logger";
 import type { Proyecto, UUID } from "@/types";
 
 interface EliminacionCascada {
@@ -41,42 +42,66 @@ interface UseProyectos {
 }
 
 export function useProyectos(): UseProyectos {
-  const { user } = useAuthContext();
+  const { user, loading: authLoading } = useAuthContext();
   const usuarioId = user?.id ?? "sin-sesion";
 
-  // Tag the result with the queried userId to detect stale cached results.
-  // useLiveQuery returns the previous result (not undefined) when deps change,
-  // causing the initialLoad effect to fire with stale empty data.
-  const result = useLiveQuery(
-    async () => ({
-      id: usuarioId,
-      data: await proyectosDAL.getByUsuarioId(usuarioId),
-    }),
-    [usuarioId],
-  );
+  const [proyectos, setProyectos] = useState<Proyecto[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
-  const loading = result === undefined || result.id !== usuarioId;
-  const proyectos = (result?.id === usuarioId ? result.data : undefined) ?? [];
+  const fetchProyectos = useCallback(async () => {
+    if (!user) {
+      setProyectos([]);
+      setLoading(false);
+      return;
+    }
+    try {
+      setLoading(true);
+      const data = await proyectosDAL.getByUsuarioId(usuarioId);
+      setProyectos(data);
+      setError(null);
+    } catch (err) {
+      const e =
+        err instanceof Error ? err : new Error("Error cargando proyectos");
+      logger.error("Error cargando proyectos", {
+        error: { message: e.message },
+      });
+      setError(e);
+    } finally {
+      setLoading(false);
+    }
+  }, [user, usuarioId]);
+
+  useEffect(() => {
+    fetchProyectos();
+  }, [fetchProyectos]);
 
   const crearProyecto = useCallback(
     async (data: { nombre: string; ubicacion: string }): Promise<Proyecto> => {
+      if (authLoading || !user)
+        throw new Error("Debes iniciar sesión para crear un proyecto.");
       const timestamp = getCurrentTimestamp();
       const nuevoProyecto: Proyecto = {
         id: generateUUID(),
-        usuario_id: usuarioId,
+        usuario_id: user.id,
         nombre: data.nombre,
         ubicacion_referencia: data.ubicacion,
         created_at: timestamp,
         updated_at: timestamp,
       };
 
-      await transaccionesDAL.crearProyectoConCatalogo(
-        nuevoProyecto,
-        crearCatalogoInicial(nuevoProyecto.id),
+      await ejecutarMutacion(
+        () =>
+          transaccionesDAL.crearProyectoConCatalogo(
+            nuevoProyecto,
+            crearCatalogoInicial(nuevoProyecto.id),
+          ),
+        "creando proyecto",
+        fetchProyectos,
       );
       return nuevoProyecto;
     },
-    [usuarioId],
+    [user, authLoading, fetchProyectos],
   );
 
   const editarProyecto = useCallback(
@@ -84,12 +109,17 @@ export function useProyectos(): UseProyectos {
       id: UUID,
       data: { nombre?: string; ubicacion_referencia?: string },
     ): Promise<void> => {
-      await proyectosDAL.update(id, {
-        ...data,
-        updated_at: getCurrentTimestamp(),
-      });
+      await ejecutarMutacion(
+        () =>
+          proyectosDAL.update(id, {
+            ...data,
+            updated_at: getCurrentTimestamp(),
+          }),
+        "editando proyecto",
+        fetchProyectos,
+      );
     },
-    [],
+    [fetchProyectos],
   );
 
   const contarContenido = useCallback(
@@ -125,18 +155,21 @@ export function useProyectos(): UseProyectos {
   const eliminarProyecto = useCallback(
     async (id: UUID): Promise<{ eliminados: EliminacionCascada }> => {
       const conteo = await contarContenido(id);
-      await transaccionesDAL.eliminarProyectoCascade(id);
+      await ejecutarMutacion(
+        () => transaccionesDAL.eliminarProyectoCascade(id),
+        "eliminando proyecto",
+        fetchProyectos,
+      );
       return { eliminados: conteo };
     },
-    [contarContenido],
+    [contarContenido, fetchProyectos],
   );
 
   return {
-    proyectos: proyectos ?? [],
+    proyectos,
     loading,
-    error: null,
-    refetch: async () => {},
-
+    error,
+    refetch: fetchProyectos,
     crearProyecto,
     editarProyecto,
     eliminarProyecto,

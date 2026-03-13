@@ -79,16 +79,14 @@ export class PixiPlantasLayer {
   }
 
   updateSelection(seleccionadasIds: Set<string>, plantas: Planta[]): void {
-    const particles = this.container.particleChildren;
-
-    for (let i = 0; i < plantas.length; i++) {
-      if (i >= particles.length) break;
-      const planta = plantas[i];
-      const particle = particles[i];
-      const isSelected = seleccionadasIds.has(planta.id);
+    for (const planta of plantas) {
+      const particleIdx = this.plantaIndexMap.get(planta.id);
+      if (particleIdx === undefined) continue;
+      const particle = this.container.particleChildren[particleIdx];
+      if (!particle) continue;
       particle.texture = this.textureFactory.getTexture(
         planta.estado,
-        isSelected,
+        seleccionadasIds.has(planta.id),
       );
     }
   }

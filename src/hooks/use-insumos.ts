@@ -1,9 +1,10 @@
 "use client";
 
-import { useCallback } from "react";
-import { useLiveQuery } from "dexie-react-hooks";
+import { useCallback, useEffect, useState } from "react";
 import { insumosDAL } from "@/lib/dal";
 import { generateUUID, getCurrentTimestamp } from "@/lib/utils";
+import { ejecutarMutacion } from "@/lib/helpers/dal-mutation";
+import { logger } from "@/lib/logger";
 import type { InsumoUsuario, UUID } from "@/types";
 
 interface UseInsumos {
@@ -16,12 +17,29 @@ interface UseInsumos {
 }
 
 export function useInsumos(terrenoId: UUID | null): UseInsumos {
-  const insumos = useLiveQuery(async () => {
-    if (!terrenoId) return [];
-    return insumosDAL.getByTerrenoId(terrenoId);
+  const [insumos, setInsumos] = useState<InsumoUsuario[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchInsumos = useCallback(async () => {
+    if (!terrenoId) {
+      setInsumos([]);
+      setLoading(false);
+      return;
+    }
+    try {
+      setLoading(true);
+      const data = await insumosDAL.getByTerrenoId(terrenoId);
+      setInsumos(data);
+    } catch (err) {
+      logger.error("Error cargando insumos", { error: err });
+    } finally {
+      setLoading(false);
+    }
   }, [terrenoId]);
 
-  const loading = insumos === undefined;
+  useEffect(() => {
+    fetchInsumos();
+  }, [fetchInsumos]);
 
   const agregarInsumo = useCallback(
     async (
@@ -37,18 +55,29 @@ export function useInsumos(terrenoId: UUID | null): UseInsumos {
         updated_at: timestamp,
       };
 
-      await insumosDAL.add(nuevo);
+      await ejecutarMutacion(
+        () => insumosDAL.add(nuevo),
+        "agregando insumo",
+        fetchInsumos,
+      );
       return nuevo;
     },
-    [terrenoId],
+    [terrenoId, fetchInsumos],
   );
 
-  const eliminarInsumo = useCallback(async (id: UUID): Promise<void> => {
-    await insumosDAL.delete(id);
-  }, []);
+  const eliminarInsumo = useCallback(
+    async (id: UUID): Promise<void> => {
+      await ejecutarMutacion(
+        () => insumosDAL.delete(id),
+        "eliminando insumo",
+        fetchInsumos,
+      );
+    },
+    [fetchInsumos],
+  );
 
   return {
-    insumos: insumos ?? [],
+    insumos,
     loading,
     agregarInsumo,
     eliminarInsumo,

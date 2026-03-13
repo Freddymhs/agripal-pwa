@@ -52,17 +52,16 @@ export default function AguaPage() {
 
   useEffect(() => {
     if (estanques.length === 0) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- sincronización: si el estanque seleccionado deja de existir, limpiar selección
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- sincronización: limpia selección si no hay estanques
       setEstanqueSeleccionadoId(null);
       return;
     }
-    const sigueExistiendo =
-      estanqueSeleccionadoId &&
-      estanques.some((e) => e.id === estanqueSeleccionadoId);
-    if (!sigueExistiendo) {
-      setEstanqueSeleccionadoId(estanques[0].id);
-    }
-  }, [estanques, estanqueSeleccionadoId]);
+
+    setEstanqueSeleccionadoId((prev) => {
+      const sigueExistiendo = prev && estanques.some((e) => e.id === prev);
+      return sigueExistiendo ? prev : estanques[0].id;
+    });
+  }, [estanques]);
 
   const estanqueActual =
     estanques.find((e) => e.id === estanqueSeleccionadoId) ||

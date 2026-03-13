@@ -16,7 +16,13 @@ export interface MapaTerrenoProps {
   plantas: Planta[];
   zonaSeleccionadaId?: string | null;
   zonaPreview?: ZonaPreview | null;
-  modo?: "terreno" | "zonas" | "plantas" | "crear_zona" | "plantar";
+  modo?:
+    | "terreno"
+    | "zonas"
+    | "plantas"
+    | "crear_zona"
+    | "plantar"
+    | "espaciado";
   cultivosEspaciado?: Record<string, number>;
   cultivosColores?: Record<string, number>;
   plantasSeleccionadasIds?: string[];

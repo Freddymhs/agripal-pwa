@@ -30,10 +30,8 @@ describe("Homepage SSG — restricciones arquitectónicas", () => {
     expect(pageSource).toContain("LandingAccessButton");
   });
 
-  it("no importa hooks de React Query ni Dexie (sin lógica offline en server component)", () => {
+  it("no importa hooks de React Query (sin lógica de datos en server component)", () => {
     expect(pageSource).not.toMatch(/from ["']@tanstack\/react-query["']/);
-    expect(pageSource).not.toMatch(/from ["']dexie["']/);
-    expect(pageSource).not.toMatch(/useLiveQuery/);
     expect(pageSource).not.toMatch(/useQuery/);
   });
 });

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { useProjectContext } from "@/contexts/project-context";
 import { MapProvider, useMapContext } from "@/contexts/map-context";
@@ -13,8 +13,6 @@ import { NuevaZonaModal } from "@/components/mapa/nueva-zona-modal";
 import { GridAutomaticoModal } from "@/components/plantas/grid-automatico-modal";
 import { AlertaBanner } from "@/components/alertas/alerta-banner";
 import { AlertasDropdown } from "@/components/alertas/alertas-dropdown";
-import { OfflineBanner, ConflictModal } from "@/components/sync";
-import { SyncIndicator } from "@/components/sync/sync-indicator";
 import {
   SelectorTerreno,
   CrearProyectoModal,
@@ -230,7 +228,6 @@ function MapView() {
     zonas,
     plantas,
     alertasHook,
-    syncHook,
     CULTIVOS_ESPACIADO,
     CULTIVOS_COLORES,
   } = useProjectContext();
@@ -259,36 +256,11 @@ function MapView() {
     handleMoverPlantasSeleccionadas,
   } = useMapContext();
 
-  const [conflictModalOpen, setConflictModalOpen] = useState(true);
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- abre modal cuando llegan conflictos de sync externos
-    if (syncHook.conflicts.length > 0) setConflictModalOpen(true);
-  }, [syncHook.conflicts.length]);
-
   if (!terrenoActual) return null;
 
   return (
     <div className="flex-1 flex flex-col">
       <AlertaBanner alertasCriticas={alertasHook.alertasCriticas} />
-      <OfflineBanner />
-
-      {syncHook.conflicts.length > 0 && conflictModalOpen && (
-        <ConflictModal
-          conflicts={syncHook.conflicts}
-          onResolve={syncHook.resolveConflict}
-          onClose={() => setConflictModalOpen(false)}
-        />
-      )}
-
-      {syncHook.conflicts.length > 0 && !conflictModalOpen && (
-        <button
-          onClick={() => setConflictModalOpen(true)}
-          className="bg-orange-500 text-white px-4 py-1.5 text-sm font-medium text-center"
-        >
-          {syncHook.conflicts.length} conflicto(s) sin resolver — Abrir
-        </button>
-      )}
 
       <MapToolbar />
       <MapInfoBar />
@@ -372,8 +344,6 @@ function HeaderActions({
 }: HeaderActionsProps) {
   return (
     <>
-      <SyncIndicator />
-
       <AlertasDropdown alertas={alertas} alertasCriticas={alertasCriticas} />
 
       <div className="flex items-center gap-2 border-l border-green-500 pl-3">

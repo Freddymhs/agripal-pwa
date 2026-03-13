@@ -2,6 +2,7 @@
 
 import { useCallback } from "react";
 import { zonasDAL } from "@/lib/dal";
+import { getCurrentTimestamp } from "@/lib/utils";
 import { STORAGE_KEYS } from "@/lib/constants/storage";
 import { useProyectos } from "./use-proyectos";
 import { useTerrenos } from "./use-terrenos";
@@ -78,7 +79,7 @@ export function useProjectHandlers({
           ...zona.estanque_config,
           fuente_id: fuenteId || undefined,
         },
-        updated_at: new Date().toISOString(),
+        updated_at: getCurrentTimestamp(),
       });
       cargarDatosTerreno();
     },

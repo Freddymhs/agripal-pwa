@@ -17,12 +17,6 @@ export {
   GOTEROS_DEFAULT,
 } from "./entities";
 export {
-  SYNC_ENTIDADES,
-  RETRY_DELAYS,
-  MAX_RETRY_ATTEMPTS,
-  SYNC_CLEANUP_DAYS,
-} from "./sync";
-export {
   M2_POR_HECTAREA,
   SEMANAS_POR_AÑO,
   DIAS_POR_SEMANA,
@@ -40,6 +34,7 @@ export {
   DIAS_POR_AÑO,
   HORAS_POR_DIA,
   MESES_POR_AÑO,
+  UBICACION_PILOTO,
 } from "./conversiones";
 export {
   DIAS_AGUA_UMBRAL_ALTO,

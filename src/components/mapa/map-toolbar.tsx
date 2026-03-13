@@ -70,6 +70,24 @@ export function MapToolbar() {
 
       <button
         onClick={() => {
+          setModo("espaciado");
+          setZonaSeleccionada(null);
+          setPlantaSeleccionada(null);
+          setPlantasSeleccionadas([]);
+        }}
+        className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
+          modo === "espaciado"
+            ? "bg-blue-600 text-white"
+            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+        }`}
+      >
+        📋 Plano Tecnico
+      </button>
+
+      <div className="w-px h-6 bg-gray-300 mx-1" />
+
+      <button
+        onClick={() => {
           setModo("crear_zona");
           setZonaSeleccionada(null);
           setPlantaSeleccionada(null);

@@ -3,11 +3,11 @@ import { logger } from "@/lib/logger";
 export async function ejecutarMutacion<T>(
   operacion: () => Promise<T>,
   etiquetaError: string,
-  onRefetch?: () => void,
+  onRefetch?: () => void | Promise<void>,
 ): Promise<T> {
   try {
     const resultado = await operacion();
-    onRefetch?.();
+    await onRefetch?.();
     return resultado;
   } catch (err) {
     logger.error(`Error ${etiquetaError}`, {

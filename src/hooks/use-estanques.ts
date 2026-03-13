@@ -4,6 +4,7 @@ import { useMemo, useCallback } from "react";
 import { zonasDAL, transaccionesDAL } from "@/lib/dal";
 import { getCurrentTimestamp } from "@/lib/utils";
 import { calcularStockEstanques } from "@/lib/utils/agua";
+import { ejecutarMutacion } from "@/lib/helpers/dal-mutation";
 import { emitZonaUpdated } from "@/lib/events/zona-events";
 import type { Zona, UUID } from "@/types";
 import { TIPO_ZONA } from "@/lib/constants/entities";
@@ -55,17 +56,23 @@ export function useEstanques(
       }
 
       const nuevoNivel = nivel_actual_m3 + cantidadReal;
+      const config = estanque.estanque_config;
 
-      await zonasDAL.update(estanqueId, {
-        estanque_config: {
-          ...estanque.estanque_config,
-          nivel_actual_m3: nuevoNivel,
+      await ejecutarMutacion(
+        () =>
+          zonasDAL.update(estanqueId, {
+            estanque_config: {
+              ...config,
+              nivel_actual_m3: nuevoNivel,
+            },
+            updated_at: getCurrentTimestamp(),
+          }),
+        "agregando agua a estanque",
+        () => {
+          emitZonaUpdated(estanqueId);
+          onRefetch();
         },
-        updated_at: getCurrentTimestamp(),
-      });
-
-      emitZonaUpdated(estanqueId);
-      onRefetch();
+      );
       return {};
     },
     [estanques, onRefetch],
@@ -83,10 +90,11 @@ export function useEstanques(
         return { error: "Estanque destino no encontrado" };
       }
 
-      const aguaDisponibleOrigen = origen.estanque_config.nivel_actual_m3;
+      const origenConfig = origen.estanque_config;
+      const destinoConfig = destino.estanque_config;
+      const aguaDisponibleOrigen = origenConfig.nivel_actual_m3;
       const espacioDestino =
-        destino.estanque_config.capacidad_m3 -
-        destino.estanque_config.nivel_actual_m3;
+        destinoConfig.capacidad_m3 - destinoConfig.nivel_actual_m3;
       const cantidadReal = Math.min(
         cantidad,
         aguaDisponibleOrigen,
@@ -98,28 +106,29 @@ export function useEstanques(
       }
 
       const ts = getCurrentTimestamp();
-      await transaccionesDAL.transferirAgua(
-        origenId,
-        {
-          estanque_config: {
-            ...origen.estanque_config,
-            nivel_actual_m3:
-              origen.estanque_config.nivel_actual_m3 - cantidadReal,
-          },
-          updated_at: ts,
-        },
-        destinoId,
-        {
-          estanque_config: {
-            ...destino.estanque_config,
-            nivel_actual_m3:
-              destino.estanque_config.nivel_actual_m3 + cantidadReal,
-          },
-          updated_at: ts,
-        },
+      await ejecutarMutacion(
+        () =>
+          transaccionesDAL.transferirAgua(
+            origenId,
+            {
+              estanque_config: {
+                ...origenConfig,
+                nivel_actual_m3: origenConfig.nivel_actual_m3 - cantidadReal,
+              },
+              updated_at: ts,
+            },
+            destinoId,
+            {
+              estanque_config: {
+                ...destinoConfig,
+                nivel_actual_m3: destinoConfig.nivel_actual_m3 + cantidadReal,
+              },
+              updated_at: ts,
+            },
+          ),
+        "transfiriendo agua",
+        onRefetch,
       );
-
-      onRefetch();
       return {};
     },
     [estanques, onRefetch],

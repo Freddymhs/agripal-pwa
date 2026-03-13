@@ -15,7 +15,6 @@ import { useProyectos } from "@/hooks/use-proyectos";
 import { useTerrenos } from "@/hooks/use-terrenos";
 import { useCatalogo } from "@/hooks/use-catalogo";
 import { useAlertas } from "@/hooks/use-alertas";
-import { useSync } from "@/hooks/use-sync";
 import { useEstanques } from "@/hooks/use-estanques";
 import { useZonas } from "@/hooks/use-zonas";
 import { usePlantas } from "@/hooks/use-plantas";
@@ -73,8 +72,6 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
     plantas,
     catalogoCultivos,
   );
-  const syncHook = useSync();
-
   const CULTIVOS_ESPACIADO = useMemo(
     () =>
       catalogoCultivos.reduce<Record<string, number>>(
@@ -101,9 +98,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    // Esperar a que los proyectos del usuario real estén disponibles en IndexedDB.
-    // Sin este guard, el efecto disparaba antes del login con proyectos vacíos y marcaba
-    // initialLoad=false prematuramente — proyectos no aparecían tras reiniciar el equipo.
+    // Esperar a que los proyectos del usuario real estén disponibles.
     if (!proyectosHook.loading) {
       const savedId = localStorage.getItem(STORAGE_KEYS.PROYECTO);
       if (savedId) {
@@ -180,11 +175,10 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     return onZonaUpdated(() => cargarDatosTerreno());
   }, [cargarDatosTerreno]);
-
   const estanquesHook = useEstanques(zonas, cargarDatosTerreno);
   const zonasHook = useZonas(
     terrenoActual?.id || "",
-    terrenoActual!,
+    terrenoActual ?? ({} as Terreno),
     zonas,
     plantas,
     cargarDatosTerreno,
@@ -244,7 +238,6 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
       loading,
       initialLoad: initialLoad || proyectosHook.loading,
       alertasHook,
-      syncHook,
       estanquesHook,
       zonasHook,
       plantasHook,
@@ -282,7 +275,6 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
       initialLoad,
       proyectosHook.loading,
       alertasHook,
-      syncHook,
       estanquesHook,
       zonasHook,
       plantasHook,

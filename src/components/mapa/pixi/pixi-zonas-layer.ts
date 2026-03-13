@@ -5,6 +5,22 @@ import { TIPO_ZONA } from "@/lib/constants/entities";
 
 const COLOR_ZONA_HOVER = 0xfbbf24;
 
+function buildLabelText(zona: Zona, modoPlano: boolean): string {
+  if (modoPlano) {
+    const areaM2 = zona.ancho * zona.alto;
+    return `${zona.nombre}\n\n${zona.ancho}×${zona.alto}m\n${areaM2}m²`;
+  }
+  if (zona.tipo === TIPO_ZONA.ESTANQUE && zona.estanque_config) {
+    const cfg = zona.estanque_config;
+    const pct =
+      cfg.capacidad_m3 > 0
+        ? Math.round((cfg.nivel_actual_m3 / cfg.capacidad_m3) * 100)
+        : 0;
+    return `${zona.nombre}\n${pct}%`;
+  }
+  return zona.nombre;
+}
+
 export class PixiZonasLayer {
   container: Container;
   private zonaGraphics: Map<string, Graphics> = new Map();
@@ -23,6 +39,7 @@ export class PixiZonasLayer {
     onZonaClick: (zona: Zona) => void,
     zonaCultivoColor: Record<string, number | null> = {},
     zonasInteractivas: boolean = true,
+    modoPlano: boolean = false,
   ): void {
     this.clear();
 
@@ -99,27 +116,38 @@ export class PixiZonasLayer {
           ? Math.max(8, 12 / scale)
           : Math.max(10, 14 / scale);
 
-        let labelText = zona.nombre;
-        if (zona.tipo === TIPO_ZONA.ESTANQUE && zona.estanque_config) {
-          const cfg = zona.estanque_config;
-          const pct =
-            cfg.capacidad_m3 > 0
-              ? Math.round((cfg.nivel_actual_m3 / cfg.capacidad_m3) * 100)
-              : 0;
-          labelText = `${zona.nombre}\n${pct}%`;
-        }
+        const labelText = buildLabelText(zona, modoPlano);
 
         const text = new Text({
           text: labelText,
           style: {
             fontSize,
-            fill: 0x1f2937,
-            fontFamily: "sans-serif",
+            fill: modoPlano ? 0x111827 : 0x1f2937,
+            fontFamily: modoPlano ? "monospace" : "sans-serif",
+            fontWeight: modoPlano ? "bold" : "normal",
             align: "center",
           },
         });
         text.position.set(x + w / 2, y + h / 2);
         text.anchor.set(0.5);
+
+        if (modoPlano) {
+          const bounds = text.getLocalBounds();
+          const pad = fontSize * 0.5;
+          const bg = new Graphics();
+          bg.rect(
+            bounds.x - pad,
+            bounds.y - pad,
+            bounds.width + pad * 2,
+            bounds.height + pad * 2,
+          );
+          bg.fill({ color: 0xffffff, alpha: 0.88 });
+          bg.stroke({ color: 0x9ca3af, width: 0.5 });
+          bg.position.set(x + w / 2, y + h / 2);
+          this.container.addChild(bg);
+          this.zonaLabels.set(`${zona.id}_bg`, bg as unknown as Text);
+        }
+
         this.container.addChild(text);
         this.zonaLabels.set(zona.id, text);
       }

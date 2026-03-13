@@ -1,4 +1,5 @@
-import { db } from "@/lib/db";
+import { supabase } from "@/lib/supabase/client";
+import { serializarParaSupabase } from "@/lib/supabase/schema";
 import type {
   Proyecto,
   CatalogoCultivo,
@@ -9,150 +10,133 @@ import type {
   Alerta,
 } from "@/types";
 import { ESTADO_PLANTA } from "@/lib/constants/entities";
+import { zonasDAL } from "./zonas";
+import { plantasDAL } from "./plantas";
+import { terrenosDAL } from "./terrenos";
+import { proyectosDAL } from "./proyectos";
+import { alertasDAL } from "./alertas";
+import { aguaDAL } from "./agua";
 
 export const transaccionesDAL = {
-  eliminarZonaCascade: (zonaId: string) =>
-    db.transaction("rw", [db.plantas, db.zonas], async () => {
-      await db.plantas.where("zona_id").equals(zonaId).delete();
-      await db.zonas.delete(zonaId);
-    }),
+  /** FK ON DELETE CASCADE en Postgres maneja la eliminación de hijos */
+  eliminarZonaCascade: async (zonaId: string): Promise<void> => {
+    await zonasDAL.delete(zonaId);
+  },
 
-  eliminarTerrenoCascade: (terrenoId: string) =>
-    db.transaction("rw", [db.plantas, db.zonas, db.terrenos], async () => {
-      const zonas = await db.zonas
-        .where("terreno_id")
-        .equals(terrenoId)
-        .toArray();
-      const zonaIds = zonas.map((z) => z.id);
-      if (zonaIds.length > 0) {
-        await db.plantas.where("zona_id").anyOf(zonaIds).delete();
-      }
-      await db.zonas.where("terreno_id").equals(terrenoId).delete();
-      await db.terrenos.delete(terrenoId);
-    }),
+  eliminarTerrenoCascade: async (terrenoId: string): Promise<void> => {
+    await terrenosDAL.delete(terrenoId);
+  },
 
-  eliminarProyectoCascade: (proyectoId: string) =>
-    db.transaction(
-      "rw",
-      [db.plantas, db.zonas, db.terrenos, db.catalogo_cultivos, db.proyectos],
-      async () => {
-        const terrenos = await db.terrenos
-          .where("proyecto_id")
-          .equals(proyectoId)
-          .toArray();
-        const terrenoIds = terrenos.map((t) => t.id);
+  eliminarProyectoCascade: async (proyectoId: string): Promise<void> => {
+    await proyectosDAL.delete(proyectoId);
+  },
 
-        if (terrenoIds.length > 0) {
-          const zonas = await db.zonas
-            .where("terreno_id")
-            .anyOf(terrenoIds)
-            .toArray();
-          const zonaIds = zonas.map((z) => z.id);
-          if (zonaIds.length > 0) {
-            await db.plantas.where("zona_id").anyOf(zonaIds).delete();
-          }
-          await db.zonas.where("terreno_id").anyOf(terrenoIds).delete();
-        }
+  crearProyectoConCatalogo: async (
+    proyecto: Proyecto,
+    cultivos: CatalogoCultivo[],
+  ): Promise<void> => {
+    await proyectosDAL.add(proyecto);
+    if (cultivos.length > 0) {
+      const payloads = cultivos.map((c) =>
+        serializarParaSupabase(
+          "catalogo_cultivos",
+          c as unknown as Record<string, unknown>,
+        ),
+      );
+      const { error } = await supabase
+        .from("catalogo_cultivos")
+        .insert(payloads);
+      if (error) throw error;
+    }
+  },
 
-        await db.terrenos.where("proyecto_id").equals(proyectoId).delete();
-        await db.catalogo_cultivos
-          .where("proyecto_id")
-          .equals(proyectoId)
-          .delete();
-        await db.proyectos.delete(proyectoId);
-      },
-    ),
+  seedCatalogo: async (cultivos: CatalogoCultivo[]): Promise<void> => {
+    if (cultivos.length === 0) return;
+    const payloads = cultivos.map((c) =>
+      serializarParaSupabase(
+        "catalogo_cultivos",
+        c as unknown as Record<string, unknown>,
+      ),
+    );
+    const { error } = await supabase.from("catalogo_cultivos").insert(payloads);
+    if (error) throw error;
+  },
 
-  crearProyectoConCatalogo: (proyecto: Proyecto, cultivos: CatalogoCultivo[]) =>
-    db.transaction("rw", [db.proyectos, db.catalogo_cultivos], async () => {
-      await db.proyectos.add(proyecto);
-      if (cultivos.length > 0) {
-        await db.catalogo_cultivos.bulkAdd(cultivos);
-      }
-    }),
-
-  seedCatalogo: (cultivos: CatalogoCultivo[]) =>
-    db.transaction("rw", db.catalogo_cultivos, async () => {
-      if (cultivos.length > 0) {
-        await db.catalogo_cultivos.bulkAdd(cultivos);
-      }
-    }),
-
-  transferirAgua: (
+  transferirAgua: async (
     origenId: string,
     origenUpdate: Partial<Zona>,
     destinoId: string,
     destinoUpdate: Partial<Zona>,
-  ) =>
-    db.transaction("rw", db.zonas, async () => {
-      await db.zonas.update(origenId, origenUpdate);
-      await db.zonas.update(destinoId, destinoUpdate);
-    }),
+  ): Promise<void> => {
+    await zonasDAL.update(origenId, origenUpdate);
+    await zonasDAL.update(destinoId, destinoUpdate);
+  },
 
-  registrarEntradaAgua: (
+  registrarEntradaAgua: async (
     entrada: EntradaAgua,
     estanqueId: string,
     estanqueUpdate: Partial<Zona>,
     terrenoId: string,
     terrenoUpdate: Partial<Terreno>,
-  ) =>
-    db.transaction(
-      "rw",
-      [db.entradas_agua, db.zonas, db.terrenos],
-      async () => {
-        await db.entradas_agua.add(entrada);
-        await db.zonas.update(estanqueId, estanqueUpdate);
-        await db.terrenos.update(terrenoId, terrenoUpdate);
-      },
-    ),
+  ): Promise<void> => {
+    await aguaDAL.addEntrada(entrada);
+    await zonasDAL.update(estanqueId, estanqueUpdate);
+    await terrenosDAL.update(terrenoId, terrenoUpdate);
+  },
 
-  aplicarDescuentosAgua: (
+  aplicarDescuentosAgua: async (
     descuentos: Array<{ estanqueId: string; update: Partial<Zona> }>,
     terrenoId: string,
     terrenoUpdate: Partial<Terreno>,
-  ) =>
-    db.transaction("rw", [db.zonas, db.terrenos], async () => {
-      for (const d of descuentos) {
-        await db.zonas.update(d.estanqueId, d.update);
-      }
-      await db.terrenos.update(terrenoId, terrenoUpdate);
-    }),
+  ): Promise<void> => {
+    for (const d of descuentos) {
+      await zonasDAL.update(d.estanqueId, d.update);
+    }
+    await terrenosDAL.update(terrenoId, terrenoUpdate);
+  },
 
-  actualizarEtapasLote: (
+  actualizarEtapasLote: async (
     actualizaciones: Array<{ id: string; cambios: Partial<Planta> }>,
-  ) =>
-    db.transaction("rw", db.plantas, async () => {
-      for (const a of actualizaciones) {
-        await db.plantas.update(a.id, a.cambios);
-      }
-    }),
+  ): Promise<void> => {
+    for (const a of actualizaciones) {
+      await plantasDAL.update(a.id, a.cambios);
+    }
+  },
 
-  cambiarEstadoPlantasLote: (ids: string[], cambios: Partial<Planta>) =>
-    db.transaction("rw", db.plantas, async () => {
-      for (const id of ids) {
-        await db.plantas.update(id, cambios);
-      }
-    }),
+  cambiarEstadoPlantasLote: async (
+    ids: string[],
+    cambios: Partial<Planta>,
+  ): Promise<void> => {
+    for (const id of ids) {
+      await plantasDAL.update(id, cambios);
+    }
+  },
 
-  sincronizarAlertas: (
+  sincronizarAlertas: async (
     resolver: Array<{ id: string; cambios: Partial<Alerta> }>,
     nuevas: Alerta[],
-  ) =>
-    db.transaction("rw", db.alertas, async () => {
-      for (const r of resolver) {
-        await db.alertas.update(r.id, r.cambios);
-      }
-      if (nuevas.length > 0) {
-        await db.alertas.bulkAdd(nuevas);
-      }
-    }),
+  ): Promise<void> => {
+    for (const r of resolver) {
+      await alertasDAL.update(r.id, r.cambios);
+    }
+    if (nuevas.length > 0) {
+      const payloads = nuevas.map((a) =>
+        serializarParaSupabase(
+          "alertas",
+          a as unknown as Record<string, unknown>,
+        ),
+      );
+      const { error } = await supabase.from("alertas").insert(payloads);
+      if (error) throw error;
+    }
+  },
 
-  eliminarPlantasMuertas: (zonaId: string) =>
-    db.transaction("rw", db.plantas, async () => {
-      await db.plantas
-        .where("zona_id")
-        .equals(zonaId)
-        .filter((p) => p.estado === ESTADO_PLANTA.MUERTA)
-        .delete();
-    }),
+  eliminarPlantasMuertas: async (zonaId: string): Promise<void> => {
+    const { error } = await supabase
+      .from("plantas")
+      .delete()
+      .eq("zona_id", zonaId)
+      .eq("estado", ESTADO_PLANTA.MUERTA);
+    if (error) throw error;
+  },
 };

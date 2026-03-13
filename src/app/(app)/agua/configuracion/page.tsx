@@ -51,7 +51,7 @@ export default function AguaConfiguracionPage() {
     if (!terreno || loadedTerrenoId.current === terreno.id) return;
     loadedTerrenoId.current = terreno.id;
     const avanzada = terreno.agua_avanzada ?? {};
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- sincronización: carga inicial desde IndexedDB, nunca produce cascada (ref guard lo evita)
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- carga inicial, ref guard evita cascada
     setCalidad(avanzada.calidad ?? {});
 
     setProveedores(avanzada.proveedores ?? []);

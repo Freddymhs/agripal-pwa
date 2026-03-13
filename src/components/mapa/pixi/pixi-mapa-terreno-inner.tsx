@@ -2,6 +2,8 @@
 
 import { useRef, useState, useCallback, useMemo } from "react";
 import { Container, type Graphics } from "pixi.js";
+import { InformeExportPanel } from "../informe-export-panel";
+import { logExportError } from "@/lib/utils/generar-informe-pdf";
 import { usePixiApp } from "./use-pixi-app";
 import { usePixiViewport } from "./use-pixi-viewport";
 import { useMapLayers } from "./use-map-layers";
@@ -13,6 +15,7 @@ import { PixiTextureFactory } from "./pixi-texture-factory";
 import { PixiPlantasLayer } from "./pixi-plantas-layer";
 import { PixiHitTest } from "./pixi-hit-test";
 import { PixiOverlayLayer } from "./pixi-overlay-layer";
+import { PixiSpacingLayer } from "./pixi-spacing-layer";
 import { PIXELS_POR_METRO } from "./pixi-constants";
 import { MapaControls } from "../mapa-controls";
 import { TerrenoInfoOverlay, ModoBadge } from "./pixi-mapa-info-overlay";
@@ -54,6 +57,7 @@ export function PixiMapaTerrenoInner({
   const plantasLayerRef = useRef<PixiPlantasLayer | null>(null);
   const hitTestRef = useRef<PixiHitTest | null>(null);
   const overlayLayerRef = useRef<PixiOverlayLayer | null>(null);
+  const spacingLayerRef = useRef<PixiSpacingLayer | null>(null);
 
   const [scaleDisplay, setScaleDisplay] = useState(1);
 
@@ -115,6 +119,7 @@ export function PixiMapaTerrenoInner({
       plantasLayerRef,
       hitTestRef,
       overlayLayerRef,
+      spacingLayerRef,
       borderRef,
     }),
     [],
@@ -176,7 +181,7 @@ export function PixiMapaTerrenoInner({
   });
 
   const areaUsada = useMemo(
-    () => zonas.reduce((acc, z) => acc + z.area_m2, 0),
+    () => zonas.reduce((acc, z) => acc + (z.area_m2 ?? 0), 0),
     [zonas],
   );
   const areaDisponible = terreno.area_m2 - areaUsada;
@@ -187,11 +192,35 @@ export function PixiMapaTerrenoInner({
     return "cursor-grab";
   }, [modo]);
 
+  const extraerMapaDataUrl = useCallback(async (): Promise<string> => {
+    if (!app) return "";
+    try {
+      const canvas = await app.renderer.extract.canvas(app.stage);
+      return (canvas as HTMLCanvasElement).toDataURL("image/png");
+    } catch (error) {
+      logExportError("extraerMapaDataUrl", error);
+      return "";
+    }
+  }, [app]);
+
+  const exportarPNG = useCallback(async () => {
+    const dataUrl = await extraerMapaDataUrl();
+    if (!dataUrl) return;
+    const link = document.createElement("a");
+    link.download = `terreno-${terreno.nombre ?? "mapa"}.png`;
+    link.href = dataUrl;
+    link.click();
+  }, [extraerMapaDataUrl, terreno.nombre]);
+
   const zoomTowardZona = useCallback(
     (direction: 1 | -1) => {
       const zonaSeleccionada = zonas.find((z) => z.id === zonaSeleccionadaId);
       if (!zonaSeleccionada || !app) {
-        direction === 1 ? viewport.zoomIn() : viewport.zoomOut();
+        if (direction === 1) {
+          viewport.zoomIn();
+        } else {
+          viewport.zoomOut();
+        }
         return;
       }
 
@@ -258,6 +287,16 @@ export function PixiMapaTerrenoInner({
         modo={modo}
         showSeleccionHint={modo === "plantas" && !!onSeleccionMultiple}
       />
+
+      {modo === "espaciado" && (
+        <InformeExportPanel
+          terreno={terreno}
+          zonas={zonas}
+          plantas={plantas}
+          onExportarPNG={exportarPNG}
+          onExtraerMapa={extraerMapaDataUrl}
+        />
+      )}
     </div>
   );
 }

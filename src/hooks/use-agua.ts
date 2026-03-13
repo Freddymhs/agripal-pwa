@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState, useCallback, useMemo, useRef } from "react";
+import { useEffect, useCallback, useMemo, useRef, useState } from "react";
 import { logger } from "@/lib/logger";
 import { aguaDAL, transaccionesDAL } from "@/lib/dal";
+import { ejecutarMutacion } from "@/lib/helpers/dal-mutation";
 import { generateUUID, getCurrentTimestamp } from "@/lib/utils";
 import { ESTADO_AGUA } from "@/lib/constants/entities";
 import { filtrarEstanques } from "@/lib/utils/helpers-cultivo";
@@ -48,12 +49,32 @@ export function useAgua(
   catalogoCultivos: CatalogoCultivo[],
   onRefetch: () => void,
 ): UseAgua {
+  const terrenoId = terreno?.id ?? "";
   const [entradas, setEntradas] = useState<EntradaAgua[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loadingEntradas, setLoadingEntradas] = useState(true);
 
-  const estanques = useMemo(() => {
-    return filtrarEstanques(zonas);
-  }, [zonas]);
+  const fetchEntradas = useCallback(async () => {
+    if (!terreno) {
+      setEntradas([]);
+      setLoadingEntradas(false);
+      return;
+    }
+    try {
+      setLoadingEntradas(true);
+      const data = await aguaDAL.getEntradasByTerrenoId(terrenoId);
+      setEntradas(data);
+    } catch (err) {
+      logger.error("Error cargando entradas de agua", { error: err });
+    } finally {
+      setLoadingEntradas(false);
+    }
+  }, [terreno, terrenoId]);
+
+  useEffect(() => {
+    fetchEntradas();
+  }, [fetchEntradas]);
+
+  const estanques = useMemo(() => filtrarEstanques(zonas), [zonas]);
 
   const stock = useMemo(() => calcularStockEstanques(estanques), [estanques]);
   const aguaTotalEstanques = stock.aguaTotal;
@@ -62,33 +83,8 @@ export function useAgua(
   const descuentoAplicado = useRef(false);
 
   useEffect(() => {
-    if (!terreno) return;
-
-    const cancelledRef = { current: false };
-    const terrenoId = terreno.id;
-
-    async function cargar() {
-      setLoading(true);
-      try {
-        const data = await aguaDAL.getEntradasByTerrenoId(terrenoId);
-        if (!cancelledRef.current) {
-          setEntradas(data);
-        }
-      } catch (err) {
-        logger.error("Error cargando entradas de agua", { error: err });
-      } finally {
-        if (!cancelledRef.current) {
-          setLoading(false);
-        }
-      }
-    }
-
-    cargar();
-
-    return () => {
-      cancelledRef.current = true;
-    };
-  }, [terreno]);
+    descuentoAplicado.current = false;
+  }, [terreno?.id]);
 
   useEffect(() => {
     if (!terreno || estanques.length === 0 || descuentoAplicado.current) return;
@@ -191,21 +187,26 @@ export function useAgua(
         };
       }
 
-      await transaccionesDAL.registrarEntradaAgua(
-        entrada,
-        data.estanque_id,
-        { estanque_config: updatedConfig, updated_at: now },
-        terreno.id,
-        { ultima_simulacion_agua: now },
+      await ejecutarMutacion(
+        () =>
+          transaccionesDAL.registrarEntradaAgua(
+            entrada,
+            data.estanque_id,
+            { estanque_config: updatedConfig, updated_at: now },
+            terreno.id,
+            { ultima_simulacion_agua: now },
+          ),
+        "registrando entrada de agua",
+        async () => {
+          emitZonaUpdated(data.estanque_id);
+          await fetchEntradas();
+          onRefetch();
+        },
       );
-
-      emitZonaUpdated(data.estanque_id);
-      setEntradas((prev) => [entrada, ...prev]);
-      onRefetch();
 
       return entrada;
     },
-    [terreno, estanques, onRefetch],
+    [terreno, estanques, onRefetch, fetchEntradas],
   );
 
   return {
@@ -214,7 +215,7 @@ export function useAgua(
     aguaTotalEstanques,
     capacidadTotalEstanques,
     estadoAgua,
-    loading,
+    loading: loadingEntradas,
     registrarEntrada,
   };
 }

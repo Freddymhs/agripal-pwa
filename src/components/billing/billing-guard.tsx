@@ -84,7 +84,12 @@ export function BillingGuard({ children }: BillingGuardProps) {
   }, []);
 
   useEffect(() => {
-    if (authLoading || !user) return;
+    if (authLoading) return;
+    if (!user) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- sincronización: bloquea acceso si no hay sesión activa
+      setStatus("blocked");
+      return;
+    }
 
     // Deferred call to avoid synchronous setState in effect
     const t = setTimeout(() => checkSubscription(user.id), 0);
