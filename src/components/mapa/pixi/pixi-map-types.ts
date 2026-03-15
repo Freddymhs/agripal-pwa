@@ -1,4 +1,4 @@
-import type { Terreno, Zona, Planta } from "@/types";
+import type { Terreno, Zona, Planta, Modo } from "@/types";
 import type { GridParams } from "@/lib/validations/planta";
 
 export interface ZonaPreview {
@@ -16,13 +16,7 @@ export interface MapaTerrenoProps {
   plantas: Planta[];
   zonaSeleccionadaId?: string | null;
   zonaPreview?: ZonaPreview | null;
-  modo?:
-    | "terreno"
-    | "zonas"
-    | "plantas"
-    | "crear_zona"
-    | "plantar"
-    | "espaciado";
+  modo?: Modo;
   cultivosEspaciado?: Record<string, number>;
   cultivosColores?: Record<string, number>;
   plantasSeleccionadasIds?: string[];

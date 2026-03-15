@@ -1,6 +1,35 @@
 import { describe, it, expect } from "vitest";
 import type { CatalogoCultivo, FuenteAgua, SueloTerreno } from "@/types";
+import type { DatosClimaticos } from "@/lib/data/clima-arica";
 import { calcularFactorSuelo, calcularScoreCalidad } from "../calidad";
+
+const climaFixture: DatosClimaticos = {
+  region: "Arica y Parinacota",
+  zona: "pampa_interior",
+  lluvia: {
+    anual_mm: 23,
+    max_24h_mm: 10,
+    meses_lluviosos: [],
+    meses_secos: [],
+  },
+  temperatura: {
+    minima_historica_c: 8,
+    maxima_verano_c: 26,
+    promedio_anual_c: 18,
+    horas_frio_aprox: 50,
+  },
+  heladas: { anuales: 0, meses_riesgo: [], plantas_sensibles: [] },
+  viento: { max_kmh: 56, direccion_predominante: "SW", meses_fuerte: [] },
+  humedad_radiacion: { humedad_relativa_pct: 60, radiacion_mj_m2_dia: 20 },
+  evapotranspiracion: { et0_mm_dia: 4.2, nota: "" },
+  estacionalidad: {
+    verano: { meses: [], caracteristica: "", factor_agua: 1 },
+    otoño: { meses: [], caracteristica: "", factor_agua: 1 },
+    invierno: { meses: [], caracteristica: "", factor_agua: 1 },
+    primavera: { meses: [], caracteristica: "", factor_agua: 1 },
+  },
+  fuentes: [],
+};
 
 const cultivoFixture: CatalogoCultivo = {
   id: "cultivo-1",
@@ -150,7 +179,14 @@ describe("calcularFactorSuelo", () => {
 
 describe("calcularScoreCalidad", () => {
   it("retorna score parcial (50) cuando fuente es null y suelo es null", () => {
-    const result = calcularScoreCalidad(cultivoFixture, null, null, 100, 5);
+    const result = calcularScoreCalidad(
+      cultivoFixture,
+      null,
+      null,
+      100,
+      5,
+      climaFixture,
+    );
     expect(result.score_agua).toBe(50);
     expect(result.score_suelo).toBe(50);
     expect(result.factores_limitantes.length).toBeGreaterThan(0);
@@ -170,7 +206,14 @@ describe("calcularScoreCalidad", () => {
       quimico: { salinidad_dS_m: 1.0 },
     };
 
-    const result = calcularScoreCalidad(cultivoFixture, fuente, suelo, 200, 5);
+    const result = calcularScoreCalidad(
+      cultivoFixture,
+      fuente,
+      suelo,
+      200,
+      5,
+      climaFixture,
+    );
     expect(result.score_agua).toBe(100);
     expect(result.score_suelo).toBe(100);
     expect(result.score_total).toBeGreaterThanOrEqual(70);
@@ -193,6 +236,7 @@ describe("calcularScoreCalidad", () => {
       null,
       100,
       5,
+      climaFixture,
     );
     expect(result.score_agua).toBeLessThan(100);
     expect(result.factores_limitantes.some((f) => f.includes("Boro"))).toBe(
@@ -214,6 +258,7 @@ describe("calcularScoreCalidad", () => {
       null,
       100,
       5,
+      climaFixture,
     );
     expect(result.score_agua).toBeLessThan(100);
   });
@@ -232,27 +277,56 @@ describe("calcularScoreCalidad", () => {
       null,
       100,
       5,
+      climaFixture,
     );
     expect(result.score_agua).toBeLessThan(100);
   });
 
   it("retorna score_riego bajo con pocos dias de agua (< 7)", () => {
-    const result = calcularScoreCalidad(cultivoFixture, null, null, 2, 5);
+    const result = calcularScoreCalidad(
+      cultivoFixture,
+      null,
+      null,
+      2,
+      5,
+      climaFixture,
+    );
     expect(result.score_riego).toBeLessThanOrEqual(10);
   });
 
   it("retorna score_riego medio con 7-14 dias de agua", () => {
-    const result = calcularScoreCalidad(cultivoFixture, null, null, 10, 7);
+    const result = calcularScoreCalidad(
+      cultivoFixture,
+      null,
+      null,
+      10,
+      7,
+      climaFixture,
+    );
     expect(result.score_riego).toBe(50);
   });
 
   it("retorna score_riego 100 con > 30 dias de agua", () => {
-    const result = calcularScoreCalidad(cultivoFixture, null, null, 500, 5);
+    const result = calcularScoreCalidad(
+      cultivoFixture,
+      null,
+      null,
+      500,
+      5,
+      climaFixture,
+    );
     expect(result.score_riego).toBe(100);
   });
 
   it("retorna score_riego 100 cuando consumo es 0", () => {
-    const result = calcularScoreCalidad(cultivoFixture, null, null, 100, 0);
+    const result = calcularScoreCalidad(
+      cultivoFixture,
+      null,
+      null,
+      100,
+      0,
+      climaFixture,
+    );
     expect(result.score_riego).toBe(100);
   });
 
@@ -276,6 +350,7 @@ describe("calcularScoreCalidad", () => {
       sueloMalo,
       1,
       10,
+      climaFixture,
     );
     expect(result.score_total).toBeLessThan(50);
     expect(
@@ -287,7 +362,14 @@ describe("calcularScoreCalidad", () => {
     const suelo: SueloTerreno = {
       fisico: { ph: 4.0 },
     };
-    const result = calcularScoreCalidad(cultivoFixture, null, suelo, 100, 5);
+    const result = calcularScoreCalidad(
+      cultivoFixture,
+      null,
+      suelo,
+      100,
+      5,
+      climaFixture,
+    );
     expect(result.score_suelo).toBeLessThan(100);
   });
 
@@ -295,12 +377,26 @@ describe("calcularScoreCalidad", () => {
     const suelo: SueloTerreno = {
       quimico: { salinidad_dS_m: 8.0 },
     };
-    const result = calcularScoreCalidad(cultivoFixture, null, suelo, 100, 5);
+    const result = calcularScoreCalidad(
+      cultivoFixture,
+      null,
+      suelo,
+      100,
+      5,
+      climaFixture,
+    );
     expect(result.score_suelo).toBeLessThan(100);
   });
 
   it("score total es promedio ponderado de sub-scores", () => {
-    const result = calcularScoreCalidad(cultivoFixture, null, null, 500, 5);
+    const result = calcularScoreCalidad(
+      cultivoFixture,
+      null,
+      null,
+      500,
+      5,
+      climaFixture,
+    );
     const expected = Math.round(
       result.score_agua * 0.3 +
         result.score_suelo * 0.25 +
@@ -311,7 +407,14 @@ describe("calcularScoreCalidad", () => {
   });
 
   it("incluye cultivo_id y cultivo_nombre en el resultado", () => {
-    const result = calcularScoreCalidad(cultivoFixture, null, null, 100, 5);
+    const result = calcularScoreCalidad(
+      cultivoFixture,
+      null,
+      null,
+      100,
+      5,
+      climaFixture,
+    );
     expect(result.cultivo_id).toBe("cultivo-1");
     expect(result.cultivo_nombre).toBe("Olivo");
   });

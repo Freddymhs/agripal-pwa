@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { Zona, TipoZona } from "@/types";
 import { TIPO_ZONA } from "@/lib/constants/entities";
+import { getCurrentTimestamp } from "@/lib/utils";
 
 interface ZoneEditorFormProps {
   zona: Zona;
@@ -46,7 +47,7 @@ function ConfirmDeleteZona({
 }) {
   const [inputNombre, setInputNombre] = useState("");
   const [inputFecha, setInputFecha] = useState("");
-  const today = new Date().toISOString().split("T")[0];
+  const today = getCurrentTimestamp().split("T")[0];
   const canDelete = inputNombre === zona.nombre && inputFecha === today;
 
   return (
@@ -177,8 +178,14 @@ export function ZoneEditorForm({
           className={`w-full px-3 py-2 border rounded text-gray-900 ${cantidadPlantas > 0 ? "bg-gray-100 text-gray-500 cursor-not-allowed" : ""}`}
         >
           <option value={TIPO_ZONA.CULTIVO}>Cultivo</option>
+          <option value={TIPO_ZONA.ESTANQUE}>Estanque de Agua</option>
           <option value={TIPO_ZONA.BODEGA}>Bodega</option>
           <option value={TIPO_ZONA.CASA}>Casa</option>
+          <option value={TIPO_ZONA.GARAGE}>Garage</option>
+          <option value={TIPO_ZONA.COMPOSTERA}>Compostera</option>
+          <option value={TIPO_ZONA.APRON}>Apron de Carga</option>
+          <option value={TIPO_ZONA.EMPAQUE}>Empaque</option>
+          <option value={TIPO_ZONA.SANITARIO}>Sanitario</option>
           <option value={TIPO_ZONA.CAMINO}>Camino</option>
           <option value={TIPO_ZONA.DECORACION}>Decoración</option>
           <option value={TIPO_ZONA.OTRO}>Otro</option>

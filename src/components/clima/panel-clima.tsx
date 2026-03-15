@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import {
-  CLIMA_ARICA,
   getTemporadaActual,
   type DatosClimaticos,
 } from "@/lib/data/clima-arica";
@@ -52,11 +51,27 @@ function Seccion({
   );
 }
 
+import { useProjectContext } from "@/contexts/project-context";
+
 interface PanelClimaProps {
   clima?: DatosClimaticos;
 }
 
-export function PanelClima({ clima = CLIMA_ARICA }: PanelClimaProps) {
+export function PanelClima({ clima: _climaOverride }: PanelClimaProps) {
+  const { datosBaseHook } = useProjectContext();
+  const climaContext = datosBaseHook?.datosBase?.clima?.[0]?.datos as
+    | DatosClimaticos
+    | undefined;
+  const clima = _climaOverride ?? climaContext;
+
+  if (!clima) {
+    return (
+      <div className="bg-white rounded-lg border shadow-sm p-4 text-center text-gray-500">
+        No hay datos climáticos disponibles para este proyecto.
+      </div>
+    );
+  }
+
   const temporadaActual = getTemporadaActual();
   const infoTemporada = clima.estacionalidad[temporadaActual];
 

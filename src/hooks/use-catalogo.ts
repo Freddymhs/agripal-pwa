@@ -1,9 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { catalogoDAL, plantasDAL, transaccionesDAL } from "@/lib/dal";
+import { useCallback, useEffect, useState } from "react";
+import { catalogoDAL, plantasDAL } from "@/lib/dal";
 import { generateUUID, getCurrentTimestamp } from "@/lib/utils";
-import { crearCatalogoInicial } from "@/lib/data/cultivos-arica";
 import { ejecutarMutacion } from "@/lib/helpers/dal-mutation";
 import { logger } from "@/lib/logger";
 import type { CatalogoCultivo, UUID } from "@/types";
@@ -31,7 +30,6 @@ export function useCatalogo(proyectoId: UUID | null): UseCatalogo {
   const [cultivos, setCultivos] = useState<CatalogoCultivo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
-  const seeded = useRef(false);
 
   const fetchCatalogo = useCallback(async () => {
     if (!proyectoId) {
@@ -59,31 +57,6 @@ export function useCatalogo(proyectoId: UUID | null): UseCatalogo {
   useEffect(() => {
     fetchCatalogo();
   }, [fetchCatalogo]);
-
-  useEffect(() => {
-    if (!proyectoId || loading || seeded.current) return;
-    if (cultivos.length > 0) return;
-
-    seeded.current = true;
-    // Verify DB count before seeding to avoid race conditions when multiple
-    // hook instances exist (e.g. layout context + page component)
-    catalogoDAL.countByProyectoId(proyectoId).then((count) => {
-      if (count > 0) {
-        fetchCatalogo();
-        return;
-      }
-      const cultivosIniciales = crearCatalogoInicial(proyectoId);
-      transaccionesDAL.seedCatalogo(cultivosIniciales).then(() => {
-        fetchCatalogo();
-      });
-    });
-  }, [proyectoId, loading, cultivos.length, fetchCatalogo]);
-
-  useEffect(() => {
-    if (proyectoId) {
-      seeded.current = false;
-    }
-  }, [proyectoId]);
 
   const agregarCultivo = useCallback(
     async (

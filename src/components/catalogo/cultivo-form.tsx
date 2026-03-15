@@ -1,14 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import type {
-  CatalogoCultivo,
-  Tolerancia,
-  ToleranciaSimple,
-  Tier,
-  Riesgo,
-  ToleranciaHeladas,
-} from "@/types";
+import {
+  RIESGO,
+  TOLERANCIA_BORO_DEFAULT,
+  TOLERANCIA_SALINIDAD_DEFAULT,
+} from "@/lib/constants/entities";
+import type { CatalogoCultivo, Tier, Riesgo, ToleranciaHeladas } from "@/types";
 import { CultivoClimaFields } from "./cultivo-clima-fields";
 
 interface CultivoFormProps {
@@ -34,11 +32,9 @@ export function CultivoForm({
   const [espaciadoRec, setEspaciadoRec] = useState(
     cultivo?.espaciado_recomendado_m || 0.5,
   );
-  const [toleranciaBoro, setToleranciaBoro] = useState<Tolerancia>(
-    cultivo?.tolerancia_boro || "media",
-  );
-  const [toleranciaSalinidad, setToleranciaSalinidad] =
-    useState<ToleranciaSimple>(cultivo?.tolerancia_salinidad || "media");
+  const toleranciaBoro = cultivo?.tolerancia_boro || TOLERANCIA_BORO_DEFAULT;
+  const toleranciaSalinidad =
+    cultivo?.tolerancia_salinidad || TOLERANCIA_SALINIDAD_DEFAULT;
   const [tiempoProduccion, setTiempoProduccion] = useState(
     cultivo?.tiempo_produccion_meses || 24,
   );
@@ -46,7 +42,7 @@ export function CultivoForm({
   const [precioMin, setPrecioMin] = useState(cultivo?.precio_kg_min_clp || 0);
   const [precioMax, setPrecioMax] = useState(cultivo?.precio_kg_max_clp || 0);
   const [tier, setTier] = useState<Tier>(cultivo?.tier || 2);
-  const [riesgo, setRiesgo] = useState<Riesgo>(cultivo?.riesgo || "medio");
+  const [riesgo, setRiesgo] = useState<Riesgo>(cultivo?.riesgo || RIESGO.MEDIO);
   const [notas, setNotas] = useState(cultivo?.notas || "");
   const [tempMin, setTempMin] = useState<number | undefined>(
     cultivo?.clima?.temp_min_c,
@@ -224,9 +220,9 @@ export function CultivoForm({
             onChange={(e) => setRiesgo(e.target.value as Riesgo)}
             className="w-full px-3 py-2 border rounded"
           >
-            <option value="bajo">Bajo</option>
-            <option value="medio">Medio</option>
-            <option value="alto">Alto</option>
+            <option value={RIESGO.BAJO}>Bajo</option>
+            <option value={RIESGO.MEDIO}>Medio</option>
+            <option value={RIESGO.ALTO}>Alto</option>
           </select>
         </div>
       </div>

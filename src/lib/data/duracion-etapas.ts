@@ -1,4 +1,5 @@
 import type { EtapaCrecimiento } from "@/types";
+import { ETAPA, ETAPAS_LIST } from "@/lib/constants/entities";
 
 export const DURACION_ETAPAS: Record<
   string,
@@ -260,21 +261,20 @@ export function calcularEtapaActual(
     (Date.now() - fechaPlantacion.getTime()) / (1000 * 60 * 60 * 24),
   );
 
-  if (diasDesde < 0) return "plántula";
+  if (diasDesde < 0) return ETAPA.PLANTULA;
 
   const duraciones = getDuracionEtapas(tipoCultivo);
 
   let acumulado = 0;
-  const etapas: EtapaCrecimiento[] = ["plántula", "joven", "adulta", "madura"];
 
-  for (const etapa of etapas) {
+  for (const etapa of ETAPAS_LIST) {
     acumulado += duraciones[etapa];
     if (diasDesde < acumulado) {
       return etapa;
     }
   }
 
-  return "madura";
+  return ETAPA.MADURA;
 }
 
 export function getDiasRestantesEtapa(
@@ -287,10 +287,9 @@ export function getDiasRestantesEtapa(
   );
 
   const duraciones = getDuracionEtapas(tipoCultivo);
-  const etapas: EtapaCrecimiento[] = ["plántula", "joven", "adulta", "madura"];
 
   let acumulado = 0;
-  for (const etapa of etapas) {
+  for (const etapa of ETAPAS_LIST) {
     acumulado += duraciones[etapa];
     if (etapa === etapaActual) {
       return Math.max(0, acumulado - diasDesde);

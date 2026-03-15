@@ -29,12 +29,20 @@ export default function EconomiaPage() {
     plantas,
     catalogoCultivos,
     loading,
+    datosBaseHook,
   } = useProjectContext();
+
+  const fuentesAgua = datosBaseHook.datosBase.fuentesAgua;
+
   const resumen = useMemo<ResumenCultivo[]>(() => {
     if (!terreno || zonas.length === 0) return [];
 
     const estanques = filtrarEstanques(zonas);
-    const costoAguaM3 = obtenerCostoAguaPromedio(estanques, terreno);
+    const costoAguaM3 = obtenerCostoAguaPromedio(
+      estanques,
+      terreno,
+      fuentesAgua,
+    );
 
     const zonasConCultivo = zonas.filter((z) => z.tipo === TIPO_ZONA.CULTIVO);
     const resumenCalculado: ResumenCultivo[] = [];
@@ -85,7 +93,7 @@ export default function EconomiaPage() {
     }
 
     return resumenCalculado;
-  }, [terreno, zonas, plantas, catalogoCultivos]);
+  }, [terreno, zonas, plantas, catalogoCultivos, fuentesAgua]);
 
   const totalInversion = resumen.reduce(
     (sum, r) => sum + r.roi.inversion_total,

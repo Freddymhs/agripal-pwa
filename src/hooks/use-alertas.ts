@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { logger } from "@/lib/logger";
 import { alertasDAL } from "@/lib/dal";
+import { ejecutarMutacion } from "@/lib/helpers/dal-mutation";
 import { sincronizarAlertas } from "@/lib/utils/alertas";
 import { getCurrentTimestamp } from "@/lib/utils";
+import { ESTADO_ALERTA, SEVERIDAD_ALERTA } from "@/lib/constants/entities";
 import type {
   Alerta,
   Terreno,
@@ -53,33 +54,33 @@ export function useAlertas(
   }, [refrescarAlertas]);
 
   const resolverAlerta = useCallback(async (id: UUID, como: string) => {
-    try {
-      await alertasDAL.update(id, {
-        estado: "resuelta",
-        fecha_resolucion: getCurrentTimestamp(),
-        como_se_resolvio: como,
-        updated_at: getCurrentTimestamp(),
-      });
-      setAlertas((prev) => prev.filter((a) => a.id !== id));
-    } catch (err) {
-      logger.error("Error resolviendo alerta", { error: err });
-    }
+    await ejecutarMutacion(
+      () =>
+        alertasDAL.update(id, {
+          estado: ESTADO_ALERTA.RESUELTA,
+          fecha_resolucion: getCurrentTimestamp(),
+          como_se_resolvio: como,
+          updated_at: getCurrentTimestamp(),
+        }),
+      "resolver alerta",
+      () => setAlertas((prev) => prev.filter((a) => a.id !== id)),
+    );
   }, []);
 
   const ignorarAlerta = useCallback(async (id: UUID) => {
-    try {
-      await alertasDAL.update(id, {
-        estado: "ignorada",
-        updated_at: getCurrentTimestamp(),
-      });
-      setAlertas((prev) => prev.filter((a) => a.id !== id));
-    } catch (err) {
-      logger.error("Error ignorando alerta", { error: err });
-    }
+    await ejecutarMutacion(
+      () =>
+        alertasDAL.update(id, {
+          estado: ESTADO_ALERTA.IGNORADA,
+          updated_at: getCurrentTimestamp(),
+        }),
+      "ignorar alerta",
+      () => setAlertas((prev) => prev.filter((a) => a.id !== id)),
+    );
   }, []);
 
   const alertasCriticas = alertas.filter(
-    (a) => a.severidad === "critical",
+    (a) => a.severidad === SEVERIDAD_ALERTA.CRITICAL,
   ).length;
 
   return {

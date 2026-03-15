@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import type { SueloTerreno, TexturaSuelo, DrenajeSuelo } from "@/types";
 import { UMBRALES_SUELO } from "@/lib/data/umbrales-suelo";
+import { TEXTURA_SUELO } from "@/lib/constants/entities";
 import {
   getIndicador,
   safeParseFloat,
@@ -18,11 +19,11 @@ interface FormularioSueloProps {
 }
 
 const TEXTURAS: { value: TexturaSuelo; label: string }[] = [
-  { value: "arenosa", label: "Arenosa" },
-  { value: "franco-arenosa", label: "Franco-arenosa" },
-  { value: "franco", label: "Franco" },
-  { value: "franco-arcillosa", label: "Franco-arcillosa" },
-  { value: "arcillosa", label: "Arcillosa" },
+  { value: TEXTURA_SUELO.ARENOSA, label: "Arenosa" },
+  { value: TEXTURA_SUELO.FRANCO_ARENOSA, label: "Franco-arenosa" },
+  { value: TEXTURA_SUELO.FRANCO, label: "Franco" },
+  { value: TEXTURA_SUELO.FRANCO_ARCILLOSA, label: "Franco-arcillosa" },
+  { value: TEXTURA_SUELO.ARCILLOSA, label: "Arcillosa" },
 ];
 
 const DRENAJES: { value: DrenajeSuelo; label: string }[] = [

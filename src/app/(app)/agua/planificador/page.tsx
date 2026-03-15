@@ -36,8 +36,11 @@ export default function PlanificadorAguaPage() {
     loading,
     cargarDatosTerreno: refetch,
     estanquesHook: { estanques },
+    datosBaseHook,
   } = useProjectContext();
   const [tabActiva, setTabActiva] = useState<TabActiva>("viabilidad");
+
+  const fuentesAgua = datosBaseHook.datosBase.fuentesAgua;
 
   const { entradas } = useAgua(
     terreno,
@@ -49,13 +52,23 @@ export default function PlanificadorAguaPage() {
 
   const proyeccion = useMemo<ProyeccionAnual | null>(() => {
     if (!terreno) return null;
-    return generarProyeccionAnual(terreno, zonas, plantas, catalogoCultivos);
-  }, [terreno, zonas, plantas, catalogoCultivos]);
+    return generarProyeccionAnual(
+      terreno,
+      zonas,
+      plantas,
+      catalogoCultivos,
+      fuentesAgua,
+    );
+  }, [terreno, zonas, plantas, catalogoCultivos, fuentesAgua]);
 
   const economiaAnual = useMemo(() => {
     if (!terreno) return null;
 
-    const costoAguaM3 = obtenerCostoAguaPromedio(estanques, terreno);
+    const costoAguaM3 = obtenerCostoAguaPromedio(
+      estanques,
+      terreno,
+      fuentesAgua,
+    );
     const totals = zonas
       .filter((z) => z.tipo === TIPO_ZONA.CULTIVO)
       .reduce(
@@ -114,7 +127,15 @@ export default function PlanificadorAguaPage() {
             100
           : 0,
     };
-  }, [terreno, zonas, plantas, catalogoCultivos, estanques, proyeccion]);
+  }, [
+    terreno,
+    zonas,
+    plantas,
+    catalogoCultivos,
+    estanques,
+    proyeccion,
+    fuentesAgua,
+  ]);
 
   if (loading) {
     return (

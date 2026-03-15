@@ -5,9 +5,11 @@ import { useProjectContext } from "@/contexts/project-context";
 import { PageLayout } from "@/components/layout/page-layout";
 import {
   evaluarRiesgoPlagas,
+  ALERTA_PLAGA,
   type RiesgoPlaga,
 } from "@/lib/utils/riesgo-plagas";
 import type { CatalogoCultivo, EtapaCrecimiento } from "@/types";
+import type { DatosClimaticos } from "@/lib/data/clima-arica";
 import { TIPO_ZONA, ESTADO_PLANTA } from "@/lib/constants/entities";
 
 const ALERT_COLORS: Record<RiesgoPlaga["alertaNivel"], string> = {
@@ -32,7 +34,8 @@ const ALERT_BADGE: Record<RiesgoPlaga["alertaNivel"], string> = {
 };
 
 export default function PlagasPage() {
-  const { zonas, plantas, catalogoCultivos, loading } = useProjectContext();
+  const { zonas, plantas, catalogoCultivos, loading, datosBaseHook } =
+    useProjectContext();
   const zonasCultivo = useMemo(
     () => zonas.filter((z) => z.tipo === TIPO_ZONA.CULTIVO),
     [zonas],
@@ -50,7 +53,11 @@ export default function PlagasPage() {
     const plantasZonaFiltradas = plantas.filter(
       (p) => p.zona_id === zonaId && p.estado !== ESTADO_PLANTA.MUERTA,
     );
-    if (!zonaId || plantasZonaFiltradas.length === 0) return [];
+
+    const climaObj = datosBaseHook?.datosBase?.clima?.[0];
+    const climaDatos = climaObj?.datos as DatosClimaticos | undefined;
+
+    if (!zonaId || plantasZonaFiltradas.length === 0 || !climaDatos) return [];
 
     const cultivosPorTipo = new Map<
       string,
@@ -73,12 +80,13 @@ export default function PlagasPage() {
     return Array.from(cultivosPorTipo.values()).map(({ cultivo, etapa }) => ({
       cultivo,
       etapa,
-      plagas: evaluarRiesgoPlagas(cultivo, etapa),
+      plagas: evaluarRiesgoPlagas(cultivo, etapa, climaDatos),
     }));
-  }, [zonaId, plantas, catalogoCultivos]);
+  }, [zonaId, plantas, catalogoCultivos, datosBaseHook]);
 
   const totalAlertas = riesgos.reduce(
-    (sum, r) => sum + r.plagas.filter((p) => p.alertaNivel !== "bajo").length,
+    (sum, r) =>
+      sum + r.plagas.filter((p) => p.alertaNivel !== ALERTA_PLAGA.BAJO).length,
     0,
   );
 

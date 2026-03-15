@@ -9,6 +9,14 @@ export const COLUMNAS_EXPLICITAS: Record<string, string[]> = {
   alertas: ["id", "terreno_id", "tipo", "estado", "severidad"],
   catalogo_cultivos: ["id", "proyecto_id", "nombre", "tier"],
   insumos_usuario: ["id", "terreno_id", "nombre", "tipo"],
+  // Tablas base globales / por proyecto
+  insumos_catalogo: ["id", "proyecto_id", "nombre", "tipo"],
+  enmiendas_proyecto: ["id", "proyecto_id", "nombre", "tipo"],
+  tecnicas_proyecto: ["id", "proyecto_id", "nombre", "categoria"],
+  clima_proyecto: ["id", "proyecto_id", "region"],
+  fuentes_agua_proyecto: ["id", "proyecto_id", "nombre", "tipo"],
+  precios_base: ["id", "nombre"],
+  variedades_base: ["id", "cultivo_id", "nombre"],
 };
 
 /** Campos de control que no se envían a Supabase (los maneja el servidor) */

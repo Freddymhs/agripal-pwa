@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuthContext } from "@/components/providers/auth-provider";
 import { ROUTES } from "@/lib/constants/routes";
+import { logger } from "@/lib/logger";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -29,7 +30,8 @@ export default function LoginPage() {
       } else {
         router.push(ROUTES.HOME);
       }
-    } catch {
+    } catch (err) {
+      logger.error("Error en login", { error: err });
       setError("Error al iniciar sesión. Intenta de nuevo.");
       setLoading(false);
     }

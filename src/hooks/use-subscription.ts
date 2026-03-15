@@ -4,7 +4,10 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
 import { useAuthContext } from "@/components/providers/auth-provider";
 import type { Suscripcion } from "@/types/billing";
-import type { EstadoSuscripcion } from "@/lib/constants/billing";
+import {
+  ESTADO_SUSCRIPCION,
+  ESTADOS_SUSCRIPCION_ACTIVOS,
+} from "@/lib/constants/billing";
 
 interface UseSubscription {
   subscription: Suscripcion | null;
@@ -14,8 +17,6 @@ interface UseSubscription {
   daysRemaining: number;
   needsPayment: boolean;
 }
-
-const ACTIVE_STATES: EstadoSuscripcion[] = ["active", "trialing"];
 
 function calcDaysRemaining(dateStr: string | null): number {
   if (!dateStr) return 0;
@@ -79,8 +80,8 @@ export function useSubscription(): UseSubscription {
     };
   }, [user]);
 
-  const isActive = subscription?.estado === "active";
-  const isTrialing = subscription?.estado === "trialing";
+  const isActive = subscription?.estado === ESTADO_SUSCRIPCION.ACTIVE;
+  const isTrialing = subscription?.estado === ESTADO_SUSCRIPCION.TRIALING;
 
   const endDate = isTrialing
     ? subscription?.trial_end
@@ -88,7 +89,7 @@ export function useSubscription(): UseSubscription {
 
   const daysRemaining = calcDaysRemaining(endDate ?? null);
   const needsPayment =
-    !subscription || !ACTIVE_STATES.includes(subscription.estado);
+    !subscription || !ESTADOS_SUSCRIPCION_ACTIVOS.includes(subscription.estado);
 
   return {
     subscription,

@@ -1,5 +1,6 @@
 import type {
   TipoZona,
+  EstadoZona,
   EstadoPlanta,
   EtapaCrecimiento,
   EstadoAgua,
@@ -7,18 +8,53 @@ import type {
   EstadoAlerta,
   SeveridadAlerta,
   Temporada,
+  Riesgo,
   ConfiguracionGoteros,
+  TexturaSuelo,
+  Modo,
+  Tolerancia,
+  ToleranciaSimple,
+  NivelIncompatibilidad,
+  NivelIncompatibilidadResultado,
 } from "@/types";
+
+export const MODO = {
+  TERRENO: "terreno",
+  ZONAS: "zonas",
+  PLANTAS: "plantas",
+  CREAR_ZONA: "crear_zona",
+  PLANTAR: "plantar",
+  ESPACIADO: "espaciado",
+} as const satisfies Record<string, Modo>;
+
+export const TEXTURA_SUELO = {
+  ARENOSA: "arenosa",
+  FRANCO_ARENOSA: "franco-arenosa",
+  FRANCO: "franco",
+  FRANCO_ARCILLOSA: "franco-arcillosa",
+  ARCILLOSA: "arcillosa",
+} as const satisfies Record<string, TexturaSuelo>;
 
 export const TIPO_ZONA = {
   CULTIVO: "cultivo",
   ESTANQUE: "estanque",
   BODEGA: "bodega",
   CASA: "casa",
+  GARAGE: "garage",
+  COMPOSTERA: "compostera",
+  APRON: "apron",
+  EMPAQUE: "empaque",
+  SANITARIO: "sanitario",
   CAMINO: "camino",
   DECORACION: "decoracion",
   OTRO: "otro",
 } as const satisfies Record<string, TipoZona>;
+
+export const ESTADO_ZONA = {
+  ACTIVA: "activa",
+  VACIA: "vacia",
+  EN_PREPARACION: "en_preparacion",
+} as const satisfies Record<string, EstadoZona>;
 
 export const ESTADO_PLANTA = {
   PLANTADA: "plantada",
@@ -71,6 +107,12 @@ export const SEVERIDAD_ALERTA = {
   INFO: "info",
 } as const satisfies Record<string, SeveridadAlerta>;
 
+export const RIESGO = {
+  BAJO: "bajo",
+  MEDIO: "medio",
+  ALTO: "alto",
+} as const satisfies Record<string, Riesgo>;
+
 export const TEMPORADA = {
   VERANO: "verano",
   OTOÑO: "otoño",
@@ -79,13 +121,18 @@ export const TEMPORADA = {
 } as const satisfies Record<string, Temporada>;
 
 export const COLORES_ZONA: Record<TipoZona, string> = {
-  cultivo: "#22c55e",
-  bodega: "#a16207",
-  casa: "#3b82f6",
-  camino: "#6b7280",
+  cultivo: "#16a34a",
+  bodega: "#92400e",
+  casa: "#f97316",
+  garage: "#1d4ed8",
+  compostera: "#78350f",
+  apron: "#d97706",
+  empaque: "#f59e0b",
+  sanitario: "#475569",
+  camino: "#9ca3af",
   decoracion: "#a855f7",
-  estanque: "#06b6d4",
-  otro: "#374151",
+  estanque: "#0ea5e9",
+  otro: "#64748b",
 };
 
 export const COLORES_ESTADO_PLANTA: Record<EstadoPlanta, string> = {
@@ -116,3 +163,18 @@ export const GOTEROS_DEFAULT: ConfiguracionGoteros = {
   cantidad: 2,
   caudal_lh_por_gotero: 4,
 };
+
+export const TOLERANCIA_BORO_DEFAULT: Tolerancia = "media";
+export const TOLERANCIA_SALINIDAD_DEFAULT: ToleranciaSimple = "media";
+
+export const HORARIO_RIEGO_INICIO_DEFAULT = "06:00";
+export const HORARIO_RIEGO_FIN_DEFAULT = "12:00";
+
+export const NIVEL_INCOMPATIBILIDAD = {
+  ALTO: "alto",
+  MEDIO: "medio",
+  NINGUNO: "ninguno",
+} as const satisfies Record<
+  string,
+  NivelIncompatibilidad | NivelIncompatibilidadResultado
+>;

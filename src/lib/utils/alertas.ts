@@ -21,11 +21,11 @@ import { alertasDAL, transaccionesDAL } from "@/lib/dal";
 import { differenceInDays } from "date-fns";
 import {
   ESPACIADO_MINIMO_M,
-  DIAS_ALERTA_AGUA_CRITICA,
   DIAS_LAVADO_SALINO,
   PORCENTAJE_CICLO_REPLANTA,
   MAX_PLANTAS_OVERLAP_CHECK,
 } from "@/lib/constants/conversiones";
+import { DIAS_AGUA_UMBRAL_CRITICO } from "@/lib/constants/umbrales";
 import {
   ESTADO_PLANTA,
   ETAPA,
@@ -33,6 +33,7 @@ import {
   TIPO_RIEGO,
   SEVERIDAD_ALERTA,
   ESTADO_ALERTA,
+  TEXTURA_SUELO,
 } from "@/lib/constants/entities";
 import { distancia } from "@/lib/utils/math";
 import { filtrarEstanques } from "@/lib/utils/helpers-cultivo";
@@ -71,7 +72,7 @@ function generarAlertas(
 
   if (
     diasRestantes !== Infinity &&
-    diasRestantes <= DIAS_ALERTA_AGUA_CRITICA &&
+    diasRestantes <= DIAS_AGUA_UMBRAL_CRITICO &&
     diasRestantes > 0
   ) {
     const proximaRecarga = estanques
@@ -118,7 +119,7 @@ function generarAlertas(
     const diasEst = calcularDiasRestantes(nivelEst, consumoSemanalEst);
     if (
       diasEst !== Infinity &&
-      diasEst <= DIAS_ALERTA_AGUA_CRITICA &&
+      diasEst <= DIAS_AGUA_UMBRAL_CRITICO &&
       diasEst > 0
     ) {
       alertas.push({
@@ -248,7 +249,10 @@ function generarAlertas(
       zona.configuracion_riego?.tipo === TIPO_RIEGO.CONTINUO
     ) {
       const texturaSuelo = terreno.suelo?.fisico?.textura;
-      if (texturaSuelo === "arcillosa" || texturaSuelo === "franco-arcillosa") {
+      if (
+        texturaSuelo === TEXTURA_SUELO.ARCILLOSA ||
+        texturaSuelo === TEXTURA_SUELO.FRANCO_ARCILLOSA
+      ) {
         alertas.push({
           terreno_id: terreno.id,
           zona_id: zona.id,

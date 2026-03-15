@@ -2,6 +2,11 @@ import { Graphics, Texture, type Renderer } from "pixi.js";
 import { ESTADO_PLANTA } from "@/lib/constants/entities";
 
 export class PixiTextureFactory {
+  private static readonly KEY_NORMAL = "normal";
+  private static readonly KEY_SELECTED = "selected";
+  private static readonly KEY_MUERTA = ESTADO_PLANTA.MUERTA;
+  private static readonly KEY_MUERTA_SELECTED = `${ESTADO_PLANTA.MUERTA}-selected`;
+
   private textures: Map<string, Texture> = new Map();
 
   async init(renderer: Renderer): Promise<void> {
@@ -16,7 +21,7 @@ export class PixiTextureFactory {
     };
 
     this.textures.set(
-      "normal",
+      PixiTextureFactory.KEY_NORMAL,
       createTexture((g) => {
         g.circle(size / 2, size / 2, size / 2 - 2);
         g.fill(0xffffff);
@@ -24,7 +29,7 @@ export class PixiTextureFactory {
     );
 
     this.textures.set(
-      "muerta",
+      PixiTextureFactory.KEY_MUERTA,
       createTexture((g) => {
         g.circle(size / 2, size / 2, size / 2 - 2);
         g.fill(0xffffff);
@@ -35,7 +40,7 @@ export class PixiTextureFactory {
     );
 
     this.textures.set(
-      "selected",
+      PixiTextureFactory.KEY_SELECTED,
       createTexture((g) => {
         g.circle(size / 2, size / 2, size / 2 - 2);
         g.fill(0xffffff);
@@ -45,7 +50,7 @@ export class PixiTextureFactory {
     );
 
     this.textures.set(
-      "muerta-selected",
+      PixiTextureFactory.KEY_MUERTA_SELECTED,
       createTexture((g) => {
         g.circle(size / 2, size / 2, size / 2 - 2);
         g.fill(0xffffff);
@@ -60,10 +65,11 @@ export class PixiTextureFactory {
 
   getTexture(estado: string, isSelected: boolean): Texture {
     if (estado === ESTADO_PLANTA.MUERTA && isSelected)
-      return this.textures.get("muerta-selected")!;
-    if (estado === ESTADO_PLANTA.MUERTA) return this.textures.get("muerta")!;
-    if (isSelected) return this.textures.get("selected")!;
-    return this.textures.get("normal")!;
+      return this.textures.get(PixiTextureFactory.KEY_MUERTA_SELECTED)!;
+    if (estado === ESTADO_PLANTA.MUERTA)
+      return this.textures.get(PixiTextureFactory.KEY_MUERTA)!;
+    if (isSelected) return this.textures.get(PixiTextureFactory.KEY_SELECTED)!;
+    return this.textures.get(PixiTextureFactory.KEY_NORMAL)!;
   }
 
   destroy(): void {

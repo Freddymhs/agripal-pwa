@@ -2,6 +2,7 @@
 
 import { useCallback } from "react";
 import { zonasDAL } from "@/lib/dal";
+import { ejecutarMutacion } from "@/lib/helpers/dal-mutation";
 import { getCurrentTimestamp } from "@/lib/utils";
 import { STORAGE_KEYS } from "@/lib/constants/storage";
 import { useProyectos } from "./use-proyectos";
@@ -73,15 +74,20 @@ export function useProjectHandlers({
   const handleCambiarFuente = useCallback(
     async (estanqueId: string, fuenteId: string) => {
       const zona = zonas.find((z) => z.id === estanqueId);
-      if (!zona || !zona.estanque_config) return;
-      await zonasDAL.update(estanqueId, {
-        estanque_config: {
-          ...zona.estanque_config,
-          fuente_id: fuenteId || undefined,
-        },
-        updated_at: getCurrentTimestamp(),
-      });
-      cargarDatosTerreno();
+      const config = zona?.estanque_config;
+      if (!config) return;
+      await ejecutarMutacion(
+        () =>
+          zonasDAL.update(estanqueId, {
+            estanque_config: {
+              ...config,
+              fuente_id: fuenteId || undefined,
+            },
+            updated_at: getCurrentTimestamp(),
+          }),
+        "cambiar fuente estanque",
+        cargarDatosTerreno,
+      );
     },
     [zonas, cargarDatosTerreno],
   );

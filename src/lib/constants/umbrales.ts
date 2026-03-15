@@ -1,3 +1,4 @@
+export const DIAS_AGUA_UMBRAL_SEGURO = 30;
 export const DIAS_AGUA_UMBRAL_ALTO = 14;
 export const DIAS_AGUA_UMBRAL_CRITICO = 7;
 
@@ -13,3 +14,6 @@ export const PESO_SCORE_AGUA = 0.3;
 export const PESO_SCORE_SUELO = 0.25;
 export const PESO_SCORE_CLIMA = 0.2;
 export const PESO_SCORE_RIEGO = 0.25;
+
+export const FACTOR_EXCESO_GRAVE_BORO = 2;
+export const FACTOR_EXCESO_GRAVE_SALINIDAD = 1.5;

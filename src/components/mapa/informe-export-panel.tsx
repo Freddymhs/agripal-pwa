@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import type { DatosClimaticos } from "@/lib/data/clima-arica";
 import { useProjectContext } from "@/contexts/project-context";
 import {
   generarInformePDF,
   generarPaqueteIA,
+  generarExportPlano,
   logExportError,
 } from "@/lib/utils/generar-informe-pdf";
 import type { Terreno, Zona, Planta } from "@/types";
@@ -17,7 +19,7 @@ interface InformeExportPanelProps {
   onExtraerMapa: () => Promise<string>;
 }
 
-type ExportState = "idle" | "generating" | "done" | "copied";
+type ExportState = "idle" | "generating" | "done" | "copied" | "plano_copied";
 
 export function InformeExportPanel({
   terreno,
@@ -26,10 +28,20 @@ export function InformeExportPanel({
   onExportarPNG,
   onExtraerMapa,
 }: InformeExportPanelProps) {
-  const { catalogoCultivos, alertasHook } = useProjectContext();
+  const { catalogoCultivos, alertasHook, datosBaseHook } = useProjectContext();
   const [estado, setEstado] = useState<ExportState>("idle");
 
+  const climaObj = datosBaseHook?.datosBase?.clima?.[0];
+  const climaDatos = climaObj?.datos as DatosClimaticos | undefined;
+
   const handleExportarPDF = useCallback(async () => {
+    if (!climaDatos) {
+      logExportError(
+        "generarInformePDF",
+        new Error("No hay datos climaticos en el proyecto"),
+      );
+      return;
+    }
     setEstado("generating");
     try {
       const mapaImageDataUrl = await onExtraerMapa();
@@ -40,6 +52,7 @@ export function InformeExportPanel({
         catalogoCultivos,
         alertas: alertasHook.alertas,
         mapaImageDataUrl,
+        clima: climaDatos,
       });
       setEstado("done");
       setTimeout(() => setEstado("idle"), 2000);
@@ -54,9 +67,17 @@ export function InformeExportPanel({
     catalogoCultivos,
     alertasHook.alertas,
     onExtraerMapa,
+    climaDatos,
   ]);
 
   const handleCopiarIA = useCallback(async () => {
+    if (!climaDatos) {
+      logExportError(
+        "copiarPaqueteIA",
+        new Error("No hay datos climaticos en el proyecto"),
+      );
+      return;
+    }
     try {
       const json = generarPaqueteIA({
         terreno,
@@ -64,6 +85,7 @@ export function InformeExportPanel({
         plantas,
         catalogoCultivos,
         alertas: alertasHook.alertas,
+        clima: climaDatos,
       });
       await navigator.clipboard.writeText(json);
       setEstado("copied");
@@ -71,7 +93,25 @@ export function InformeExportPanel({
     } catch (error) {
       logExportError("copiarPaqueteIA", error);
     }
-  }, [terreno, zonas, plantas, catalogoCultivos, alertasHook.alertas]);
+  }, [
+    terreno,
+    zonas,
+    plantas,
+    catalogoCultivos,
+    alertasHook.alertas,
+    climaDatos,
+  ]);
+
+  const handleExportarPlano = useCallback(async () => {
+    try {
+      const json = generarExportPlano(terreno, zonas);
+      await navigator.clipboard.writeText(json);
+      setEstado("plano_copied");
+      setTimeout(() => setEstado("idle"), 2000);
+    } catch (error) {
+      logExportError("exportarPlano", error);
+    }
+  }, [terreno, zonas]);
 
   return (
     <div className="absolute bottom-4 right-4 flex flex-col gap-2">
@@ -83,6 +123,11 @@ export function InformeExportPanel({
       {estado === "copied" && (
         <div className="bg-blue-100 text-blue-800 text-xs px-3 py-1.5 rounded-lg shadow text-center font-medium">
           Datos copiados al portapapeles
+        </div>
+      )}
+      {estado === "plano_copied" && (
+        <div className="bg-green-100 text-green-800 text-xs px-3 py-1.5 rounded-lg shadow text-center font-medium">
+          Plano copiado al portapapeles
         </div>
       )}
 
@@ -113,6 +158,15 @@ export function InformeExportPanel({
       >
         <span>🤖</span>
         <span>Copiar para IA</span>
+      </button>
+
+      <button
+        onClick={handleExportarPlano}
+        className="flex items-center gap-2 px-4 py-2 rounded-lg shadow-md text-sm font-medium text-green-700 bg-white border border-green-200 transition-all active:scale-95 hover:bg-green-50"
+        title="Copiar plano con coordenadas exactas para clonar o respaldar"
+      >
+        <span>📐</span>
+        <span>Exportar Plano</span>
       </button>
     </div>
   );

@@ -1,0 +1,170 @@
+{
+  "plano_version": "1.0",
+  "terreno": {
+    "nombre": "Marcos v4",
+    "ancho_m": 74,
+    "alto_m": 181
+  },
+  "zonas": [
+    {
+      "nombre": "C3b",
+      "tipo": "cultivo",
+      "color": "#16a34a",
+      "x": 30,
+      "y": 67,
+      "ancho": 24,
+      "alto": 15,
+      "notas": "Maracuyá espaldera. Postes dirección E-O, 24m de largo. Retorno rápido 8-10 meses. Adyacente al estanque para conexión directa al goteo."
+    },
+    {
+      "nombre": "Estanques",
+      "tipo": "estanque",
+      "color": "#3b82f6",
+      "x": 54,
+      "y": 67,
+      "ancho": 15,
+      "alto": 15,
+      "notas": "4 slots 3×3m en grilla 2×2. Empieza con 1×20.000L, expande hasta 4×20.000L = 80.000L total. Torre 6-8m. Acceso desde corredor central. ~80m de carretera — no visible desde ruta."
+    },
+    {
+      "nombre": "C2",
+      "tipo": "cultivo",
+      "color": "#22c55e",
+      "x": 30,
+      "y": 87,
+      "ancho": 39,
+      "alto": 40,
+      "notas": "Granada permanente año 2+. Bloque central derecho. Primer sol de mañana. Riego por línea principal desde estanque arriba."
+    },
+    {
+      "nombre": "C1",
+      "tipo": "cultivo",
+      "color": "#22c55e",
+      "x": 30,
+      "y": 132,
+      "ancho": 39,
+      "alto": 35,
+      "notas": "Más cercano al apron de carga. Choclo año 1-2 (ingresos rápidos), luego Maracuyá. Carretilla → corredor → apron en <30m."
+    },
+    {
+      "nombre": "C5",
+      "tipo": "cultivo",
+      "color": "#22c55e",
+      "x": 5,
+      "y": 5,
+      "ancho": 64,
+      "alto": 22,
+      "notas": "Franja norte completa. Choclo año 1 (tolera boro/sal, limpia suelo, ingresos mes 4). Luego rotar a Maracuyá espaldera con postes dirección N-S."
+    },
+    {
+      "nombre": "C3a",
+      "tipo": "cultivo",
+      "color": "#22c55e",
+      "x": 30,
+      "y": 32,
+      "ancho": 39,
+      "alto": 35,
+      "notas": "Mejor zona: punto más alto + primer sol de mañana + más cerca del estanque. Granada año 2-4. Máxima eficiencia de riego por gravedad natural."
+    },
+    {
+      "nombre": "Apron Carga",
+      "tipo": "otro",
+      "color": "#d97706",
+      "x": 10,
+      "y": 171,
+      "ancho": 59,
+      "alto": 6,
+      "notas": "Porter K2500 (1.74m) + zona carga lateral (1.5m) + persona con carretilla (1.2m) + márgenes = 4.7m mínimo. 5m corredor = OK confirmado. Ripio compactado. Apertura puerta mín 4m."
+    },
+    {
+      "nombre": "Fosa Séptica",
+      "tipo": "otro",
+      "color": "#64748b",
+      "x": 5,
+      "y": 172,
+      "ancho": 5,
+      "alto": 5,
+      "notas": "Fosa Séptica 5x10m. Tanque subterráneo. Superficie reservada para acceso del camión limpiafosa (manguera). Conectada al baño de la Casa."
+    },
+    {
+      "nombre": "Empaque",
+      "tipo": "otro",
+      "color": "#f59e0b",
+      "x": 30,
+      "y": 167,
+      "ancho": 39,
+      "alto": 4,
+      "notas": "Área techada (sombra) para pesar, revisar calidad, retirar espinas (tuna) y armar cajas antes de cargar el Porter. Sin agua corriente."
+    },
+    {
+      "nombre": "Bodega Insumos y Herramienta",
+      "tipo": "otro",
+      "color": "#065f46",
+      "x": 5,
+      "y": 131,
+      "ancho": 10,
+      "alto": 12,
+      "notas": "Bodega Insumos y Productos 18x12m. Zona fertilizantes/guano (pallets), gabinete químico con llave, 200-300 cajas cosecha, materiales empaque. Futura cámara fría."
+    },
+    {
+      "nombre": "Bodega Cosecha",
+      "tipo": "otro",
+      "color": "#ea580c",
+      "x": 5,
+      "y": 116,
+      "ancho": 10,
+      "alto": 15,
+      "notas": "Bodega Herramientas 8x10m. Palas, azadas, podadoras, tijeras, escaleras, EPP, motobomba, repuestos riego, mangueras."
+    },
+    {
+      "nombre": "Compostera",
+      "tipo": "otro",
+      "color": "#78350f",
+      "x": 5,
+      "y": 111,
+      "ancho": 8,
+      "alto": 4,
+      "notas": "Área de compostaje: mezcla estiércol comprado + restos de poda. Insumo base para materia orgánica en suelo desértico."
+    },
+    {
+      "nombre": "Garage",
+      "tipo": "otro",
+      "color": "#1d4ed8",
+      "x": 5,
+      "y": 146,
+      "ancho": 10,
+      "alto": 6,
+      "notas": "Garage 10x10m. Porter K2500 + auto + moto con carretilla lado a lado. Puerta hacia corredor interior."
+    },
+    {
+      "nombre": "Casa",
+      "tipo": "casa",
+      "color": "#3b82f6",
+      "x": 5,
+      "y": 152,
+      "ancho": 10,
+      "alto": 10,
+      "notas": "Casa de campo 14x10m. Dormitorio con litera (2 personas), living/cocina básica, baño. Base operativa + lugar de descanso/veraneo."
+    },
+    {
+      "nombre": "bano",
+      "tipo": "otro",
+      "color": "#374151",
+      "x": 5,
+      "y": 162,
+      "ancho": 5,
+      "alto": 5,
+      "notas": ""
+    },
+    {
+      "nombre": "C4",
+      "tipo": "cultivo",
+      "color": "#22c55e",
+      "x": 5,
+      "y": 32,
+      "ancho": 17,
+      "alto": 78,
+      "notas": "Columna oeste. Tuna: costo casi cero, poca agua, producción constante año 3+. Sol de tarde suficiente. Cultivo base de ingresos estables."
+    }
+  ]
+}

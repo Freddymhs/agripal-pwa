@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { snapToGrid } from "@/lib/validations/planta";
 import { zonasSeSuperponen } from "@/lib/validations/zona";
 import type { GridParams } from "@/lib/validations/planta";
-import { TIPO_ZONA } from "@/lib/constants/entities";
+import { MODO, TIPO_ZONA } from "@/lib/constants/entities";
 import { clamp } from "@/lib/utils/math";
 import { usePlantas } from "./use-plantas";
 import { useZonas } from "./use-zonas";
@@ -42,7 +42,7 @@ interface UseMapHandlersParams {
   ) => void;
   setModo: (m: string) => void;
   setShowGridModal: (v: boolean) => void;
-  getCultivoSeleccionado: () => CatalogoCultivo;
+  getCultivoSeleccionado: () => CatalogoCultivo | null;
 }
 
 export function useMapHandlers({
@@ -69,7 +69,8 @@ export function useMapHandlers({
     async (x: number, y: number) => {
       const cultivoSel = getCultivoSeleccionado();
       if (
-        modo === "plantar" &&
+        modo === MODO.PLANTAR &&
+        cultivoSel &&
         zonaSeleccionada &&
         zonaSeleccionada.tipo === TIPO_ZONA.CULTIVO
       ) {
@@ -82,29 +83,20 @@ export function useMapHandlers({
           yRelativo >= 0 &&
           yRelativo <= zonaSeleccionada.alto
         ) {
-          let plantX = xRelativo;
-          let plantY = yRelativo;
-          if (gridParams) {
-            const snapped = snapToGrid(
-              xRelativo,
-              yRelativo,
-              gridParams,
-              posicionesOcupadas,
+          const snapped = gridParams
+            ? snapToGrid(xRelativo, yRelativo, gridParams, posicionesOcupadas)
+            : { x: xRelativo, y: yRelativo };
+          if (!snapped) {
+            toast.error(
+              "Posición ocupada. Mueve el cursor a un espacio vacío de la grilla.",
             );
-            if (!snapped) {
-              toast.error(
-                "Posición ocupada. Mueve el cursor a un espacio vacío de la grilla.",
-              );
-              return;
-            }
-            plantX = snapped.x;
-            plantY = snapped.y;
+            return;
           }
           const result = await plantasHook.crearPlanta({
             zona: zonaSeleccionada,
             tipoCultivoId: cultivoSel.id,
-            x: plantX,
-            y: plantY,
+            x: snapped.x,
+            y: snapped.y,
             plantasExistentes: plantas,
             cultivo: cultivoSel,
           });
@@ -112,7 +104,7 @@ export function useMapHandlers({
             toast.error(result.error);
           } else {
             toast.success(
-              `${cultivoSel.nombre} plantada en (${(zonaSeleccionada.x + plantX).toFixed(1)}, ${(zonaSeleccionada.y + plantY).toFixed(1)})m`,
+              `${cultivoSel.nombre} plantada en (${(zonaSeleccionada.x + snapped.x).toFixed(1)}, ${(zonaSeleccionada.y + snapped.y).toFixed(1)})m`,
             );
             if (result.advertencia) toast.warning(result.advertencia);
           }
@@ -131,7 +123,7 @@ export function useMapHandlers({
   );
 
   const handlePlantaClick = (planta: Planta) => {
-    if (modo === "plantas") {
+    if (modo === MODO.PLANTAS) {
       setPlantaSeleccionada(planta);
       setZonaSeleccionada(null);
     }
@@ -169,8 +161,8 @@ export function useMapHandlers({
   };
 
   const handlePlantarGrid = async (espaciado: number) => {
-    if (!zonaSeleccionada) return;
     const cultivoSel = getCultivoSeleccionado();
+    if (!zonaSeleccionada || !cultivoSel) return;
     const result = await plantasHook.crearPlantasGrid({
       zona: zonaSeleccionada,
       tipoCultivoId: cultivoSel.id,
@@ -251,7 +243,7 @@ export function useMapHandlers({
       toast.error(result.error);
     } else {
       setRectNuevaZona(null);
-      setModo("terreno");
+      setModo(MODO.TERRENO);
     }
   };
 

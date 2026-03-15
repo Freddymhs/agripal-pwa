@@ -18,6 +18,8 @@ import type {
 } from "@/types";
 import { ROUTES } from "@/lib/constants/routes";
 import { terrenosDAL } from "@/lib/dal";
+import { ejecutarMutacion } from "@/lib/helpers/dal-mutation";
+import { getCurrentTimestamp } from "@/lib/utils";
 
 type TabId = "calidad" | "proveedores" | "contingencias" | "ahorro";
 
@@ -35,7 +37,7 @@ const DEFAULT_CONTINGENCIAS: ContingenciasAgua = {
 };
 
 export default function AguaConfiguracionPage() {
-  const { terrenoActual: terreno } = useProjectContext();
+  const { terrenoActual: terreno, datosBaseHook } = useProjectContext();
   const [activeTab, setActiveTab] = useState<TabId>("calidad");
   const loadedTerrenoId = useRef<string | null>(null);
 
@@ -65,9 +67,14 @@ export default function AguaConfiguracionPage() {
     async (patch: Partial<AguaAvanzadaTerreno>) => {
       if (!terreno) return;
       const prev = terreno.agua_avanzada ?? {};
-      await terrenosDAL.update(terreno.id, {
-        agua_avanzada: { ...prev, ...patch },
-      });
+      await ejecutarMutacion(
+        () =>
+          terrenosDAL.update(terreno.id, {
+            agua_avanzada: { ...prev, ...patch },
+            updated_at: getCurrentTimestamp(),
+          }),
+        "persistir agua avanzada",
+      );
     },
     [terreno],
   );
@@ -169,6 +176,7 @@ export default function AguaConfiguracionPage() {
             <FormularioCalidadAgua
               calidad={calidad}
               onChange={handleCalidadChange}
+              fuentesAgua={datosBaseHook.datosBase.fuentesAgua}
             />
           )}
 
@@ -192,6 +200,7 @@ export default function AguaConfiguracionPage() {
             <TecnicasAhorro
               tecnicas={tecnicas}
               onChange={handleTecnicasChange}
+              tecnicasCatalogo={datosBaseHook.datosBase.tecnicas}
             />
           )}
         </div>

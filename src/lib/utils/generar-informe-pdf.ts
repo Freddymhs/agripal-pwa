@@ -1,4 +1,5 @@
 import { jsPDF } from "jspdf";
+import { getCurrentTimestamp } from "@/lib/utils";
 import type {
   Terreno,
   Zona,
@@ -7,10 +8,16 @@ import type {
   Alerta,
   EtapaCrecimiento,
 } from "@/types";
-import { CLIMA_ARICA } from "@/lib/data/clima-arica";
-import { evaluarSuelo } from "@/lib/data/umbrales-suelo";
+import type { DatosClimaticos } from "@/lib/data/clima-arica";
+import { evaluarSuelo, NIVEL_ALERTA } from "@/lib/data/umbrales-suelo";
 import { getKc } from "@/lib/data/kc-cultivos";
 import { UBICACION_PILOTO } from "@/lib/constants/conversiones";
+import {
+  ESTADO_ALERTA,
+  SEVERIDAD_ALERTA,
+  ETAPA,
+  ETAPAS_LIST,
+} from "@/lib/constants/entities";
 import { logger } from "@/lib/logger";
 
 // ─── Tipos del informe ─────────────────────────────────────────────
@@ -22,6 +29,7 @@ export interface DatosInforme {
   catalogoCultivos: CatalogoCultivo[];
   alertas: Alerta[];
   mapaImageDataUrl: string;
+  clima: DatosClimaticos;
 }
 
 interface ResumenTerreno {
@@ -71,7 +79,7 @@ interface DatosInformeProcessed {
     estanques: ResumenZona[];
     dgaM3Mes?: number;
   };
-  clima: typeof CLIMA_ARICA;
+  clima: DatosClimaticos;
   cultivos: ResumenCultivo[];
   alertasActivas: Alerta[];
   mapaImageDataUrl: string;
@@ -142,14 +150,8 @@ function procesarDatos(datos: DatosInforme): DatosInformeProcessed {
       const cantPlantas = plantas.filter(
         (p) => p.tipo_cultivo_id === cultivo.id,
       ).length;
-      const etapas: EtapaCrecimiento[] = [
-        "plántula",
-        "joven",
-        "adulta",
-        "madura",
-      ];
       const kc = Object.fromEntries(
-        etapas.map((e) => [e, getKc(cultivo.nombre, e)]),
+        ETAPAS_LIST.map((e) => [e, getKc(cultivo.nombre, e)]),
       ) as Record<EtapaCrecimiento, number>;
 
       return {
@@ -186,9 +188,9 @@ function procesarDatos(datos: DatosInforme): DatosInformeProcessed {
       estanques,
       dgaM3Mes: dga?.tiene_derechos_dga ? dga.m3_mes_autorizado : undefined,
     },
-    clima: CLIMA_ARICA,
+    clima: datos.clima,
     cultivos: resumenCultivos,
-    alertasActivas: alertas.filter((a) => a.estado === "activa"),
+    alertasActivas: alertas.filter((a) => a.estado === ESTADO_ALERTA.ACTIVA),
     mapaImageDataUrl,
   };
 }
@@ -388,7 +390,7 @@ function renderSuelo(
       y = textoNormal(doc, `! ${a}`, y);
     }
   }
-  if (evaluacion.nivel === "ok") {
+  if (evaluacion.nivel === NIVEL_ALERTA.OK) {
     y = textoNormal(doc, "Suelo dentro de parametros aceptables.", y);
   }
 
@@ -444,7 +446,7 @@ function renderAgua(
   return lineaSeparadora(doc, y);
 }
 
-function renderClima(doc: jsPDF, clima: typeof CLIMA_ARICA, y: number): number {
+function renderClima(doc: jsPDF, clima: DatosClimaticos, y: number): number {
   y = verificarPagina(doc, y, 25);
   y = titulo(doc, `6. Clima (${clima.region}, ${clima.zona})`, y);
 
@@ -491,7 +493,7 @@ function renderCultivos(
       y = parKV(
         doc,
         "  Kc:",
-        `plantula=${c.kc["plántula"]} joven=${c.kc.joven} adulta=${c.kc.adulta} madura=${c.kc.madura}`,
+        `plantula=${c.kc[ETAPA.PLANTULA]} joven=${c.kc[ETAPA.JOVEN]} adulta=${c.kc[ETAPA.ADULTA]} madura=${c.kc[ETAPA.MADURA]}`,
         y,
       );
       y = parKV(doc, "  pH:", c.phRango, y);
@@ -512,9 +514,9 @@ function renderAlertas(doc: jsPDF, alertas: Alerta[], y: number): number {
     for (const alerta of alertas.slice(0, 10)) {
       y = verificarPagina(doc, y, 8);
       const icono =
-        alerta.severidad === "critical"
+        alerta.severidad === SEVERIDAD_ALERTA.CRITICAL
           ? "⚠"
-          : alerta.severidad === "warning"
+          : alerta.severidad === SEVERIDAD_ALERTA.WARNING
             ? "!"
             : "i";
       y = textoNormal(doc, `[${icono}] ${alerta.titulo}`, y);
@@ -562,7 +564,7 @@ export function generarInformePDF(datos: DatosInforme): void {
 
   renderPiePagina(doc, d.fecha);
 
-  const nombreArchivo = `informe-${d.terreno.nombre.replace(/\s+/g, "-").toLowerCase()}-${new Date().toISOString().slice(0, 10)}.pdf`;
+  const nombreArchivo = `informe-${d.terreno.nombre.replace(/\s+/g, "-").toLowerCase()}-${getCurrentTimestamp().slice(0, 10)}.pdf`;
   doc.save(nombreArchivo);
 }
 
@@ -633,6 +635,59 @@ export function generarPaqueteIA(
   };
 
   return JSON.stringify(paquete, null, 2);
+}
+
+export function generarExportPlano(terreno: Terreno, zonas: Zona[]): string {
+  // Estructura lista para clonar directo en Supabase sin descubrimiento de schema.
+  // DB: tabla terrenos(id, proyecto_id, nombre, datos jsonb, created_at, updated_at)
+  // DB: tabla zonas(id, terreno_id, nombre, tipo, datos jsonb, created_at, updated_at)
+  const plano = {
+    plano_version: "1.1",
+    _db: {
+      // proyecto_id del terreno origen — necesario para el INSERT de clonación
+      proyecto_id: terreno.proyecto_id,
+      // SQL de clonación (reemplazar :nuevo_nombre y ejecutar directamente):
+      // WITH t AS (INSERT INTO terrenos(id,proyecto_id,nombre,datos,created_at,updated_at)
+      //   VALUES(gen_random_uuid(),:proyecto_id,:nuevo_nombre,:terreno_datos::jsonb,now(),now()) RETURNING id)
+      // INSERT INTO zonas(id,terreno_id,nombre,tipo,datos,created_at,updated_at)
+      //   SELECT gen_random_uuid(),t.id,z.nombre,z.tipo,z.datos::jsonb,now(),now()
+      //   FROM t, json_array_elements(:zonas_json) AS z(v)
+      //   CROSS JOIN LATERAL (SELECT v->>'nombre' AS nombre, v->>'tipo' AS tipo, v AS datos) AS z(nombre,tipo,datos);
+    },
+    terreno: {
+      nombre: terreno.nombre,
+      // datos jsonb completo listo para INSERT directo
+      datos: {
+        ancho_m: terreno.ancho_m,
+        alto_m: terreno.alto_m,
+        area_m2: terreno.area_m2,
+        agua_disponible_m3: terreno.agua_disponible_m3,
+        agua_actual_m3: terreno.agua_actual_m3,
+        suelo: terreno.suelo ?? null,
+        sistema_riego: terreno.sistema_riego ?? null,
+      },
+    },
+    zonas: zonas.map((z) => ({
+      nombre: z.nombre,
+      tipo: z.tipo,
+      // datos jsonb completo listo para INSERT directo
+      datos: {
+        x: z.x,
+        y: z.y,
+        ancho: z.ancho,
+        alto: z.alto,
+        area_m2: z.area_m2,
+        color: z.color,
+        estado: z.estado,
+        notas: z.notas ?? "",
+        ...(z.configuracion_riego
+          ? { configuracion_riego: z.configuracion_riego }
+          : {}),
+        ...(z.estanque_config ? { estanque_config: z.estanque_config } : {}),
+      },
+    })),
+  };
+  return JSON.stringify(plano, null, 2);
 }
 
 // ─── Utilidad reutilizable ──────────────────────────────────────────

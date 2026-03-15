@@ -1,5 +1,46 @@
 import type { CatalogoCultivo, Terreno } from "@/types";
-import { SEMANAS_POR_AÑO } from "@/lib/constants/conversiones";
+import {
+  SEMANAS_POR_AÑO,
+  DIAS_POR_AÑO,
+  DIAS_POR_MES_PROMEDIO,
+  MESES_POR_AÑO,
+} from "@/lib/constants/conversiones";
+import { RIESGO } from "@/lib/constants/entities";
+
+/** Semanas de recarga estimadas al año cuando no hay dato calculado */
+const SEMANAS_RECARGA_ESTIMADAS = 26;
+/** Factor de tolerancia sobre agua disponible (10% de margen) */
+const FACTOR_TOLERANCIA_AGUA = 1.1;
+
+/** ET0 mensual de referencia para Arica (mm/día) — datos Open-Meteo históricos */
+const ET0_MENSUAL_ARICA = [
+  3.0, 3.2, 3.0, 2.5, 2.0, 1.8, 1.9, 2.3, 2.8, 3.2, 3.5, 3.3,
+] as const;
+const ET0_PROMEDIO_ANUAL = 2.8;
+
+const SCORE_RIESGO = {
+  [RIESGO.BAJO]: 100,
+  [RIESGO.MEDIO]: 50,
+  [RIESGO.ALTO]: 0,
+} as const;
+const SCORE_TIER_MULTIPLICADOR = 30;
+/** Tier máximo (3) + 1: invierte el scoring para que tier 1 obtenga el mayor puntaje */
+const TIER_SCORE_BASE = 4;
+
+const NOMBRES_MESES = [
+  "Enero",
+  "Febrero",
+  "Marzo",
+  "Abril",
+  "Mayo",
+  "Junio",
+  "Julio",
+  "Agosto",
+  "Septiembre",
+  "Octubre",
+  "Noviembre",
+  "Diciembre",
+] as const;
 
 export interface ValidacionCultivo {
   viable: boolean;
@@ -26,10 +67,11 @@ export function validarCultivoEnTerreno(
   }
 
   const aguaAnualDisponible =
-    aguaAnualCalculada ?? terreno.agua_disponible_m3 * 26;
+    aguaAnualCalculada ??
+    terreno.agua_disponible_m3 * SEMANAS_RECARGA_ESTIMADAS;
   const faltante = agua_necesaria_anual - aguaAnualDisponible;
 
-  if (agua_necesaria_anual > aguaAnualDisponible * 1.1) {
+  if (agua_necesaria_anual > aguaAnualDisponible * FACTOR_TOLERANCIA_AGUA) {
     const pctFaltante = ((faltante / agua_necesaria_anual) * 100).toFixed(0);
 
     restricciones.push(
@@ -88,7 +130,7 @@ export function validarCultivoEnTerreno(
     );
   }
 
-  if (cultivo.riesgo === "alto") {
+  if (cultivo.riesgo === RIESGO.ALTO) {
     advertencias.push(
       `Cultivo de alto riesgo en tu zona. Consultar con INDAP/INIA recomendado`,
     );
@@ -158,12 +200,8 @@ export function rankearCultivosViables(
               cultivo.produccion.produccion_kg_ha_año4) /
             cultivo.agua_m3_ha_año_min
           : priorizarPor === "seguridad"
-            ? (cultivo.riesgo === "bajo"
-                ? 100
-                : cultivo.riesgo === "medio"
-                  ? 50
-                  : 0) +
-              (4 - cultivo.tier) * 30
+            ? (SCORE_RIESGO[cultivo.riesgo] ?? 0) +
+              (TIER_SCORE_BASE - cultivo.tier) * SCORE_TIER_MULTIPLICADOR
             : 0;
 
     return { cultivo, validacion, score };
@@ -188,7 +226,7 @@ export function calcularAguaPorCultivo(
 
   const agua_anual_m3 = detalle.reduce((sum, d) => sum + d.agua_m3, 0);
   const agua_semanal_m3 = agua_anual_m3 / SEMANAS_POR_AÑO;
-  const agua_diaria_m3 = agua_anual_m3 / 365;
+  const agua_diaria_m3 = agua_anual_m3 / DIAS_POR_AÑO;
 
   return { agua_anual_m3, agua_semanal_m3, agua_diaria_m3, detalle };
 }
@@ -204,45 +242,26 @@ export function simularConsumoEstacional(
   const resultado = [];
 
   const agua_promedio_mensual =
-    calcularAguaPorCultivo(cultivos).agua_anual_m3 / 12;
+    calcularAguaPorCultivo(cultivos).agua_anual_m3 / MESES_POR_AÑO;
 
-  for (let mes = 1; mes <= 12; mes++) {
+  for (let mes = 1; mes <= MESES_POR_AÑO; mes++) {
     let agua_mes = 0;
 
     for (const { cultivo, area_ha } of cultivos) {
       const agua_anual = cultivo.agua_m3_ha_año_min * area_ha;
-      const agua_promedio_dia = agua_anual / 365;
+      const agua_promedio_dia = agua_anual / DIAS_POR_AÑO;
 
-      const ET0_por_mes = [
-        3.0, 3.2, 3.0, 2.5, 2.0, 1.8, 1.9, 2.3, 2.8, 3.2, 3.5, 3.3,
-      ][mes - 1];
-      const ET0_promedio = 2.8;
-
-      const factor = ET0_por_mes / ET0_promedio;
-      agua_mes += agua_promedio_dia * factor * 30;
+      const et0Mes = ET0_MENSUAL_ARICA[mes - 1];
+      const factor = et0Mes / ET0_PROMEDIO_ANUAL;
+      agua_mes += agua_promedio_dia * factor * DIAS_POR_MES_PROMEDIO;
     }
 
     const variacion =
       ((agua_mes - agua_promedio_mensual) / agua_promedio_mensual) * 100;
 
-    const meses_nombres = [
-      "Enero",
-      "Febrero",
-      "Marzo",
-      "Abril",
-      "Mayo",
-      "Junio",
-      "Julio",
-      "Agosto",
-      "Septiembre",
-      "Octubre",
-      "Noviembre",
-      "Diciembre",
-    ];
-
     resultado.push({
       mes,
-      mes_nombre: meses_nombres[mes - 1],
+      mes_nombre: NOMBRES_MESES[mes - 1],
       agua_m3: agua_mes,
       variacion_respecto_promedio: variacion,
     });

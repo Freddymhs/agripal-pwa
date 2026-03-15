@@ -4,7 +4,7 @@ import type { Zona, Terreno } from "@/types";
 
 export const COLOR_SPACING = 0x2563eb;
 
-const MIN_DISTANCIA_VISIBLE_M = 0.1;
+const MIN_DISTANCIA_VISIBLE_M = 0.5;
 
 interface SpacingLine {
   x1: number; // px
@@ -191,34 +191,40 @@ export class PixiSpacingLayer {
       }
       g.stroke({ color: COLOR_SPACING, width: lineW, alpha: 0.85 });
 
-      // label centrado con fondo blanco
+      // label centrado con fondo blanco — font shrinks to fit, hidden only if < 15px
       const labelStr = `${labelM.toFixed(1)}m`;
       const midX = (x1 + x2) / 2;
       const midY = (y1 + y2) / 2;
+      const pixelDist = isHorizontal ? Math.abs(x2 - x1) : Math.abs(y2 - y1);
 
-      const bg = new Graphics();
-      const pad = fontSize * 0.35;
-      const approxW = labelStr.length * fontSize * 0.55 + pad * 2;
-      const approxH = fontSize + pad * 2;
-      bg.rect(-approxW / 2, -approxH / 2, approxW, approxH);
-      bg.fill({ color: 0xffffff, alpha: 0.88 });
-      bg.position.set(midX, midY);
-      this.container.addChild(bg);
-      this.labels.push(bg as unknown as Text);
+      if (pixelDist >= 15) {
+        const maxFontForSpace = pixelDist / (labelStr.length * 0.65);
+        const labelFontSize = Math.max(7, Math.min(fontSize, maxFontForSpace));
 
-      const label = new Text({
-        text: labelStr,
-        style: {
-          fontSize,
-          fill: COLOR_SPACING,
-          fontFamily: "monospace",
-          fontWeight: "bold",
-        },
-      });
-      label.anchor.set(0.5);
-      label.position.set(midX, midY);
-      this.container.addChild(label);
-      this.labels.push(label);
+        const bg = new Graphics();
+        const pad = labelFontSize * 0.35;
+        const approxW = labelStr.length * labelFontSize * 0.55 + pad * 2;
+        const approxH = labelFontSize + pad * 2;
+        bg.rect(-approxW / 2, -approxH / 2, approxW, approxH);
+        bg.fill({ color: 0xffffff, alpha: 0.3 });
+        bg.position.set(midX, midY);
+        this.container.addChild(bg);
+        this.labels.push(bg as unknown as Text);
+
+        const label = new Text({
+          text: labelStr,
+          style: {
+            fontSize: labelFontSize,
+            fill: COLOR_SPACING,
+            fontFamily: "monospace",
+            fontWeight: "bold",
+          },
+        });
+        label.anchor.set(0.5);
+        label.position.set(midX, midY);
+        this.container.addChild(label);
+        this.labels.push(label);
+      }
     }
   }
 

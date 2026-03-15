@@ -16,6 +16,7 @@ import { PixiPlantasLayer } from "./pixi-plantas-layer";
 import { PixiHitTest } from "./pixi-hit-test";
 import { PixiOverlayLayer } from "./pixi-overlay-layer";
 import { PixiSpacingLayer } from "./pixi-spacing-layer";
+import { PixiCursorGuidesLayer } from "./pixi-cursor-guides-layer";
 import { PIXELS_POR_METRO } from "./pixi-constants";
 import { MapaControls } from "../mapa-controls";
 import { TerrenoInfoOverlay, ModoBadge } from "./pixi-mapa-info-overlay";
@@ -26,6 +27,7 @@ import {
   EMPTY_RECORD_STRING,
   EMPTY_STRING_ARRAY,
 } from "./pixi-map-types";
+import { MODO } from "@/lib/constants/entities";
 
 export function PixiMapaTerrenoInner({
   terreno,
@@ -33,7 +35,7 @@ export function PixiMapaTerrenoInner({
   plantas,
   zonaSeleccionadaId,
   zonaPreview,
-  modo = "terreno",
+  modo = MODO.TERRENO,
   cultivosEspaciado = EMPTY_RECORD_NUMBER,
   cultivosColores = EMPTY_RECORD_STRING,
   plantasSeleccionadasIds = EMPTY_STRING_ARRAY,
@@ -58,6 +60,7 @@ export function PixiMapaTerrenoInner({
   const hitTestRef = useRef<PixiHitTest | null>(null);
   const overlayLayerRef = useRef<PixiOverlayLayer | null>(null);
   const spacingLayerRef = useRef<PixiSpacingLayer | null>(null);
+  const cursorGuidesLayerRef = useRef<PixiCursorGuidesLayer | null>(null);
 
   const [scaleDisplay, setScaleDisplay] = useState(1);
 
@@ -120,6 +123,7 @@ export function PixiMapaTerrenoInner({
       hitTestRef,
       overlayLayerRef,
       spacingLayerRef,
+      cursorGuidesLayerRef,
       borderRef,
     }),
     [],
@@ -174,6 +178,7 @@ export function PixiMapaTerrenoInner({
     propsRef,
     hitTestRef,
     overlayLayerRef,
+    cursorGuidesLayerRef,
     screenToWorld,
     viewport,
     calcSnapGuides,
@@ -187,15 +192,59 @@ export function PixiMapaTerrenoInner({
   const areaDisponible = terreno.area_m2 - areaUsada;
 
   const cursorClass = useMemo(() => {
-    if (modo === "crear_zona") return "cursor-crosshair";
-    if (modo === "plantar") return "cursor-cell";
+    if (modo === MODO.CREAR_ZONA) return "cursor-crosshair";
+    if (modo === MODO.PLANTAR) return "cursor-cell";
     return "cursor-grab";
   }, [modo]);
 
   const extraerMapaDataUrl = useCallback(async (): Promise<string> => {
     if (!app) return "";
     try {
-      const canvas = await app.renderer.extract.canvas(app.stage);
+      const {
+        RenderTexture,
+        Text: PixiText,
+        Container: PixiContainer,
+      } = await import("pixi.js");
+      const EXPORT_SCALE = 3;
+
+      // Subir resolución de todos los Text para que sean nítidos al escalar
+      const origTextResolutions = new Map<
+        InstanceType<typeof PixiText>,
+        number
+      >();
+      const updateTextResolution = (
+        node: InstanceType<typeof PixiContainer>,
+        res: number,
+      ): void => {
+        for (const child of node.children) {
+          if (child instanceof PixiText) {
+            origTextResolutions.set(child, child.resolution);
+            child.resolution = res;
+          } else if (child instanceof PixiContainer) {
+            updateTextResolution(child, res);
+          }
+        }
+      };
+      updateTextResolution(app.stage, EXPORT_SCALE);
+
+      const w = Math.round(app.screen.width * EXPORT_SCALE);
+      const h = Math.round(app.screen.height * EXPORT_SCALE);
+      const origX = app.stage.scale.x;
+      const origY = app.stage.scale.y;
+      app.stage.scale.set(origX * EXPORT_SCALE, origY * EXPORT_SCALE);
+
+      const rt = RenderTexture.create({ width: w, height: h });
+      app.renderer.render({ container: app.stage, target: rt });
+      const canvas = await app.renderer.extract.canvas(rt);
+      rt.destroy(true);
+
+      // Restaurar resoluciones y escala
+      origTextResolutions.forEach((res, textNode) => {
+        textNode.resolution = res;
+      });
+      app.stage.scale.set(origX, origY);
+      app.renderer.render(app.stage);
+
       return (canvas as HTMLCanvasElement).toDataURL("image/png");
     } catch (error) {
       logExportError("extraerMapaDataUrl", error);
@@ -241,11 +290,9 @@ export function PixiMapaTerrenoInner({
           ? Math.min(20, oldScale + step)
           : Math.max(0.01, oldScale + step);
 
-      /* eslint-disable react-hooks/immutability -- mutación directa de refs de Pixi es el patrón correcto para transformaciones imperativas */
       viewport.offsetRef.current.x = canvasCenter.x - centerX * newScale;
       viewport.offsetRef.current.y = canvasCenter.y - centerY * newScale;
       viewport.scaleRef.current = newScale;
-      /* eslint-enable react-hooks/immutability */
 
       if (worldRef.current) {
         worldRef.current.position.set(
@@ -285,10 +332,10 @@ export function PixiMapaTerrenoInner({
       />
       <ModoBadge
         modo={modo}
-        showSeleccionHint={modo === "plantas" && !!onSeleccionMultiple}
+        showSeleccionHint={modo === MODO.PLANTAS && !!onSeleccionMultiple}
       />
 
-      {modo === "espaciado" && (
+      {modo === MODO.ESPACIADO && (
         <InformeExportPanel
           terreno={terreno}
           zonas={zonas}

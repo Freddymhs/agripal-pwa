@@ -2,6 +2,10 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { createSupabaseMiddlewareClient } from "@/lib/supabase/middleware";
 import { ROUTES } from "@/lib/constants/routes";
+import {
+  ESTADO_SUSCRIPCION,
+  ESTADOS_SUSCRIPCION_PERMITIDOS,
+} from "@/lib/constants/billing";
 
 const PUBLIC_ROUTES = new Set<string>([
   ROUTES.LANDING,
@@ -14,7 +18,7 @@ const PUBLIC_ROUTES = new Set<string>([
 const SUB_COOKIE_PREFIX = "agriplan-sub-";
 const SUB_COOKIE_MAX_AGE = 300; // 5 minutos
 
-const ALLOWED_SUB_STATES = new Set(["active", "trialing", "past_due"]);
+const ALLOWED_SUB_STATES = ESTADOS_SUSCRIPCION_PERMITIDOS;
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -64,7 +68,7 @@ export async function middleware(request: NextRequest) {
 
   const estado = suscripcion?.estado ?? "";
   const endDate =
-    estado === "trialing"
+    estado === ESTADO_SUSCRIPCION.TRIALING
       ? suscripcion?.trial_end
       : suscripcion?.current_period_end;
   const isNotExpired = endDate ? new Date(endDate) > new Date() : false;

@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { obtenerVariedades, type VariedadCultivo } from "@/lib/data/variedades";
-import { obtenerMercado, type DatosMercado } from "@/lib/data/mercado";
+import type { VariedadCultivo } from "@/lib/data/variedades";
+import type { DatosMercado } from "@/lib/data/mercado";
+import { useProjectContext } from "@/contexts/project-context";
 import type { CatalogoCultivo, UUID } from "@/types";
 import { formatCLP } from "@/lib/utils";
 
@@ -59,9 +60,15 @@ function CultivoCard({
   onEditar: () => void;
   onEliminar: () => void;
 }) {
+  const { datosBaseHook } = useProjectContext();
   const [expanded, setExpanded] = useState(false);
-  const variedades = obtenerVariedades(cultivo.id);
-  const mercado = obtenerMercado(cultivo.id);
+
+  const variedades: VariedadCultivo[] = (
+    datosBaseHook.datosBase.variedades ?? []
+  ).filter((v) => v.cultivo_id === cultivo.id);
+
+  const mercado: DatosMercado | undefined =
+    datosBaseHook.datosBase.precios?.find((m) => m.cultivo_id === cultivo.id);
 
   const tierColors = {
     1: "bg-green-100 text-green-800",

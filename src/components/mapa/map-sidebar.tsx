@@ -13,7 +13,7 @@ import { AccionesLote } from "@/components/plantas/acciones-lote";
 import { EntradaAguaForm } from "@/components/agua";
 import { useAgua } from "@/hooks/use-agua";
 import type { UUID } from "@/types";
-import { TIPO_ZONA } from "@/lib/constants/entities";
+import { MODO, TIPO_ZONA } from "@/lib/constants/entities";
 
 export function MapSidebar() {
   const {
@@ -88,9 +88,9 @@ export function MapSidebar() {
         {!zonaSeleccionada &&
           !plantaSeleccionada &&
           plantasSeleccionadas.length === 0 &&
-          (modo === "zonas" || modo === "plantas") && (
+          (modo === MODO.ZONAS || modo === MODO.PLANTAS) && (
             <p className="text-sm text-gray-500">
-              {modo === "zonas"
+              {modo === MODO.ZONAS
                 ? "Selecciona una zona"
                 : "Selecciona una planta. Shift+arrastrar para selección múltiple."}
             </p>

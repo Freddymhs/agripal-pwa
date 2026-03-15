@@ -10,7 +10,6 @@ import {
   transaccionesDAL,
 } from "@/lib/dal";
 import { generateUUID, getCurrentTimestamp } from "@/lib/utils";
-import { crearCatalogoInicial } from "@/lib/data/cultivos-arica";
 import { useAuthContext } from "@/components/providers/auth-provider";
 import { ejecutarMutacion } from "@/lib/helpers/dal-mutation";
 import { logger } from "@/lib/logger";
@@ -91,11 +90,7 @@ export function useProyectos(): UseProyectos {
       };
 
       await ejecutarMutacion(
-        () =>
-          transaccionesDAL.crearProyectoConCatalogo(
-            nuevoProyecto,
-            crearCatalogoInicial(nuevoProyecto.id),
-          ),
+        () => proyectosDAL.add(nuevoProyecto),
         "creando proyecto",
         fetchProyectos,
       );
@@ -127,18 +122,18 @@ export function useProyectos(): UseProyectos {
       const terrenos = await terrenosDAL.getByProyectoId(id);
       const terrenoIds = terrenos.map((t) => t.id);
 
-      let zonasCount = 0;
-      let plantasCount = 0;
-
-      if (terrenoIds.length > 0) {
-        const zonas = await zonasDAL.getByTerrenoIds(terrenoIds);
-        zonasCount = zonas.length;
-        const zonaIds = zonas.map((z) => z.id);
-
-        if (zonaIds.length > 0) {
-          plantasCount = await plantasDAL.countByZonaIds(zonaIds);
-        }
-      }
+      const { zonasCount, plantasCount } =
+        terrenoIds.length > 0
+          ? await (async () => {
+              const zonas = await zonasDAL.getByTerrenoIds(terrenoIds);
+              const zonaIds = zonas.map((z) => z.id);
+              const plantas =
+                zonaIds.length > 0
+                  ? await plantasDAL.countByZonaIds(zonaIds)
+                  : 0;
+              return { zonasCount: zonas.length, plantasCount: plantas };
+            })()
+          : { zonasCount: 0, plantasCount: 0 };
 
       const cultivosCount = await catalogoDAL.countByProyectoId(id);
 

@@ -3,6 +3,7 @@ import type { useEstanques } from "@/hooks/use-estanques";
 import type { useZonas } from "@/hooks/use-zonas";
 import type { usePlantas } from "@/hooks/use-plantas";
 import type { usePlantasLote } from "@/hooks/use-plantas-lote";
+import type { useDatosBase } from "@/hooks/use-datos-base";
 import type {
   Terreno,
   Zona,
@@ -36,6 +37,7 @@ export interface ProjectContextType {
   zonasHook: ReturnType<typeof useZonas>;
   plantasHook: ReturnType<typeof usePlantas>;
   plantasLoteHook: ReturnType<typeof usePlantasLote>;
+  datosBaseHook: ReturnType<typeof useDatosBase>;
 
   dashboard: DashboardTerreno | null;
   CULTIVOS_ESPACIADO: Record<string, number>;

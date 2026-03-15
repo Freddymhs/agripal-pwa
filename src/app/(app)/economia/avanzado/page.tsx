@@ -27,13 +27,20 @@ export default function EconomiaAvanzadaPage() {
     plantas,
     catalogoCultivos,
     loading,
+    datosBaseHook,
   } = useProjectContext();
+
+  const fuentesAgua = datosBaseHook.datosBase.fuentesAgua;
 
   const resumen = useMemo<ResumenAvanzado[]>(() => {
     if (!terreno || zonas.length === 0) return [];
 
     const estanques = filtrarEstanques(zonas);
-    const costoAguaM3 = obtenerCostoAguaPromedio(estanques, terreno);
+    const costoAguaM3 = obtenerCostoAguaPromedio(
+      estanques,
+      terreno,
+      fuentesAgua,
+    );
     const suelo = terreno.suelo ?? null;
     const items: ResumenAvanzado[] = [];
 
@@ -82,7 +89,7 @@ export default function EconomiaAvanzadaPage() {
     }
 
     return items;
-  }, [terreno, zonas, plantas, catalogoCultivos]);
+  }, [terreno, zonas, plantas, catalogoCultivos, fuentesAgua]);
 
   const global = useMemo(() => {
     if (resumen.length === 0) return null;

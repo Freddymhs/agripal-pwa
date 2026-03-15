@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { createRouteHandlerClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/logger";
+import { getCurrentTimestamp } from "@/lib/utils";
+import { ESTADO_SUSCRIPCION } from "@/lib/constants/billing";
 
 export async function POST() {
   try {
@@ -33,7 +35,7 @@ export async function POST() {
       .from("suscripciones")
       .update({
         cancel_at_period_end: true,
-        canceled_at: new Date().toISOString(),
+        canceled_at: getCurrentTimestamp(),
       })
       .eq("id", suscripcion.id);
 
@@ -43,7 +45,7 @@ export async function POST() {
     }
 
     const activeUntil =
-      suscripcion.estado === "trialing"
+      suscripcion.estado === ESTADO_SUSCRIPCION.TRIALING
         ? suscripcion.trial_end
         : suscripcion.current_period_end;
 

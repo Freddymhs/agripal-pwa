@@ -14,26 +14,21 @@ import { calcularGridParams } from "@/lib/validations/planta";
 import type { GridParams } from "@/lib/validations/planta";
 import { advertenciaEliminarZona } from "@/lib/validations/zona";
 import type { ZonaPreviewData } from "@/components/mapa/editor-zona";
-import { CATALOGO_DEFAULT } from "@/lib/data/cultivos-arica";
 import { TIPO_ZONA } from "@/lib/constants/entities";
 import { useMapHandlers } from "@/hooks/use-map-handlers";
 import type {
   Zona,
   Planta,
+  Modo,
   TipoZona,
   CatalogoCultivo,
   EstadoPlanta,
   EtapaCrecimiento,
   EstanqueConfig,
 } from "@/types";
+import { MODO } from "@/lib/constants/entities";
 
-export type Modo =
-  | "terreno"
-  | "zonas"
-  | "plantas"
-  | "crear_zona"
-  | "plantar"
-  | "espaciado";
+export type { Modo };
 
 interface MapContextType {
   modo: Modo;
@@ -52,7 +47,7 @@ interface MapContextType {
   setShowGridModal: (v: boolean) => void;
   zonaPreview: ZonaPreviewData | null;
   setZonaPreview: (v: ZonaPreviewData | null) => void;
-  cultivoSeleccionado: CatalogoCultivo;
+  cultivoSeleccionado: CatalogoCultivo | null;
   setCultivoSeleccionado: (c: CatalogoCultivo) => void;
   panelTab: "terreno" | "recomendacion";
   setPanelTab: (t: "terreno" | "recomendacion") => void;
@@ -105,7 +100,7 @@ export function MapProvider({ children }: { children: ReactNode }) {
     plantasLoteHook,
   } = useProjectContext();
 
-  const [modo, setModo] = useState<Modo>("terreno");
+  const [modo, setModo] = useState<Modo>(MODO.TERRENO);
   const [zonaSeleccionada, setZonaSeleccionada] = useState<Zona | null>(null);
   const [plantaSeleccionada, setPlantaSeleccionada] = useState<Planta | null>(
     null,
@@ -122,7 +117,7 @@ export function MapProvider({ children }: { children: ReactNode }) {
   const [showGridModal, setShowGridModal] = useState(false);
   const [zonaPreview, setZonaPreview] = useState<ZonaPreviewData | null>(null);
   const [cultivoSeleccionado, setCultivoSeleccionado] =
-    useState<CatalogoCultivo>(CATALOGO_DEFAULT[0]);
+    useState<CatalogoCultivo | null>(null);
   const [panelTab, setPanelTab] = useState<"terreno" | "recomendacion">(
     "terreno",
   );
@@ -141,13 +136,13 @@ export function MapProvider({ children }: { children: ReactNode }) {
   // cuando la fuente de datos cambia (zona eliminada, planta actualizada, etc.)
   useEffect(() => {
     if (catalogoCultivos.length > 0) {
-      const match = catalogoCultivos.find(
-        (c) => c.id === cultivoSeleccionado.id,
-      );
+      const match = cultivoSeleccionado
+        ? catalogoCultivos.find((c) => c.id === cultivoSeleccionado.id)
+        : null;
       // eslint-disable-next-line react-hooks/set-state-in-effect -- sincronización: si el cultivo seleccionado ya no existe en el catálogo, resetear al primero
       if (!match) setCultivoSeleccionado(catalogoCultivos[0]);
     }
-  }, [catalogoCultivos, cultivoSeleccionado.id]);
+  }, [catalogoCultivos, cultivoSeleccionado]);
 
   useEffect(() => {
     if (zonaSeleccionada) {
@@ -187,12 +182,12 @@ export function MapProvider({ children }: { children: ReactNode }) {
 
   const gridParams: GridParams | null = useMemo(() => {
     if (
-      modo !== "plantar" ||
+      modo !== MODO.PLANTAR ||
       !zonaSeleccionada ||
       zonaSeleccionada.tipo !== TIPO_ZONA.CULTIVO
     )
       return null;
-    if (!cultivoSeleccionado.espaciado_recomendado_m) return null;
+    if (!cultivoSeleccionado?.espaciado_recomendado_m) return null;
     return calcularGridParams(
       zonaSeleccionada,
       cultivoSeleccionado.espaciado_recomendado_m,
@@ -224,8 +219,8 @@ export function MapProvider({ children }: { children: ReactNode }) {
     zonas,
     catalogoCultivos,
     terrenoActual,
-    cultivoSeleccionadoId: cultivoSeleccionado.id,
-    cultivoSeleccionadoNombre: cultivoSeleccionado.nombre,
+    cultivoSeleccionadoId: cultivoSeleccionado?.id ?? "",
+    cultivoSeleccionadoNombre: cultivoSeleccionado?.nombre ?? "",
     gridParams,
     posicionesOcupadas,
     rectNuevaZona,

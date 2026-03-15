@@ -1,3 +1,5 @@
+import { COLORES_ZONA } from "@/lib/constants/entities";
+
 export const PIXELS_POR_METRO = 10;
 export const MIN_SCALE = 0.01;
 export const MAX_SCALE = 20;
@@ -10,15 +12,12 @@ export const COLORES_ESTADO_PLANTA_HEX: Record<string, number> = {
   muerta: 0x6b7280,
 };
 
-export const COLORES_ZONA_HEX: Record<string, number> = {
-  cultivo: 0x22c55e,
-  bodega: 0xa16207,
-  casa: 0x3b82f6,
-  camino: 0x6b7280,
-  decoracion: 0xa855f7,
-  estanque: 0x06b6d4,
-  otro: 0x374151,
-};
+export const COLORES_ZONA_HEX: Record<string, number> = Object.fromEntries(
+  Object.entries(COLORES_ZONA).map(([tipo, hex]) => [
+    tipo,
+    parseInt(hex.replace("#", ""), 16),
+  ]),
+);
 
 export const COLOR_SELECCION = 0x3b82f6;
 export const COLOR_SNAP = 0xf97316;

@@ -38,6 +38,8 @@ export function TerrenoInfoOverlay({
   );
 }
 
+import { MODO } from "@/lib/constants/entities";
+
 interface ModoBadgeProps {
   modo: string;
   showSeleccionHint: boolean;
@@ -46,19 +48,19 @@ interface ModoBadgeProps {
 export function ModoBadge({ modo, showSeleccionHint }: ModoBadgeProps) {
   return (
     <>
-      {modo === "crear_zona" && (
+      {modo === MODO.CREAR_ZONA && (
         <div className="absolute top-4 left-4 space-y-2">
           <div className="bg-green-500 text-white px-3 py-1.5 rounded shadow text-sm">
             Modo: Crear Zona
           </div>
         </div>
       )}
-      {modo === "plantar" && (
+      {modo === MODO.PLANTAR && (
         <div className="absolute top-4 left-4 bg-lime-500 text-white px-3 py-1.5 rounded shadow text-sm">
           Modo: Plantar
         </div>
       )}
-      {modo === "espaciado" && (
+      {modo === MODO.ESPACIADO && (
         <div className="absolute top-4 left-4 bg-blue-600 text-white px-3 py-1.5 rounded shadow text-sm">
           Modo: Plano Tecnico
         </div>

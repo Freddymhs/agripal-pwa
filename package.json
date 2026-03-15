@@ -19,7 +19,10 @@
     "ts-type-check": "tsc --noEmit",
     "audit": "npm audit --audit-level=moderate",
     "test": "vitest",
-    "test:run": "vitest run"
+    "test:run": "vitest run",
+    "seed": "tsx scripts/seed.ts",
+    "seed:base": "tsx scripts/seed-base.ts",
+    "db:push": "npx supabase db push"
   },
   "dependencies": {
     "@ducanh2912/next-pwa": "^10.2.9",

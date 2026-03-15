@@ -1,8 +1,11 @@
 import type { CatalogoCultivo, FuenteAgua, SueloTerreno } from "@/types";
-import { CLIMA_ARICA } from "@/lib/data/clima-arica";
+import type { DatosClimaticos } from "@/lib/data/clima-arica";
 import { clamp, isValidNum } from "@/lib/utils/math";
 import { DIAS_POR_SEMANA } from "@/lib/constants/conversiones";
 import {
+  DIAS_AGUA_UMBRAL_SEGURO,
+  DIAS_AGUA_UMBRAL_ALTO,
+  DIAS_AGUA_UMBRAL_CRITICO,
   SCORE_EXCELENTE,
   SCORE_BUENA,
   SCORE_ACEPTABLE,
@@ -12,6 +15,44 @@ import {
   PESO_SCORE_CLIMA,
   PESO_SCORE_RIEGO,
 } from "@/lib/constants/umbrales";
+
+// ── Penalizaciones de score agua ────────────────────────────────────────────
+const PENALIZACION_BORO_CRITICO = 60;
+const PENALIZACION_BORO_MEDIO = 30;
+const RATIO_BORO_CRITICO = 2;
+const PENALIZACION_SALINIDAD_CRITICA = 40;
+const PENALIZACION_SALINIDAD_MEDIA = 20;
+const RATIO_SALINIDAD_CRITICO = 1.5;
+const PENALIZACION_PH_AGUA = 15;
+
+// ── Penalizaciones de score suelo ───────────────────────────────────────────
+const PENALIZACION_PH_SUELO = 25;
+const PENALIZACION_SALINIDAD_SUELO = 30;
+const PENALIZACION_MATERIA_ORGANICA = 10;
+const MATERIA_ORGANICA_MINIMA_PCT = 2;
+
+// ── Penalizaciones de factor suelo ──────────────────────────────────────────
+const FACTOR_PH_MAX_PENALIZACION = 0.5;
+const FACTOR_PH_MULTIPLICADOR = 0.2;
+const FACTOR_SALINIDAD_MAX_PENALIZACION = 0.6;
+const FACTOR_SALINIDAD_MULTIPLICADOR = 0.3;
+const FACTOR_BORO_MAX_PENALIZACION = 0.7;
+const FACTOR_BORO_MULTIPLICADOR = 0.4;
+const FACTOR_MATERIA_ORGANICA_BAJA = 0.9;
+const FACTOR_SUELO_MINIMO = 0.1;
+
+// ── Score riego ─────────────────────────────────────────────────────────────
+const SCORE_RIEGO_CRITICO = 10;
+const SCORE_RIEGO_AJUSTADO = 50;
+const SCORE_RIEGO_BUENO = 75;
+
+// ── Score clima ─────────────────────────────────────────────────────────────
+const PENALIZACION_TEMP = 20;
+const PENALIZACION_FRIO_MAX = 30;
+const PENALIZACION_FRIO_DIVISOR = 10;
+
+// ── Score base cuando no hay datos ──────────────────────────────────────────
+const SCORE_SIN_DATOS = 50;
 
 export type CategoriaCalidad =
   | "excelente"
@@ -39,7 +80,7 @@ function calcScoreAgua(
 ): { score: number; problemas: string[]; mejoras: string[] } {
   if (!fuente)
     return {
-      score: 50,
+      score: SCORE_SIN_DATOS,
       problemas: ["Sin fuente de agua asignada"],
       mejoras: ["Asignar fuente de agua al estanque"],
     };
@@ -54,14 +95,14 @@ function calcScoreAgua(
     cultivo.boro_tolerancia_ppm > 0
   ) {
     const ratio = fuente.boro_ppm / cultivo.boro_tolerancia_ppm;
-    if (ratio > 2) {
-      score -= 60;
+    if (ratio > RATIO_BORO_CRITICO) {
+      score -= PENALIZACION_BORO_CRITICO;
       problemas.push(
         `Boro ${fuente.boro_ppm} ppm muy alto (tol: ${cultivo.boro_tolerancia_ppm})`,
       );
       mejoras.push("Cambiar a fuente de agua con menor boro");
     } else if (ratio > 1) {
-      score -= 30;
+      score -= PENALIZACION_BORO_MEDIO;
       problemas.push(`Boro ${fuente.boro_ppm} ppm excede tolerancia`);
       mejoras.push(
         "Considerar filtrado de agua o mezcla con agua de mejor calidad",
@@ -75,18 +116,18 @@ function calcScoreAgua(
     cultivo.salinidad_tolerancia_dS_m > 0
   ) {
     const ratio = fuente.salinidad_dS_m / cultivo.salinidad_tolerancia_dS_m;
-    if (ratio > 1.5) {
-      score -= 40;
+    if (ratio > RATIO_SALINIDAD_CRITICO) {
+      score -= PENALIZACION_SALINIDAD_CRITICA;
       problemas.push(`Salinidad ${fuente.salinidad_dS_m} dS/m alta`);
     } else if (ratio > 1) {
-      score -= 20;
+      score -= PENALIZACION_SALINIDAD_MEDIA;
       problemas.push(`Salinidad ${fuente.salinidad_dS_m} dS/m en límite`);
     }
   }
 
   if (fuente.ph != null) {
     if (fuente.ph < cultivo.ph_min || fuente.ph > cultivo.ph_max) {
-      score -= 15;
+      score -= PENALIZACION_PH_AGUA;
       problemas.push(
         `pH agua ${fuente.ph} fuera de rango ${cultivo.ph_min}-${cultivo.ph_max}`,
       );
@@ -102,7 +143,7 @@ function calcScoreSuelo(
 ): { score: number; problemas: string[]; mejoras: string[] } {
   if (!suelo)
     return {
-      score: 50,
+      score: SCORE_SIN_DATOS,
       problemas: ["Sin análisis de suelo"],
       mejoras: ["Realizar análisis de suelo (INIA ~$75,000)"],
     };
@@ -117,13 +158,13 @@ function calcScoreSuelo(
     suelo.fisico!.ph <= 14
   ) {
     if (suelo.fisico!.ph < cultivo.ph_min) {
-      score -= 25;
+      score -= PENALIZACION_PH_SUELO;
       problemas.push(
         `pH suelo ${suelo.fisico!.ph} bajo (mín ${cultivo.ph_min})`,
       );
       mejoras.push("Aplicar cal agrícola para subir pH");
     } else if (suelo.fisico!.ph > cultivo.ph_max) {
-      score -= 25;
+      score -= PENALIZACION_PH_SUELO;
       problemas.push(
         `pH suelo ${suelo.fisico!.ph} alto (máx ${cultivo.ph_max})`,
       );
@@ -136,7 +177,7 @@ function calcScoreSuelo(
     suelo.quimico!.salinidad_dS_m >= 0 &&
     suelo.quimico!.salinidad_dS_m > cultivo.salinidad_tolerancia_dS_m
   ) {
-    score -= 30;
+    score -= PENALIZACION_SALINIDAD_SUELO;
     problemas.push(`Salinidad suelo ${suelo.quimico.salinidad_dS_m} dS/m`);
     mejoras.push("Aplicar yeso agrícola y lavado de sales");
   }
@@ -144,9 +185,9 @@ function calcScoreSuelo(
   if (
     isValidNum(suelo.fisico?.materia_organica_pct) &&
     suelo.fisico!.materia_organica_pct >= 0 &&
-    suelo.fisico!.materia_organica_pct < 2
+    suelo.fisico!.materia_organica_pct < MATERIA_ORGANICA_MINIMA_PCT
   ) {
-    score -= 10;
+    score -= PENALIZACION_MATERIA_ORGANICA;
     mejoras.push("Aumentar materia orgánica con compost o humus");
   }
 
@@ -169,7 +210,10 @@ export function calcularFactorSuelo(
     const ph = suelo.fisico!.ph;
     if (ph < cultivo.ph_min || ph > cultivo.ph_max) {
       const desviacion = Math.max(cultivo.ph_min - ph, ph - cultivo.ph_max);
-      const penalizacion = Math.min(0.5, desviacion * 0.2);
+      const penalizacion = Math.min(
+        FACTOR_PH_MAX_PENALIZACION,
+        desviacion * FACTOR_PH_MULTIPLICADOR,
+      );
       factor *= 1 - penalizacion;
     }
   }
@@ -182,7 +226,10 @@ export function calcularFactorSuelo(
     const ratio =
       suelo.quimico!.salinidad_dS_m / cultivo.salinidad_tolerancia_dS_m;
     if (ratio > 1.0) {
-      const penalizacion = Math.min(0.6, (ratio - 1) * 0.3);
+      const penalizacion = Math.min(
+        FACTOR_SALINIDAD_MAX_PENALIZACION,
+        (ratio - 1) * FACTOR_SALINIDAD_MULTIPLICADOR,
+      );
       factor *= 1 - penalizacion;
     }
   }
@@ -194,7 +241,10 @@ export function calcularFactorSuelo(
   ) {
     const ratio = suelo.quimico!.boro_mg_l / cultivo.boro_tolerancia_ppm;
     if (ratio > 1.0) {
-      const penalizacion = Math.min(0.7, (ratio - 1) * 0.4);
+      const penalizacion = Math.min(
+        FACTOR_BORO_MAX_PENALIZACION,
+        (ratio - 1) * FACTOR_BORO_MULTIPLICADOR,
+      );
       factor *= 1 - penalizacion;
     }
   }
@@ -202,15 +252,18 @@ export function calcularFactorSuelo(
   if (
     isValidNum(suelo.fisico?.materia_organica_pct) &&
     suelo.fisico!.materia_organica_pct >= 0 &&
-    suelo.fisico!.materia_organica_pct < 2.0
+    suelo.fisico!.materia_organica_pct < MATERIA_ORGANICA_MINIMA_PCT
   ) {
-    factor *= 0.9;
+    factor *= FACTOR_MATERIA_ORGANICA_BAJA;
   }
 
-  return Math.max(0.1, factor);
+  return Math.max(FACTOR_SUELO_MINIMO, factor);
 }
 
-function calcScoreClima(cultivo: CatalogoCultivo): {
+function calcScoreClima(
+  cultivo: CatalogoCultivo,
+  climaDatos: DatosClimaticos,
+): {
   score: number;
   problemas: string[];
   mejoras: string[];
@@ -219,17 +272,17 @@ function calcScoreClima(cultivo: CatalogoCultivo): {
   const problemas: string[] = [];
   const mejoras: string[] = [];
 
-  if (cultivo.clima) {
-    const tempMax = CLIMA_ARICA.temperatura.maxima_verano_c;
-    const tempMin = CLIMA_ARICA.temperatura.minima_historica_c;
+  if (cultivo.clima && climaDatos) {
+    const tempMax = climaDatos.temperatura.maxima_verano_c;
+    const tempMin = climaDatos.temperatura.minima_historica_c;
 
     if (
       cultivo.clima.temp_max_c != null &&
       tempMax > cultivo.clima.temp_max_c
     ) {
-      score -= 20;
+      score -= PENALIZACION_TEMP;
       problemas.push(
-        `Temp máx Arica ${tempMax}°C excede tolerancia ${cultivo.clima.temp_max_c}°C`,
+        `Temp máx región ${tempMax}°C excede tolerancia ${cultivo.clima.temp_max_c}°C`,
       );
       mejoras.push("Instalar malla sombra en verano");
     }
@@ -238,24 +291,27 @@ function calcScoreClima(cultivo: CatalogoCultivo): {
       cultivo.clima.temp_min_c != null &&
       tempMin < cultivo.clima.temp_min_c
     ) {
-      score -= 20;
+      score -= PENALIZACION_TEMP;
       problemas.push(
-        `Temp mín Arica ${tempMin}°C bajo tolerancia ${cultivo.clima.temp_min_c}°C`,
+        `Temp mín región ${tempMin}°C bajo tolerancia ${cultivo.clima.temp_min_c}°C`,
       );
     }
 
     if (
       cultivo.clima.horas_frio_requeridas != null &&
       cultivo.clima.horas_frio_requeridas >
-        CLIMA_ARICA.temperatura.horas_frio_aprox
+        climaDatos.temperatura.horas_frio_aprox
     ) {
       const deficit =
         cultivo.clima.horas_frio_requeridas -
-        CLIMA_ARICA.temperatura.horas_frio_aprox;
-      const penalidad = Math.min(30, Math.round(deficit / 10));
+        climaDatos.temperatura.horas_frio_aprox;
+      const penalidad = Math.min(
+        PENALIZACION_FRIO_MAX,
+        Math.round(deficit / PENALIZACION_FRIO_DIVISOR),
+      );
       score -= penalidad;
       problemas.push(
-        `Requiere ${cultivo.clima.horas_frio_requeridas}h frío, Arica tiene ~${CLIMA_ARICA.temperatura.horas_frio_aprox}h`,
+        `Requiere ${cultivo.clima.horas_frio_requeridas}h frío, la región tiene ~${climaDatos.temperatura.horas_frio_aprox}h`,
       );
     }
   }
@@ -273,17 +329,17 @@ function calcScoreRiego(
   const problemas: string[] = [];
   const mejoras: string[] = [];
 
-  if (diasAgua < 7) {
+  if (diasAgua < DIAS_AGUA_UMBRAL_CRITICO) {
     problemas.push(`Solo ${Math.floor(diasAgua)} días de agua`);
     mejoras.push("Aumentar capacidad de estanques o frecuencia de llenado");
-    return { score: 10, problemas, mejoras };
+    return { score: SCORE_RIEGO_CRITICO, problemas, mejoras };
   }
-  if (diasAgua < 14) {
+  if (diasAgua < DIAS_AGUA_UMBRAL_ALTO) {
     problemas.push(`${Math.floor(diasAgua)} días de agua (ajustado)`);
-    return { score: 50, problemas, mejoras };
+    return { score: SCORE_RIEGO_AJUSTADO, problemas, mejoras };
   }
-  if (diasAgua < 30) {
-    return { score: 75, problemas, mejoras };
+  if (diasAgua < DIAS_AGUA_UMBRAL_SEGURO) {
+    return { score: SCORE_RIEGO_BUENO, problemas, mejoras };
   }
   return { score: 100, problemas, mejoras };
 }
@@ -302,10 +358,11 @@ export function calcularScoreCalidad(
   suelo: SueloTerreno | null,
   aguaDisponibleM3: number,
   consumoSemanalM3: number,
+  climaDatos: DatosClimaticos,
 ): ScoreCalidad {
   const agua = calcScoreAgua(fuente, cultivo);
   const sueloScore = calcScoreSuelo(suelo, cultivo);
-  const clima = calcScoreClima(cultivo);
+  const clima = calcScoreClima(cultivo, climaDatos);
   const riego = calcScoreRiego(aguaDisponibleM3, consumoSemanalM3);
 
   const total = Math.round(

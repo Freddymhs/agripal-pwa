@@ -2,10 +2,11 @@ import { useEffect, useRef, type MutableRefObject } from "react";
 import { Application } from "pixi.js";
 import { PixiHitTest } from "./pixi-hit-test";
 import { PixiOverlayLayer } from "./pixi-overlay-layer";
+import { PixiCursorGuidesLayer } from "./pixi-cursor-guides-layer";
 import { PIXELS_POR_METRO } from "./pixi-constants";
 import { snapToGrid } from "@/lib/validations/planta";
 import type { Planta, Zona } from "@/types";
-import { TIPO_ZONA } from "@/lib/constants/entities";
+import { MODO, TIPO_ZONA } from "@/lib/constants/entities";
 import { logger } from "@/lib/logger";
 import type { GridParams } from "@/lib/validations/planta";
 import type { Point } from "./pixi-map-types";
@@ -42,6 +43,7 @@ interface InteractionDeps {
   propsRef: MutableRefObject<InteractionProps>;
   hitTestRef: MutableRefObject<PixiHitTest | null>;
   overlayLayerRef: MutableRefObject<PixiOverlayLayer | null>;
+  cursorGuidesLayerRef: MutableRefObject<PixiCursorGuidesLayer | null>;
   screenToWorld: (screenX: number, screenY: number) => Point;
   viewport: {
     scaleRef: MutableRefObject<number>;
@@ -69,6 +71,7 @@ export function useMapInteractions(deps: InteractionDeps) {
     propsRef,
     hitTestRef,
     overlayLayerRef,
+    cursorGuidesLayerRef,
     screenToWorld,
     viewport,
     calcSnapGuides,
@@ -124,7 +127,7 @@ export function useMapInteractions(deps: InteractionDeps) {
       const worldPos = screenToWorld(screenPos.x, screenPos.y);
       const currentModo = modoRef.current;
 
-      if (currentModo === "crear_zona") {
+      if (currentModo === MODO.CREAR_ZONA) {
         const metrosX = worldPos.x / PIXELS_POR_METRO;
         const metrosY = worldPos.y / PIXELS_POR_METRO;
         const clamped = {
@@ -138,7 +141,7 @@ export function useMapInteractions(deps: InteractionDeps) {
       }
 
       if (
-        currentModo === "plantas" &&
+        currentModo === MODO.PLANTAS &&
         e.shiftKey &&
         propsRef.current.onSeleccionMultiple
       ) {
@@ -147,7 +150,7 @@ export function useMapInteractions(deps: InteractionDeps) {
         return;
       }
 
-      if (currentModo === "plantas" && !e.shiftKey) {
+      if (currentModo === MODO.PLANTAS && !e.shiftKey) {
         const plantaSel = getPlantaSeleccionadaEnPos(worldPos);
         if (plantaSel) {
           isMovingPlants = true;
@@ -191,12 +194,12 @@ export function useMapInteractions(deps: InteractionDeps) {
       const currentModo = modoRef.current;
       const scale = viewport.scaleRef.current;
 
-      if (currentModo === "crear_zona") {
+      if (currentModo === MODO.CREAR_ZONA) {
         handleCrearZonaMove(worldPos, scale, isDrawing, drawStart);
         return;
       }
 
-      if (currentModo === "plantar") {
+      if (currentModo === MODO.PLANTAR) {
         handlePlantarMove(worldPos, scale);
       }
 
@@ -224,7 +227,7 @@ export function useMapInteractions(deps: InteractionDeps) {
         return;
       }
 
-      if (currentModo === "plantas") {
+      if (currentModo === MODO.PLANTAS) {
         handlePlantasHover(worldPos, canvas, scale);
       } else {
         canvas.style.cursor = "grab";
@@ -240,21 +243,27 @@ export function useMapInteractions(deps: InteractionDeps) {
     ) => {
       const metrosX = worldPos.x / PIXELS_POR_METRO;
       const metrosY = worldPos.y / PIXELS_POR_METRO;
+      const p = propsRef.current;
       const clamped = {
-        x: Math.max(0, Math.min(propsRef.current.terreno.ancho_m, metrosX)),
-        y: Math.max(0, Math.min(propsRef.current.terreno.alto_m, metrosY)),
+        x: Math.max(0, Math.min(p.terreno.ancho_m, metrosX)),
+        y: Math.max(0, Math.min(p.terreno.alto_m, metrosY)),
       };
       const guides = calcSnapGuides(clamped);
       overlayLayerRef.current?.drawSnapGuides(
         guides.verticalX,
         guides.horizontalY,
-        propsRef.current.terreno.ancho_m,
-        propsRef.current.terreno.alto_m,
+        p.terreno.ancho_m,
+        p.terreno.alto_m,
         scale,
       );
 
+      // Snap siempre al grid de 0.5m (+ edges de zonas)
+      const snapped = snapPosition(clamped);
+
       if (drawing && start) {
-        const snapped = snapPosition(clamped);
+        // Durante el dibujo: ocultar cursor guides y coord, mostrar preview + esquinas
+        cursorGuidesLayerRef.current?.clear();
+        overlayLayerRef.current?.clearCursorCoord();
         const startPx = {
           x: start.x * PIXELS_POR_METRO,
           y: start.y * PIXELS_POR_METRO,
@@ -264,6 +273,16 @@ export function useMapInteractions(deps: InteractionDeps) {
           y: snapped.y * PIXELS_POR_METRO,
         };
         overlayLayerRef.current?.drawCreateZona(startPx, currentPx, scale);
+      } else {
+        // Antes de clic: mostrar posición snapped + distancias a bordes/zonas
+        overlayLayerRef.current?.drawCursorCoord(snapped.x, snapped.y, scale);
+        cursorGuidesLayerRef.current?.update(
+          snapped.x,
+          snapped.y,
+          p.zonas,
+          p.terreno,
+          scale,
+        );
       }
     };
 
@@ -360,7 +379,7 @@ export function useMapInteractions(deps: InteractionDeps) {
       const currentModo = modoRef.current;
       const p = propsRef.current;
 
-      if (currentModo === "crear_zona" && isDrawing && drawStart) {
+      if (currentModo === MODO.CREAR_ZONA && isDrawing && drawStart) {
         const metrosX = worldPos.x / PIXELS_POR_METRO;
         const metrosY = worldPos.y / PIXELS_POR_METRO;
         const clamped = {
@@ -384,6 +403,7 @@ export function useMapInteractions(deps: InteractionDeps) {
         drawStart = null;
         overlayLayerRef.current?.clearCreateZona();
         overlayLayerRef.current?.clearSnapGuides();
+        cursorGuidesLayerRef.current?.clear();
         return;
       }
 
@@ -435,6 +455,7 @@ export function useMapInteractions(deps: InteractionDeps) {
     };
 
     const onPointerLeave = () => {
+      cursorGuidesLayerRef.current?.clear();
       if (isDrawing) {
         isDrawing = false;
         drawStart = null;
@@ -452,7 +473,7 @@ export function useMapInteractions(deps: InteractionDeps) {
         originalPlantaPositions.clear();
         overlayLayerRef.current?.clearPlantasPreview();
       }
-      if (modoRef.current === "plantar") {
+      if (modoRef.current === MODO.PLANTAR) {
         overlayLayerRef.current?.clearPlantasPreview();
       }
       overlayLayerRef.current?.clearPlantaHover();
@@ -469,7 +490,7 @@ export function useMapInteractions(deps: InteractionDeps) {
       // En modo plantas: siempre verificar hitTest primero.
       // Si el click aterriza sobre una planta, seleccionarla sin importar wasDragging.
       // (Si el usuario arrastró mucho, el browser no dispara click en absoluto.)
-      if (currentModo === "plantas") {
+      if (currentModo === MODO.PLANTAS) {
         const planta = hitTestRef.current?.hitTestPoint(worldPos.x, worldPos.y);
         wasDraggingRef.current = false;
         pointerDownScreenRef.current = null;
@@ -486,12 +507,12 @@ export function useMapInteractions(deps: InteractionDeps) {
       }
       pointerDownScreenRef.current = null;
 
-      if (currentModo === "plantar" && p.onMapClick) {
+      if (currentModo === MODO.PLANTAR && p.onMapClick) {
         handlePlantarTap(worldPos, p);
         return;
       }
 
-      if (currentModo === "zonas" && p.onZonaClick) {
+      if (currentModo === MODO.ZONAS && p.onZonaClick) {
         const metrosX = worldPos.x / PIXELS_POR_METRO;
         const metrosY = worldPos.y / PIXELS_POR_METRO;
         const zonaHit = p.zonas.find(
@@ -555,5 +576,6 @@ export function useMapInteractions(deps: InteractionDeps) {
     propsRef,
     hitTestRef,
     overlayLayerRef,
+    cursorGuidesLayerRef,
   ]);
 }

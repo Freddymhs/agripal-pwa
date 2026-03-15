@@ -4,6 +4,10 @@ import type {
   CompatibilidadAguaCultivo,
   CompatibilidadNivel,
 } from "@/types";
+import {
+  FACTOR_EXCESO_GRAVE_BORO,
+  FACTOR_EXCESO_GRAVE_SALINIDAD,
+} from "@/lib/constants/umbrales";
 
 function evaluarCompatibilidadAgua(
   fuente: FuenteAgua,
@@ -46,10 +50,12 @@ function evaluarCompatibilidadAgua(
     const hayBoro =
       fuente.boro_ppm != null && fuente.boro_ppm > cultivo.boro_tolerancia_ppm;
     const hayExcesoGrave =
-      hayBoro && fuente.boro_ppm! > cultivo.boro_tolerancia_ppm * 2;
+      hayBoro &&
+      fuente.boro_ppm! > cultivo.boro_tolerancia_ppm * FACTOR_EXCESO_GRAVE_BORO;
     const haySalinidadGrave =
       fuente.salinidad_dS_m != null &&
-      fuente.salinidad_dS_m > cultivo.salinidad_tolerancia_dS_m * 1.5;
+      fuente.salinidad_dS_m >
+        cultivo.salinidad_tolerancia_dS_m * FACTOR_EXCESO_GRAVE_SALINIDAD;
 
     if (hayExcesoGrave || haySalinidadGrave || problemas.length >= 2) {
       nivel = "no_compatible";

@@ -70,11 +70,14 @@ export function obtenerCostoAguaM3(
 export function obtenerCostoAguaPromedio(
   estanques: Zona[],
   terreno: Terreno,
+  fuentesAgua: FuenteAgua[],
 ): number {
   const costos: number[] = [];
   for (const est of estanques) {
     const fuenteId = est.estanque_config?.fuente_id;
-    const fuente = fuenteId ? (obtenerFuente(fuenteId) ?? null) : null;
+    const fuente = fuenteId
+      ? (obtenerFuente(fuentesAgua, fuenteId) ?? null)
+      : null;
     // Prioridad: fuente > terreno > recarga (por litros) > recarga (por capacidad_m3) > costo_por_m3 directo
     const costoRecargaM3 = (() => {
       const recarga = est.estanque_config?.recarga;

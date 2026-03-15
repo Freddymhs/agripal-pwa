@@ -10,8 +10,9 @@ import {
 } from "@/components/suelo";
 import { useProjectContext } from "@/contexts/project-context";
 import { terrenosDAL } from "@/lib/dal";
+import { ejecutarMutacion } from "@/lib/helpers/dal-mutation";
 import { getCurrentTimestamp } from "@/lib/utils";
-import { ENMIENDAS_SUELO, sugerirEnmiendas } from "@/lib/data/enmiendas-suelo";
+import { sugerirEnmiendas } from "@/lib/data/enmiendas-suelo";
 import {
   evaluarCompatibilidadSueloMultiple,
   validarSueloTerreno,
@@ -37,7 +38,14 @@ export default function SueloPage() {
     terrenoActual: terreno,
     plantas,
     catalogoCultivos,
+    datosBaseHook,
   } = useProjectContext();
+
+  const enmiendasCatalogo = useMemo(
+    () => datosBaseHook.datosBase.enmiendas || [],
+    [datosBaseHook.datosBase.enmiendas],
+  );
+
   const [sueloOverride, setSueloOverride] = useState<SueloTerreno | null>(null);
   const sueloTerreno = terreno?.suelo;
   const suelo = useMemo(
@@ -61,10 +69,14 @@ export default function SueloPage() {
       }
 
       setGuardando(true);
-      await terrenosDAL.update(terreno.id, {
-        suelo: newSuelo,
-        updated_at: getCurrentTimestamp(),
-      });
+      await ejecutarMutacion(
+        () =>
+          terrenosDAL.update(terreno.id, {
+            suelo: newSuelo,
+            updated_at: getCurrentTimestamp(),
+          }),
+        "actualizar suelo terreno",
+      );
       setGuardando(false);
     },
     [terreno],
@@ -92,8 +104,8 @@ export default function SueloPage() {
   const enmiendaSugeridas = useMemo(() => {
     const salinidadAlta =
       suelo.quimico?.salinidad_dS_m != null && suelo.quimico.salinidad_dS_m > 4;
-    return sugerirEnmiendas(suelo.fisico?.ph, salinidadAlta);
-  }, [suelo]);
+    return sugerirEnmiendas(enmiendasCatalogo, suelo.fisico?.ph, salinidadAlta);
+  }, [suelo, enmiendasCatalogo]);
 
   return (
     <PageLayout
@@ -247,13 +259,13 @@ export default function SueloPage() {
               </div>
             )}
 
-            {ENMIENDAS_SUELO.length > 0 && (
+            {enmiendasCatalogo.length > 0 && (
               <div className="bg-white rounded-lg border p-4">
                 <h3 className="font-medium text-gray-800 mb-3">
                   Enmiendas disponibles
                 </h3>
                 <div className="space-y-1.5">
-                  {ENMIENDAS_SUELO.map((e) => (
+                  {enmiendasCatalogo.map((e) => (
                     <div key={e.id} className="bg-gray-50 p-2 rounded text-xs">
                       <div className="flex justify-between">
                         <span className="font-medium text-gray-900">

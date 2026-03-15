@@ -5,10 +5,14 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase/client";
 import { useAuthContext } from "@/components/providers/auth-provider";
 import { ROUTES } from "@/lib/constants/routes";
+import {
+  ESTADO_SUSCRIPCION,
+  ESTADOS_SUSCRIPCION_PERMITIDOS,
+} from "@/lib/constants/billing";
 
 const CACHE_PREFIX = "agriplan-sub-expires-";
 const RECHECK_INTERVAL_MS = 5 * 60 * 1000; // 5 minutos
-const ALLOWED_STATES = new Set(["active", "trialing", "past_due"]);
+const ALLOWED_STATES = ESTADOS_SUSCRIPCION_PERMITIDOS;
 
 function getCacheKey(userId: string): string {
   return `${CACHE_PREFIX}${userId.slice(0, 8)}`;
@@ -56,7 +60,9 @@ export function BillingGuard({ children }: BillingGuardProps) {
 
       if (data && ALLOWED_STATES.has(data.estado)) {
         const expiry =
-          data.estado === "trialing" ? data.trial_end : data.current_period_end;
+          data.estado === ESTADO_SUSCRIPCION.TRIALING
+            ? data.trial_end
+            : data.current_period_end;
 
         if (expiry) {
           // Verificar que la fecha no haya pasado

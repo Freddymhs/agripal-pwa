@@ -9,7 +9,6 @@ import {
 } from "@/lib/utils/agua";
 import { clamp } from "@/lib/utils/math";
 import { formatCLP } from "@/lib/utils";
-import { FUENTES_AGUA_ARICA } from "@/lib/data/fuentes-agua";
 import { evaluarCompatibilidadMultiple } from "@/lib/validations/agua";
 import type { Zona, Planta, CatalogoCultivo, UUID, FuenteAgua } from "@/types";
 import { DIAS_POR_SEMANA } from "@/lib/constants/conversiones";
@@ -64,6 +63,8 @@ function TooltipIcon({
   );
 }
 
+import { useProjectContext } from "@/contexts/project-context";
+
 export function EstanquePanel({
   estanque,
   zonas,
@@ -72,6 +73,11 @@ export function EstanquePanel({
   onAbrirFormularioAgua,
   onCambiarFuente,
 }: EstanquePanelProps) {
+  const { datosBaseHook } = useProjectContext();
+  const fuentesAgua = useMemo(
+    () => datosBaseHook?.datosBase?.fuentesAgua || [],
+    [datosBaseHook?.datosBase?.fuentesAgua],
+  );
   const config = estanque.estanque_config;
 
   // Todos los hooks ANTES del early return (regla de React: no hooks condicionales)
@@ -135,8 +141,10 @@ export function EstanquePanel({
 
   const fuenteActual: FuenteAgua | null = useMemo(() => {
     if (!config?.fuente_id) return null;
-    return FUENTES_AGUA_ARICA.find((f) => f.id === config.fuente_id) ?? null;
-  }, [config]);
+    return (
+      fuentesAgua.find((f: FuenteAgua) => f.id === config.fuente_id) ?? null
+    );
+  }, [config, fuentesAgua]);
 
   const compatibilidades = useMemo(() => {
     if (!fuenteActual || cultivosActivos.length === 0) return [];
@@ -228,7 +236,7 @@ export function EstanquePanel({
           className="w-full px-2 py-1.5 border rounded text-sm text-gray-900"
         >
           <option value="">Sin asignar</option>
-          {FUENTES_AGUA_ARICA.map((f) => (
+          {fuentesAgua.map((f: FuenteAgua) => (
             <option key={f.id} value={f.id}>
               {f.nombre}
             </option>

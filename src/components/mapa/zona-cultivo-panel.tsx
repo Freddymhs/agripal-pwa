@@ -11,13 +11,18 @@ import {
 import { calcularScoreCalidad } from "@/lib/utils/calidad";
 import { calcularROI, obtenerCostoAguaPromedio } from "@/lib/utils/roi";
 import { obtenerFuente } from "@/lib/data/fuentes-agua";
+import type { DatosClimaticos } from "@/lib/data/clima-arica";
 import {
   calcularConsumoZona,
   calcularConsumoRiegoZona,
   calcularDiasRestantes,
   determinarEstadoAgua,
 } from "@/lib/utils/agua";
-import { ESTADO_PLANTA, ESTADO_AGUA } from "@/lib/constants/entities";
+import {
+  ESTADO_PLANTA,
+  ESTADO_AGUA,
+  TEXTURA_SUELO,
+} from "@/lib/constants/entities";
 import { ZonaRiegoSection } from "./zona-riego-section";
 
 function InfoLabel({ label, tooltip }: { label: string; tooltip: string }) {
@@ -48,8 +53,13 @@ function InfoLabel({ label, tooltip }: { label: string; tooltip: string }) {
 }
 
 export function ZonaCultivoPanel() {
-  const { terrenoActual, catalogoCultivos, estanquesHook, zonasHook, zonas } =
-    useProjectContext();
+  const {
+    terrenoActual,
+    catalogoCultivos,
+    estanquesHook,
+    zonasHook,
+    datosBaseHook,
+  } = useProjectContext();
   const {
     zonaSeleccionada,
     plantasZonaSeleccionada,
@@ -216,23 +226,31 @@ export function ZonaCultivoPanel() {
           );
           if (!cultivoZona) return null;
           const estanquePrincipal = estanquesHook.obtenerEstanquePrincipal();
+          const fuentesAgua = datosBaseHook?.datosBase?.fuentesAgua || [];
           const fuente = estanquePrincipal?.estanque_config?.fuente_id
-            ? (obtenerFuente(estanquePrincipal.estanque_config.fuente_id) ??
-              null)
+            ? (obtenerFuente(
+                fuentesAgua,
+                estanquePrincipal.estanque_config.fuente_id,
+              ) ?? null)
             : null;
           const suelo = terrenoActual?.suelo ?? null;
           const consumoEfectivoZona =
             consumoRiegoZona > 0 ? consumoRiegoZona : consumoVivasRec;
+          const climaObj = datosBaseHook?.datosBase?.clima?.[0];
+          const climaDatos = climaObj?.datos as DatosClimaticos | undefined;
+          if (!climaDatos) return null;
           const score = calcularScoreCalidad(
             cultivoZona,
             fuente,
             suelo,
             estanquesHook.aguaTotalActual,
             consumoEfectivoZona,
+            climaDatos,
           );
           const costoAguaM3 = obtenerCostoAguaPromedio(
             estanquesHook.estanques,
             terrenoActual,
+            fuentesAgua,
           );
           const roi = calcularROI(
             cultivoZona,
@@ -303,7 +321,9 @@ export function ZonaCultivoPanel() {
         zona={zonaSeleccionada}
         plantasVivas={plantasVivas}
         catalogoCultivos={catalogoCultivos}
-        sueloArcilloso={terrenoActual.suelo?.fisico?.textura === "arcillosa"}
+        sueloArcilloso={
+          terrenoActual.suelo?.fisico?.textura === TEXTURA_SUELO.ARCILLOSA
+        }
         onGuardarRiego={async (zonaId, config) => {
           await zonasHook.actualizarZona(zonaId, {
             configuracion_riego: config,
@@ -320,7 +340,7 @@ export function ZonaCultivoPanel() {
             ¿Qué quieres plantar?
           </label>
           <select
-            value={cultivoSeleccionado.id}
+            value={cultivoSeleccionado?.id ?? ""}
             onChange={(e) => {
               const cultivo = catalogoCultivos.find(
                 (c) => c.id === e.target.value,
@@ -329,6 +349,11 @@ export function ZonaCultivoPanel() {
             }}
             className="w-full px-3 py-2 rounded border border-gray-300 text-gray-900 text-sm"
           >
+            {!cultivoSeleccionado && (
+              <option value="" disabled>
+                Seleccionar cultivo…
+              </option>
+            )}
             {catalogoCultivos.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.nombre}
@@ -336,17 +361,22 @@ export function ZonaCultivoPanel() {
             ))}
           </select>
         </div>
-        <div className="text-xs text-gray-600 bg-white p-2 rounded">
-          <div>
-            Espaciado:{" "}
-            <strong>{cultivoSeleccionado.espaciado_recomendado_m}m</strong>
+        {cultivoSeleccionado && (
+          <div className="text-xs text-gray-600 bg-white p-2 rounded">
+            <div>
+              Espaciado:{" "}
+              <strong>{cultivoSeleccionado.espaciado_recomendado_m}m</strong>
+            </div>
           </div>
-        </div>
+        )}
         <button
           onClick={() => setShowGridModal(true)}
-          className="w-full bg-lime-600 text-white py-2 rounded hover:bg-lime-700 text-sm font-medium"
+          disabled={!cultivoSeleccionado}
+          className="w-full bg-lime-600 text-white py-2 rounded hover:bg-lime-700 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Plantar {cultivoSeleccionado.nombre} en Grilla
+          {cultivoSeleccionado
+            ? `Plantar ${cultivoSeleccionado.nombre} en Grilla`
+            : "Selecciona un cultivo"}
         </button>
         <p className="text-xs text-gray-600 text-center">
           O usa modo &quot;Plantar&quot; para colocar individualmente

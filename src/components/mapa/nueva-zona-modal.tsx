@@ -98,6 +98,11 @@ export function NuevaZonaModal({
               <option value={TIPO_ZONA.ESTANQUE}>Estanque de Agua</option>
               <option value={TIPO_ZONA.BODEGA}>Bodega</option>
               <option value={TIPO_ZONA.CASA}>Casa</option>
+              <option value={TIPO_ZONA.GARAGE}>Garage</option>
+              <option value={TIPO_ZONA.COMPOSTERA}>Compostera</option>
+              <option value={TIPO_ZONA.APRON}>Apron de Carga</option>
+              <option value={TIPO_ZONA.EMPAQUE}>Empaque</option>
+              <option value={TIPO_ZONA.SANITARIO}>Sanitario</option>
               <option value={TIPO_ZONA.CAMINO}>Camino</option>
               <option value={TIPO_ZONA.DECORACION}>Decoración</option>
               <option value={TIPO_ZONA.OTRO}>Otro</option>

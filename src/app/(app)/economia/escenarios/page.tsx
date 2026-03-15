@@ -26,9 +26,12 @@ export default function EscenariosPage() {
     zonas,
     catalogoCultivos,
     loading,
+    datosBaseHook,
   } = useProjectContext();
   const [zonaId, setZonaId] = useState<string>("");
   const [seleccion, setSeleccion] = useState<string[]>([]);
+
+  const fuentesAgua = datosBaseHook.datosBase.fuentesAgua;
 
   useEffect(() => {
     if (zonas.length > 0) {
@@ -51,7 +54,11 @@ export default function EscenariosPage() {
       .filter((c): c is CatalogoCultivo => c != null);
 
     const estanques = filtrarEstanques(zonas);
-    const costoAguaM3 = obtenerCostoAguaPromedio(estanques, terreno);
+    const costoAguaM3 = obtenerCostoAguaPromedio(
+      estanques,
+      terreno,
+      fuentesAgua,
+    );
 
     return compararCultivos(
       cultivosSelec,
@@ -59,7 +66,14 @@ export default function EscenariosPage() {
       terreno.suelo ?? null,
       costoAguaM3,
     );
-  }, [zonaSeleccionada, terreno, seleccion, catalogoCultivos, zonas]);
+  }, [
+    zonaSeleccionada,
+    terreno,
+    seleccion,
+    catalogoCultivos,
+    zonas,
+    fuentesAgua,
+  ]);
 
   const toggleCultivo = (id: string) => {
     setSeleccion((prev) => {

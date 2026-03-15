@@ -5,11 +5,7 @@ import { TIPO_ZONA } from "@/lib/constants/entities";
 
 const COLOR_ZONA_HOVER = 0xfbbf24;
 
-function buildLabelText(zona: Zona, modoPlano: boolean): string {
-  if (modoPlano) {
-    const areaM2 = zona.ancho * zona.alto;
-    return `${zona.nombre}\n\n${zona.ancho}×${zona.alto}m\n${areaM2}m²`;
-  }
+function buildEstanqueLabel(zona: Zona): string {
   if (zona.tipo === TIPO_ZONA.ESTANQUE && zona.estanque_config) {
     const cfg = zona.estanque_config;
     const pct =
@@ -112,44 +108,55 @@ export class PixiZonasLayer {
       const showMiniLabel = scale < 8 && areaM2 < 10;
 
       if (showLabel || showMiniLabel) {
-        const fontSize = showMiniLabel
+        const zoneHpx = zona.alto * PIXELS_POR_METRO;
+        const pad = Math.max(2, zoneHpx * 0.06);
+
+        // Font del nombre: usa ~55% de la altura disponible (1 línea)
+        const maxNameFont = (zoneHpx * 0.55) / 1.35;
+        const baseFontSize = showMiniLabel
           ? Math.max(8, 12 / scale)
           : Math.max(10, 14 / scale);
+        const nameFont = Math.min(baseFontSize, Math.max(9, maxNameFont));
 
-        const labelText = buildLabelText(zona, modoPlano);
-
-        const text = new Text({
-          text: labelText,
+        // Nombre: arriba-izquierda (estanques muestran también el % de nivel)
+        const nameText = new Text({
+          text: buildEstanqueLabel(zona),
           style: {
-            fontSize,
+            fontSize: nameFont,
             fill: modoPlano ? 0x111827 : 0x1f2937,
             fontFamily: modoPlano ? "monospace" : "sans-serif",
             fontWeight: modoPlano ? "bold" : "normal",
-            align: "center",
           },
         });
-        text.position.set(x + w / 2, y + h / 2);
-        text.anchor.set(0.5);
+        nameText.position.set(x + pad, y + pad);
+        nameText.anchor.set(0, 0);
+        this.container.addChild(nameText);
+        this.zonaLabels.set(zona.id, nameText);
 
-        if (modoPlano) {
-          const bounds = text.getLocalBounds();
-          const pad = fontSize * 0.5;
-          const bg = new Graphics();
-          bg.rect(
-            bounds.x - pad,
-            bounds.y - pad,
-            bounds.width + pad * 2,
-            bounds.height + pad * 2,
-          );
-          bg.fill({ color: 0xffffff, alpha: 0.88 });
-          bg.stroke({ color: 0x9ca3af, width: 0.5 });
-          bg.position.set(x + w / 2, y + h / 2);
-          this.container.addChild(bg);
-          this.zonaLabels.set(`${zona.id}_bg`, bg as unknown as Text);
+        // Dimensiones + área: abajo-izquierda, font más pequeño
+        // Zonas bajas (< 8m): 1 línea para evitar solapamiento con el nombre
+        if (modoPlano && showLabel) {
+          const dimsFont = Math.max(8, nameFont * 0.88);
+          const areaM2 = zona.ancho * zona.alto;
+          const isShortHeight = zona.alto < 8;
+          const dimsStr = isShortHeight
+            ? `${zona.ancho}×${zona.alto}m · ${areaM2}m²`
+            : `${zona.ancho}×${zona.alto}m\n${areaM2}m²`;
+          const dimsText = new Text({
+            text: dimsStr,
+            style: {
+              fontSize: dimsFont,
+              fill: 0x374151,
+              fontFamily: "monospace",
+              fontWeight: "normal",
+              align: "left",
+            },
+          });
+          dimsText.position.set(x + pad, y + h - pad);
+          dimsText.anchor.set(0, 1);
+          this.container.addChild(dimsText);
+          this.zonaLabels.set(`${zona.id}_dims`, dimsText);
         }
-
-        this.container.addChild(text);
-        this.zonaLabels.set(zona.id, text);
       }
     }
 

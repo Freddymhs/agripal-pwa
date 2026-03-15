@@ -275,59 +275,66 @@
     "notas_arica": "Calor de Arica produce ajíes de alta concentración. Producción casi continua sin heladas. Bajo costo de establecimiento."
   },
   {
-    "id": "huerto-olivo",
+    "id": "huerto-choclo",
     "proyecto_id": "proyecto-arica-piloto",
     "categoria": "huerto_personal",
-    "nombre": "Olivo",
-    "nombre_cientifico": "Olea europaea",
-    "tipo": "fruta",
+    "nombre": "Choclo (Maíz Dulce)",
+    "nombre_cientifico": "Zea mays var. saccharata",
+    "tipo": "hortaliza_fruto",
     "escala": "huerto_personal",
-    "agua_m3_ha_año_min": 2000,
-    "agua_m3_ha_año_max": 3500,
-    "espaciado_min_m": 5,
-    "espaciado_recomendado_m": 6,
-    "ph_min": 5.5,
-    "ph_max": 8.5,
-    "salinidad_tolerancia_dS_m": 5,
-    "boro_tolerancia_ppm": 3,
-    "tolerancia_boro": "media",
-    "tolerancia_salinidad": "alta",
+    "agua_m3_ha_año_min": 5000,
+    "agua_m3_ha_año_max": 7500,
+    "espaciado_min_m": 0.25,
+    "espaciado_recomendado_m": 0.3,
+    "ph_min": 6,
+    "ph_max": 8,
+    "salinidad_tolerancia_dS_m": 1.7,
+    "boro_tolerancia_ppm": 1.0,
+    "tolerancia_boro": "baja",
+    "tolerancia_salinidad": "baja",
     "clima": {
-      "temp_min_c": -7,
-      "temp_max_c": 40,
-      "tolerancia_heladas": "alta",
-      "horas_frio_requeridas": 300
+      "temp_min_c": 10,
+      "temp_max_c": 35,
+      "tolerancia_heladas": "nula"
     },
-    "viabilidad_proyecto": "recomendado",
+    "viabilidad_proyecto": "mejor_opcion",
     "calendario": {
-      "meses_siembra": [6, 7, 8],
-      "meses_cosecha": [4, 5, 6],
-      "meses_descanso": [9, 10, 11, 12, 1, 2, 3]
+      "meses_siembra": [8, 9, 10, 1, 2, 3],
+      "meses_cosecha": [12, 1, 2, 3, 5, 6, 7],
+      "meses_descanso": []
     },
     "produccion": {
-      "produccion_kg_ha_año2": 0,
-      "produccion_kg_ha_año3": 500,
-      "produccion_kg_ha_año4": 3000,
-      "vida_util_dias": 180
+      "produccion_kg_ha_año2": 20000,
+      "produccion_kg_ha_año3": 25000,
+      "produccion_kg_ha_año4": 30000,
+      "vida_util_dias": 5
     },
-    "precio_kg_min_clp": 1500,
-    "precio_kg_max_clp": 3500,
-    "precio_planta_clp": 4000,
+    "precio_kg_min_clp": 500,
+    "precio_kg_max_clp": 1200,
+    "precio_planta_clp": 50,
     "plagas": [
       {
-        "nombre": "Mosca del olivo",
-        "nombre_cientifico": "Bactrocera oleae",
+        "nombre": "Gusano del choclo",
+        "nombre_cientifico": "Helicoverpa zea",
         "grados_dia_base": 10,
-        "grados_dia_ciclo": 400,
-        "grados_dia_ovicida_ventana": 150,
-        "control_recomendado": "Trampa proteica + kaolín en fruto"
+        "grados_dia_ciclo": 350,
+        "grados_dia_ovicida_ventana": 120,
+        "control_recomendado": "Aplicación de Bt en pelos de mazorca + monitoreo desde emergencia de barbas"
+      },
+      {
+        "nombre": "Gusano cogollero",
+        "nombre_cientifico": "Spodoptera frugiperda",
+        "grados_dia_base": 10,
+        "grados_dia_ciclo": 500,
+        "grados_dia_ovicida_ventana": 100,
+        "control_recomendado": "Monitoreo temprano + Bt o spinosad en cogollo"
       }
     ],
-    "tiempo_produccion_meses": 48,
-    "vida_util_años": 80,
-    "tier": 2,
-    "riesgo": "bajo",
-    "notas": "Árbol muy lento pero extremadamente longevo y rústico. Para autoconsumo 2-3 árboles son suficientes.",
-    "notas_arica": "Las mínimas de 4-6°C en invierno cubren las horas frío requeridas. Variedad Azapa recomendada por adaptación local probada."
+    "tiempo_produccion_meses": 4,
+    "vida_util_años": 1,
+    "tier": 1,
+    "riesgo": "medio",
+    "notas": "Ciclo corto (90-120 días). Dos ciclos anuales posibles en Arica. Sensible a salinidad y boro — requiere agua de buena calidad. Etapa de floración es crítica para riego.",
+    "notas_arica": "El Valle de Azapa produce choclo primor de alta demanda. Ausencia de heladas permite doble ciclo anual. Usar agua de Azapa o aljibe (Río Lluta NO apto por boro 11 ppm). Cosecha muy perecible (5 días), vender rápido o procesar."
   }
 ]

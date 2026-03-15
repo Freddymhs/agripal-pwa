@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { zonasDAL } from "@/lib/dal";
+import { ejecutarMutacion } from "@/lib/helpers/dal-mutation";
 import { useProjectContext } from "@/contexts/project-context";
 import { useAgua } from "@/hooks/use-agua";
 import { logger } from "@/lib/logger";
@@ -276,26 +277,32 @@ export default function AguaPage() {
 
             const now = getCurrentTimestamp();
             const proximaRecarga = addDays(
-              new Date(),
+              new Date(now),
               config.frecuencia_dias,
             ).toISOString();
 
-            await zonasDAL.update(estanqueActual.id, {
-              estanque_config: {
-                ...estanqueActual.estanque_config,
-                recarga: {
-                  frecuencia_dias: config.frecuencia_dias,
-                  cantidad_litros: config.cantidad_litros,
-                  ultima_recarga: now,
-                  proxima_recarga: proximaRecarga,
-                  costo_recarga_clp: config.costo_recarga_clp,
-                },
+            const configActual = estanqueActual.estanque_config;
+            await ejecutarMutacion(
+              () =>
+                zonasDAL.update(estanqueActual.id, {
+                  estanque_config: {
+                    ...configActual,
+                    recarga: {
+                      frecuencia_dias: config.frecuencia_dias,
+                      cantidad_litros: config.cantidad_litros,
+                      ultima_recarga: now,
+                      proxima_recarga: proximaRecarga,
+                      costo_recarga_clp: config.costo_recarga_clp,
+                    },
+                  },
+                  updated_at: now,
+                }),
+              "configurar recarga estanque",
+              async () => {
+                emitZonaUpdated(estanqueActual.id);
+                await refetch();
               },
-              updated_at: now,
-            });
-
-            emitZonaUpdated(estanqueActual.id);
-            await refetch();
+            );
             setShowConfigRecarga(false);
           }}
           onCerrar={() => setShowConfigRecarga(false)}

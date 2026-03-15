@@ -2,7 +2,12 @@
 
 import { useState } from "react";
 import type { ConfiguracionRiego, TipoSistemaRiego } from "@/types";
-import { GOTEROS_DEFAULT, TIPO_RIEGO } from "@/lib/constants/entities";
+import {
+  GOTEROS_DEFAULT,
+  TIPO_RIEGO,
+  HORARIO_RIEGO_INICIO_DEFAULT,
+  HORARIO_RIEGO_FIN_DEFAULT,
+} from "@/lib/constants/entities";
 import { DIAS_POR_SEMANA } from "@/lib/constants/conversiones";
 import { CaudalCalculadora } from "@/components/agua/caudal-calculadora";
 import { RiegoProgramadoFields } from "@/components/agua/riego-programado-fields";
@@ -34,9 +39,11 @@ export function ConfigurarRiegoModal({
   );
   const [horasDia, setHorasDia] = useState(config?.horas_dia || 6);
   const [horarioInicio, setHorarioInicio] = useState(
-    config?.horario_inicio || "06:00",
+    config?.horario_inicio || HORARIO_RIEGO_INICIO_DEFAULT,
   );
-  const [horarioFin, setHorarioFin] = useState(config?.horario_fin || "12:00");
+  const [horarioFin, setHorarioFin] = useState(
+    config?.horario_fin || HORARIO_RIEGO_FIN_DEFAULT,
+  );
   const [guardando, setGuardando] = useState(false);
   const [mostrarCalculadora, setMostrarCalculadora] = useState(false);
 

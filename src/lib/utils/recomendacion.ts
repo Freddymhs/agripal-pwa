@@ -5,8 +5,9 @@ import {
   simularConsumoEstacional,
 } from "@/lib/validations/cultivo-restricciones";
 import { calcularAguaAnualAutomatica } from "@/lib/utils/agua-calculo-anual";
-import { CULTIVOS_ARICA } from "@/lib/data/cultivos-arica";
 import { M2_POR_HECTAREA } from "@/lib/constants/conversiones";
+
+const RECOMENDACION_VIABLE_DEFAULT = "Viable pero con restricciones";
 import type {
   Terreno,
   CatalogoCultivo,
@@ -76,7 +77,7 @@ export function calcularRecomendacionCultivos(
   );
 
   const { viables, noViables } = filtrarCultivosViables(
-    CULTIVOS_ARICA,
+    catalogoCultivos,
     terreno,
     areaHaFinal,
     calculoAgua.aguaAnualM3,
@@ -88,7 +89,7 @@ export function calcularRecomendacionCultivos(
     ({ cultivo, validacion, score }) => ({
       cultivo,
       score,
-      razon: validacion.recomendacion || "Viable pero con restricciones",
+      razon: validacion.recomendacion || RECOMENDACION_VIABLE_DEFAULT,
     }),
   );
 

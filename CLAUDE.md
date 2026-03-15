@@ -72,6 +72,15 @@
 - E2E (Cypress): al menos un test por flujo crítico.
 - Bug fixes críticos: acompañar con test que falle antes del cambio.
 
+## Dónde va cada dato
+
+- **Nunca cambia** (leyes físicas, fórmulas, umbrales científicos) → constante en código.
+- **Puede crecer o actualizarse** (catálogos, listas, entidades con nombre) → base de datos.
+- **Cada usuario lo personaliza** → tabla per-project, copiada automáticamente desde la base global.
+- **Aún no tiene tabla** → `data/pendiente/`, nunca importar en código de producción.
+
+Componentes nunca importan datos de catálogo desde archivos locales. Siempre desde la BD via hooks.
+
 ## Sistema de Agua (FASE 11C)
 
 ### Páginas principales

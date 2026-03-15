@@ -7,9 +7,10 @@ import { PixiPlantasLayer } from "./pixi-plantas-layer";
 import { PixiHitTest } from "./pixi-hit-test";
 import { PixiOverlayLayer } from "./pixi-overlay-layer";
 import { PixiSpacingLayer } from "./pixi-spacing-layer";
+import { PixiCursorGuidesLayer } from "./pixi-cursor-guides-layer";
 import { PIXELS_POR_METRO, COLOR_BORDE_TERRENO } from "./pixi-constants";
 import type { Terreno, Zona, Planta } from "@/types";
-import { TIPO_ZONA } from "@/lib/constants/entities";
+import { MODO, TIPO_ZONA } from "@/lib/constants/entities";
 
 interface LayerRefs {
   worldRef: MutableRefObject<Container | null>;
@@ -20,6 +21,7 @@ interface LayerRefs {
   hitTestRef: MutableRefObject<PixiHitTest | null>;
   overlayLayerRef: MutableRefObject<PixiOverlayLayer | null>;
   spacingLayerRef: MutableRefObject<PixiSpacingLayer | null>;
+  cursorGuidesLayerRef: MutableRefObject<PixiCursorGuidesLayer | null>;
   borderRef: MutableRefObject<Graphics | null>;
 }
 
@@ -64,6 +66,7 @@ export function useMapLayers(
     hitTestRef,
     overlayLayerRef,
     spacingLayerRef,
+    cursorGuidesLayerRef,
     borderRef,
   } = refs;
 
@@ -144,6 +147,10 @@ export function useMapLayers(
     worldRef.current.addChild(spacingLayer.container);
     spacingLayerRef.current = spacingLayer;
 
+    const cursorGuidesLayer = new PixiCursorGuidesLayer();
+    worldRef.current.addChild(cursorGuidesLayer.container);
+    cursorGuidesLayerRef.current = cursorGuidesLayer;
+
     const overlay = new PixiOverlayLayer();
     worldRef.current.addChild(overlay.container);
     overlayLayerRef.current = overlay;
@@ -153,11 +160,13 @@ export function useMapLayers(
       zonasLayer.destroy();
       hitTest.destroy();
       spacingLayer.destroy();
+      cursorGuidesLayer.destroy();
       overlay.destroy();
       gridLayerRef.current = null;
       zonasLayerRef.current = null;
       hitTestRef.current = null;
       spacingLayerRef.current = null;
+      cursorGuidesLayerRef.current = null;
       overlayLayerRef.current = null;
     };
   }, [
@@ -169,6 +178,7 @@ export function useMapLayers(
     zonasLayerRef,
     hitTestRef,
     spacingLayerRef,
+    cursorGuidesLayerRef,
     overlayLayerRef,
     propsRef,
   ]);
@@ -226,8 +236,8 @@ export function useMapLayers(
 
   useEffect(() => {
     if (!zonasLayerRef.current) return;
-    const zonasInteractivas = modo === "zonas" || modo === "plantar";
-    const modoPlano = modo === "espaciado";
+    const zonasInteractivas = modo === MODO.ZONAS || modo === MODO.PLANTAR;
+    const modoPlano = modo === MODO.ESPACIADO;
     zonasLayerRef.current.build(
       zonas,
       zonaSeleccionadaId || null,
@@ -280,10 +290,10 @@ export function useMapLayers(
   }, [plantas, zonas, cultivosEspaciado, hitTestRef]);
 
   useEffect(() => {
-    if (modo !== "plantar") {
+    if (modo !== MODO.PLANTAR) {
       overlayLayerRef.current?.clearPlantasPreview();
     }
-    if (modo !== "plantas") {
+    if (modo !== MODO.PLANTAS) {
       overlayLayerRef.current?.clearPlantaHover();
     }
   }, [modo, zonaSeleccionadaId, overlayLayerRef]);
@@ -293,7 +303,7 @@ export function useMapLayers(
     if (!plantasLayerRef.current) return;
     const OPACIDAD_PLANO = 0.15;
     plantasLayerRef.current.container.alpha =
-      modo === "espaciado" ? OPACIDAD_PLANO : 1;
+      modo === MODO.ESPACIADO ? OPACIDAD_PLANO : 1;
   }, [modo, plantasLayerRef]);
 
   useEffect(() => {
@@ -316,10 +326,17 @@ export function useMapLayers(
 
   useEffect(() => {
     if (!spacingLayerRef.current) return;
-    if (modo === "espaciado") {
+    if (modo === MODO.ESPACIADO) {
       spacingLayerRef.current.build(zonas, terreno, viewport.getScale());
     } else {
       spacingLayerRef.current.clear();
     }
   }, [modo, zonas, terreno, viewport, spacingLayerRef]);
+
+  // Limpiar cursor guides cuando se sale del modo crear_zona
+  useEffect(() => {
+    if (modo !== MODO.CREAR_ZONA) {
+      cursorGuidesLayerRef.current?.clear();
+    }
+  }, [modo, cursorGuidesLayerRef]);
 }

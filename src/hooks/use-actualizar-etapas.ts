@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { logger } from "@/lib/logger";
 import { transaccionesDAL } from "@/lib/dal";
+import { ejecutarMutacion } from "@/lib/helpers/dal-mutation";
 import { calcularEtapaActual } from "@/lib/data/duracion-etapas";
 import { getCurrentTimestamp } from "@/lib/utils";
 import type { Planta, CatalogoCultivo } from "@/types";
@@ -62,18 +62,15 @@ export function useActualizarEtapas(
         return;
       }
 
-      try {
-        if (cancelled) return;
-        await transaccionesDAL.actualizarEtapasLote(actualizaciones);
-      } catch (err) {
-        logger.error("Error actualizando etapas", { error: err });
-        return;
-      }
-
-      ultimaActualizacion.current = ahora;
-      if (!cancelled) {
-        onRefetch();
-      }
+      if (cancelled) return;
+      await ejecutarMutacion(
+        () => transaccionesDAL.actualizarEtapasLote(actualizaciones),
+        "actualizar etapas en lote",
+        () => {
+          ultimaActualizacion.current = ahora;
+          if (!cancelled) onRefetch();
+        },
+      );
     }
 
     actualizar();

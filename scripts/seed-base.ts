@@ -1,0 +1,194 @@
+/**
+ * seed-base.ts — Puebla todas las tablas base globales de AgriPlan.
+ *
+ * Correr UNA VEZ al hacer setup de una BD nueva.
+ * Cada usuario que cree un proyecto recibira estos datos
+ * automaticamente en su copia personal (via trigger).
+ *
+ * Uso:
+ *   pnpm seed:base
+ *
+ * Requiere en .env.local:
+ *   NEXT_PUBLIC_SUPABASE_URL
+ *   SUPABASE_SERVICE_ROLE_KEY
+ */
+
+import { config } from "dotenv";
+config({ path: ".env.local" });
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { readFileSync } from "fs";
+import { resolve } from "path";
+
+// ─── Cliente ─────────────────────────────────────────────────────────────────
+
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
+  console.error(
+    "Faltan variables: NEXT_PUBLIC_SUPABASE_URL y SUPABASE_SERVICE_ROLE_KEY",
+  );
+  process.exit(1);
+}
+
+const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
+  auth: { autoRefreshToken: false, persistSession: false },
+});
+
+// ─── Helper ───────────────────────────────────────────────────────────────────
+
+function readJson<T>(filePath: string): T {
+  return JSON.parse(
+    readFileSync(resolve(process.cwd(), filePath), "utf-8"),
+  ) as T;
+}
+
+type RawRecord = Record<string, unknown>;
+
+// ─── Funciones por tabla ──────────────────────────────────────────────────────
+
+async function seedCatalogoBase(sb: SupabaseClient): Promise<void> {
+  const frutas = readJson<RawRecord[]>("data/seed/cultivos-frutas.json");
+  const extras = readJson<RawRecord[]>("data/seed/cultivos-extras.json");
+
+  const payload = [...frutas, ...extras].map((c) => {
+    const { id, nombre, tier, proyecto_id: _p, created_at: _ca, updated_at: _ua, ...datos } = c;
+    return { id: id as string, nombre: nombre as string, tier: (tier as string) ?? "base", datos };
+  });
+
+  const { error } = await sb.from("catalogo_base").upsert(payload, { onConflict: "id" });
+  if (error) throw new Error(`catalogo_base: ${error.message}`);
+  console.log(`  ✓ ${payload.length} cultivos (frutas.json + extras.json)`);
+}
+
+async function seedVariedades(sb: SupabaseClient): Promise<void> {
+  const raw = readJson<RawRecord[]>("data/seed/variedades.json");
+
+  const payload = raw.map((v) => {
+    const { id, cultivo_id, nombre, ...datos } = v;
+    return { id: id as string, cultivo_id: cultivo_id as string, nombre: nombre as string, datos };
+  });
+
+  const { error } = await sb.from("variedades_base").upsert(payload, { onConflict: "id" });
+  if (error) throw new Error(`variedades_base: ${error.message}`);
+  console.log(`  ✓ ${payload.length} variedades`);
+}
+
+async function seedInsumos(sb: SupabaseClient): Promise<void> {
+  const raw = readJson<{ insumos: RawRecord[] }>("data/seed/insumos.json");
+
+  const payload = raw.insumos.map((i) => {
+    const { id, nombre, tipo, ...datos } = i;
+    return { id: id as string, nombre: nombre as string, tipo: tipo as string, datos };
+  });
+
+  const { error } = await sb.from("insumos_base").upsert(payload, { onConflict: "id" });
+  if (error) throw new Error(`insumos_base: ${error.message}`);
+  console.log(`  ✓ ${payload.length} insumos`);
+}
+
+async function seedEnmiendas(sb: SupabaseClient): Promise<void> {
+  const raw = readJson<RawRecord[]>("data/seed/enmiendas-suelo.json");
+
+  const payload = raw.map((e) => {
+    const { id, nombre, tipo, ...datos } = e;
+    return { id: id as string, nombre: nombre as string, tipo: tipo as string, datos };
+  });
+
+  const { error } = await sb.from("enmiendas_base").upsert(payload, { onConflict: "id" });
+  if (error) throw new Error(`enmiendas_base: ${error.message}`);
+  console.log(`  ✓ ${payload.length} enmiendas de suelo`);
+}
+
+async function seedTecnicas(sb: SupabaseClient): Promise<void> {
+  const raw = readJson<RawRecord[]>("data/seed/tecnicas.json");
+
+  const payload = raw.map((t) => {
+    const { id, nombre, categoria, ...datos } = t;
+    return { id: id as string, nombre: nombre as string, categoria: categoria as string, datos };
+  });
+
+  const { error } = await sb.from("tecnicas_base").upsert(payload, { onConflict: "id" });
+  if (error) throw new Error(`tecnicas_base: ${error.message}`);
+  console.log(`  ✓ ${payload.length} tecnicas de mejora`);
+}
+
+async function seedClima(sb: SupabaseClient): Promise<void> {
+  const clima = readJson<RawRecord>("data/seed/clima.json");
+  const eto = readJson<RawRecord>("data/seed/evapotranspiracion.json");
+
+  const payload = [
+    {
+      id: "arica-pampa-interior",
+      region: "Arica y Parinacota - pampa_interior",
+      datos: { ...clima, evapotranspiracion_detalle: eto },
+    },
+  ];
+
+  const { error } = await sb.from("clima_base").upsert(payload, { onConflict: "id" });
+  if (error) throw new Error(`clima_base: ${error.message}`);
+  console.log(`  ✓ 1 registro de clima (arica.json + evapotranspiracion-arica.json)`);
+}
+
+async function seedFuentesAgua(sb: SupabaseClient): Promise<void> {
+  const raw = readJson<RawRecord[]>("data/seed/fuentes-agua.json");
+
+  const payload = raw.map((f) => {
+    const { id, nombre, tipo, ...datos } = f;
+    return { id: id as string, nombre: nombre as string, tipo: tipo as string, datos };
+  });
+
+  const { error } = await sb.from("fuentes_agua_base").upsert(payload, { onConflict: "id" });
+  if (error) throw new Error(`fuentes_agua_base: ${error.message}`);
+  console.log(`  ✓ ${payload.length} fuentes de agua`);
+}
+
+async function seedPrecios(sb: SupabaseClient): Promise<void> {
+  const raw = readJson<RawRecord[]>("data/seed/precios.json");
+
+  const payload = raw.map((p) => {
+    const { cultivo_id, nombre, ...datos } = p;
+    return { id: cultivo_id as string, nombre: nombre as string, datos };
+  });
+
+  const { error } = await sb.from("precios_base").upsert(payload, { onConflict: "id" });
+  if (error) throw new Error(`precios_base: ${error.message}`);
+  console.log(`  ✓ ${payload.length} precios de mercado`);
+}
+
+// ─── Main ─────────────────────────────────────────────────────────────────────
+
+(async () => {
+  try {
+    console.log("\n[0] Inicio del Seed Base\n");
+
+    console.log("[1] Catalogo de cultivos");
+    await seedCatalogoBase(supabase);
+
+    console.log("\n[2] Variedades");
+    await seedVariedades(supabase);
+
+    console.log("\n[3] Insumos");
+    await seedInsumos(supabase);
+
+    console.log("\n[4] Enmiendas de suelo");
+    await seedEnmiendas(supabase);
+
+    console.log("\n[5] Tecnicas de mejora");
+    await seedTecnicas(supabase);
+
+    console.log("\n[6] Clima");
+    await seedClima(supabase);
+
+    console.log("\n[7] Fuentes de agua");
+    await seedFuentesAgua(supabase);
+
+    console.log("\n[8] Precios de mercado");
+    await seedPrecios(supabase);
+
+    console.log("\n✅ Seed base completado. Nuevos usuarios recibiran estos datos al crear su primer proyecto.\n");
+  } catch (error) {
+    console.error("\n❌ Seed base fallido:", (error as Error).message);
+    process.exit(1);
+  }
+})();

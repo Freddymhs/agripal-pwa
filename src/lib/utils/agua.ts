@@ -156,7 +156,7 @@ export function calcularDiasRestantes(
 ): number {
   if (isNaN(aguaActualM3) || isNaN(consumoSemanalM3)) return 0;
   const consumoDiario = consumoSemanalM3 / DIAS_POR_SEMANA;
-  if (consumoDiario <= 0) return 999;
+  if (consumoDiario <= 0) return Infinity;
   return aguaActualM3 / consumoDiario;
 }
 

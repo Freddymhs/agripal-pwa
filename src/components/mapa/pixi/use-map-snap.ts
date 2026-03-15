@@ -3,9 +3,16 @@ import type { Terreno, Zona } from "@/types";
 import type { Point } from "./pixi-map-types";
 import { SNAP_THRESHOLD } from "./pixi-map-types";
 
+const GRID_STEP_M = 0.5;
+
 interface PropsRef {
   terreno: Terreno;
   zonas: Zona[];
+}
+
+/** Redondea al múltiplo más cercano de GRID_STEP_M (0.5m) */
+function roundToGrid(value: number): number {
+  return Math.round(value / GRID_STEP_M) * GRID_STEP_M;
 }
 
 export function useMapSnap(propsRef: MutableRefObject<PropsRef>) {
@@ -50,7 +57,10 @@ export function useMapSnap(propsRef: MutableRefObject<PropsRef>) {
 
   const snapPosition = useCallback(
     (pos: Point): Point => {
-      const snapped = { x: pos.x, y: pos.y };
+      // Primero redondear al grid de 0.5m
+      const snapped = { x: roundToGrid(pos.x), y: roundToGrid(pos.y) };
+
+      // Luego priorizar snap a edges de zonas/terreno si están dentro del threshold
       const t = propsRef.current.terreno;
       const z = propsRef.current.zonas;
       const edgesX: number[] = [0, t.ancho_m];

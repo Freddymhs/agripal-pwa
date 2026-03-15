@@ -3,6 +3,7 @@
 import { useCallback } from "react";
 import { zonasDAL, transaccionesDAL } from "@/lib/dal";
 import { generateUUID, getCurrentTimestamp } from "@/lib/utils";
+import { ESTADO_ZONA, COLORES_ZONA } from "@/lib/constants/entities";
 import {
   validarNuevaZona,
   validarRedimensionarZona,
@@ -17,7 +18,6 @@ import type {
   UUID,
   EstanqueConfig,
 } from "@/types";
-import { COLORES_ZONA } from "@/lib/constants/entities";
 
 interface UseZonas {
   crearZona: (data: {
@@ -75,7 +75,7 @@ export function useZonas(
         terreno_id: terrenoId,
         nombre: data.nombre,
         tipo: data.tipo,
-        estado: "vacia",
+        estado: ESTADO_ZONA.VACIA,
         x: data.x,
         y: data.y,
         ancho: data.ancho,

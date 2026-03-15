@@ -1,7 +1,5 @@
 import type { Temporada } from "@/types";
 import { TEMPORADA } from "@/lib/constants/entities";
-import climaData from "../../../data/static/clima/arica.json";
-import etoData from "../../../data/static/clima/evapotranspiracion-arica.json";
 
 export interface DatosClimaticos {
   region: string;
@@ -53,9 +51,8 @@ export interface DatosClimaticos {
   >;
 
   fuentes: string[];
+  evapotranspiracion_detalle?: DatosETo;
 }
-
-export const CLIMA_ARICA: DatosClimaticos = climaData as DatosClimaticos;
 
 export function getTemporadaActual(): Temporada {
   const mes = new Date().getMonth();
@@ -84,24 +81,22 @@ export interface DatosETo {
   camanchaca: DatosCamanchaca;
 }
 
-export const ETO_ARICA: DatosETo = etoData as unknown as DatosETo;
-
-export function getEtoMesActual(): number {
+export function getEtoMesActual(etoData: DatosETo): number {
   const mes = (new Date().getMonth() + 1).toString();
-  return ETO_ARICA.mensual[mes]?.eto_mm_dia ?? ETO_ARICA.eto_referencia_mm_dia;
+  return etoData.mensual[mes]?.eto_mm_dia ?? etoData.eto_referencia_mm_dia;
 }
 
-export function hayCamanchaca(): boolean {
+export function hayCamanchaca(etoData: DatosETo): boolean {
   const mes = new Date().getMonth() + 1;
-  return ETO_ARICA.camanchaca.meses_presencia.includes(mes);
+  return etoData.camanchaca.meses_presencia.includes(mes);
 }
 
-export function getFactorClimatico(): number {
-  const etoActual = getEtoMesActual();
-  const etoRef = ETO_ARICA.eto_referencia_mm_dia;
+export function getFactorClimatico(etoData: DatosETo): number {
+  const etoActual = getEtoMesActual(etoData);
+  const etoRef = etoData.eto_referencia_mm_dia;
   const baseFactor = etoActual / etoRef;
-  const factor = hayCamanchaca()
-    ? baseFactor * (1 - ETO_ARICA.camanchaca.reduccion_eto_pct / 100)
+  const factor = hayCamanchaca(etoData)
+    ? baseFactor * (1 - etoData.camanchaca.reduccion_eto_pct / 100)
     : baseFactor;
 
   return Math.round(factor * 100) / 100;

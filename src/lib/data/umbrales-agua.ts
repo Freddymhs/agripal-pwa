@@ -1,11 +1,6 @@
-import aguaData from "../../../data/static/umbrales/agua.json";
-
-const AGUA_STATIC = aguaData as typeof aguaData;
-
-export const UMBRALES_AGUA = AGUA_STATIC.UMBRALES_AGUA;
-export const RIOS_ARICA = AGUA_STATIC.RIOS_ARICA;
-
-export const PROVEEDORES_HIDROGEL_CHILE =
-  AGUA_STATIC.PROVEEDORES_HIDROGEL_CHILE;
-
-export const TECNICAS_AHORRO_INFO = AGUA_STATIC.TECNICAS_AHORRO_INFO;
+/** Umbrales de calidad de agua para riego agrícola (norma FAO / SAG Chile) */
+export const UMBRALES_AGUA = {
+  salinidad: { max: 2, unidad: "dS/m", alerta: "Agua salina" },
+  boro: { max: 2, unidad: "ppm", alerta: "Tóxico para muchos cultivos" },
+  arsenico: { max: 0.05, unidad: "mg/L", alerta: "Riesgo para salud" },
+} as const;

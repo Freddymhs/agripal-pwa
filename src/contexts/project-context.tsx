@@ -20,11 +20,11 @@ import { useZonas } from "@/hooks/use-zonas";
 import { usePlantas } from "@/hooks/use-plantas";
 import { usePlantasLote } from "@/hooks/use-plantas-lote";
 import { useActualizarEtapas } from "@/hooks/use-actualizar-etapas";
+import { useDatosBase } from "@/hooks/use-datos-base";
 import { useProjectDashboard } from "@/hooks/use-project-dashboard";
 import { useProjectHandlers } from "@/hooks/use-project-handlers";
 import { zonasDAL, plantasDAL } from "@/lib/dal";
 import { asignarColorCultivo } from "@/components/mapa/pixi/pixi-constants";
-import { CATALOGO_DEFAULT } from "@/lib/data/cultivos-arica";
 import { onZonaUpdated } from "@/lib/events/zona-events";
 import { STORAGE_KEYS } from "@/lib/constants/storage";
 import { logger } from "@/lib/logger";
@@ -64,14 +64,14 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
   const proyectosHook = useProyectos();
   const terrenosHook = useTerrenos(proyectoActual?.id || null);
   const catalogoHook = useCatalogo(proyectoActual?.id || null);
-  const catalogoCultivos =
-    catalogoHook.cultivos.length > 0 ? catalogoHook.cultivos : CATALOGO_DEFAULT;
+  const catalogoCultivos = catalogoHook.cultivos;
   const alertasHook = useAlertas(
     terrenoActual,
     zonas,
     plantas,
     catalogoCultivos,
   );
+  const datosBaseHook = useDatosBase(proyectoActual?.id || null);
   const CULTIVOS_ESPACIADO = useMemo(
     () =>
       catalogoCultivos.reduce<Record<string, number>>(
@@ -242,6 +242,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
       zonasHook,
       plantasHook,
       plantasLoteHook,
+      datosBaseHook,
       dashboard,
       CULTIVOS_ESPACIADO,
       CULTIVOS_COLORES,
@@ -279,6 +280,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
       zonasHook,
       plantasHook,
       plantasLoteHook,
+      datosBaseHook,
       dashboard,
       CULTIVOS_ESPACIADO,
       CULTIVOS_COLORES,

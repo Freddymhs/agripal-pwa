@@ -143,6 +143,7 @@ describe("generarProyeccionAnual", () => {
       [zonaFixture],
       [plantaFixture],
       [cultivoFixture],
+      [],
     );
     expect(result.meses).toHaveLength(12);
   });
@@ -153,6 +154,7 @@ describe("generarProyeccionAnual", () => {
       [zonaFixture],
       [plantaFixture],
       [cultivoFixture],
+      [],
     );
     expect(result.resumen).toBeDefined();
     expect(typeof result.resumen.consumoTotalAnual).toBe("number");
@@ -167,6 +169,7 @@ describe("generarProyeccionAnual", () => {
       [zonaFixture],
       [plantaFixture],
       [cultivoFixture],
+      [],
     );
     const primerMes = result.meses[0];
     expect(primerMes.mes).toBe(0);
@@ -180,7 +183,7 @@ describe("generarProyeccionAnual", () => {
   });
 
   it("maneja terreno sin zonas ni plantas", () => {
-    const result = generarProyeccionAnual(terrenoFixture, [], [], []);
+    const result = generarProyeccionAnual(terrenoFixture, [], [], [], []);
     expect(result.meses).toHaveLength(12);
     expect(result.resumen.consumoTotalAnual).toBeGreaterThanOrEqual(0);
     expect(result.eventos).toHaveLength(0);
@@ -192,6 +195,7 @@ describe("generarProyeccionAnual", () => {
       [zonaFixture, estanqueFixture],
       [plantaFixture],
       [cultivoFixture],
+      [],
     );
     const tieneRecargaPositiva = result.meses.some((m) => m.recargas > 0);
     expect(tieneRecargaPositiva).toBe(true);
@@ -203,6 +207,7 @@ describe("generarProyeccionAnual", () => {
       [zonaFixture, estanqueFixture],
       [plantaFixture],
       [cultivoFixture],
+      [],
     );
     const eventosRecarga = result.eventos.filter((e) => e.tipo === "recarga");
     expect(eventosRecarga.length).toBeGreaterThan(0);
@@ -219,6 +224,7 @@ describe("generarProyeccionAnual", () => {
       [zonaFixture],
       [plantaReciente],
       [cultivoFixture],
+      [],
     );
     const eventosCosecha = result.eventos.filter((e) => e.tipo === "cosecha");
     expect(eventosCosecha.length).toBeGreaterThan(0);
@@ -235,6 +241,7 @@ describe("generarProyeccionAnual", () => {
       [zonaFixture],
       [plantaMuerta],
       [cultivoFixture],
+      [],
     );
     const eventosReplanta = result.eventos.filter((e) => e.tipo === "replanta");
     const eventosCosecha = result.eventos.filter((e) => e.tipo === "cosecha");
@@ -248,6 +255,7 @@ describe("generarProyeccionAnual", () => {
       [zonaFixture, estanqueFixture],
       [plantaFixture],
       [cultivoFixture],
+      [],
     );
 
     for (let i = 1; i < result.eventos.length; i++) {
@@ -263,6 +271,7 @@ describe("generarProyeccionAnual", () => {
       [zonaFixture],
       [plantaFixture],
       [cultivoFixture],
+      [],
     );
 
     for (const mes of result.meses) {
@@ -276,6 +285,7 @@ describe("generarProyeccionAnual", () => {
       [zonaFixture, estanqueFixture],
       [plantaFixture],
       [cultivoFixture],
+      [],
     );
     const eventosLavado = result.eventos.filter((e) => e.tipo === "lavado");
     expect(eventosLavado.length).toBeGreaterThan(0);
@@ -287,6 +297,7 @@ describe("generarProyeccionAnual", () => {
       [zonaFixture],
       [plantaFixture],
       [cultivoFixture],
+      [],
     );
     expect(result.meses[0].nivelInicio).toBe(terrenoFixture.agua_actual_m3);
   });

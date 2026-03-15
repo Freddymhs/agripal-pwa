@@ -1,21 +1,30 @@
 "use client";
 
 import type { TecnicasAhorroAgua } from "@/types";
-import {
-  TECNICAS_AHORRO_INFO,
-  PROVEEDORES_HIDROGEL_CHILE,
-} from "@/lib/data/umbrales-agua";
+import type { TecnicaMejora } from "@/lib/data/tecnicas-mejora";
 
 interface TecnicasAhorroProps {
   tecnicas?: TecnicasAhorroAgua;
   onChange?: (tecnicas: TecnicasAhorroAgua) => void;
   readOnly?: boolean;
+  tecnicasCatalogo?: TecnicaMejora[];
 }
+
+/** Mapeo entre id de Supabase y key del toggle en TecnicasAhorroAgua */
+const ID_A_KEY: Record<string, keyof TecnicasAhorroAgua> = {
+  "riego-deficitario-controlado": "riego_deficitario_controlado",
+  hidrogel: "hidrogel",
+  "mulch-organico": "mulch",
+  "sensores-humedad": "sensores_humedad",
+};
+
+const KEYS_TECNICAS = Object.values(ID_A_KEY);
 
 export function TecnicasAhorro({
   tecnicas,
   onChange,
   readOnly = false,
+  tecnicasCatalogo = [],
 }: TecnicasAhorroProps) {
   const handleToggle = (key: keyof TecnicasAhorroAgua) => {
     if (onChange) {
@@ -23,25 +32,27 @@ export function TecnicasAhorro({
     }
   };
 
-  const items = [
-    {
-      key: "riego_deficitario_controlado" as const,
-      info: TECNICAS_AHORRO_INFO.riego_deficitario_controlado,
-    },
-    { key: "hidrogel" as const, info: TECNICAS_AHORRO_INFO.hidrogel },
-    { key: "mulch" as const, info: TECNICAS_AHORRO_INFO.mulch },
-    {
-      key: "sensores_humedad" as const,
-      info: TECNICAS_AHORRO_INFO.sensores_humedad,
-    },
-  ];
+  const items = KEYS_TECNICAS.map((key) => {
+    const entry = Object.entries(ID_A_KEY).find(([, v]) => v === key);
+    const supabaseId = entry?.[0];
+    const catalogoItem = supabaseId
+      ? tecnicasCatalogo.find((t) => t.id === supabaseId)
+      : undefined;
+
+    return {
+      key,
+      nombre: catalogoItem?.nombre ?? key,
+      ahorro: catalogoItem?.ahorro_agua ?? null,
+      descripcion: catalogoItem?.efecto ?? "",
+    };
+  });
 
   return (
     <div className="space-y-4">
       <h3 className="font-medium text-gray-900">Técnicas de Ahorro de Agua</h3>
 
       <div className="space-y-3">
-        {items.map(({ key, info }) => (
+        {items.map(({ key, nombre, ahorro, descripcion }) => (
           <div
             key={key}
             className={`p-3 rounded-lg border ${
@@ -72,48 +83,20 @@ export function TecnicasAhorro({
               )}
               <div className="flex-1">
                 <div className="flex items-center gap-2">
-                  <span className="font-medium text-gray-900">
-                    {info.nombre}
-                  </span>
-                  <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded">
-                    Ahorro: {info.ahorro}
-                  </span>
+                  <span className="font-medium text-gray-900">{nombre}</span>
+                  {ahorro && (
+                    <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded">
+                      Ahorro: {ahorro}
+                    </span>
+                  )}
                 </div>
-                <p className="text-sm text-gray-600 mt-1">{info.descripcion}</p>
+                {descripcion && (
+                  <p className="text-sm text-gray-600 mt-1">{descripcion}</p>
+                )}
               </div>
             </div>
           </div>
         ))}
-      </div>
-
-      <div className="pt-4 border-t">
-        <h4 className="font-medium text-gray-900 mb-2">
-          Proveedores Hidrogel (Chile)
-        </h4>
-        <div className="grid grid-cols-1 gap-2">
-          {PROVEEDORES_HIDROGEL_CHILE.map((prov) => (
-            <div
-              key={prov.nombre}
-              className="flex justify-between items-center p-2 bg-gray-50 rounded text-sm"
-            >
-              <div>
-                <span className="font-medium text-gray-900">{prov.nombre}</span>
-                <span className="text-gray-500 ml-2">- {prov.ventaja}</span>
-              </div>
-              <a
-                href={`https://${prov.url}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-600 hover:underline text-xs"
-              >
-                {prov.url}
-              </a>
-            </div>
-          ))}
-        </div>
-        <p className="text-xs text-gray-500 mt-2">
-          Hidrogel Raindrops: envío gratis compras mayores a $60,000 CLP
-        </p>
       </div>
     </div>
   );

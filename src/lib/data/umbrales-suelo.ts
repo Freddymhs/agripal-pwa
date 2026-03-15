@@ -1,11 +1,54 @@
-import sueloData from "../../../data/static/umbrales/suelo.json";
 import type { SueloTerreno } from "@/types";
 
-const SUELO_STATIC = sueloData as typeof sueloData;
+interface UmbralSimple {
+  max: number;
+  unidad: string;
+  alerta: string;
+}
 
-export const UMBRALES_SUELO = SUELO_STATIC.UMBRALES_SUELO;
+interface UmbralRango {
+  min: number;
+  max: number;
+  unidad: string;
+  alerta: string;
+}
+
+interface UmbralMinimo {
+  min: number;
+  unidad: string;
+  alerta: string;
+}
+
+interface UmbralesSuelo {
+  salinidad: UmbralSimple;
+  boro: UmbralSimple;
+  arsenico: UmbralSimple;
+  ph: UmbralRango;
+  profundidad_frutales: UmbralMinimo;
+}
+
+/** Umbrales agronómicos universales para evaluación de suelo (FAO / norma sanitaria) */
+export const UMBRALES_SUELO: UmbralesSuelo = {
+  salinidad: { max: 4, unidad: "dS/m", alerta: "Suelo muy salino" },
+  boro: { max: 2, unidad: "mg/L", alerta: "Tóxico para frutales" },
+  arsenico: { max: 0.05, unidad: "mg/L", alerta: "Riesgo para salud" },
+  ph: { min: 5.5, max: 8.5, unidad: "", alerta: "pH fuera de rango" },
+  profundidad_frutales: {
+    min: 60,
+    unidad: "cm",
+    alerta: "Profundidad insuficiente para frutales",
+  },
+} as const;
+
+const FACTOR_ADVERTENCIA = 0.75;
 
 export type NivelAlerta = "ok" | "advertencia" | "critico";
+
+export const NIVEL_ALERTA = {
+  OK: "ok",
+  ADVERTENCIA: "advertencia",
+  CRITICO: "critico",
+} as const satisfies Record<string, NivelAlerta>;
 
 export interface EvaluacionSuelo {
   viable: boolean;
@@ -29,7 +72,7 @@ export function evaluarSuelo(suelo?: SueloTerreno): EvaluacionSuelo {
       );
     } else if (
       suelo.quimico.salinidad_dS_m >
-      UMBRALES_SUELO.salinidad.max * 0.75
+      UMBRALES_SUELO.salinidad.max * FACTOR_ADVERTENCIA
     ) {
       advertencias.push(
         `Salinidad ${suelo.quimico.salinidad_dS_m} dS/m - cerca del límite`,
@@ -42,7 +85,10 @@ export function evaluarSuelo(suelo?: SueloTerreno): EvaluacionSuelo {
       problemas.push(
         `Boro ${suelo.quimico.boro_mg_l} mg/L > ${UMBRALES_SUELO.boro.max} (TÓXICO para frutales)`,
       );
-    } else if (suelo.quimico.boro_mg_l > UMBRALES_SUELO.boro.max * 0.75) {
+    } else if (
+      suelo.quimico.boro_mg_l >
+      UMBRALES_SUELO.boro.max * FACTOR_ADVERTENCIA
+    ) {
       advertencias.push(
         `Boro ${suelo.quimico.boro_mg_l} mg/L - cerca del límite`,
       );
@@ -81,10 +127,10 @@ export function evaluarSuelo(suelo?: SueloTerreno): EvaluacionSuelo {
 
   const nivel: NivelAlerta =
     problemas.length > 0
-      ? "critico"
+      ? NIVEL_ALERTA.CRITICO
       : advertencias.length > 0
-        ? "advertencia"
-        : "ok";
+        ? NIVEL_ALERTA.ADVERTENCIA
+        : NIVEL_ALERTA.OK;
 
   return {
     viable: problemas.length === 0,

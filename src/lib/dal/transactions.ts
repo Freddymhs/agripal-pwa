@@ -1,14 +1,6 @@
 import { supabase } from "@/lib/supabase/client";
 import { serializarParaSupabase } from "@/lib/supabase/schema";
-import type {
-  Proyecto,
-  CatalogoCultivo,
-  EntradaAgua,
-  Terreno,
-  Zona,
-  Planta,
-  Alerta,
-} from "@/types";
+import type { EntradaAgua, Terreno, Zona, Planta, Alerta } from "@/types";
 import { ESTADO_PLANTA } from "@/lib/constants/entities";
 import { zonasDAL } from "./zonas";
 import { plantasDAL } from "./plantas";
@@ -29,37 +21,6 @@ export const transaccionesDAL = {
 
   eliminarProyectoCascade: async (proyectoId: string): Promise<void> => {
     await proyectosDAL.delete(proyectoId);
-  },
-
-  crearProyectoConCatalogo: async (
-    proyecto: Proyecto,
-    cultivos: CatalogoCultivo[],
-  ): Promise<void> => {
-    await proyectosDAL.add(proyecto);
-    if (cultivos.length > 0) {
-      const payloads = cultivos.map((c) =>
-        serializarParaSupabase(
-          "catalogo_cultivos",
-          c as unknown as Record<string, unknown>,
-        ),
-      );
-      const { error } = await supabase
-        .from("catalogo_cultivos")
-        .insert(payloads);
-      if (error) throw error;
-    }
-  },
-
-  seedCatalogo: async (cultivos: CatalogoCultivo[]): Promise<void> => {
-    if (cultivos.length === 0) return;
-    const payloads = cultivos.map((c) =>
-      serializarParaSupabase(
-        "catalogo_cultivos",
-        c as unknown as Record<string, unknown>,
-      ),
-    );
-    const { error } = await supabase.from("catalogo_cultivos").insert(payloads);
-    if (error) throw error;
   },
 
   transferirAgua: async (

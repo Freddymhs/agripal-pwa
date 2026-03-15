@@ -141,19 +141,13 @@ export interface SueloTerreno {
   quimico?: AnalisisQuimicoSuelo;
 }
 
-export type FuenteAguaDetallada =
-  | "lluta"
-  | "azapa"
-  | "aljibe"
-  | "pozo"
-  | "otro";
 export type ConfiabilidadProveedor = "alta" | "media" | "baja";
 
 export interface CalidadAguaTerreno {
   analisis_realizado?: boolean;
   fecha_analisis?: string;
   laboratorio?: string;
-  fuente?: FuenteAguaDetallada;
+  fuente?: string;
   salinidad_dS_m?: number;
   boro_ppm?: number;
   arsenico_mg_l?: number;
@@ -242,6 +236,11 @@ export type TipoZona =
   | "cultivo"
   | "bodega"
   | "casa"
+  | "garage"
+  | "compostera"
+  | "apron"
+  | "empaque"
+  | "sanitario"
   | "camino"
   | "decoracion"
   | "estanque"
@@ -521,10 +520,14 @@ export interface InsumoCompatibilidad {
   descripcion?: string;
 }
 
+export type NivelIncompatibilidad = "alto" | "medio";
+
+export type NivelIncompatibilidadResultado = NivelIncompatibilidad | "ninguno";
+
 export interface IncompatibilidadQuimica {
   insumo_a: string;
   insumo_b: string;
-  nivel: "alto" | "medio";
+  nivel: NivelIncompatibilidad;
   razon: string;
   recomendacion: string;
 }
@@ -648,3 +651,11 @@ export interface DashboardTerreno {
   temporada_actual: Temporada;
   factor_temporada: number;
 }
+
+export type Modo =
+  | "terreno"
+  | "zonas"
+  | "plantas"
+  | "crear_zona"
+  | "plantar"
+  | "espaciado";

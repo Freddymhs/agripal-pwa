@@ -2,7 +2,7 @@
 
 import { useProjectContext } from "@/contexts/project-context";
 import { useMapContext } from "@/contexts/map-context";
-import { TIPO_ZONA } from "@/lib/constants/entities";
+import { MODO, TIPO_ZONA } from "@/lib/constants/entities";
 
 export function MapToolbar() {
   const { catalogoCultivos } = useProjectContext();
@@ -23,13 +23,13 @@ export function MapToolbar() {
 
       <button
         onClick={() => {
-          setModo("terreno");
+          setModo(MODO.TERRENO);
           setZonaSeleccionada(null);
           setPlantaSeleccionada(null);
           setPlantasSeleccionadas([]);
         }}
         className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
-          modo === "terreno"
+          modo === MODO.TERRENO
             ? "bg-blue-500 text-white"
             : "bg-gray-100 text-gray-700 hover:bg-gray-200"
         }`}
@@ -39,12 +39,12 @@ export function MapToolbar() {
 
       <button
         onClick={() => {
-          setModo("zonas");
+          setModo(MODO.ZONAS);
           setPlantaSeleccionada(null);
           setPlantasSeleccionadas([]);
         }}
         className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
-          modo === "zonas"
+          modo === MODO.ZONAS
             ? "bg-green-500 text-white"
             : "bg-gray-100 text-gray-700 hover:bg-gray-200"
         }`}
@@ -54,11 +54,11 @@ export function MapToolbar() {
 
       <button
         onClick={() => {
-          setModo("plantas");
+          setModo(MODO.PLANTAS);
           setZonaSeleccionada(null);
         }}
         className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
-          modo === "plantas"
+          modo === MODO.PLANTAS
             ? "bg-emerald-500 text-white"
             : "bg-gray-100 text-gray-700 hover:bg-gray-200"
         }`}
@@ -70,13 +70,13 @@ export function MapToolbar() {
 
       <button
         onClick={() => {
-          setModo("espaciado");
+          setModo(MODO.ESPACIADO);
           setZonaSeleccionada(null);
           setPlantaSeleccionada(null);
           setPlantasSeleccionadas([]);
         }}
         className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
-          modo === "espaciado"
+          modo === MODO.ESPACIADO
             ? "bg-blue-600 text-white"
             : "bg-gray-100 text-gray-700 hover:bg-gray-200"
         }`}
@@ -88,13 +88,13 @@ export function MapToolbar() {
 
       <button
         onClick={() => {
-          setModo("crear_zona");
+          setModo(MODO.CREAR_ZONA);
           setZonaSeleccionada(null);
           setPlantaSeleccionada(null);
           setPlantasSeleccionadas([]);
         }}
         className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
-          modo === "crear_zona"
+          modo === MODO.CREAR_ZONA
             ? "bg-green-500 text-white"
             : "bg-gray-100 text-gray-700 hover:bg-gray-200"
         }`}
@@ -104,19 +104,20 @@ export function MapToolbar() {
 
       <button
         onClick={() => {
-          setModo("plantar");
+          setModo(MODO.PLANTAR);
           setPlantaSeleccionada(null);
           setPlantasSeleccionadas([]);
         }}
         disabled={
-          modo !== "zonas" ||
+          modo !== MODO.ZONAS ||
           !zonaSeleccionada ||
           zonaSeleccionada.tipo !== TIPO_ZONA.CULTIVO
         }
         className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
-          modo === "plantar"
+          modo === MODO.PLANTAR
             ? "bg-lime-500 text-white"
-            : modo === "zonas" && zonaSeleccionada?.tipo === TIPO_ZONA.CULTIVO
+            : modo === MODO.ZONAS &&
+                zonaSeleccionada?.tipo === TIPO_ZONA.CULTIVO
               ? "bg-gray-100 text-gray-700 hover:bg-gray-200"
               : "bg-gray-100 text-gray-400 cursor-not-allowed"
         }`}
@@ -124,17 +125,17 @@ export function MapToolbar() {
         🌾 Plantar
       </button>
 
-      {modo === "crear_zona" && (
+      {modo === MODO.CREAR_ZONA && (
         <span className="text-sm text-green-600 ml-2">
           Dibuja un rectángulo en el mapa
         </span>
       )}
 
-      {modo === "plantar" && (
+      {modo === MODO.PLANTAR && (
         <div className="flex items-center gap-2 flex-wrap bg-lime-50 px-3 py-2 rounded-lg border border-lime-200">
           <span className="text-sm font-medium text-lime-800">Plantando:</span>
           <select
-            value={cultivoSeleccionado.id}
+            value={cultivoSeleccionado?.id ?? ""}
             onChange={(e) => {
               const cultivo = catalogoCultivos.find(
                 (c) => c.id === e.target.value,
@@ -143,15 +144,22 @@ export function MapToolbar() {
             }}
             className="px-2 py-1 rounded text-sm border border-lime-300 text-gray-900 bg-white"
           >
+            {!cultivoSeleccionado && (
+              <option value="" disabled>
+                Seleccionar cultivo…
+              </option>
+            )}
             {catalogoCultivos.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.nombre}
               </option>
             ))}
           </select>
-          <span className="text-xs text-lime-700 bg-lime-100 px-2 py-1 rounded">
-            Espacio: {cultivoSeleccionado.espaciado_recomendado_m}m
-          </span>
+          {cultivoSeleccionado && (
+            <span className="text-xs text-lime-700 bg-lime-100 px-2 py-1 rounded">
+              Espacio: {cultivoSeleccionado.espaciado_recomendado_m}m
+            </span>
+          )}
           <span className="text-lime-800">→</span>
           {zonaSeleccionada ? (
             zonaSeleccionada.tipo === TIPO_ZONA.CULTIVO ? (

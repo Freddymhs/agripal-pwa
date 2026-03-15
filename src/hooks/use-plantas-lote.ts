@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback } from "react";
-import { logger } from "@/lib/logger";
 import { plantasDAL, transaccionesDAL } from "@/lib/dal";
+import { ejecutarMutacion } from "@/lib/helpers/dal-mutation";
 import { getCurrentTimestamp } from "@/lib/utils";
 import { validarEstadoPlanta } from "@/lib/validations/planta";
 import type { EstadoPlanta } from "@/types";
@@ -20,29 +20,26 @@ export function usePlantasLote(onRefetch: () => void): UsePlantasLote {
       }
 
       const timestamp = getCurrentTimestamp();
-      try {
-        await transaccionesDAL.cambiarEstadoPlantasLote(ids, {
-          estado,
-          updated_at: timestamp,
-        });
-      } catch (err) {
-        logger.error("Error actualizando plantas en lote", { error: err });
-        throw err;
-      }
-      onRefetch();
+      await ejecutarMutacion(
+        () =>
+          transaccionesDAL.cambiarEstadoPlantasLote(ids, {
+            estado,
+            updated_at: timestamp,
+          }),
+        "cambiar estado plantas en lote",
+        onRefetch,
+      );
     },
     [onRefetch],
   );
 
   const eliminarMultiple = useCallback(
     async (ids: string[]) => {
-      try {
-        await plantasDAL.bulkDelete(ids);
-      } catch (err) {
-        logger.error("Error eliminando plantas en lote", { error: err });
-        throw err;
-      }
-      onRefetch();
+      await ejecutarMutacion(
+        () => plantasDAL.bulkDelete(ids),
+        "eliminar plantas en lote",
+        onRefetch,
+      );
     },
     [onRefetch],
   );

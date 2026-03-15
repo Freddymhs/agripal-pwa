@@ -6,37 +6,40 @@ import { PageLayout } from "@/components/layout/page-layout";
 import { useInsumos } from "@/hooks/use-insumos";
 import { getCurrentTimestamp } from "@/lib/utils";
 import {
-  getInsumos,
-  verificarCompatibilidad,
+  verificarCompatibilidadPorIds,
+  mapearNombresAIds,
   getNivelMayorIncompatibilidad,
 } from "@/lib/data/compatibilidad-insumos";
-import type { IncompatibilidadQuimica } from "@/types";
+import type {
+  IncompatibilidadQuimica,
+  NivelIncompatibilidadResultado,
+} from "@/types";
 
-const NIVEL_COLORES: Record<"alto" | "medio" | "ninguno", string> = {
+const NIVEL_COLORES: Record<NivelIncompatibilidadResultado, string> = {
   alto: "bg-red-50 border-red-300 text-red-800",
   medio: "bg-yellow-50 border-yellow-300 text-yellow-800",
   ninguno: "bg-green-50 border-green-300 text-green-800",
 };
 
-const NIVEL_BADGE: Record<"alto" | "medio" | "ninguno", string> = {
+const NIVEL_BADGE: Record<NivelIncompatibilidadResultado, string> = {
   alto: "bg-red-200 text-red-900",
   medio: "bg-yellow-200 text-yellow-900",
   ninguno: "bg-green-200 text-green-900",
 };
 
-const NIVEL_LABEL: Record<"alto" | "medio" | "ninguno", string> = {
+const NIVEL_LABEL: Record<NivelIncompatibilidadResultado, string> = {
   alto: "INCOMPATIBLE",
   medio: "Precaución",
   ninguno: "Compatible",
 };
 
 export default function InsumosPage() {
-  const { terrenoActual, loading } = useProjectContext();
+  const { terrenoActual, loading, datosBaseHook } = useProjectContext();
   const { insumos, agregarInsumo, eliminarInsumo } = useInsumos(
     terrenoActual?.id ?? null,
   );
 
-  const catalogoInsumos = getInsumos();
+  const catalogoInsumos = datosBaseHook.datosBase.insumos ?? [];
 
   const [insumoSeleccionadoId, setInsumoSeleccionadoId] = useState<string>("");
   const [insumosParaChequear, setInsumosParaChequear] = useState<string[]>([]);
@@ -84,15 +87,12 @@ export default function InsumosPage() {
   };
 
   const handleChequear = () => {
-    const idsChequeo = insumos
+    const nombresSeleccionados = insumos
       .filter((i) => insumosParaChequear.includes(i.nombre))
-      .map((i) => {
-        const ref = catalogoInsumos.find((c) => c.nombre === i.nombre);
-        return ref?.id ?? "";
-      })
-      .filter(Boolean);
+      .map((i) => i.nombre);
 
-    setResultadoChequeo(verificarCompatibilidad(idsChequeo));
+    const ids = mapearNombresAIds(nombresSeleccionados, catalogoInsumos);
+    setResultadoChequeo(verificarCompatibilidadPorIds(ids));
   };
 
   const handleCancelarChequeo = () => {

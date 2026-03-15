@@ -129,9 +129,9 @@ describe("calcularConsumoZona", () => {
 });
 
 describe("calcularDiasRestantes", () => {
-  it("returns 999 when consumo is 0", () => {
+  it("returns Infinity when consumo is 0", () => {
     const result = calcularDiasRestantes(10, 0);
-    expect(result).toBe(999);
+    expect(result).toBe(Infinity);
   });
 
   it("returns correct days for valid inputs", () => {

@@ -8,6 +8,10 @@ import {
   COLOR_HOVER,
 } from "./pixi-constants";
 
+const COLOR_COORD = 0x1e40af;
+const COORD_BG_COLOR = 0xffffff;
+const COORD_BG_ALPHA = 0.85;
+
 export class PixiOverlayLayer {
   container: Container;
   private selectionGraphics: Graphics;
@@ -17,6 +21,14 @@ export class PixiOverlayLayer {
   private plantaPreviewGraphics: Graphics;
   private plantaHoverGraphics: Graphics;
   private dimensionText: Text;
+  // Cursor coordinate indicator
+  private cursorCoordBg: Graphics;
+  private cursorCoordText: Text;
+  // Corner labels while drawing
+  private cornerStartBg: Graphics;
+  private cornerStartText: Text;
+  private cornerEndBg: Graphics;
+  private cornerEndText: Text;
 
   constructor() {
     this.container = new Container();
@@ -33,6 +45,45 @@ export class PixiOverlayLayer {
     });
     this.dimensionText.visible = false;
 
+    // Cursor coordinate display
+    this.cursorCoordBg = new Graphics();
+    this.cursorCoordBg.visible = false;
+    this.cursorCoordText = new Text({
+      text: "",
+      style: {
+        fontSize: 11,
+        fill: COLOR_COORD,
+        fontFamily: "monospace",
+        fontWeight: "bold",
+      },
+    });
+    this.cursorCoordText.visible = false;
+
+    // Corner labels
+    this.cornerStartBg = new Graphics();
+    this.cornerStartBg.visible = false;
+    this.cornerStartText = new Text({
+      text: "",
+      style: {
+        fontSize: 10,
+        fill: COLOR_COORD,
+        fontFamily: "monospace",
+      },
+    });
+    this.cornerStartText.visible = false;
+
+    this.cornerEndBg = new Graphics();
+    this.cornerEndBg.visible = false;
+    this.cornerEndText = new Text({
+      text: "",
+      style: {
+        fontSize: 10,
+        fill: COLOR_COORD,
+        fontFamily: "monospace",
+      },
+    });
+    this.cornerEndText.visible = false;
+
     this.container.addChild(this.selectionGraphics);
     this.container.addChild(this.snapGraphics);
     this.container.addChild(this.zonaPreviewGraphics);
@@ -40,6 +91,12 @@ export class PixiOverlayLayer {
     this.container.addChild(this.plantaPreviewGraphics);
     this.container.addChild(this.plantaHoverGraphics);
     this.container.addChild(this.dimensionText);
+    this.container.addChild(this.cursorCoordBg);
+    this.container.addChild(this.cursorCoordText);
+    this.container.addChild(this.cornerStartBg);
+    this.container.addChild(this.cornerStartText);
+    this.container.addChild(this.cornerEndBg);
+    this.container.addChild(this.cornerEndText);
   }
 
   drawSelectionRect(
@@ -127,6 +184,7 @@ export class PixiOverlayLayer {
     this.zonaPreviewGraphics.clear();
   }
 
+  /** Dibuja el rectángulo de zona mientras el usuario arrastra + dimensiones + coordenadas de esquinas */
   drawCreateZona(
     start: { x: number; y: number },
     current: { x: number; y: number },
@@ -145,18 +203,79 @@ export class PixiOverlayLayer {
     g.rect(x, y, w, h);
     g.stroke({ color: COLOR_PREVIEW_VALIDA, width: 2 / scale });
 
+    const fontSize = Math.max(10, 14 / scale);
     const anchoM = (w / PIXELS_POR_METRO).toFixed(1);
     const altoM = (h / PIXELS_POR_METRO).toFixed(1);
-    this.dimensionText.text = `${anchoM}m x ${altoM}m`;
+    this.dimensionText.text = `${anchoM}m × ${altoM}m`;
     this.dimensionText.position.set(x + w / 2, y + h / 2);
     this.dimensionText.anchor.set(0.5);
-    this.dimensionText.style.fontSize = Math.max(10, 14 / scale);
+    this.dimensionText.style.fontSize = fontSize;
     this.dimensionText.visible = true;
+
+    // Esquina inicio (top-left del rect)
+    const startM = `${(x / PIXELS_POR_METRO).toFixed(1)}, ${(y / PIXELS_POR_METRO).toFixed(1)}`;
+    const cornerFontSize = Math.max(8, 10 / scale);
+    this.drawCornerLabel(
+      this.cornerStartBg,
+      this.cornerStartText,
+      startM,
+      x,
+      y,
+      cornerFontSize,
+      0.5,
+      1,
+    );
+
+    // Esquina fin (bottom-right del rect)
+    const endM = `${((x + w) / PIXELS_POR_METRO).toFixed(1)}, ${((y + h) / PIXELS_POR_METRO).toFixed(1)}`;
+    this.drawCornerLabel(
+      this.cornerEndBg,
+      this.cornerEndText,
+      endM,
+      x + w,
+      y + h,
+      cornerFontSize,
+      0.5,
+      0,
+    );
+  }
+
+  /** Muestra la posición del cursor en metros (X, Y) */
+  drawCursorCoord(cursorXm: number, cursorYm: number, scale: number): void {
+    const text = `X: ${cursorXm.toFixed(1)}m  Y: ${cursorYm.toFixed(1)}m`;
+    const fontSize = Math.max(9, 11 / scale);
+    const px = cursorXm * PIXELS_POR_METRO;
+    const py = cursorYm * PIXELS_POR_METRO;
+    const offsetY = -fontSize * 1.8;
+
+    this.cursorCoordText.text = text;
+    this.cursorCoordText.style.fontSize = fontSize;
+    this.cursorCoordText.anchor.set(0.5, 1);
+    this.cursorCoordText.position.set(px, py + offsetY);
+    this.cursorCoordText.visible = true;
+
+    const pad = fontSize * 0.3;
+    const approxW = text.length * fontSize * 0.55 + pad * 2;
+    const approxH = fontSize + pad * 2;
+    this.cursorCoordBg.clear();
+    this.cursorCoordBg.rect(-approxW / 2, -approxH, approxW, approxH);
+    this.cursorCoordBg.fill({ color: COORD_BG_COLOR, alpha: COORD_BG_ALPHA });
+    this.cursorCoordBg.position.set(px, py + offsetY);
+    this.cursorCoordBg.visible = true;
+  }
+
+  clearCursorCoord(): void {
+    this.cursorCoordText.visible = false;
+    this.cursorCoordBg.visible = false;
   }
 
   clearCreateZona(): void {
     this.drawZonaGraphics.clear();
     this.dimensionText.visible = false;
+    this.cornerStartText.visible = false;
+    this.cornerStartBg.visible = false;
+    this.cornerEndText.visible = false;
+    this.cornerEndBg.visible = false;
   }
 
   drawPlantasPreview(
@@ -203,6 +322,7 @@ export class PixiOverlayLayer {
     this.clearCreateZona();
     this.clearPlantasPreview();
     this.clearPlantaHover();
+    this.clearCursorCoord();
   }
 
   destroy(): void {
@@ -213,6 +333,39 @@ export class PixiOverlayLayer {
     this.plantaPreviewGraphics.destroy();
     this.plantaHoverGraphics.destroy();
     this.dimensionText.destroy();
+    this.cursorCoordBg.destroy();
+    this.cursorCoordText.destroy();
+    this.cornerStartBg.destroy();
+    this.cornerStartText.destroy();
+    this.cornerEndBg.destroy();
+    this.cornerEndText.destroy();
     this.container.destroy();
+  }
+
+  private drawCornerLabel(
+    bg: Graphics,
+    text: Text,
+    label: string,
+    px: number,
+    py: number,
+    fontSize: number,
+    anchorX: number,
+    anchorY: number,
+  ): void {
+    text.text = label;
+    text.style.fontSize = fontSize;
+    text.anchor.set(anchorX, anchorY);
+    text.position.set(px, py);
+    text.visible = true;
+
+    const pad = fontSize * 0.3;
+    const approxW = label.length * fontSize * 0.55 + pad * 2;
+    const approxH = fontSize + pad * 2;
+    bg.clear();
+    const bgX = px - approxW * anchorX;
+    const bgY = py - approxH * anchorY;
+    bg.rect(bgX, bgY, approxW, approxH);
+    bg.fill({ color: COORD_BG_COLOR, alpha: COORD_BG_ALPHA });
+    bg.visible = true;
   }
 }

@@ -2,7 +2,12 @@ import { NextResponse } from "next/server";
 import { createRouteHandlerClient } from "@/lib/supabase/server";
 import { preferenceClient } from "@/lib/mercadopago/client";
 import { logger } from "@/lib/logger";
-import { BILLING } from "@/lib/constants/billing";
+import {
+  BILLING,
+  ESTADO_SUSCRIPCION,
+  ESTADOS_SUSCRIPCION_ACTIVOS,
+  ESTADO_PAGO,
+} from "@/lib/constants/billing";
 
 export async function POST() {
   try {
@@ -27,13 +32,13 @@ export async function POST() {
 
     if (existingSub) {
       const endDate =
-        existingSub.estado === "trialing"
+        existingSub.estado === ESTADO_SUSCRIPCION.TRIALING
           ? existingSub.trial_end
           : existingSub.current_period_end;
       const isStillActive =
         endDate &&
         new Date(endDate) > new Date() &&
-        ["active", "trialing"].includes(existingSub.estado);
+        ESTADOS_SUSCRIPCION_ACTIVOS.includes(existingSub.estado);
 
       if (isStillActive) {
         return NextResponse.json(
@@ -94,7 +99,7 @@ export async function POST() {
         usuario_id: user.id,
         monto: plan.precio,
         moneda: BILLING.MONEDA,
-        estado: "pending",
+        estado: ESTADO_PAGO.PENDING,
         mp_preference_id: preference.id,
         descripcion: plan.nombre,
       })

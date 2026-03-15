@@ -181,7 +181,7 @@ export function useAgua(
           ...updatedConfig.recarga,
           ultima_recarga: now,
           proxima_recarga: addDays(
-            new Date(),
+            new Date(now),
             updatedConfig.recarga.frecuencia_dias,
           ).toISOString(),
         };

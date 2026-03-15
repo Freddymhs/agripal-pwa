@@ -5,22 +5,23 @@ import { PageLayout } from "@/components/layout";
 import { PanelClima } from "@/components/clima";
 import { useProjectContext } from "@/contexts/project-context";
 import {
-  ETO_ARICA,
   getEtoMesActual,
   hayCamanchaca,
   getFactorClimatico,
   getTemporadaActual,
+  type DatosETo,
 } from "@/lib/data/clima-arica";
 import { calcularConsumoTerreno } from "@/lib/utils/agua";
 import { FACTORES_TEMPORADA } from "@/lib/constants/entities";
 
 export default function ClimaPage() {
-  const { zonas, plantas, catalogoCultivos } = useProjectContext();
+  const { zonas, plantas, catalogoCultivos, datosBaseHook } =
+    useProjectContext();
+
+  const etoData = datosBaseHook.datosBase.clima?.[0]?.datos
+    ?.evapotranspiracion_detalle as DatosETo | undefined;
 
   const temporada = getTemporadaActual();
-  const etoActual = getEtoMesActual();
-  const camanchacaActiva = hayCamanchaca();
-  const factorClimatico = getFactorClimatico();
   const factorTemporada = FACTORES_TEMPORADA[temporada];
 
   const consumoBase = useMemo(() => {
@@ -28,10 +29,26 @@ export default function ClimaPage() {
     return calcularConsumoTerreno(zonas, plantas, catalogoCultivos, temporada);
   }, [zonas, plantas, catalogoCultivos, temporada]);
 
+  if (!etoData) {
+    return (
+      <PageLayout headerColor="green">
+        <main className="max-w-2xl mx-auto p-4 space-y-4">
+          <div className="bg-yellow-50 text-yellow-800 p-4 rounded-lg">
+            No hay datos de evapotranspiración configurados para esta región.
+          </div>
+          <PanelClima />
+        </main>
+      </PageLayout>
+    );
+  }
+
+  const etoActual = getEtoMesActual(etoData);
+  const camanchacaActiva = hayCamanchaca(etoData);
+  const factorClimatico = getFactorClimatico(etoData);
   const consumoAjustado = consumoBase * factorClimatico;
 
   const mesActual = new Date().getMonth() + 1;
-  const etoMensual = Object.entries(ETO_ARICA.mensual).map(([mes, data]) => ({
+  const etoMensual = Object.entries(etoData.mensual).map(([mes, data]) => ({
     mes: Number(mes),
     ...data,
     actual: Number(mes) === mesActual,
@@ -53,7 +70,7 @@ export default function ClimaPage() {
                   {etoActual} mm/día
                 </div>
                 <div className="text-xs text-blue-500">
-                  Ref: {ETO_ARICA.eto_referencia_mm_dia} mm/día
+                  Ref: {etoData.eto_referencia_mm_dia} mm/día
                 </div>
               </div>
               <div
@@ -109,8 +126,8 @@ export default function ClimaPage() {
                 </div>
                 <div className="text-xs text-cyan-700 mt-1">
                   La neblina costera reduce evaporación ~
-                  {ETO_ARICA.camanchaca.reduccion_eto_pct}%.{" "}
-                  {ETO_ARICA.camanchaca.info}
+                  {etoData.camanchaca.reduccion_eto_pct}%.{" "}
+                  {etoData.camanchaca.info}
                 </div>
               </div>
             )}
@@ -118,13 +135,13 @@ export default function ClimaPage() {
         )}
 
         <div className="bg-white rounded-lg border shadow-sm p-4 space-y-3">
-          <h3 className="font-bold text-gray-900">ETo mensual - Arica</h3>
+          <h3 className="font-bold text-gray-900">ETo mensual</h3>
           <div className="space-y-1">
             {etoMensual.map(({ mes, label, eto_mm_dia, actual }) => {
               const maxEto = 6.5;
               const pct = (eto_mm_dia / maxEto) * 100;
               const esCamanchaca =
-                ETO_ARICA.camanchaca.meses_presencia.includes(mes);
+                etoData.camanchaca.meses_presencia.includes(mes);
               return (
                 <div
                   key={mes}

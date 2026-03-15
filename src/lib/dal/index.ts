@@ -10,3 +10,4 @@ export { aguaDAL } from "./agua";
 export { cosechasDAL } from "./cosechas";
 export { transaccionesDAL } from "./transactions";
 export { insumosDAL } from "./insumos";
+export { baseDataDAL } from "./base-data";

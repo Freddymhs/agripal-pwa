@@ -3,7 +3,13 @@ import { createHmac } from "crypto";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { paymentClient } from "@/lib/mercadopago/client";
 import { logger } from "@/lib/logger";
-import { MP_ESTADO_MAP, BILLING } from "@/lib/constants/billing";
+import { getCurrentTimestamp } from "@/lib/utils";
+import {
+  MP_ESTADO_MAP,
+  BILLING,
+  ESTADO_PAGO,
+  ESTADO_SUSCRIPCION,
+} from "@/lib/constants/billing";
 
 interface WebhookBody {
   type: string;
@@ -65,7 +71,7 @@ async function handlePayment(paymentId: string) {
     return;
   }
 
-  const estado = MP_ESTADO_MAP[payment.status ?? ""] ?? "pending";
+  const estado = MP_ESTADO_MAP[payment.status ?? ""] ?? ESTADO_PAGO.PENDING;
 
   const { data: existingPago } = await supabaseAdmin
     .from("pagos")
@@ -76,7 +82,7 @@ async function handlePayment(paymentId: string) {
   if (existingPago) {
     await supabaseAdmin
       .from("pagos")
-      .update({ estado, updated_at: new Date().toISOString() })
+      .update({ estado, updated_at: getCurrentTimestamp() })
       .eq("id", existingPago.id);
   } else {
     await supabaseAdmin.from("pagos").insert({
@@ -92,16 +98,17 @@ async function handlePayment(paymentId: string) {
   }
 
   if (payment.status === "approved") {
-    const now = new Date();
-    const periodEnd = new Date(now);
-    periodEnd.setMonth(periodEnd.getMonth() + BILLING.RENEWAL_MONTHS);
+    const nowISO = getCurrentTimestamp();
+    const periodEndDate = new Date(nowISO);
+    periodEndDate.setMonth(periodEndDate.getMonth() + BILLING.RENEWAL_MONTHS);
+    const periodEndISO = periodEndDate.toISOString();
 
     const suscripcionData = {
-      estado: "active" as const,
-      current_period_start: now.toISOString(),
-      current_period_end: periodEnd.toISOString(),
+      estado: ESTADO_SUSCRIPCION.ACTIVE,
+      current_period_start: nowISO,
+      current_period_end: periodEndISO,
       cancel_at_period_end: false,
-      updated_at: now.toISOString(),
+      updated_at: nowISO,
     };
 
     // UPSERT: evita race condition si llegan dos webhooks simultaneos

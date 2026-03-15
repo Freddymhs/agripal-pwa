@@ -7,7 +7,7 @@ import { CatalogoList } from "@/components/catalogo/catalogo-list";
 import { CultivoForm } from "@/components/catalogo/cultivo-form";
 import { useProyectos } from "@/hooks/use-proyectos";
 import { useCatalogo } from "@/hooks/use-catalogo";
-import { TECNICAS_MEJORA } from "@/lib/data/tecnicas-mejora";
+import { useProjectContext } from "@/contexts/project-context";
 import { formatCLP } from "@/lib/utils";
 import { STORAGE_KEYS } from "@/lib/constants/storage";
 import { ROUTES } from "@/lib/constants/routes";
@@ -65,6 +65,9 @@ export default function CatalogoPage() {
   };
 
   const cultivosMostrar = catalogoHook.cultivos;
+
+  const { datosBaseHook } = useProjectContext();
+  const tecnicasMejora = datosBaseHook.datosBase.tecnicas ?? [];
 
   if (proyectosHook.loading) {
     return (
@@ -161,7 +164,7 @@ export default function CatalogoPage() {
               Técnicas de Mejora
             </h2>
             <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-              {TECNICAS_MEJORA.map((t) => (
+              {tecnicasMejora.map((t) => (
                 <div key={t.id} className="bg-white border rounded-lg p-3">
                   <div className="flex justify-between items-start mb-1">
                     <h3 className="font-medium text-sm text-gray-900">

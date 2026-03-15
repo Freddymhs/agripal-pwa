@@ -22,6 +22,7 @@ import {
 import type { Alerta } from "@/types";
 
 import { ROUTES } from "@/lib/constants/routes";
+import { MODO } from "@/lib/constants/entities";
 
 export default function HomePage() {
   return <HomeContent />;
@@ -75,10 +76,8 @@ function HomeContent() {
 
   if (!isAuthenticated) return null;
 
-  let mainContent: ReactNode;
-
-  if (proyectos.length === 0) {
-    mainContent = (
+  const mainContent: ReactNode =
+    proyectos.length === 0 ? (
       <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-green-50 to-green-100">
         <div className="text-center max-w-md px-6">
           <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -111,9 +110,7 @@ function HomeContent() {
           </button>
         </div>
       </div>
-    );
-  } else if (!terrenoActual && proyectoActual) {
-    mainContent = (
+    ) : !terrenoActual && proyectoActual ? (
       <div className="flex-1 flex items-center justify-center bg-gray-50">
         <div className="text-center max-w-md px-6">
           <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -146,23 +143,18 @@ function HomeContent() {
           </button>
         </div>
       </div>
-    );
-  } else if (loading || !terrenoActual) {
-    mainContent = (
+    ) : loading || !terrenoActual ? (
       <div className="flex-1 flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <div className="w-8 h-8 border-4 border-green-500 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
           <p className="text-gray-600">Cargando...</p>
         </div>
       </div>
-    );
-  } else {
-    mainContent = (
+    ) : (
       <MapProvider>
         <MapView />
       </MapProvider>
     );
-  }
 
   const proyectoActualObj = proyectoActual ?? null;
   const terrenoActualObj = terrenoActual ?? null;
@@ -280,14 +272,14 @@ function MapView() {
             gridParams={gridParams}
             posicionesOcupadas={posicionesOcupadas}
             onZonaClick={(zona) => {
-              if (modo === "zonas" || modo === "plantar") {
+              if (modo === MODO.ZONAS || modo === MODO.PLANTAR) {
                 setZonaSeleccionada(zona);
                 setPlantaSeleccionada(null);
                 setPlantasSeleccionadas([]);
               }
             }}
             onZonaCreada={(rect) => {
-              if (modo === "crear_zona") {
+              if (modo === MODO.CREAR_ZONA) {
                 setRectNuevaZona(rect);
               }
             }}
@@ -311,12 +303,12 @@ function MapView() {
           onConfirm={handleCrearZona}
           onCancel={() => {
             setRectNuevaZona(null);
-            setModo("terreno");
+            setModo(MODO.TERRENO);
           }}
         />
       )}
 
-      {showGridModal && zonaSeleccionada && (
+      {showGridModal && zonaSeleccionada && cultivoSeleccionado && (
         <GridAutomaticoModal
           zona={zonaSeleccionada}
           cultivo={cultivoSeleccionado}

@@ -1,5 +1,10 @@
 import { describe, it, expect } from "vitest";
-import { BILLING } from "@/lib/constants/billing";
+import {
+  BILLING,
+  ESTADO_SUSCRIPCION,
+  ESTADOS_SUSCRIPCION_PERMITIDOS,
+  ESTADOS_SUSCRIPCION_ACTIVOS,
+} from "@/lib/constants/billing";
 
 // Extracted pure logic from use-subscription.ts for testability
 function calcDaysRemaining(dateStr: string | null): number {
@@ -17,15 +22,18 @@ function isSubscriptionActive(
   endDate: string | null,
 ): boolean {
   if (!estado) return false;
-  const allowedStates = new Set(["active", "trialing", "past_due"]);
-  if (!allowedStates.has(estado)) return false;
+  if (!ESTADOS_SUSCRIPCION_PERMITIDOS.has(estado)) return false;
   if (!endDate) return false;
   return new Date(endDate) > new Date();
 }
 
 function needsPayment(estado: string | undefined): boolean {
-  const activeStates = ["active", "trialing"];
-  return !estado || !activeStates.includes(estado);
+  return (
+    !estado ||
+    !ESTADOS_SUSCRIPCION_ACTIVOS.includes(
+      estado as (typeof ESTADOS_SUSCRIPCION_ACTIVOS)[number],
+    )
+  );
 }
 
 describe("calcDaysRemaining", () => {
@@ -65,27 +73,39 @@ describe("isSubscriptionActive", () => {
   const pastDate = new Date(Date.now() - 86400000 * 5).toISOString();
 
   it("returns true for active with future end date", () => {
-    expect(isSubscriptionActive("active", futureDate)).toBe(true);
+    expect(isSubscriptionActive(ESTADO_SUSCRIPCION.ACTIVE, futureDate)).toBe(
+      true,
+    );
   });
 
   it("returns true for trialing with future end date", () => {
-    expect(isSubscriptionActive("trialing", futureDate)).toBe(true);
+    expect(isSubscriptionActive(ESTADO_SUSCRIPCION.TRIALING, futureDate)).toBe(
+      true,
+    );
   });
 
   it("returns true for past_due with future end date (grace period)", () => {
-    expect(isSubscriptionActive("past_due", futureDate)).toBe(true);
+    expect(isSubscriptionActive(ESTADO_SUSCRIPCION.PAST_DUE, futureDate)).toBe(
+      true,
+    );
   });
 
   it("returns false for canceled", () => {
-    expect(isSubscriptionActive("canceled", futureDate)).toBe(false);
+    expect(isSubscriptionActive(ESTADO_SUSCRIPCION.CANCELED, futureDate)).toBe(
+      false,
+    );
   });
 
   it("returns false for inactive", () => {
-    expect(isSubscriptionActive("inactive", futureDate)).toBe(false);
+    expect(isSubscriptionActive(ESTADO_SUSCRIPCION.INACTIVE, futureDate)).toBe(
+      false,
+    );
   });
 
   it("returns false for active with expired end date", () => {
-    expect(isSubscriptionActive("active", pastDate)).toBe(false);
+    expect(isSubscriptionActive(ESTADO_SUSCRIPCION.ACTIVE, pastDate)).toBe(
+      false,
+    );
   });
 
   it("returns false for undefined estado", () => {
@@ -93,25 +113,25 @@ describe("isSubscriptionActive", () => {
   });
 
   it("returns false for null end date", () => {
-    expect(isSubscriptionActive("active", null)).toBe(false);
+    expect(isSubscriptionActive(ESTADO_SUSCRIPCION.ACTIVE, null)).toBe(false);
   });
 });
 
 describe("needsPayment", () => {
   it("returns false for active subscription", () => {
-    expect(needsPayment("active")).toBe(false);
+    expect(needsPayment(ESTADO_SUSCRIPCION.ACTIVE)).toBe(false);
   });
 
   it("returns false for trialing subscription", () => {
-    expect(needsPayment("trialing")).toBe(false);
+    expect(needsPayment(ESTADO_SUSCRIPCION.TRIALING)).toBe(false);
   });
 
   it("returns true for past_due (needs renewal)", () => {
-    expect(needsPayment("past_due")).toBe(true);
+    expect(needsPayment(ESTADO_SUSCRIPCION.PAST_DUE)).toBe(true);
   });
 
   it("returns true for canceled", () => {
-    expect(needsPayment("canceled")).toBe(true);
+    expect(needsPayment(ESTADO_SUSCRIPCION.CANCELED)).toBe(true);
   });
 
   it("returns true for undefined", () => {
@@ -148,40 +168,40 @@ describe("Trial period calculation", () => {
 
 describe("Middleware subscription check logic", () => {
   it("allows active subscription with valid date", () => {
-    const estado = "active";
+    const estado = ESTADO_SUSCRIPCION.ACTIVE;
     const endDate = new Date(Date.now() + 86400000 * 15).toISOString();
-    const allowedStates = new Set(["active", "trialing", "past_due"]);
     const isAllowed =
-      allowedStates.has(estado) && new Date(endDate) > new Date();
+      ESTADOS_SUSCRIPCION_PERMITIDOS.has(estado) &&
+      new Date(endDate) > new Date();
     expect(isAllowed).toBe(true);
   });
 
   it("blocks expired active subscription", () => {
-    const estado = "active";
+    const estado = ESTADO_SUSCRIPCION.ACTIVE;
     const endDate = new Date(Date.now() - 86400000).toISOString();
-    const allowedStates = new Set(["active", "trialing", "past_due"]);
     const isAllowed =
-      allowedStates.has(estado) && new Date(endDate) > new Date();
+      ESTADOS_SUSCRIPCION_PERMITIDOS.has(estado) &&
+      new Date(endDate) > new Date();
     expect(isAllowed).toBe(false);
   });
 
   it("blocks canceled subscription regardless of date", () => {
-    const estado = "canceled";
+    const estado = ESTADO_SUSCRIPCION.CANCELED;
     const endDate = new Date(Date.now() + 86400000 * 15).toISOString();
-    const allowedStates = new Set(["active", "trialing", "past_due"]);
     const isAllowed =
-      allowedStates.has(estado) && new Date(endDate) > new Date();
+      ESTADOS_SUSCRIPCION_PERMITIDOS.has(estado) &&
+      new Date(endDate) > new Date();
     expect(isAllowed).toBe(false);
   });
 
   it("allows past_due within grace period", () => {
-    const estado = "past_due";
+    const estado = ESTADO_SUSCRIPCION.PAST_DUE;
     const endDate = new Date(
       Date.now() + 86400000 * BILLING.GRACIA_DIAS,
     ).toISOString();
-    const allowedStates = new Set(["active", "trialing", "past_due"]);
     const isAllowed =
-      allowedStates.has(estado) && new Date(endDate) > new Date();
+      ESTADOS_SUSCRIPCION_PERMITIDOS.has(estado) &&
+      new Date(endDate) > new Date();
     expect(isAllowed).toBe(true);
   });
 });

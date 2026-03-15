@@ -1,33 +1,30 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import type { CalidadAguaTerreno, FuenteAguaDetallada } from "@/types";
-import { UMBRALES_AGUA, RIOS_ARICA } from "@/lib/data/umbrales-agua";
+import type { CalidadAguaTerreno, FuenteAgua } from "@/types";
+import { UMBRALES_AGUA } from "@/lib/data/umbrales-agua";
+import type { NivelIndicador } from "@/components/suelo/suelo-form-utils";
+import { coloresIndicador } from "@/components/suelo/suelo-form-utils";
 
 interface FormularioCalidadAguaProps {
   calidad?: CalidadAguaTerreno;
   onChange: (calidad: CalidadAguaTerreno) => void;
+  fuentesAgua?: FuenteAgua[];
 }
 
-type NivelIndicador = "ok" | "advertencia" | "critico" | "neutral";
+const FACTOR_ADVERTENCIA = 0.75;
 
 function getIndicador(valor: number | undefined, max: number): NivelIndicador {
   if (valor === undefined) return "neutral";
   if (valor > max) return "critico";
-  if (valor > max * 0.75) return "advertencia";
+  if (valor > max * FACTOR_ADVERTENCIA) return "advertencia";
   return "ok";
 }
-
-const coloresIndicador: Record<NivelIndicador, string> = {
-  ok: "border-green-500 bg-green-50",
-  advertencia: "border-yellow-500 bg-yellow-50",
-  critico: "border-red-500 bg-red-50",
-  neutral: "border-gray-300",
-};
 
 export function FormularioCalidadAgua({
   calidad,
   onChange,
+  fuentesAgua = [],
 }: FormularioCalidadAguaProps) {
   const [data, setData] = useState<CalidadAguaTerreno>(calidad || {});
 
@@ -35,36 +32,23 @@ export function FormularioCalidadAgua({
     onChange(data);
   }, [data, onChange]);
 
-  const fuentes: { value: FuenteAguaDetallada; label: string }[] = [
-    { value: "azapa", label: "Río Azapa" },
-    { value: "lluta", label: "Río Lluta (ALTO BORO)" },
-    { value: "aljibe", label: "Aljibe/Camión" },
-    { value: "pozo", label: "Pozo" },
-    { value: "otro", label: "Otro" },
-  ];
+  const handleFuenteChange = (fuenteId: string) => {
+    const fuente = fuentesAgua.find((f) => f.id === fuenteId);
 
-  const handleFuenteChange = (fuente: FuenteAguaDetallada) => {
-    const rioData =
-      fuente === "lluta"
-        ? RIOS_ARICA.lluta
-        : fuente === "azapa"
-          ? RIOS_ARICA.azapa
-          : fuente === "aljibe"
-            ? RIOS_ARICA.aljibe
-            : null;
-
-    if (rioData) {
+    if (fuente) {
       setData({
         ...data,
-        fuente,
-        salinidad_dS_m: rioData.salinidad,
-        boro_ppm: rioData.boro,
-        arsenico_mg_l: rioData.arsenico,
+        fuente: fuenteId,
+        salinidad_dS_m: fuente.salinidad_dS_m ?? data.salinidad_dS_m,
+        boro_ppm: fuente.boro_ppm ?? data.boro_ppm,
+        arsenico_mg_l: fuente.arsenico_mg_l ?? data.arsenico_mg_l,
       });
     } else {
-      setData({ ...data, fuente });
+      setData({ ...data, fuente: fuenteId });
     }
   };
+
+  const fuenteSeleccionada = fuentesAgua.find((f) => f.id === data.fuente);
 
   return (
     <div className="space-y-4">
@@ -123,25 +107,26 @@ export function FormularioCalidadAgua({
         </label>
         <select
           value={data.fuente || ""}
-          onChange={(e) =>
-            handleFuenteChange(e.target.value as FuenteAguaDetallada)
-          }
+          onChange={(e) => handleFuenteChange(e.target.value)}
           className="w-full px-3 py-2 border rounded text-gray-900"
         >
           <option value="">Seleccionar...</option>
-          {fuentes.map((f) => (
-            <option key={f.value} value={f.value}>
-              {f.label}
+          {fuentesAgua.map((f) => (
+            <option key={f.id} value={f.id}>
+              {f.nombre}
             </option>
           ))}
         </select>
-        {data.fuente === "lluta" && (
-          <p className="text-xs text-red-600 mt-1 font-medium">
-            {RIOS_ARICA.lluta.nota}
+        {fuenteSeleccionada?.notas && (
+          <p
+            className={`text-xs mt-1 font-medium ${
+              (fuenteSeleccionada.boro_ppm ?? 0) > UMBRALES_AGUA.boro.max
+                ? "text-red-600"
+                : "text-green-600"
+            }`}
+          >
+            {fuenteSeleccionada.notas}
           </p>
-        )}
-        {data.fuente === "azapa" && (
-          <p className="text-xs text-green-600 mt-1">{RIOS_ARICA.azapa.nota}</p>
         )}
       </div>
 

@@ -1,19 +1,12 @@
-import variedadesData from "../../../data/static/variedades/arica.json";
+import type { UUID } from "@/types";
 
 export interface VariedadCultivo {
   id: string;
-  cultivo_id: string;
+  cultivo_id: UUID;
   nombre: string;
   origen: string;
+  rendimiento_relativo: number;
   ventajas: string[];
   desventajas: string[];
-  rendimiento_relativo: number;
   precio_planta_clp: number;
-}
-
-export const VARIEDADES_ARICA: VariedadCultivo[] =
-  variedadesData as VariedadCultivo[];
-
-export function obtenerVariedades(cultivoId: string): VariedadCultivo[] {
-  return VARIEDADES_ARICA.filter((v) => v.cultivo_id === cultivoId);
 }

@@ -24,7 +24,7 @@ export function validarNuevaPlanta(
   if (zona.tipo !== TIPO_ZONA.CULTIVO) {
     return {
       valida: false,
-      error: 'Solo puedes plantar en zonas de tipo "cultivo"',
+      error: `Solo puedes plantar en zonas de tipo "${TIPO_ZONA.CULTIVO}"`,
     };
   }
 
@@ -229,7 +229,6 @@ export function validarPosicionParaMover(
   // Si se proporciona cultivo con espaciado, validar distancia a otras plantas
   if (cultivo?.espaciado_recomendado_m) {
     const espaciado = cultivo.espaciado_recomendado_m;
-    const margenBorde = espaciado / 2;
 
     for (const planta of plantasExistentes) {
       if (planta.zona_id !== zona.id) continue;

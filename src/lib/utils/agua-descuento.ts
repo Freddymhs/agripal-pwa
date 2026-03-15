@@ -1,5 +1,6 @@
 import { terrenosDAL, transaccionesDAL } from "@/lib/dal";
 import { getCurrentTimestamp } from "@/lib/utils";
+import { ejecutarMutacion } from "@/lib/helpers/dal-mutation";
 import {
   calcularConsumoRealTerreno,
   calcularDescuentoAutomatico,
@@ -23,9 +24,10 @@ export async function aplicarDescuentoAutomaticoAgua(
 
   if (!terreno.ultima_simulacion_agua) {
     if (cancelledRef.current) return { aplicado: false };
-    await terrenosDAL.update(terreno.id, {
-      ultima_simulacion_agua: now,
-    });
+    await ejecutarMutacion(
+      () => terrenosDAL.update(terreno.id, { ultima_simulacion_agua: now }),
+      "inicializar última simulación agua",
+    );
     return { aplicado: true };
   }
 
@@ -66,13 +68,18 @@ export async function aplicarDescuentoAutomaticoAgua(
 
   if (cancelledRef.current) return { aplicado: false };
 
-  await transaccionesDAL.aplicarDescuentosAgua(descuentos, terreno.id, {
-    ultima_simulacion_agua: now,
-  });
-
-  for (const d of descuentos) {
-    emitZonaUpdated(d.estanqueId);
-  }
+  await ejecutarMutacion(
+    () =>
+      transaccionesDAL.aplicarDescuentosAgua(descuentos, terreno.id, {
+        ultima_simulacion_agua: now,
+      }),
+    "aplicar descuentos automáticos agua",
+    () => {
+      for (const d of descuentos) {
+        emitZonaUpdated(d.estanqueId);
+      }
+    },
+  );
 
   return { aplicado: true };
 }

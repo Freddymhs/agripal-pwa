@@ -3,6 +3,7 @@ import type {
   SueloTerreno,
   CompatibilidadNivel,
 } from "@/types";
+import { FACTOR_EXCESO_GRAVE_SALINIDAD } from "@/lib/constants/umbrales";
 
 export interface CompatibilidadSueloCultivo {
   cultivo_id: string;
@@ -53,7 +54,7 @@ export function evaluarCompatibilidadSuelo(
               suelo.fisico.ph > cultivo.ph_max + 1)) ||
           (suelo.quimico?.salinidad_dS_m != null &&
             suelo.quimico.salinidad_dS_m >
-              cultivo.salinidad_tolerancia_dS_m * 1.5)
+              cultivo.salinidad_tolerancia_dS_m * FACTOR_EXCESO_GRAVE_SALINIDAD)
           ? "no_compatible"
           : "limitado"
         : "compatible";

@@ -1,40 +1,48 @@
 import type {
-  MatrizCompatibilidad,
-  InsumoCompatibilidad,
   IncompatibilidadQuimica,
+  NivelIncompatibilidadResultado,
 } from "@/types";
-import rawData from "../../../data/static/insumos/compatibilidad.json";
+import { NIVEL_INCOMPATIBILIDAD } from "@/lib/constants/entities";
+import rawIncompatibilidades from "../../../data/static/incompatibilidades-insumos.json";
 
-const matrizCompatibilidad = rawData as MatrizCompatibilidad;
+const incompatibilidades = rawIncompatibilidades as IncompatibilidadQuimica[];
 
-export function getMatrizCompatibilidad(): MatrizCompatibilidad {
-  return matrizCompatibilidad;
-}
-
-export function getInsumos(): InsumoCompatibilidad[] {
-  return matrizCompatibilidad.insumos;
-}
-
-export function getInsumoById(id: string): InsumoCompatibilidad | undefined {
-  return matrizCompatibilidad.insumos.find((i) => i.id === id);
-}
-
-export function verificarCompatibilidad(
-  insumosSeleccionados: string[],
+/**
+ * Verifica incompatibilidades entre insumos por ID slug.
+ * El JSON usa IDs slug (ej: "sulfato-calcio"), no nombres display.
+ */
+export function verificarCompatibilidadPorIds(
+  ids: string[],
 ): IncompatibilidadQuimica[] {
-  if (insumosSeleccionados.length < 2) return [];
+  if (ids.length < 2) return [];
 
-  return matrizCompatibilidad.incompatibilidades.filter(
-    (inc) =>
-      insumosSeleccionados.includes(inc.insumo_a) &&
-      insumosSeleccionados.includes(inc.insumo_b),
+  return incompatibilidades.filter(
+    (inc) => ids.includes(inc.insumo_a) && ids.includes(inc.insumo_b),
   );
 }
 
+/**
+ * Mapea nombres display del usuario a IDs slug del catálogo.
+ */
+export function mapearNombresAIds(
+  nombres: string[],
+  catalogo: ReadonlyArray<{ id: string; nombre: string }>,
+): string[] {
+  return nombres
+    .map((nombre) => catalogo.find((c) => c.nombre === nombre)?.id)
+    .filter((id): id is string => id !== undefined);
+}
+
 export function getNivelMayorIncompatibilidad(
-  incompatibilidades: IncompatibilidadQuimica[],
-): "alto" | "medio" | "ninguno" {
-  if (incompatibilidades.some((i) => i.nivel === "alto")) return "alto";
-  if (incompatibilidades.some((i) => i.nivel === "medio")) return "medio";
-  return "ninguno";
+  incompatibilidadesList: IncompatibilidadQuimica[],
+): NivelIncompatibilidadResultado {
+  if (
+    incompatibilidadesList.some((i) => i.nivel === NIVEL_INCOMPATIBILIDAD.ALTO)
+  )
+    return NIVEL_INCOMPATIBILIDAD.ALTO;
+  if (
+    incompatibilidadesList.some((i) => i.nivel === NIVEL_INCOMPATIBILIDAD.MEDIO)
+  )
+    return NIVEL_INCOMPATIBILIDAD.MEDIO;
+  return NIVEL_INCOMPATIBILIDAD.NINGUNO;
 }

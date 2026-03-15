@@ -4,6 +4,7 @@ import type {
   Planta,
   CatalogoCultivo,
   Temporada,
+  FuenteAgua,
 } from "@/types";
 import { ESTADO_PLANTA, TEMPORADA } from "@/lib/constants/entities";
 import { calcularConsumoTerreno, calcularStockEstanques } from "./agua";
@@ -14,6 +15,7 @@ import { es } from "date-fns/locale";
 import {
   SEMANAS_POR_MES,
   DIAS_LAVADO_SALINO,
+  DIAS_POR_MES_PROMEDIO,
 } from "@/lib/constants/conversiones";
 import {
   filtrarEstanques,
@@ -62,6 +64,7 @@ export function generarProyeccionAnual(
   zonas: Zona[],
   plantas: Planta[],
   catalogoCultivos: CatalogoCultivo[],
+  fuentesAgua: FuenteAgua[],
 ): ProyeccionAnual {
   const hoy = new Date();
   const meses: ProyeccionMensual[] = [];
@@ -94,10 +97,10 @@ export function generarProyeccionAnual(
     for (const est of estanques) {
       const recarga = est.estanque_config?.recarga;
       if (recarga) {
-        const freq = recarga.frecuencia_dias ?? 30;
+        const freq = recarga.frecuencia_dias ?? DIAS_POR_MES_PROMEDIO;
         if (freq <= 0) continue;
         if (recarga.cantidad_litros <= 0) continue;
-        const diasEnMes = 30;
+        const diasEnMes = DIAS_POR_MES_PROMEDIO;
         const recargasPorMes = Math.floor(diasEnMes / freq);
         recargasMes += recargasPorMes * (recarga.cantidad_litros / 1000);
       }
@@ -109,7 +112,7 @@ export function generarProyeccionAnual(
       nivelFin <= 0 && consumoMensual > 0
         ? Math.ceil(
             Math.max(0, consumoMensual - nivelInicio - recargasMes) /
-              (consumoMensual / 30),
+              (consumoMensual / DIAS_POR_MES_PROMEDIO),
           )
         : 0;
 
@@ -180,7 +183,8 @@ export function generarProyeccionAnual(
     }
 
     if (!cultivo.tiempo_produccion_meses) continue;
-    const tiempoProduccionDias = cultivo.tiempo_produccion_meses * 30;
+    const tiempoProduccionDias =
+      cultivo.tiempo_produccion_meses * DIAS_POR_MES_PROMEDIO;
     const fechaCosecha = addDays(fechaPlantacion, tiempoProduccionDias);
 
     if (fechaCosecha > hoy && fechaCosecha < finProyeccion) {
@@ -214,7 +218,8 @@ export function generarProyeccionAnual(
 
   eventos.sort((a, b) => a.fecha.getTime() - b.fecha.getTime());
 
-  const costoAguaM3 = obtenerCostoAguaPromedio(estanques, terreno) || 0;
+  const costoAguaM3 =
+    obtenerCostoAguaPromedio(estanques, terreno, fuentesAgua) || 0;
   const costosAgua = consumoTotalAnual * costoAguaM3;
 
   return {

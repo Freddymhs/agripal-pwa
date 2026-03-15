@@ -5,7 +5,6 @@ export const SEMANAS_POR_MES = 4.33;
 export const MS_POR_DIA = 86_400_000;
 
 export const DIAS_LAVADO_SALINO = 30;
-export const DIAS_ALERTA_AGUA_CRITICA = 7;
 export const ESPACIADO_MINIMO_M = 0.5;
 export const MIN_DIAS_DESCUENTO = 0.04;
 

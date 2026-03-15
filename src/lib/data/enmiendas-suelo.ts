@@ -1,5 +1,3 @@
-import enmiendas from "../../../data/static/suelo/enmiendas.json";
-
 export interface Enmienda {
   id: string;
   nombre: string;
@@ -13,30 +11,32 @@ export interface Enmienda {
   notas: string;
 }
 
-export const ENMIENDAS_SUELO: Enmienda[] = enmiendas as Enmienda[];
-
-export function obtenerEnmienda(id: string): Enmienda | undefined {
-  return ENMIENDAS_SUELO.find((e) => e.id === id);
+export function obtenerEnmienda(
+  enmiendas: Enmienda[],
+  id: string,
+): Enmienda | undefined {
+  return enmiendas.find((e) => e.id === id);
 }
 
 export function sugerirEnmiendas(
+  enmiendas: Enmienda[],
   ph?: number,
   salinidadAlta?: boolean,
 ): Enmienda[] {
   const sugerencias: Enmienda[] = [];
 
   if (ph != null && ph > 7.5) {
-    const azufre = ENMIENDAS_SUELO.find((e) => e.id === "azufre-agricola");
+    const azufre = enmiendas.find((e) => e.id === "azufre-agricola");
     if (azufre) sugerencias.push(azufre);
   }
 
   if (ph != null && ph < 5.5) {
-    const cal = ENMIENDAS_SUELO.find((e) => e.id === "cal-agricola");
+    const cal = enmiendas.find((e) => e.id === "cal-agricola");
     if (cal) sugerencias.push(cal);
   }
 
   if (salinidadAlta) {
-    const yeso = ENMIENDAS_SUELO.find((e) => e.id === "yeso-agricola");
+    const yeso = enmiendas.find((e) => e.id === "yeso-agricola");
     if (yeso) sugerencias.push(yeso);
   }
 

@@ -1,6 +1,9 @@
 import type { Zona, EntradaAgua, Planta, CatalogoCultivo } from "@/types";
 import { calcularConsumoTerreno } from "./agua";
-import { SEMANAS_POR_AÑO } from "@/lib/constants/conversiones";
+import { SEMANAS_POR_AÑO, DIAS_POR_AÑO } from "@/lib/constants/conversiones";
+
+/** Llenadas estimadas por año cuando no hay historial (cada ~2 semanas) */
+const LLENADAS_POR_AÑO_DEFAULT = 26;
 
 export interface CalculoAguaAnual {
   aguaAnualM3: number;
@@ -49,7 +52,7 @@ function calcularPorHistorial(
     const diasEntre =
       (fechaActual.getTime() - fechaAnterior.getTime()) / (1000 * 60 * 60 * 24);
 
-    if (diasEntre > 0 && diasEntre < 365) {
+    if (diasEntre > 0 && diasEntre < DIAS_POR_AÑO) {
       sumaDiasEntreEntradas += diasEntre;
       cantidadIntervalos++;
     }
@@ -64,7 +67,7 @@ function calcularPorHistorial(
     (sum, e) => sum + (e.estanque_config?.capacidad_m3 || 0),
     0,
   );
-  const llenadaPorAño = 365 / promedioEntreLlenadas;
+  const llenadaPorAño = DIAS_POR_AÑO / promedioEntreLlenadas;
   const aguaAnual = capacidadTotal * llenadaPorAño;
 
   return {
@@ -91,12 +94,12 @@ function calcularEstimacionDefault(estanques: Zona[]): CalculoAguaAnual {
     (sum, e) => sum + (e.estanque_config?.capacidad_m3 || 0),
     0,
   );
-  const aguaAnual = capacidadTotal * 26;
+  const aguaAnual = capacidadTotal * LLENADAS_POR_AÑO_DEFAULT;
 
   return {
     aguaAnualM3: Math.round(aguaAnual),
     metodoCalculo: "estimacion_default",
-    detalles: `Estimación conservadora: ${capacidadTotal.toFixed(1)} m³ × 26 llenadas/año (cada 2 semanas)`,
+    detalles: `Estimación conservadora: ${capacidadTotal.toFixed(1)} m³ × ${LLENADAS_POR_AÑO_DEFAULT} llenadas/año (cada 2 semanas)`,
     confianza: "baja",
   };
 }

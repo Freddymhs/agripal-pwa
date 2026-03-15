@@ -2,6 +2,8 @@ import { describe, it, expect } from "vitest";
 import {
   BILLING,
   MP_ESTADO_MAP,
+  ESTADO_SUSCRIPCION,
+  ESTADO_PAGO,
   type EstadoSuscripcion,
   type EstadoPago,
 } from "@/lib/constants/billing";
@@ -37,17 +39,7 @@ describe("BILLING constants", () => {
 });
 
 describe("MP_ESTADO_MAP", () => {
-  const ALL_MP_STATUSES = [
-    "pending",
-    "approved",
-    "authorized",
-    "in_process",
-    "in_mediation",
-    "rejected",
-    "cancelled",
-    "refunded",
-    "charged_back",
-  ];
+  const ALL_MP_STATUSES = Object.values(ESTADO_PAGO);
 
   it("maps all known MercadoPago statuses", () => {
     for (const status of ALL_MP_STATUSES) {
@@ -75,30 +67,14 @@ describe("MP_ESTADO_MAP", () => {
 
 describe("EstadoSuscripcion type coverage", () => {
   it("all valid states are accounted for", () => {
-    const validStates: EstadoSuscripcion[] = [
-      "trialing",
-      "active",
-      "past_due",
-      "canceled",
-      "inactive",
-    ];
+    const validStates: EstadoSuscripcion[] = Object.values(ESTADO_SUSCRIPCION);
     expect(validStates).toHaveLength(5);
   });
 });
 
 describe("EstadoPago type coverage", () => {
   it("all valid payment states are accounted for", () => {
-    const validStates: EstadoPago[] = [
-      "pending",
-      "approved",
-      "authorized",
-      "in_process",
-      "in_mediation",
-      "rejected",
-      "cancelled",
-      "refunded",
-      "charged_back",
-    ];
+    const validStates: EstadoPago[] = Object.values(ESTADO_PAGO);
     expect(validStates).toHaveLength(9);
   });
 });
