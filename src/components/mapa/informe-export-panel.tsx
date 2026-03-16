@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import type { DatosClimaticos } from "@/lib/data/clima-arica";
+import type { DatosClimaticos } from "@/lib/data/clima";
 import { useProjectContext } from "@/contexts/project-context";
 import {
   generarInformePDF,

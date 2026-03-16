@@ -7,7 +7,7 @@ export {
   type DatosETo,
   type EtoMensual,
   type DatosCamanchaca,
-} from "./clima-arica";
+} from "./clima";
 export { UMBRALES_AGUA } from "./umbrales-agua";
 export {
   UMBRALES_SUELO,

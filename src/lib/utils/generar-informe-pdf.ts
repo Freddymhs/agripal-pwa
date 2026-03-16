@@ -8,7 +8,7 @@ import type {
   Alerta,
   EtapaCrecimiento,
 } from "@/types";
-import type { DatosClimaticos } from "@/lib/data/clima-arica";
+import type { DatosClimaticos } from "@/lib/data/clima";
 import { evaluarSuelo, NIVEL_ALERTA } from "@/lib/data/umbrales-suelo";
 import { getKc } from "@/lib/data/kc-cultivos";
 import { UBICACION_PILOTO } from "@/lib/constants/conversiones";

@@ -16,6 +16,7 @@ import type {
   ToleranciaSimple,
   NivelIncompatibilidad,
   NivelIncompatibilidadResultado,
+  CalidadCosecha,
 } from "@/types";
 
 export const MODO = {
@@ -169,6 +170,47 @@ export const TOLERANCIA_SALINIDAD_DEFAULT: ToleranciaSimple = "media";
 
 export const HORARIO_RIEGO_INICIO_DEFAULT = "06:00";
 export const HORARIO_RIEGO_FIN_DEFAULT = "12:00";
+
+export const CALIDAD_COSECHA = {
+  A: "A",
+  B: "B",
+  C: "C",
+} as const satisfies Record<string, CalidadCosecha>;
+
+export const CALIDAD_COSECHA_LIST: CalidadCosecha[] = [
+  CALIDAD_COSECHA.A,
+  CALIDAD_COSECHA.B,
+  CALIDAD_COSECHA.C,
+];
+
+export const FACTOR_PRECIO_CALIDAD: Record<CalidadCosecha, number> = {
+  A: 1.0,
+  B: 0.8,
+  C: 0.6,
+};
+
+export const CALIDAD_COSECHA_INFO: Record<
+  CalidadCosecha,
+  { label: string; color: string }
+> = {
+  A: { label: "Premium", color: "text-green-700 bg-green-50" },
+  B: { label: "Estándar", color: "text-yellow-700 bg-yellow-50" },
+  C: { label: "Inferior", color: "text-red-700 bg-red-50" },
+};
+
+export const DESTINO_COSECHA = {
+  CONSUMO: "consumo_propio",
+  VENTA_LOCAL: "venta_local",
+  EXPORTACION: "exportacion",
+} as const;
+
+export const DESTINO_COSECHA_LABELS: Record<string, string> = {
+  [DESTINO_COSECHA.CONSUMO]: "Consumo propio",
+  [DESTINO_COSECHA.VENTA_LOCAL]: "Venta local",
+  [DESTINO_COSECHA.EXPORTACION]: "Exportación",
+};
+
+export const UMBRAL_VIDA_UTIL_URGENTE_DIAS = 7;
 
 export const NIVEL_INCOMPATIBILIDAD = {
   ALTO: "alto",

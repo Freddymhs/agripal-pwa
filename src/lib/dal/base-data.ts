@@ -6,7 +6,7 @@ import type { Enmienda } from "@/lib/data/enmiendas-suelo";
 import type { TecnicaMejora } from "@/lib/data/tecnicas-mejora";
 import type { VariedadCultivo } from "@/lib/data/variedades";
 import type { DatosMercado } from "@/lib/data/mercado";
-import type { DatosClimaticos } from "@/lib/data/clima-arica";
+import type { DatosClimaticos } from "@/lib/data/clima";
 
 export interface InsumoCatalogo {
   id: string;

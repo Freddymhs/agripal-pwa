@@ -42,6 +42,12 @@ export const NAV_ITEMS: NavItem[] = [
 
 const ADVANCED_ITEMS: DropdownItem[] = [
   {
+    href: ROUTES.COSECHAS,
+    label: "Cosechas",
+    icon: "🌾",
+    description: "Registra producción real y compara con proyecciones",
+  },
+  {
     href: ROUTES.AGUA_PLANIFICADOR,
     label: "Planificador de Agua",
     icon: "🧪",

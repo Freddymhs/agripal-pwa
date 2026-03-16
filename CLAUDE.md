@@ -72,6 +72,15 @@
 - E2E (Cypress): al menos un test por flujo crítico.
 - Bug fixes críticos: acompañar con test que falle antes del cambio.
 
+## Navegación
+
+- `NAV_ITEMS` (barra principal) solo para acciones de uso diario: Mapa, Agua, Economía, Alertas.
+- Todo lo demás va a `ADVANCED_ITEMS` (dropdown "Avanzado"). No saturar el nav primario.
+
+## Features nuevas
+
+- Antes de implementar un módulo nuevo: (a) analizar qué valor concreto le da al usuario, (b) verificar que no sature la interfaz existente (nav, páginas), (c) scopear v1 mínima — funcionalidad core primero, gráficos y avanzado en fase siguiente.
+
 ## Dónde va cada dato
 
 - **Nunca cambia** (leyes físicas, fórmulas, umbrales científicos) → constante en código.

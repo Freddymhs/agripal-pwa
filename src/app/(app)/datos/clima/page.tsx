@@ -10,7 +10,7 @@ import {
   getFactorClimatico,
   getTemporadaActual,
   type DatosETo,
-} from "@/lib/data/clima-arica";
+} from "@/lib/data/clima";
 import { calcularConsumoTerreno } from "@/lib/utils/agua";
 import { FACTORES_TEMPORADA } from "@/lib/constants/entities";
 

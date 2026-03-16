@@ -8,7 +8,7 @@ import type {
   UUID,
 } from "@/types";
 import { FACTORES_TEMPORADA } from "@/lib/constants/entities";
-import { getTemporadaActual } from "@/lib/data/clima-arica";
+import { getTemporadaActual } from "@/lib/data/clima";
 import { getKc } from "@/lib/data/kc-cultivos";
 import {
   ESTADO_PLANTA,

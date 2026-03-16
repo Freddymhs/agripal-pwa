@@ -156,12 +156,16 @@ export function useMapLayers(
     overlayLayerRef.current = overlay;
 
     return () => {
-      grid.destroy();
-      zonasLayer.destroy();
-      hitTest.destroy();
-      spacingLayer.destroy();
-      cursorGuidesLayer.destroy();
-      overlay.destroy();
+      try {
+        grid.destroy();
+        zonasLayer.destroy();
+        hitTest.destroy();
+        spacingLayer.destroy();
+        cursorGuidesLayer.destroy();
+        overlay.destroy();
+      } catch {
+        // PixiJS objects may already be destroyed during navigation unmount
+      }
       gridLayerRef.current = null;
       zonasLayerRef.current = null;
       hitTestRef.current = null;
@@ -209,12 +213,16 @@ export function useMapLayers(
 
     return () => {
       cancelled = true;
-      if (plantasLayerRef.current) {
-        worldRef.current?.removeChild(plantasLayerRef.current.container);
-        plantasLayerRef.current.destroy();
-        plantasLayerRef.current = null;
+      try {
+        if (plantasLayerRef.current) {
+          worldRef.current?.removeChild(plantasLayerRef.current.container);
+          plantasLayerRef.current.destroy();
+          plantasLayerRef.current = null;
+        }
+        factory.destroy();
+      } catch {
+        // PixiJS objects may already be destroyed during navigation unmount
       }
-      factory.destroy();
       textureFactoryRef.current = null;
     };
   }, [app, worldRef, textureFactoryRef, plantasLayerRef, overlayLayerRef]);

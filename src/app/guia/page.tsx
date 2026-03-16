@@ -1,41 +1,40 @@
+"use client";
+
+import { useRef } from "react";
 import { PageLayout } from "@/components/layout";
-import { GuiaIndice } from "@/components/guia/guia-indice";
-import {
-  GuiaPasoProyecto,
-  GuiaPasoCatalogo,
-  GuiaPasoAgua,
-} from "@/components/guia/guia-pasos-configuracion";
-import {
-  GuiaPasoSuelo,
-  GuiaPasoClima,
-} from "@/components/guia/guia-pasos-ambiente";
-import {
-  GuiaPasoMapa,
-  GuiaPasoPlanificador,
-  GuiaPasoEconomia,
-} from "@/components/guia/guia-pasos-uso";
-import {
-  GuiaPasoAlertas,
-  GuiaPasoOffline,
-} from "@/components/guia/guia-pasos-monitoreo";
-import { GuiaResumen } from "@/components/guia/guia-resumen";
+import { GuiaHero } from "@/components/guia/guia-hero";
+import { GuiaSeccion } from "@/components/guia/guia-seccion";
+import { GUIA_SECCIONES } from "@/components/guia/guia-datos";
 
 export default function GuiaPage() {
+  const seccionesRef = useRef<HTMLDivElement>(null);
+
+  const handleEmpezar = () => {
+    const el = seccionesRef.current;
+    if (!el) return;
+    const top = el.getBoundingClientRect().top + window.scrollY - 16;
+    window.scrollTo({ top, behavior: "smooth" });
+  };
+
   return (
-    <PageLayout headerColor="green">
-      <main className="max-w-4xl mx-auto p-4 space-y-8 text-base">
-        <GuiaIndice />
-        <GuiaPasoProyecto />
-        <GuiaPasoCatalogo />
-        <GuiaPasoAgua />
-        <GuiaPasoSuelo />
-        <GuiaPasoClima />
-        <GuiaPasoMapa />
-        <GuiaPasoPlanificador />
-        <GuiaPasoEconomia />
-        <GuiaPasoAlertas />
-        <GuiaPasoOffline />
-        <GuiaResumen />
+    <PageLayout headerColor="amber">
+      <main className="max-w-2xl mx-auto px-4 py-6 space-y-5">
+        <GuiaHero onEmpezar={handleEmpezar} />
+
+        <div ref={seccionesRef} className="space-y-4">
+          {GUIA_SECCIONES.map((seccion, i) => (
+            <GuiaSeccion
+              key={seccion.id}
+              seccion={seccion}
+              inicialmenteAbierta={i === 0}
+            />
+          ))}
+        </div>
+
+        <footer className="text-center text-xs text-stone-400 py-4">
+          Esta guía es de referencia. Puedes volver cuando quieras desde el menú
+          Avanzado.
+        </footer>
       </main>
     </PageLayout>
   );

@@ -11,7 +11,7 @@ import {
 import { calcularScoreCalidad } from "@/lib/utils/calidad";
 import { calcularROI, obtenerCostoAguaPromedio } from "@/lib/utils/roi";
 import { obtenerFuente } from "@/lib/data/fuentes-agua";
-import type { DatosClimaticos } from "@/lib/data/clima-arica";
+import type { DatosClimaticos } from "@/lib/data/clima";
 import {
   calcularConsumoZona,
   calcularConsumoRiegoZona,

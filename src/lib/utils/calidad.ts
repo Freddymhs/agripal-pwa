@@ -1,5 +1,5 @@
 import type { CatalogoCultivo, FuenteAgua, SueloTerreno } from "@/types";
-import type { DatosClimaticos } from "@/lib/data/clima-arica";
+import type { DatosClimaticos } from "@/lib/data/clima";
 import { clamp, isValidNum } from "@/lib/utils/math";
 import { DIAS_POR_SEMANA } from "@/lib/constants/conversiones";
 import {

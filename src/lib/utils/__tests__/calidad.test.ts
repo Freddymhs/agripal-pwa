@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import type { CatalogoCultivo, FuenteAgua, SueloTerreno } from "@/types";
-import type { DatosClimaticos } from "@/lib/data/clima-arica";
+import type { DatosClimaticos } from "@/lib/data/clima";
 import { calcularFactorSuelo, calcularScoreCalidad } from "../calidad";
 
 const climaFixture: DatosClimaticos = {

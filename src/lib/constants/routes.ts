@@ -40,6 +40,9 @@ export const ROUTES = {
   BILLING_SUCCESS: "/billing/success",
   BILLING_FAILURE: "/billing/failure",
 
+  // Cosechas
+  COSECHAS: "/cosechas",
+
   // Operaciones
   ALERTAS: "/alertas",
   GUIA: "/guia",
