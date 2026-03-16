@@ -12,11 +12,11 @@ const SEMANAS_RECARGA_ESTIMADAS = 26;
 /** Factor de tolerancia sobre agua disponible (10% de margen) */
 const FACTOR_TOLERANCIA_AGUA = 1.1;
 
-/** ET0 mensual de referencia para Arica (mm/día) — datos Open-Meteo históricos */
-const ET0_MENSUAL_ARICA = [
-  3.0, 3.2, 3.0, 2.5, 2.0, 1.8, 1.9, 2.3, 2.8, 3.2, 3.5, 3.3,
+/** ET0 mensual de referencia para Arica pampa interior (mm/día) — Open-Meteo Archive 2025 */
+const ET0_MENSUAL_DEFAULT = [
+  5.1, 4.8, 4.5, 3.9, 3.2, 2.7, 3.1, 3.4, 4.2, 4.8, 5.1, 5.5,
 ] as const;
-const ET0_PROMEDIO_ANUAL = 2.8;
+const ET0_PROMEDIO_DEFAULT = 4.2;
 
 const SCORE_RIESGO = {
   [RIESGO.BAJO]: 100,
@@ -233,6 +233,8 @@ export function calcularAguaPorCultivo(
 
 export function simularConsumoEstacional(
   cultivos: { cultivo: CatalogoCultivo; area_ha: number }[],
+  et0Mensual: readonly number[] = ET0_MENSUAL_DEFAULT,
+  et0Promedio: number = ET0_PROMEDIO_DEFAULT,
 ): {
   mes: number;
   mes_nombre: string;
@@ -251,8 +253,8 @@ export function simularConsumoEstacional(
       const agua_anual = cultivo.agua_m3_ha_año_min * area_ha;
       const agua_promedio_dia = agua_anual / DIAS_POR_AÑO;
 
-      const et0Mes = ET0_MENSUAL_ARICA[mes - 1];
-      const factor = et0Mes / ET0_PROMEDIO_ANUAL;
+      const et0Mes = et0Mensual[mes - 1];
+      const factor = et0Mes / et0Promedio;
       agua_mes += agua_promedio_dia * factor * DIAS_POR_MES_PROMEDIO;
     }
 

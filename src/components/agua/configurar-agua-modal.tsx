@@ -49,14 +49,18 @@ export function ConfigurarAguaModal({
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
-        <h2 className="text-xl font-bold mb-4 text-gray-900">
-          Configurar Recarga
+        <h2 className="text-xl font-bold mb-2 text-gray-900">
+          Frecuencia de entrega
         </h2>
+        <p className="text-sm text-gray-600 mb-4">
+          Indica cada cuántos días esperas recibir agua. El sistema usará esto
+          para avisarte si el agua no alcanza hasta la próxima entrega.
+        </p>
 
         <div className="space-y-5">
           <div className="bg-cyan-50 p-3 rounded-lg">
             <div className="text-sm text-cyan-700">
-              Estanque:{" "}
+              Configurando para:{" "}
               <strong className="text-cyan-900">{estanque.nombre}</strong>
             </div>
             <div className="text-sm text-cyan-600">

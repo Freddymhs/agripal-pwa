@@ -220,7 +220,7 @@ export function ResumenAgua({
           <div className="flex items-start justify-between">
             <div>
               <h3 className="text-sm font-bold text-gray-700 mb-1">
-                Próxima Recarga
+                Próxima entrega estimada
               </h3>
               <div className="text-lg font-bold text-gray-900">
                 {format(
@@ -275,13 +275,16 @@ export function ResumenAgua({
               </ul>
             </div>
           )}
+          <div className="mt-2 text-xs text-gray-500">
+            Basado en la frecuencia de entrega que configuraste.
+          </div>
         </div>
       )}
 
       {!configRecarga && (
         <div className="bg-blue-50 border border-blue-200 rounded p-3 text-sm text-blue-800">
-          <strong>Tip:</strong> Configura tu frecuencia de recarga para saber si
-          el agua alcanzará hasta tu próximo aljibe.
+          <strong>Tip:</strong> Configura tu frecuencia de entrega para saber si
+          el agua alcanzará hasta la próxima vez que llegue el camión.
         </div>
       )}
 

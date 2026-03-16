@@ -1,0 +1,74 @@
+{
+  "region": "Antofagasta",
+  "zona": "litoral_antofagasta",
+  "elevacion_m": 95,
+  "coordenadas": { "lat": -23.65, "lon": -70.4 },
+  "lluvia": {
+    "anual_mm": 4,
+    "max_24h_mm": 8,
+    "meses_lluviosos": [],
+    "meses_secos": [
+      "ene",
+      "feb",
+      "mar",
+      "abr",
+      "may",
+      "jun",
+      "jul",
+      "ago",
+      "sep",
+      "oct",
+      "nov",
+      "dic"
+    ]
+  },
+  "temperatura": {
+    "minima_historica_c": 10,
+    "maxima_verano_c": 25,
+    "promedio_anual_c": 17,
+    "horas_frio_aprox": 10,
+    "horas_frio_nota": "~10h <10°C/año. Clima desértico litoral. Inversión térmica mantiene temperaturas estables."
+  },
+  "heladas": {
+    "anuales": 0,
+    "meses_riesgo": [],
+    "plantas_sensibles": []
+  },
+  "viento": {
+    "max_kmh": 50,
+    "direccion_predominante": "S-SW",
+    "meses_fuerte": ["oct", "nov", "dic", "ene"],
+    "nota": "Viento costero moderado a fuerte. Protección necesaria para cultivos sensibles."
+  },
+  "humedad_radiacion": {
+    "humedad_relativa_pct": 72,
+    "radiacion_mj_m2_dia": 17
+  },
+  "evapotranspiracion": {
+    "et0_mm_dia": 4.0,
+    "nota": "Promedio anual estimado Open-Meteo. Intermedio entre costa húmeda y pampa interior."
+  },
+  "estacionalidad": {
+    "verano": {
+      "meses": ["dic", "ene", "feb"],
+      "caracteristica": "Seco y cálido, máxima radiación",
+      "factor_agua": 1.35
+    },
+    "otoño": {
+      "meses": ["mar", "abr", "may"],
+      "caracteristica": "Templado, transición a camanchaca",
+      "factor_agua": 1.0
+    },
+    "invierno": {
+      "meses": ["jun", "jul", "ago"],
+      "caracteristica": "Fresco, camanchaca frecuente",
+      "factor_agua": 0.65
+    },
+    "primavera": {
+      "meses": ["sep", "oct", "nov"],
+      "caracteristica": "Templado, vientos crecientes",
+      "factor_agua": 1.15
+    }
+  },
+  "fuentes": ["Open-Meteo Archive", "DMC Chile", "NASA POWER"]
+}

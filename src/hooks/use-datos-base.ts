@@ -8,20 +8,18 @@ import type { Enmienda } from "@/lib/data/enmiendas-suelo";
 import type { TecnicaMejora } from "@/lib/data/tecnicas-mejora";
 import type { VariedadCultivo } from "@/lib/data/variedades";
 import type { DatosMercado } from "@/lib/data/mercado";
-import type { InsumoCatalogo, ClimaProyectoRow } from "@/lib/dal/base-data";
+import type { ClimaBase } from "@/lib/dal/base-data";
 
 export interface DatosBase {
-  insumos: InsumoCatalogo[];
   enmiendas: Enmienda[];
   tecnicas: TecnicaMejora[];
-  clima: ClimaProyectoRow[];
+  clima: ClimaBase[];
   fuentesAgua: FuenteAgua[];
   variedades: VariedadCultivo[];
   precios: DatosMercado[];
 }
 
 const DATOS_BASE_VACIOS: DatosBase = {
-  insumos: [],
   enmiendas: [],
   tecnicas: [],
   clima: [],
@@ -46,26 +44,17 @@ export function useDatosBase(proyectoId: UUID | null) {
       setLoading(true);
       setError(null);
 
-      const [
-        insumos,
-        enmiendas,
-        tecnicas,
-        clima,
-        fuentesAgua,
-        variedades,
-        precios,
-      ] = await Promise.all([
-        baseDataDAL.getInsumosByProyectoId(proyectoId),
-        baseDataDAL.getEnmiendasByProyectoId(proyectoId),
-        baseDataDAL.getTecnicasByProyectoId(proyectoId),
-        baseDataDAL.getClimaByProyectoId(proyectoId),
-        baseDataDAL.getFuentesAguaByProyectoId(proyectoId),
-        baseDataDAL.getVariedadesGlobales(),
-        baseDataDAL.getPreciosGlobales(),
-      ]);
+      const [enmiendas, tecnicas, clima, fuentesAgua, variedades, precios] =
+        await Promise.all([
+          baseDataDAL.getEnmiendasByProyectoId(proyectoId),
+          baseDataDAL.getTecnicasByProyectoId(proyectoId),
+          baseDataDAL.getClimasDisponibles(),
+          baseDataDAL.getFuentesAguaByProyectoId(proyectoId),
+          baseDataDAL.getVariedadesGlobales(),
+          baseDataDAL.getPreciosGlobales(),
+        ]);
 
       setDatosBase({
-        insumos,
         enmiendas,
         tecnicas,
         clima,

@@ -1,10 +1,12 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useProjectContext } from "@/contexts/project-context";
 import { PageLayout } from "@/components/layout/page-layout";
 import { useInsumos } from "@/hooks/use-insumos";
 import { getCurrentTimestamp } from "@/lib/utils";
+import { baseDataDAL } from "@/lib/dal";
+import type { InsumoCatalogo } from "@/lib/dal/base-data";
 import {
   verificarCompatibilidadPorIds,
   mapearNombresAIds,
@@ -34,12 +36,19 @@ const NIVEL_LABEL: Record<NivelIncompatibilidadResultado, string> = {
 };
 
 export default function InsumosPage() {
-  const { terrenoActual, loading, datosBaseHook } = useProjectContext();
+  const { terrenoActual, loading } = useProjectContext();
   const { insumos, agregarInsumo, eliminarInsumo } = useInsumos(
     terrenoActual?.id ?? null,
   );
 
-  const catalogoInsumos = datosBaseHook.datosBase.insumos ?? [];
+  const [catalogoInsumos, setCatalogoInsumos] = useState<InsumoCatalogo[]>([]);
+
+  useEffect(() => {
+    if (!terrenoActual?.id) return;
+    baseDataDAL
+      .getInsumosByTerrenoId(terrenoActual.id)
+      .then(setCatalogoInsumos);
+  }, [terrenoActual?.id]);
 
   const [insumoSeleccionadoId, setInsumoSeleccionadoId] = useState<string>("");
   const [insumosParaChequear, setInsumosParaChequear] = useState<string[]>([]);

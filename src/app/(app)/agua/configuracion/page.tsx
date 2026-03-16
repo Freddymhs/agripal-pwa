@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useCallback, useMemo, useEffect, useRef } from "react";
-import Link from "next/link";
 import { useProjectContext } from "@/contexts/project-context";
+import { PageLayout } from "@/components/layout";
 import {
   FormularioCalidadAgua,
   ProveedoresAgua,
@@ -13,11 +13,10 @@ import type {
   CalidadAguaTerreno,
   ProveedorAgua,
   ContingenciasAgua,
-  TecnicasAhorroAgua,
   AguaAvanzadaTerreno,
+  FuenteAgua,
 } from "@/types";
-import { ROUTES } from "@/lib/constants/routes";
-import { terrenosDAL } from "@/lib/dal";
+import { terrenosDAL, baseDataDAL } from "@/lib/dal";
 import { ejecutarMutacion } from "@/lib/helpers/dal-mutation";
 import { getCurrentTimestamp } from "@/lib/utils";
 
@@ -37,7 +36,11 @@ const DEFAULT_CONTINGENCIAS: ContingenciasAgua = {
 };
 
 export default function AguaConfiguracionPage() {
-  const { terrenoActual: terreno, datosBaseHook } = useProjectContext();
+  const {
+    terrenoActual: terreno,
+    datosBaseHook,
+    proyectoActual,
+  } = useProjectContext();
   const [activeTab, setActiveTab] = useState<TabId>("calidad");
   const loadedTerrenoId = useRef<string | null>(null);
 
@@ -46,8 +49,6 @@ export default function AguaConfiguracionPage() {
   const [contingencias, setContingencias] = useState<ContingenciasAgua>(
     DEFAULT_CONTINGENCIAS,
   );
-  const [tecnicas, setTecnicas] = useState<TecnicasAhorroAgua>({});
-
   // Cargar agua_avanzada al montar o cambiar terreno (solo una vez por terreno)
   useEffect(() => {
     if (!terreno || loadedTerrenoId.current === terreno.id) return;
@@ -59,8 +60,6 @@ export default function AguaConfiguracionPage() {
     setProveedores(avanzada.proveedores ?? []);
 
     setContingencias(avanzada.contingencias ?? DEFAULT_CONTINGENCIAS);
-
-    setTecnicas(avanzada.tecnicas_ahorro ?? {});
   }, [terreno]);
 
   const persistir = useCallback(
@@ -112,39 +111,33 @@ export default function AguaConfiguracionPage() {
     [persistir],
   );
 
-  const handleTecnicasChange = useCallback(
-    (t: TecnicasAhorroAgua) => {
-      setTecnicas(t);
-      persistir({ tecnicas_ahorro: t });
+  const handleCrearFuente = useCallback(
+    async (fuente: Omit<FuenteAgua, "id">) => {
+      if (!proyectoActual?.id) return;
+      await ejecutarMutacion(
+        () => baseDataDAL.createFuenteAgua(proyectoActual.id, fuente),
+        "crear fuente de agua",
+        datosBaseHook.recargarDatosBase,
+      );
     },
-    [persistir],
+    [proyectoActual, datosBaseHook.recargarDatosBase],
+  );
+
+  const handleEliminarFuente = useCallback(
+    async (fuenteId: string) => {
+      if (!proyectoActual?.id) return;
+      await ejecutarMutacion(
+        () => baseDataDAL.deleteFuenteAgua(fuenteId, proyectoActual.id),
+        "eliminar fuente de agua",
+        datosBaseHook.recargarDatosBase,
+      );
+    },
+    [proyectoActual, datosBaseHook.recargarDatosBase],
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-green-600 text-white px-4 py-3 flex items-center gap-4">
-        <Link
-          href={ROUTES.HOME}
-          className="p-1 hover:bg-green-700 rounded transition-colors"
-        >
-          <svg
-            className="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 19l-7-7 7-7"
-            />
-          </svg>
-        </Link>
-        <h1 className="text-xl font-bold">Configuración de Agua</h1>
-      </header>
-
-      <div className="max-w-4xl mx-auto p-4">
+    <PageLayout headerColor="cyan" title="Configuración de Agua">
+      <main className="max-w-4xl mx-auto p-4">
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
           <h2 className="font-bold text-blue-800 mb-1">Importante</h2>
           <p className="text-sm text-blue-700">
@@ -162,7 +155,7 @@ export default function AguaConfiguracionPage() {
               onClick={() => setActiveTab(tab.id)}
               className={`px-4 py-2 rounded font-medium transition-colors ${
                 activeTab === tab.id
-                  ? "bg-green-600 text-white"
+                  ? "bg-cyan-600 text-white"
                   : "bg-white text-gray-700 border hover:bg-gray-50"
               }`}
             >
@@ -177,6 +170,8 @@ export default function AguaConfiguracionPage() {
               calidad={calidad}
               onChange={handleCalidadChange}
               fuentesAgua={datosBaseHook.datosBase.fuentesAgua}
+              onCrearFuente={handleCrearFuente}
+              onEliminarFuente={handleEliminarFuente}
             />
           )}
 
@@ -198,13 +193,11 @@ export default function AguaConfiguracionPage() {
 
           {activeTab === "ahorro" && (
             <TecnicasAhorro
-              tecnicas={tecnicas}
-              onChange={handleTecnicasChange}
               tecnicasCatalogo={datosBaseHook.datosBase.tecnicas}
             />
           )}
         </div>
-      </div>
-    </div>
+      </main>
+    </PageLayout>
   );
 }

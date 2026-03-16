@@ -1,103 +1,89 @@
 "use client";
 
-import type { TecnicasAhorroAgua } from "@/types";
 import type { TecnicaMejora } from "@/lib/data/tecnicas-mejora";
 
 interface TecnicasAhorroProps {
-  tecnicas?: TecnicasAhorroAgua;
-  onChange?: (tecnicas: TecnicasAhorroAgua) => void;
-  readOnly?: boolean;
   tecnicasCatalogo?: TecnicaMejora[];
 }
 
-/** Mapeo entre id de Supabase y key del toggle en TecnicasAhorroAgua */
-const ID_A_KEY: Record<string, keyof TecnicasAhorroAgua> = {
-  "riego-deficitario-controlado": "riego_deficitario_controlado",
-  hidrogel: "hidrogel",
-  "mulch-organico": "mulch",
-  "sensores-humedad": "sensores_humedad",
+const CATEGORIA_COLORES: Record<string, string> = {
+  bioestimulante: "bg-emerald-100 text-emerald-700",
+  biológico: "bg-lime-100 text-lime-700",
+  biologico: "bg-lime-100 text-lime-700",
+  retenedor: "bg-blue-100 text-blue-700",
+  cobertura: "bg-amber-100 text-amber-700",
+  riego: "bg-cyan-100 text-cyan-700",
+  tecnología: "bg-purple-100 text-purple-700",
+  tecnologia: "bg-purple-100 text-purple-700",
 };
 
-const KEYS_TECNICAS = Object.values(ID_A_KEY);
+const CATEGORIA_FALLBACK = "bg-gray-100 text-gray-700";
 
-export function TecnicasAhorro({
-  tecnicas,
-  onChange,
-  readOnly = false,
-  tecnicasCatalogo = [],
-}: TecnicasAhorroProps) {
-  const handleToggle = (key: keyof TecnicasAhorroAgua) => {
-    if (onChange) {
-      onChange({ ...tecnicas, [key]: !tecnicas?.[key] });
-    }
-  };
-
-  const items = KEYS_TECNICAS.map((key) => {
-    const entry = Object.entries(ID_A_KEY).find(([, v]) => v === key);
-    const supabaseId = entry?.[0];
-    const catalogoItem = supabaseId
-      ? tecnicasCatalogo.find((t) => t.id === supabaseId)
-      : undefined;
-
-    return {
-      key,
-      nombre: catalogoItem?.nombre ?? key,
-      ahorro: catalogoItem?.ahorro_agua ?? null,
-      descripcion: catalogoItem?.efecto ?? "",
-    };
-  });
+export function TecnicasAhorro({ tecnicasCatalogo = [] }: TecnicasAhorroProps) {
+  if (tecnicasCatalogo.length === 0) {
+    return (
+      <div className="text-sm text-gray-500 italic">
+        No hay técnicas de ahorro cargadas en el catálogo.
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
-      <h3 className="font-medium text-gray-900">Técnicas de Ahorro de Agua</h3>
+      <div>
+        <h3 className="font-medium text-gray-900">
+          Técnicas de Ahorro de Agua
+        </h3>
+        <p className="text-xs text-gray-500 mt-1">
+          Técnicas que puedes aplicar para optimizar el uso de agua. Si aplicas
+          alguna, ajusta tu configuración de riego en cada zona.
+        </p>
+      </div>
 
       <div className="space-y-3">
-        {items.map(({ key, nombre, ahorro, descripcion }) => (
-          <div
-            key={key}
-            className={`p-3 rounded-lg border ${
-              tecnicas?.[key]
-                ? "bg-green-50 border-green-200"
-                : "bg-gray-50 border-gray-200"
-            }`}
-          >
-            <div className="flex items-start gap-3">
-              {!readOnly && (
-                <input
-                  type="checkbox"
-                  checked={tecnicas?.[key] || false}
-                  onChange={() => handleToggle(key)}
-                  className="mt-1 rounded"
-                />
-              )}
-              {readOnly && (
-                <span
-                  className={`w-5 h-5 flex items-center justify-center rounded text-xs ${
-                    tecnicas?.[key]
-                      ? "bg-green-500 text-white"
-                      : "bg-gray-300 text-white"
-                  }`}
-                >
-                  {tecnicas?.[key] ? "✓" : "×"}
-                </span>
-              )}
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <span className="font-medium text-gray-900">{nombre}</span>
-                  {ahorro && (
-                    <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded">
-                      Ahorro: {ahorro}
-                    </span>
-                  )}
-                </div>
-                {descripcion && (
-                  <p className="text-sm text-gray-600 mt-1">{descripcion}</p>
-                )}
-              </div>
-            </div>
-          </div>
+        {tecnicasCatalogo.map((tecnica) => (
+          <TecnicaCard key={tecnica.id} tecnica={tecnica} />
         ))}
       </div>
+    </div>
+  );
+}
+
+function TecnicaCard({ tecnica }: { tecnica: TecnicaMejora }) {
+  const colorCategoria =
+    CATEGORIA_COLORES[tecnica.categoria] ?? CATEGORIA_FALLBACK;
+
+  return (
+    <div className="p-3 rounded-lg border bg-white">
+      <div className="flex items-start justify-between gap-2 mb-1">
+        <span className="font-medium text-gray-900">{tecnica.nombre}</span>
+        <span
+          className={`text-xs px-2 py-0.5 rounded shrink-0 ${colorCategoria}`}
+        >
+          {tecnica.categoria}
+        </span>
+      </div>
+
+      <p className="text-sm text-gray-600">{tecnica.efecto}</p>
+
+      <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-xs text-gray-500">
+        {tecnica.ahorro_agua && (
+          <span className="font-medium text-blue-700">
+            Ahorro: {tecnica.ahorro_agua}
+          </span>
+        )}
+        {tecnica.dosis && <span>Dosis: {tecnica.dosis}</span>}
+        <span>Frecuencia: {tecnica.frecuencia}</span>
+        <span>
+          Costo: ${tecnica.costo_aplicacion_clp.toLocaleString("es-CL")} CLP
+        </span>
+      </div>
+
+      {tecnica.evidencia && (
+        <p className="text-xs text-gray-400 mt-1.5 italic">
+          {tecnica.evidencia}
+        </p>
+      )}
     </div>
   );
 }

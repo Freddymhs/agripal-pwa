@@ -22,6 +22,7 @@
     "test:run": "vitest run",
     "seed": "tsx scripts/seed.ts",
     "seed:base": "tsx scripts/seed-base.ts",
+    "db:reset": "tsx scripts/db-reset.ts",
     "db:push": "npx supabase db push"
   },
   "dependencies": {

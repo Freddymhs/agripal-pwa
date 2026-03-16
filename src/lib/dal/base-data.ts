@@ -1,5 +1,8 @@
 import { supabase } from "@/lib/supabase/client";
-import { deserializarDesdeSupabase } from "@/lib/supabase/schema";
+import {
+  deserializarDesdeSupabase,
+  serializarParaSupabase,
+} from "@/lib/supabase/schema";
 import { logger } from "@/lib/logger";
 import type { FuenteAgua, UUID } from "@/types";
 import type { Enmienda } from "@/lib/data/enmiendas-suelo";
@@ -10,7 +13,7 @@ import type { DatosClimaticos } from "@/lib/data/clima";
 
 export interface InsumoCatalogo {
   id: string;
-  proyecto_id: string;
+  terreno_id: string;
   nombre: string;
   tipo: string;
   descripcion?: string;
@@ -18,26 +21,25 @@ export interface InsumoCatalogo {
   updated_at: string;
 }
 
-export interface ClimaProyectoRow {
+export interface ClimaBase {
   id: string;
-  proyecto_id: string;
   region: string;
   datos: DatosClimaticos;
 }
 
 export const baseDataDAL = {
-  async getInsumosByProyectoId(proyectoId: UUID): Promise<InsumoCatalogo[]> {
+  async getInsumosByTerrenoId(terrenoId: UUID): Promise<InsumoCatalogo[]> {
     try {
       const { data, error } = await supabase
         .from("insumos_catalogo")
         .select("*")
-        .eq("proyecto_id", proyectoId);
+        .eq("terreno_id", terrenoId);
       if (error) throw error;
       return (data ?? []).map((row) =>
         deserializarDesdeSupabase<InsumoCatalogo>(row),
       );
     } catch (error) {
-      logger.error("Error en getInsumosByProyectoId", { error });
+      logger.error("Error en getInsumosByTerrenoId", { error });
       throw error;
     }
   },
@@ -74,18 +76,15 @@ export const baseDataDAL = {
     }
   },
 
-  async getClimaByProyectoId(proyectoId: UUID): Promise<ClimaProyectoRow[]> {
+  async getClimasDisponibles(): Promise<ClimaBase[]> {
     try {
-      const { data, error } = await supabase
-        .from("clima_proyecto")
-        .select("*")
-        .eq("proyecto_id", proyectoId);
+      const { data, error } = await supabase.from("clima_base").select("*");
       if (error) throw error;
       return (data ?? []).map((row) =>
-        deserializarDesdeSupabase<ClimaProyectoRow>(row),
+        deserializarDesdeSupabase<ClimaBase>(row),
       );
     } catch (error) {
-      logger.error("Error en getClimaByProyectoId", { error });
+      logger.error("Error en getClimasDisponibles", { error });
       throw error;
     }
   },
@@ -130,6 +129,64 @@ export const baseDataDAL = {
       );
     } catch (error) {
       logger.error("Error en getVariedadesGlobales", { error });
+      throw error;
+    }
+  },
+
+  async setClimaActivo(proyectoId: UUID, climaBaseId: UUID): Promise<void> {
+    try {
+      const { error } = await supabase
+        .from("proyectos")
+        .update({ clima_base_id: climaBaseId })
+        .eq("id", proyectoId);
+      if (error) throw error;
+      logger.info("Clima activo actualizado", { proyectoId, climaBaseId });
+    } catch (error) {
+      logger.error("Error en setClimaActivo", { error });
+      throw error;
+    }
+  },
+
+  async createFuenteAgua(
+    proyectoId: UUID,
+    fuente: Omit<FuenteAgua, "id">,
+  ): Promise<FuenteAgua> {
+    try {
+      const { nombre, tipo, ...resto } = fuente;
+      const payload = serializarParaSupabase("fuentes_agua_proyecto", {
+        proyecto_id: proyectoId,
+        nombre,
+        tipo,
+        ...resto,
+      });
+
+      const { data, error } = await supabase
+        .from("fuentes_agua_proyecto")
+        .insert(payload)
+        .select("*")
+        .single();
+      if (error) throw error;
+
+      logger.info("Fuente de agua creada", { proyectoId, nombre });
+      return deserializarDesdeSupabase<FuenteAgua>(data);
+    } catch (error) {
+      logger.error("Error en createFuenteAgua", { error });
+      throw error;
+    }
+  },
+
+  async deleteFuenteAgua(fuenteId: UUID, proyectoId: UUID): Promise<void> {
+    try {
+      const { error } = await supabase
+        .from("fuentes_agua_proyecto")
+        .delete()
+        .eq("id", fuenteId)
+        .eq("proyecto_id", proyectoId);
+      if (error) throw error;
+
+      logger.info("Fuente de agua eliminada", { fuenteId, proyectoId });
+    } catch (error) {
+      logger.error("Error en deleteFuenteAgua", { error });
       throw error;
     }
   },

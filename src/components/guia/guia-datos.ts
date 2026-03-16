@@ -71,6 +71,18 @@ export const GUIA_SECCIONES: GuiaSeccionData[] = [
         rutaLabel: "Ver suelo",
       },
       {
+        id: "clima",
+        titulo: "Clima de tu región",
+        valor:
+          "Los cálculos de agua usarán datos climáticos reales de tu zona.",
+        comoFunciona:
+          "Selecciona la región climática más cercana a tu terreno (Arica, Iquique, Antofagasta). Esto ajusta la evapotranspiración (ET0) y los factores estacionales de consumo de agua.",
+        ejemplo:
+          "Iquique Costa — ET0 3.5 mm/día, menos evaporación que pampa interior",
+        ruta: ROUTES.DATOS_CLIMA,
+        rutaLabel: "Configurar clima",
+      },
+      {
         id: "catalogo",
         titulo: "Catálogo de cultivos",
         valor:
@@ -94,8 +106,8 @@ export const GUIA_SECCIONES: GuiaSeccionData[] = [
         titulo: "Diseñar en el mapa",
         valor: "Verás tu finca completa con zonas, estanques y plantas.",
         comoFunciona:
-          "Dibuja zonas (cultivo, estanque, bodega) y planta en grilla automática. El sistema calcula espaciado según el cultivo.",
-        ejemplo: "Zona A (tomate) — 45 plantas a 40 cm",
+          "Dibuja zonas (cultivo, estanque, bodega) y planta en grilla automática. El sistema calcula espaciado según el cultivo. Una vez dibujadas, abre el panel de cada zona de cultivo y asígnale el estanque que la riega — así el sistema sabe de dónde descontar el agua.",
+        ejemplo: "Zona A (tomate) — 45 plantas a 40 cm — regada por Estanque 1",
         ruta: ROUTES.HOME,
         rutaLabel: "Abrir mapa",
       },

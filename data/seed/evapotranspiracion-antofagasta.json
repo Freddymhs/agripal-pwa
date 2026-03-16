@@ -1,0 +1,25 @@
+{
+  "nota": "ETo mensual promedio para Antofagasta litoral (~95m, 23°39'S 70°24'W). Fuente: Open-Meteo Archive, estimación basada en datos costeros.",
+  "eto_referencia_mm_dia": 4.0,
+  "mensual": {
+    "1": { "eto_mm_dia": 4.9, "label": "Enero" },
+    "2": { "eto_mm_dia": 4.6, "label": "Febrero" },
+    "3": { "eto_mm_dia": 4.2, "label": "Marzo" },
+    "4": { "eto_mm_dia": 3.6, "label": "Abril" },
+    "5": { "eto_mm_dia": 3.0, "label": "Mayo" },
+    "6": { "eto_mm_dia": 2.5, "label": "Junio" },
+    "7": { "eto_mm_dia": 2.8, "label": "Julio" },
+    "8": { "eto_mm_dia": 3.1, "label": "Agosto" },
+    "9": { "eto_mm_dia": 3.8, "label": "Septiembre" },
+    "10": { "eto_mm_dia": 4.3, "label": "Octubre" },
+    "11": { "eto_mm_dia": 4.7, "label": "Noviembre" },
+    "12": { "eto_mm_dia": 5.2, "label": "Diciembre" }
+  },
+  "camanchaca": {
+    "nota": "Camanchaca presente pero menos intensa que en Iquique. Reduce evaporación moderadamente.",
+    "meses_presencia": [5, 6, 7, 8, 9],
+    "aporte_estimado_mm_dia": 0.4,
+    "reduccion_eto_pct": 8,
+    "info": "Neblina costera moderada. Atrapanieblas pueden captar 2-6 L/m²/día en meses de neblina."
+  }
+}

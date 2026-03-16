@@ -35,7 +35,7 @@
 
 ### Componentes
 
-- Máximo 200 líneas. Si supera, dividir en subcomponentes y/o hooks.
+- Máximo 400 líneas. Si supera, dividir en subcomponentes y/o hooks.
 - Hooks > HOC. HOC solo para librerías legacy o integraciones raras.
 - Prohibido usar `fetch`, `query` o `mutate` directamente en componentes UI.
 
@@ -60,6 +60,12 @@
 - **Constantes**: centralizar en `src/lib/constants/`. No hardcodear valores repetidos.
 - **Logger**: usar logger centralizado. Prohibido `console.log/warn/error` directo en código de producción.
 - **Funciones utilitarias**: antes de crear una función, verificar si ya existe en `src/lib/utils/`.
+
+### Migraciones SQL
+
+- Toda columna FK nueva → **siempre** crear index (`CREATE INDEX IF NOT EXISTS`).
+- Usar `IF NOT EXISTS` / `IF EXISTS` en todos los DDL para idempotencia.
+- Si se dropea una columna con RLS policies, dropear la policy primero.
 
 ### Error Handling
 

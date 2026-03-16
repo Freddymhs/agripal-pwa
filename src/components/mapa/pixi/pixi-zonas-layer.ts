@@ -1,9 +1,11 @@
 import { Container, Graphics, Text } from "pixi.js";
-import { PIXELS_POR_METRO, COLORES_ZONA_HEX } from "./pixi-constants";
+import {
+  PIXELS_POR_METRO,
+  COLORES_ZONA_HEX,
+  COLOR_HOVER,
+} from "./pixi-constants";
 import type { Zona } from "@/types";
 import { TIPO_ZONA } from "@/lib/constants/entities";
-
-const COLOR_ZONA_HOVER = 0xfbbf24;
 
 function buildEstanqueLabel(zona: Zona): string {
   if (zona.tipo === TIPO_ZONA.ESTANQUE && zona.estanque_config) {
@@ -36,6 +38,7 @@ export class PixiZonasLayer {
     zonaCultivoColor: Record<string, number | null> = {},
     zonasInteractivas: boolean = true,
     modoPlano: boolean = false,
+    zonaEstanqueLabels: Map<string, string> = new Map(),
   ): void {
     this.clear();
 
@@ -91,7 +94,7 @@ export class PixiZonasLayer {
         g.on("pointerover", () => {
           this.hoverGraphics?.clear();
           this.hoverGraphics?.rect(x, y, w, h);
-          this.hoverGraphics?.stroke({ color: COLOR_ZONA_HOVER, width: 3 });
+          this.hoverGraphics?.stroke({ color: COLOR_HOVER, width: 3 });
         });
         g.on("pointerout", () => {
           this.hoverGraphics?.clear();
@@ -157,6 +160,27 @@ export class PixiZonasLayer {
           this.container.addChild(dimsText);
           this.zonaLabels.set(`${zona.id}_dims`, dimsText);
         }
+      }
+
+      // Label de estanque asignado (esquina superior derecha)
+      const estanqueLabel = zonaEstanqueLabels.get(zona.id);
+      if (estanqueLabel && (showLabel || showMiniLabel)) {
+        const zoneHpx = zona.alto * PIXELS_POR_METRO;
+        const pad = Math.max(2, zoneHpx * 0.06);
+        const estLabelFont = Math.max(8, 11 / scale);
+        const estText = new Text({
+          text: estanqueLabel,
+          style: {
+            fontSize: estLabelFont,
+            fill: 0x0891b2,
+            fontFamily: "sans-serif",
+            fontWeight: "bold",
+          },
+        });
+        estText.position.set(x + w - pad, y + pad);
+        estText.anchor.set(1, 0);
+        this.container.addChild(estText);
+        this.zonaLabels.set(`${zona.id}_est`, estText);
       }
     }
 

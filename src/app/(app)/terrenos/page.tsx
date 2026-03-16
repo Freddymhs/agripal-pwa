@@ -2,13 +2,13 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { useProyectos } from "@/hooks/use-proyectos";
 import { useTerrenos } from "@/hooks/use-terrenos";
 import { zonasDAL, plantasDAL } from "@/lib/dal";
 import { CrearProyectoModal } from "@/components/terreno/crear-proyecto-modal";
 import { CrearTerrenoModal } from "@/components/terreno/crear-terreno-modal";
 import { ConfirmarEliminacionModal } from "@/components/terreno/confirmar-eliminacion-modal";
+import { PageLayout } from "@/components/layout";
 import { SeccionProyectos } from "@/components/terreno/seccion-proyectos";
 import { SeccionTerrenos } from "@/components/terreno/seccion-terrenos";
 import { STORAGE_KEYS } from "@/lib/constants/storage";
@@ -182,30 +182,16 @@ export default function TerrenosPage() {
 
   if (loadingProyectos) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-gray-500">Cargando proyectos...</div>
-      </div>
+      <PageLayout title="Gestión de Terrenos">
+        <div className="flex items-center justify-center py-20">
+          <div className="text-gray-500">Cargando proyectos...</div>
+        </div>
+      </PageLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b border-gray-200 px-4 py-3">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Link
-              href={ROUTES.HOME}
-              className="text-gray-500 hover:text-gray-700"
-            >
-              Volver al Mapa
-            </Link>
-            <h1 className="text-xl font-bold text-gray-900">
-              Gestion de Terrenos
-            </h1>
-          </div>
-        </div>
-      </header>
-
+    <PageLayout title="Gestión de Terrenos">
       <main className="max-w-6xl mx-auto p-4 space-y-6">
         <SeccionProyectos
           proyectos={proyectos}
@@ -260,6 +246,6 @@ export default function TerrenosPage() {
           onCancel={() => setEliminando(null)}
         />
       )}
-    </div>
+    </PageLayout>
   );
 }

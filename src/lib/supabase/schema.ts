@@ -1,6 +1,6 @@
 /** Columnas explícitas por tabla — todo lo demás va a `datos` JSONB */
 export const COLUMNAS_EXPLICITAS: Record<string, string[]> = {
-  proyectos: ["id", "usuario_id", "nombre", "descripcion"],
+  proyectos: ["id", "usuario_id", "nombre", "descripcion", "clima_base_id"],
   terrenos: ["id", "proyecto_id", "nombre"],
   zonas: ["id", "terreno_id", "nombre", "tipo"],
   plantas: ["id", "zona_id", "tipo_cultivo_id", "estado"],
@@ -10,10 +10,9 @@ export const COLUMNAS_EXPLICITAS: Record<string, string[]> = {
   catalogo_cultivos: ["id", "proyecto_id", "nombre", "tier"],
   insumos_usuario: ["id", "terreno_id", "nombre", "tipo"],
   // Tablas base globales / por proyecto
-  insumos_catalogo: ["id", "proyecto_id", "nombre", "tipo"],
+  insumos_catalogo: ["id", "terreno_id", "nombre", "tipo"],
   enmiendas_proyecto: ["id", "proyecto_id", "nombre", "tipo"],
   tecnicas_proyecto: ["id", "proyecto_id", "nombre", "categoria"],
-  clima_proyecto: ["id", "proyecto_id", "region"],
   fuentes_agua_proyecto: ["id", "proyecto_id", "nombre", "tipo"],
   precios_base: ["id", "nombre"],
   variedades_base: ["id", "cultivo_id", "nombre"],

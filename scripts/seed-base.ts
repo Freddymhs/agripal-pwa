@@ -114,20 +114,37 @@ async function seedTecnicas(sb: SupabaseClient): Promise<void> {
 }
 
 async function seedClima(sb: SupabaseClient): Promise<void> {
-  const clima = readJson<RawRecord>("data/seed/clima.json");
-  const eto = readJson<RawRecord>("data/seed/evapotranspiracion.json");
-
-  const payload = [
+  const regiones: { id: string; climaFile: string; etoFile: string; label: string }[] = [
     {
       id: "arica-pampa-interior",
-      region: "Arica y Parinacota - pampa_interior",
-      datos: { ...clima, evapotranspiracion_detalle: eto },
+      climaFile: "data/seed/clima.json",
+      etoFile: "data/seed/evapotranspiracion.json",
+      label: "Arica pampa interior",
+    },
+    {
+      id: "iquique-costa",
+      climaFile: "data/seed/clima-iquique.json",
+      etoFile: "data/seed/evapotranspiracion-iquique.json",
+      label: "Iquique costa",
+    },
+    {
+      id: "antofagasta-litoral",
+      climaFile: "data/seed/clima-antofagasta.json",
+      etoFile: "data/seed/evapotranspiracion-antofagasta.json",
+      label: "Antofagasta litoral",
     },
   ];
 
+  const payload = regiones.map(({ id, climaFile, etoFile }) => {
+    const clima = readJson<RawRecord>(climaFile);
+    const eto = readJson<RawRecord>(etoFile);
+    const region = `${clima.region as string} - ${clima.zona as string}`;
+    return { id, region, datos: { ...clima, evapotranspiracion_detalle: eto } };
+  });
+
   const { error } = await sb.from("clima_base").upsert(payload, { onConflict: "id" });
   if (error) throw new Error(`clima_base: ${error.message}`);
-  console.log(`  ✓ 1 registro de clima (arica.json + evapotranspiracion-arica.json)`);
+  console.log(`  ✓ ${payload.length} registros de clima (${regiones.map((r) => r.label).join(", ")})`);
 }
 
 async function seedFuentesAgua(sb: SupabaseClient): Promise<void> {
@@ -154,6 +171,31 @@ async function seedPrecios(sb: SupabaseClient): Promise<void> {
   const { error } = await sb.from("precios_base").upsert(payload, { onConflict: "id" });
   if (error) throw new Error(`precios_base: ${error.message}`);
   console.log(`  ✓ ${payload.length} precios de mercado`);
+}
+
+async function seedPlanes(sb: SupabaseClient): Promise<void> {
+  // Verificar si ya existe
+  const { data: existente } = await sb
+    .from("planes")
+    .select("id")
+    .eq("nombre", "Plan Mensual")
+    .maybeSingle();
+
+  if (existente) {
+    console.log(`  ✓ Plan Mensual ya existe (skip)`);
+    return;
+  }
+
+  const { error } = await sb.from("planes").insert({
+    nombre: "Plan Mensual",
+    precio: 9990,
+    moneda: "CLP",
+    intervalo: "monthly",
+    descripcion: "Acceso completo a AgriPlan",
+    activo: true,
+  });
+  if (error) throw new Error(`planes: ${error.message}`);
+  console.log(`  ✓ Plan Mensual ($9.990 CLP)`);
 }
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
@@ -185,6 +227,9 @@ async function seedPrecios(sb: SupabaseClient): Promise<void> {
 
     console.log("\n[8] Precios de mercado");
     await seedPrecios(supabase);
+
+    console.log("\n[9] Plan de suscripcion");
+    await seedPlanes(supabase);
 
     console.log("\n✅ Seed base completado. Nuevos usuarios recibiran estos datos al crear su primer proyecto.\n");
   } catch (error) {

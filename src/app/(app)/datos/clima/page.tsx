@@ -1,25 +1,39 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { PageLayout } from "@/components/layout";
-import { PanelClima } from "@/components/clima";
-import { useProjectContext } from "@/contexts/project-context";
 import {
-  getEtoMesActual,
-  hayCamanchaca,
-  getFactorClimatico,
-  getTemporadaActual,
-  type DatosETo,
-} from "@/lib/data/clima";
+  PanelClima,
+  ClimaRegionSelector,
+  ClimaImpactoRiego,
+} from "@/components/clima";
+import { useProjectContext } from "@/contexts/project-context";
+import { getTemporadaActual, type DatosETo } from "@/lib/data/clima";
 import { calcularConsumoTerreno } from "@/lib/utils/agua";
 import { FACTORES_TEMPORADA } from "@/lib/constants/entities";
+import { ejecutarMutacion } from "@/lib/helpers/dal-mutation";
+import { baseDataDAL } from "@/lib/dal";
 
 export default function ClimaPage() {
-  const { zonas, plantas, catalogoCultivos, datosBaseHook } =
+  const { zonas, plantas, catalogoCultivos, datosBaseHook, proyectoActual } =
     useProjectContext();
+  const [cambiandoClima, setCambiandoClima] = useState(false);
+  const [climaActivoId, setClimaActivoId] = useState<string | undefined>(
+    proyectoActual?.clima_base_id ?? undefined,
+  );
 
-  const etoData = datosBaseHook.datosBase.clima?.[0]?.datos
-    ?.evapotranspiracion_detalle as DatosETo | undefined;
+  // Sincronizar si el proyecto cambia
+  useEffect(() => {
+    setClimaActivoId(proyectoActual?.clima_base_id ?? undefined);
+  }, [proyectoActual?.clima_base_id]);
+
+  const climas = datosBaseHook.datosBase.clima ?? [];
+  const climaActivo =
+    climas.find((c) => c.id === climaActivoId) ?? climas[0] ?? null;
+
+  const etoData = climaActivo?.datos?.evapotranspiracion_detalle as
+    | DatosETo
+    | undefined;
 
   const temporada = getTemporadaActual();
   const factorTemporada = FACTORES_TEMPORADA[temporada];
@@ -29,146 +43,48 @@ export default function ClimaPage() {
     return calcularConsumoTerreno(zonas, plantas, catalogoCultivos, temporada);
   }, [zonas, plantas, catalogoCultivos, temporada]);
 
-  if (!etoData) {
-    return (
-      <PageLayout headerColor="green">
-        <main className="max-w-2xl mx-auto p-4 space-y-4">
-          <div className="bg-yellow-50 text-yellow-800 p-4 rounded-lg">
-            No hay datos de evapotranspiración configurados para esta región.
-          </div>
-          <PanelClima />
-        </main>
-      </PageLayout>
-    );
-  }
-
-  const etoActual = getEtoMesActual(etoData);
-  const camanchacaActiva = hayCamanchaca(etoData);
-  const factorClimatico = getFactorClimatico(etoData);
-  const consumoAjustado = consumoBase * factorClimatico;
-
-  const mesActual = new Date().getMonth() + 1;
-  const etoMensual = Object.entries(etoData.mensual).map(([mes, data]) => ({
-    mes: Number(mes),
-    ...data,
-    actual: Number(mes) === mesActual,
-  }));
+  const handleCambiarClima = async (climaId: string) => {
+    if (!proyectoActual?.id || climaId === climaActivoId) return;
+    setCambiandoClima(true);
+    setClimaActivoId(climaId); // optimista
+    try {
+      await ejecutarMutacion(
+        () => baseDataDAL.setClimaActivo(proyectoActual.id, climaId),
+        "cambiar clima activo",
+      );
+    } catch {
+      // Revertir si falla
+      setClimaActivoId(proyectoActual.clima_base_id ?? climas[0]?.id);
+    } finally {
+      setCambiandoClima(false);
+    }
+  };
 
   return (
     <PageLayout headerColor="green">
       <main className="max-w-2xl mx-auto p-4 space-y-4">
-        {consumoBase > 0 && (
-          <div className="bg-white rounded-lg border shadow-sm p-4 space-y-3">
-            <h3 className="font-bold text-gray-900">
-              Impacto del clima en riego
-            </h3>
+        {climas.length > 1 && (
+          <ClimaRegionSelector
+            climas={climas}
+            climaActivoId={climaActivoId}
+            cambiandoClima={cambiandoClima}
+            onCambiarClima={handleCambiarClima}
+          />
+        )}
 
-            <div className="grid grid-cols-2 gap-3">
-              <div className="bg-blue-50 p-3 rounded">
-                <div className="text-xs text-blue-600">ETo actual</div>
-                <div className="text-lg font-bold text-blue-900">
-                  {etoActual} mm/día
-                </div>
-                <div className="text-xs text-blue-500">
-                  Ref: {etoData.eto_referencia_mm_dia} mm/día
-                </div>
-              </div>
-              <div
-                className={`p-3 rounded ${factorClimatico > 1 ? "bg-red-50" : "bg-green-50"}`}
-              >
-                <div
-                  className={`text-xs ${factorClimatico > 1 ? "text-red-600" : "text-green-600"}`}
-                >
-                  Factor climático
-                </div>
-                <div
-                  className={`text-lg font-bold ${factorClimatico > 1 ? "text-red-900" : "text-green-900"}`}
-                >
-                  x{factorClimatico}
-                </div>
-                <div
-                  className={`text-xs ${factorClimatico > 1 ? "text-red-500" : "text-green-500"}`}
-                >
-                  {factorClimatico > 1
-                    ? "Más agua necesaria"
-                    : "Menos agua necesaria"}
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-gray-50 p-3 rounded space-y-1">
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">
-                  Consumo base (temporal x{factorTemporada})
-                </span>
-                <span className="font-medium text-gray-900">
-                  {consumoBase.toFixed(2)} m³/sem
-                </span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">
-                  Consumo ajustado por ETo (x{factorClimatico})
-                </span>
-                <span className="font-bold text-gray-900">
-                  {consumoAjustado.toFixed(2)} m³/sem
-                </span>
-              </div>
-              <div className="text-xs text-gray-500">
-                Diferencia: {consumoAjustado > consumoBase ? "+" : ""}
-                {(consumoAjustado - consumoBase).toFixed(2)} m³/sem
-              </div>
-            </div>
-
-            {camanchacaActiva && (
-              <div className="bg-cyan-50 border border-cyan-200 p-3 rounded">
-                <div className="font-medium text-cyan-800 text-sm">
-                  Camanchaca activa
-                </div>
-                <div className="text-xs text-cyan-700 mt-1">
-                  La neblina costera reduce evaporación ~
-                  {etoData.camanchaca.reduccion_eto_pct}%.{" "}
-                  {etoData.camanchaca.info}
-                </div>
-              </div>
-            )}
+        {!etoData && (
+          <div className="bg-yellow-50 text-yellow-800 p-4 rounded-lg">
+            No hay datos de evapotranspiración configurados para esta región.
           </div>
         )}
 
-        <div className="bg-white rounded-lg border shadow-sm p-4 space-y-3">
-          <h3 className="font-bold text-gray-900">ETo mensual</h3>
-          <div className="space-y-1">
-            {etoMensual.map(({ mes, label, eto_mm_dia, actual }) => {
-              const maxEto = 6.5;
-              const pct = (eto_mm_dia / maxEto) * 100;
-              const esCamanchaca =
-                etoData.camanchaca.meses_presencia.includes(mes);
-              return (
-                <div
-                  key={mes}
-                  className={`flex items-center gap-2 text-xs ${actual ? "font-bold" : ""}`}
-                >
-                  <span className="w-12 text-gray-600 text-right">
-                    {label.slice(0, 3)}
-                  </span>
-                  <div className="flex-1 h-4 bg-gray-100 rounded overflow-hidden">
-                    <div
-                      className={`h-full rounded ${actual ? "bg-blue-500" : "bg-blue-300"}`}
-                      style={{ width: `${pct}%` }}
-                    />
-                  </div>
-                  <span className="w-16 text-gray-700">{eto_mm_dia} mm/d</span>
-                  {esCamanchaca && (
-                    <span className="text-cyan-600 text-xs">C</span>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-          <div className="text-xs text-gray-500">
-            C = Mes con camanchaca (neblina). ETo más alto = más evaporación =
-            más riego necesario.
-          </div>
-        </div>
+        {etoData && (
+          <ClimaImpactoRiego
+            etoData={etoData}
+            consumoBase={consumoBase}
+            factorTemporada={factorTemporada}
+          />
+        )}
 
         <PanelClima />
       </main>

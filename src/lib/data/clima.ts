@@ -4,6 +4,8 @@ import { TEMPORADA } from "@/lib/constants/entities";
 export interface DatosClimaticos {
   region: string;
   zona: string;
+  elevacion_m?: number;
+  coordenadas?: { lat: number; lon: number };
 
   lluvia: {
     anual_mm: number;

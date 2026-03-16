@@ -2,31 +2,26 @@
 
 import { useState, useEffect } from "react";
 import type { CalidadAguaTerreno, FuenteAgua } from "@/types";
-import { UMBRALES_AGUA } from "@/lib/data/umbrales-agua";
-import type { NivelIndicador } from "@/components/suelo/suelo-form-utils";
-import { coloresIndicador } from "@/components/suelo/suelo-form-utils";
+import { CrearFuenteForm } from "./crear-fuente-form";
+import { DetalleFuente } from "./detalle-fuente";
 
 interface FormularioCalidadAguaProps {
   calidad?: CalidadAguaTerreno;
   onChange: (calidad: CalidadAguaTerreno) => void;
   fuentesAgua?: FuenteAgua[];
-}
-
-const FACTOR_ADVERTENCIA = 0.75;
-
-function getIndicador(valor: number | undefined, max: number): NivelIndicador {
-  if (valor === undefined) return "neutral";
-  if (valor > max) return "critico";
-  if (valor > max * FACTOR_ADVERTENCIA) return "advertencia";
-  return "ok";
+  onCrearFuente?: (fuente: Omit<FuenteAgua, "id">) => Promise<void>;
+  onEliminarFuente?: (fuenteId: string) => Promise<void>;
 }
 
 export function FormularioCalidadAgua({
   calidad,
   onChange,
   fuentesAgua = [],
+  onCrearFuente,
+  onEliminarFuente,
 }: FormularioCalidadAguaProps) {
   const [data, setData] = useState<CalidadAguaTerreno>(calidad || {});
+  const [mostrarFormNueva, setMostrarFormNueva] = useState(false);
 
   useEffect(() => {
     onChange(data);
@@ -39,13 +34,39 @@ export function FormularioCalidadAgua({
       setData({
         ...data,
         fuente: fuenteId,
-        salinidad_dS_m: fuente.salinidad_dS_m ?? data.salinidad_dS_m,
-        boro_ppm: fuente.boro_ppm ?? data.boro_ppm,
-        arsenico_mg_l: fuente.arsenico_mg_l ?? data.arsenico_mg_l,
+        salinidad_dS_m: fuente.salinidad_dS_m,
+        boro_ppm: fuente.boro_ppm,
+        arsenico_mg_l: fuente.arsenico_mg_l,
       });
     } else {
-      setData({ ...data, fuente: fuenteId });
+      setData({
+        ...data,
+        fuente: fuenteId || undefined,
+        salinidad_dS_m: undefined,
+        boro_ppm: undefined,
+        arsenico_mg_l: undefined,
+      });
     }
+  };
+
+  const handleCrearFuente = async (fuente: Omit<FuenteAgua, "id">) => {
+    if (!onCrearFuente) return;
+    await onCrearFuente(fuente);
+    setMostrarFormNueva(false);
+  };
+
+  const handleEliminarFuente = async (fuenteId: string) => {
+    if (!onEliminarFuente) return;
+    if (data.fuente === fuenteId) {
+      setData({
+        ...data,
+        fuente: undefined,
+        salinidad_dS_m: undefined,
+        boro_ppm: undefined,
+        arsenico_mg_l: undefined,
+      });
+    }
+    await onEliminarFuente(fuenteId);
   };
 
   const fuenteSeleccionada = fuentesAgua.find((f) => f.id === data.fuente);
@@ -102,122 +123,73 @@ export function FormularioCalidadAgua({
       )}
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Fuente de agua
-        </label>
-        <select
-          value={data.fuente || ""}
-          onChange={(e) => handleFuenteChange(e.target.value)}
-          className="w-full px-3 py-2 border rounded text-gray-900"
-        >
-          <option value="">Seleccionar...</option>
-          {fuentesAgua.map((f) => (
-            <option key={f.id} value={f.id}>
-              {f.nombre}
-            </option>
-          ))}
-        </select>
-        {fuenteSeleccionada?.notas && (
-          <p
-            className={`text-xs mt-1 font-medium ${
-              (fuenteSeleccionada.boro_ppm ?? 0) > UMBRALES_AGUA.boro.max
-                ? "text-red-600"
-                : "text-green-600"
-            }`}
-          >
-            {fuenteSeleccionada.notas}
-          </p>
+        <div className="flex items-center justify-between mb-1">
+          <label className="block text-sm font-medium text-gray-700">
+            Fuente de agua
+          </label>
+          {onCrearFuente && !mostrarFormNueva && (
+            <button
+              type="button"
+              onClick={() => setMostrarFormNueva(true)}
+              className="text-xs text-green-600 hover:text-green-700 font-medium"
+            >
+              + Agregar fuente
+            </button>
+          )}
+        </div>
+
+        {mostrarFormNueva && onCrearFuente && (
+          <CrearFuenteForm
+            onCrear={handleCrearFuente}
+            onCancelar={() => setMostrarFormNueva(false)}
+          />
         )}
-      </div>
 
-      <div className="grid grid-cols-3 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Salinidad (dS/m)
-          </label>
-          <input
-            type="number"
-            step="0.1"
-            value={data.salinidad_dS_m ?? ""}
-            onChange={(e) =>
-              setData({
-                ...data,
-                salinidad_dS_m:
-                  e.target.value === ""
-                    ? undefined
-                    : parseFloat(e.target.value),
-              })
-            }
-            placeholder={`< ${UMBRALES_AGUA.salinidad.max}`}
-            className={`w-full px-3 py-2 border rounded text-gray-900 ${
-              coloresIndicador[
-                getIndicador(data.salinidad_dS_m, UMBRALES_AGUA.salinidad.max)
-              ]
-            }`}
-          />
-          <p className="text-xs text-gray-500 mt-1">
-            Máx: {UMBRALES_AGUA.salinidad.max} dS/m
-          </p>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Boro (ppm)
-          </label>
-          <input
-            type="number"
-            step="0.1"
-            value={data.boro_ppm ?? ""}
-            onChange={(e) =>
-              setData({
-                ...data,
-                boro_ppm:
-                  e.target.value === ""
-                    ? undefined
-                    : parseFloat(e.target.value),
-              })
-            }
-            placeholder={`< ${UMBRALES_AGUA.boro.max}`}
-            className={`w-full px-3 py-2 border rounded text-gray-900 ${
-              coloresIndicador[
-                getIndicador(data.boro_ppm, UMBRALES_AGUA.boro.max)
-              ]
-            }`}
-          />
-          <p className="text-xs text-gray-500 mt-1">
-            Máx: {UMBRALES_AGUA.boro.max} ppm
-          </p>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Arsénico (mg/L)
-          </label>
-          <input
-            type="number"
-            step="0.01"
-            value={data.arsenico_mg_l ?? ""}
-            onChange={(e) =>
-              setData({
-                ...data,
-                arsenico_mg_l:
-                  e.target.value === ""
-                    ? undefined
-                    : parseFloat(e.target.value),
-              })
-            }
-            placeholder={`< ${UMBRALES_AGUA.arsenico.max}`}
-            className={`w-full px-3 py-2 border rounded text-gray-900 ${
-              coloresIndicador[
-                getIndicador(data.arsenico_mg_l, UMBRALES_AGUA.arsenico.max)
-              ]
-            }`}
-          />
-          <p className="text-xs text-gray-500 mt-1">
-            Máx: {UMBRALES_AGUA.arsenico.max} mg/L
-          </p>
+        <div className="flex gap-2">
+          <select
+            value={data.fuente || ""}
+            onChange={(e) => handleFuenteChange(e.target.value)}
+            className="flex-1 px-3 py-2 border rounded text-gray-900"
+          >
+            <option value="">Seleccionar...</option>
+            {fuentesAgua.map((f) => (
+              <option key={f.id} value={f.id}>
+                {f.nombre}
+              </option>
+            ))}
+          </select>
+          {onEliminarFuente && data.fuente && (
+            <button
+              type="button"
+              onClick={() => handleEliminarFuente(data.fuente!)}
+              className="px-3 py-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded border border-red-200"
+              title="Eliminar esta fuente"
+            >
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                />
+              </svg>
+            </button>
+          )}
         </div>
       </div>
+
+      {fuenteSeleccionada && <DetalleFuente fuente={fuenteSeleccionada} />}
+
+      {!fuenteSeleccionada && (
+        <p className="text-xs text-gray-400 italic">
+          Selecciona una fuente de agua para ver sus propiedades.
+        </p>
+      )}
 
       <div className="pt-4 border-t">
         <label className="flex items-center gap-2 mb-2">

@@ -1,0 +1,74 @@
+{
+  "region": "Tarapacá",
+  "zona": "costa_iquique",
+  "elevacion_m": 5,
+  "coordenadas": { "lat": -20.213, "lon": -70.149 },
+  "lluvia": {
+    "anual_mm": 1,
+    "max_24h_mm": 5,
+    "meses_lluviosos": [],
+    "meses_secos": [
+      "ene",
+      "feb",
+      "mar",
+      "abr",
+      "may",
+      "jun",
+      "jul",
+      "ago",
+      "sep",
+      "oct",
+      "nov",
+      "dic"
+    ]
+  },
+  "temperatura": {
+    "minima_historica_c": 12,
+    "maxima_verano_c": 24,
+    "promedio_anual_c": 18,
+    "horas_frio_aprox": 0,
+    "horas_frio_nota": "0h <10°C/año. Clima costero templado sin heladas. No apto para cultivos con requerimiento de frío."
+  },
+  "heladas": {
+    "anuales": 0,
+    "meses_riesgo": [],
+    "plantas_sensibles": []
+  },
+  "viento": {
+    "max_kmh": 45,
+    "direccion_predominante": "S-SW",
+    "meses_fuerte": ["nov", "dic", "ene"],
+    "nota": "Viento costero moderado. Menor que pampa interior por topografía urbana."
+  },
+  "humedad_radiacion": {
+    "humedad_relativa_pct": 78,
+    "radiacion_mj_m2_dia": 16
+  },
+  "evapotranspiracion": {
+    "et0_mm_dia": 3.5,
+    "nota": "Promedio anual estimado Open-Meteo. Menor que pampa por alta humedad relativa costera."
+  },
+  "estacionalidad": {
+    "verano": {
+      "meses": ["dic", "ene", "feb"],
+      "caracteristica": "Templado costero, nublados matinales",
+      "factor_agua": 1.3
+    },
+    "otoño": {
+      "meses": ["mar", "abr", "may"],
+      "caracteristica": "Templado, camanchaca frecuente",
+      "factor_agua": 1.0
+    },
+    "invierno": {
+      "meses": ["jun", "jul", "ago"],
+      "caracteristica": "Fresco costero, camanchaca intensa",
+      "factor_agua": 0.7
+    },
+    "primavera": {
+      "meses": ["sep", "oct", "nov"],
+      "caracteristica": "Templado, vientos crecientes",
+      "factor_agua": 1.1
+    }
+  },
+  "fuentes": ["Open-Meteo Archive", "DMC Chile", "NASA POWER"]
+}

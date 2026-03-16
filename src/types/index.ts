@@ -21,6 +21,7 @@ export interface Proyecto {
   usuario_id: UUID;
   nombre: string;
   ubicacion_referencia: string;
+  clima_base_id?: UUID;
   created_at: Timestamp;
   updated_at: Timestamp;
   lastModified?: Timestamp;

@@ -217,10 +217,10 @@ export default function AguaPage() {
                   d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
                 />
               </svg>
-              Configurar Recarga
+              Frecuencia de entrega
             </button>
             <p className="text-xs text-gray-500 text-center">
-              Define cada cuánto llega el agua y a qué costo
+              Indica cada cuántos días esperas recibir agua
             </p>
           </div>
         </div>
@@ -240,6 +240,7 @@ export default function AguaPage() {
           <div className="bg-white rounded-lg w-full max-w-md max-h-[90vh] overflow-y-auto">
             <EntradaAguaForm
               estanques={estanques}
+              proveedores={terreno?.agua_avanzada?.proveedores ?? []}
               onRegistrar={async (data) => {
                 await registrarEntrada(data);
                 setShowEntradaForm(false);

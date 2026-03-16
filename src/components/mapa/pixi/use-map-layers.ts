@@ -242,6 +242,24 @@ export function useMapLayers(
     return map;
   }, [zonas, plantas, cultivosColores]);
 
+  const zonaEstanqueLabels = useMemo(() => {
+    const labels = new Map<string, string>();
+    const estanques = zonas.filter((z) => z.tipo === TIPO_ZONA.ESTANQUE);
+    if (estanques.length < 2) return labels;
+
+    const shortNames = new Map<string, string>();
+    estanques.forEach((est, i) => {
+      shortNames.set(est.id, `e${i + 1}`);
+    });
+
+    for (const zona of zonas) {
+      if (zona.tipo !== TIPO_ZONA.CULTIVO || !zona.estanque_id) continue;
+      const short = shortNames.get(zona.estanque_id);
+      if (short) labels.set(zona.id, short);
+    }
+    return labels;
+  }, [zonas]);
+
   useEffect(() => {
     if (!zonasLayerRef.current) return;
     const zonasInteractivas = modo === MODO.ZONAS || modo === MODO.PLANTAR;
@@ -254,6 +272,7 @@ export function useMapLayers(
       zonaCultivoColor,
       zonasInteractivas,
       modoPlano,
+      zonaEstanqueLabels,
     );
   }, [
     zonas,
@@ -263,6 +282,7 @@ export function useMapLayers(
     modo,
     zonasLayerRef,
     onZonaClick,
+    zonaEstanqueLabels,
   ]);
 
   useEffect(() => {

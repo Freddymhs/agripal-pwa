@@ -1,0 +1,25 @@
+{
+  "nota": "ETo mensual promedio para Iquique costa (~5m, 20°13'S 70°09'W). Fuente: Open-Meteo Archive, estimación basada en datos costeros.",
+  "eto_referencia_mm_dia": 3.5,
+  "mensual": {
+    "1": { "eto_mm_dia": 4.2, "label": "Enero" },
+    "2": { "eto_mm_dia": 4.0, "label": "Febrero" },
+    "3": { "eto_mm_dia": 3.7, "label": "Marzo" },
+    "4": { "eto_mm_dia": 3.2, "label": "Abril" },
+    "5": { "eto_mm_dia": 2.7, "label": "Mayo" },
+    "6": { "eto_mm_dia": 2.3, "label": "Junio" },
+    "7": { "eto_mm_dia": 2.5, "label": "Julio" },
+    "8": { "eto_mm_dia": 2.8, "label": "Agosto" },
+    "9": { "eto_mm_dia": 3.3, "label": "Septiembre" },
+    "10": { "eto_mm_dia": 3.8, "label": "Octubre" },
+    "11": { "eto_mm_dia": 4.1, "label": "Noviembre" },
+    "12": { "eto_mm_dia": 4.4, "label": "Diciembre" }
+  },
+  "camanchaca": {
+    "nota": "Camanchaca muy frecuente en Iquique. Reduce evaporación significativamente en invierno.",
+    "meses_presencia": [4, 5, 6, 7, 8, 9, 10],
+    "aporte_estimado_mm_dia": 0.7,
+    "reduccion_eto_pct": 12,
+    "info": "Costa con neblina persistente. Atrapanieblas pueden captar 5-12 L/m²/día."
+  }
+}

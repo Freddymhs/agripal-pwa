@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { initMercadoPago, Wallet } from "@mercadopago/sdk-react";
 import { useSubscription } from "@/hooks/use-subscription";
+import { useSupabaseAuth } from "@/hooks/use-supabase-auth";
 import { logger } from "@/lib/logger";
 import { BILLING } from "@/lib/constants/billing";
 import { ROUTES } from "@/lib/constants/routes";
@@ -45,6 +46,7 @@ export default function SubscribePage() {
     daysRemaining,
     loading: subLoading,
   } = useSubscription();
+  const { signOut } = useSupabaseAuth();
   const [preferenceId, setPreferenceId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -190,6 +192,16 @@ export default function SubscribePage() {
         <p className="text-xs text-gray-500 text-center mt-4">
           Pago seguro con MercadoPago. Cancela cuando quieras.
         </p>
+
+        <div className="text-center mt-6 pt-4 border-t border-gray-100">
+          <button
+            type="button"
+            onClick={signOut}
+            className="text-xs text-gray-400 hover:text-gray-600"
+          >
+            Cerrar sesión
+          </button>
+        </div>
       </div>
     </div>
   );
