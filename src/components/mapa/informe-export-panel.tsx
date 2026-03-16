@@ -28,11 +28,13 @@ export function InformeExportPanel({
   onExportarPNG,
   onExtraerMapa,
 }: InformeExportPanelProps) {
-  const { catalogoCultivos, alertasHook, datosBaseHook } = useProjectContext();
+  const { catalogoCultivos, alertasHook, datosBaseHook, proyectoActual } =
+    useProjectContext();
   const [estado, setEstado] = useState<ExportState>("idle");
 
-  const climaObj = datosBaseHook?.datosBase?.clima?.[0];
-  const climaDatos = climaObj?.datos as DatosClimaticos | undefined;
+  const climaDatos = datosBaseHook?.datosBase?.clima?.[0] as
+    | DatosClimaticos
+    | undefined;
 
   const handleExportarPDF = useCallback(async () => {
     if (!climaDatos) {
@@ -53,6 +55,7 @@ export function InformeExportPanel({
         alertas: alertasHook.alertas,
         mapaImageDataUrl,
         clima: climaDatos,
+        suelo: proyectoActual?.suelo,
       });
       setEstado("done");
       setTimeout(() => setEstado("idle"), 2000);
@@ -62,6 +65,7 @@ export function InformeExportPanel({
     }
   }, [
     terreno,
+    proyectoActual,
     zonas,
     plantas,
     catalogoCultivos,
@@ -86,6 +90,7 @@ export function InformeExportPanel({
         catalogoCultivos,
         alertas: alertasHook.alertas,
         clima: climaDatos,
+        suelo: proyectoActual?.suelo,
       });
       await navigator.clipboard.writeText(json);
       setEstado("copied");
@@ -95,6 +100,7 @@ export function InformeExportPanel({
     }
   }, [
     terreno,
+    proyectoActual,
     zonas,
     plantas,
     catalogoCultivos,

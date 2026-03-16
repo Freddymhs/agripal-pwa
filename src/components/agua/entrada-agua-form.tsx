@@ -5,8 +5,6 @@ import Link from "next/link";
 import type { Zona, UUID, ProveedorAgua } from "@/types";
 import { ROUTES } from "@/lib/constants/routes";
 
-const PROVEEDOR_OTRO = "__otro__";
-
 interface EntradaAguaFormProps {
   estanques: Zona[];
   estanqueIdPrecargado?: UUID;
@@ -15,7 +13,7 @@ interface EntradaAguaFormProps {
     estanque_id: UUID;
     cantidad_m3: number;
     costo_clp?: number;
-    proveedor?: string;
+    proveedor: string;
     notas?: string;
   }) => Promise<void>;
   onCancelar: () => void;
@@ -36,15 +34,8 @@ export function EntradaAguaForm({
   const [proveedorSeleccionado, setProveedorSeleccionado] = useState(
     proveedores.length > 0 ? proveedores[0].nombre : "",
   );
-  const [proveedorTextoLibre, setProveedorTextoLibre] = useState("");
   const [notas, setNotas] = useState("");
   const [loading, setLoading] = useState(false);
-
-  const usaTextoLibre =
-    proveedores.length === 0 || proveedorSeleccionado === PROVEEDOR_OTRO;
-  const proveedorFinal = usaTextoLibre
-    ? proveedorTextoLibre
-    : proveedorSeleccionado;
 
   const estanqueSeleccionado = estanques.find((e) => e.id === estanqueId);
   const config = estanqueSeleccionado?.estanque_config;
@@ -55,20 +46,17 @@ export function EntradaAguaForm({
   const cantidadFinal = Math.min(cantidad, espacioDisponible);
   const excede = cantidad > espacioDisponible;
 
-  // Auto-fill costo from selected proveedor
   const handleProveedorChange = (nombre: string) => {
     setProveedorSeleccionado(nombre);
-    if (nombre !== PROVEEDOR_OTRO) {
-      const prov = proveedores.find((p) => p.nombre === nombre);
-      if (prov?.precio_m3_clp && costo === "") {
-        setCosto(Math.round(prov.precio_m3_clp * cantidad));
-      }
+    const prov = proveedores.find((p) => p.nombre === nombre);
+    if (prov?.precio_m3_clp && costo === "") {
+      setCosto(Math.round(prov.precio_m3_clp * cantidad));
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!estanqueId || cantidadFinal <= 0) return;
+    if (!estanqueId || cantidadFinal <= 0 || !proveedorSeleccionado) return;
 
     setLoading(true);
     try {
@@ -76,7 +64,7 @@ export function EntradaAguaForm({
         estanque_id: estanqueId,
         cantidad_m3: cantidadFinal,
         costo_clp: costo || undefined,
-        proveedor: proveedorFinal || undefined,
+        proveedor: proveedorSeleccionado,
         notas,
       });
     } finally {
@@ -190,54 +178,37 @@ export function EntradaAguaForm({
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          Proveedor
+          Proveedor *
         </label>
         {proveedores.length > 0 ? (
-          <>
-            <select
-              value={proveedorSeleccionado}
-              onChange={(e) => handleProveedorChange(e.target.value)}
-              className="w-full px-3 py-2 border rounded text-gray-900"
-            >
-              {proveedores.map((prov) => (
-                <option key={prov.id} value={prov.nombre}>
-                  {prov.nombre}
-                  {prov.precio_m3_clp
-                    ? ` ($${prov.precio_m3_clp.toLocaleString()}/m³)`
-                    : ""}
-                </option>
-              ))}
-              <option value={PROVEEDOR_OTRO}>Otro (escribir)</option>
-            </select>
-            {proveedorSeleccionado === PROVEEDOR_OTRO && (
-              <input
-                type="text"
-                value={proveedorTextoLibre}
-                onChange={(e) => setProveedorTextoLibre(e.target.value)}
-                className="w-full px-3 py-2 border rounded text-gray-900 mt-2"
-                placeholder="Nombre del proveedor"
-              />
-            )}
-          </>
+          <select
+            value={proveedorSeleccionado}
+            onChange={(e) => handleProveedorChange(e.target.value)}
+            className="w-full px-3 py-2 border rounded text-gray-900"
+            required
+          >
+            {proveedores.map((prov) => (
+              <option key={prov.id} value={prov.nombre}>
+                {prov.nombre}
+                {prov.precio_m3_clp
+                  ? ` ($${prov.precio_m3_clp.toLocaleString()}/m³)`
+                  : ""}
+              </option>
+            ))}
+          </select>
         ) : (
-          <>
-            <input
-              type="text"
-              value={proveedorTextoLibre}
-              onChange={(e) => setProveedorTextoLibre(e.target.value)}
-              className="w-full px-3 py-2 border rounded text-gray-900"
-              placeholder="Ej: Camión municipal"
-            />
-            <p className="text-xs text-gray-500 mt-1">
+          <div className="bg-yellow-50 border border-yellow-200 p-3 rounded">
+            <p className="text-sm text-yellow-800">
+              No hay proveedores configurados.{" "}
               <Link
                 href={ROUTES.AGUA_CONFIGURACION}
-                className="text-cyan-600 underline"
+                className="text-cyan-600 underline font-medium"
               >
-                Configura proveedores
+                Configura al menos un proveedor
               </Link>{" "}
-              para seleccionarlos directamente.
+              antes de registrar entradas de agua.
             </p>
-          </>
+          </div>
         )}
       </div>
 
@@ -265,7 +236,7 @@ export function EntradaAguaForm({
       <div className="flex gap-2">
         <button
           type="submit"
-          disabled={loading || cantidadFinal <= 0}
+          disabled={loading || cantidadFinal <= 0 || proveedores.length === 0}
           className="flex-1 bg-cyan-600 text-white py-2 rounded hover:bg-cyan-700 disabled:opacity-50"
         >
           {loading ? "Registrando..." : "Registrar Entrada"}

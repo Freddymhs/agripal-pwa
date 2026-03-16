@@ -1,10 +1,7 @@
 import { terrenosDAL, transaccionesDAL } from "@/lib/dal";
 import { getCurrentTimestamp } from "@/lib/utils";
 import { ejecutarMutacion } from "@/lib/helpers/dal-mutation";
-import {
-  calcularConsumoRealTerreno,
-  calcularDescuentoAutomatico,
-} from "@/lib/utils/agua";
+import { calcularDescuentoAutomatico } from "@/lib/utils/agua";
 import { emitZonaUpdated } from "@/lib/events/zona-events";
 import type { Terreno, Zona, Planta, CatalogoCultivo } from "@/types";
 
@@ -31,18 +28,12 @@ export async function aplicarDescuentoAutomaticoAgua(
     return { aplicado: true };
   }
 
-  const consumoReal = calcularConsumoRealTerreno(
-    zonas,
-    plantas,
-    catalogoCultivos,
-  );
   const resultado = calcularDescuentoAutomatico(
     terreno.ultima_simulacion_agua,
     estanques,
     zonas,
     plantas,
     catalogoCultivos,
-    consumoReal,
   );
 
   if (!resultado) {

@@ -12,6 +12,7 @@ import type {
   Zona,
   Planta,
   CatalogoCultivo,
+  SueloTerreno,
   UUID,
 } from "@/types";
 
@@ -30,6 +31,7 @@ export function useAlertas(
   zonas: Zona[],
   plantas: Planta[],
   catalogoCultivos: CatalogoCultivo[],
+  suelo?: SueloTerreno | null,
 ): UseAlertas {
   const [alertas, setAlertas] = useState<Alerta[]>([]);
   const [loading, setLoading] = useState(true);
@@ -43,10 +45,11 @@ export function useAlertas(
       zonas,
       plantas,
       catalogoCultivos,
+      suelo,
     );
     setAlertas(activas);
     setLoading(false);
-  }, [terreno, zonas, plantas, catalogoCultivos]);
+  }, [terreno, zonas, plantas, catalogoCultivos, suelo]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- patrón useCallback+useEffect para inicialización reactiva; refrescarAlertas es estable y captura todas las deps transitivamente

@@ -5,6 +5,11 @@ import type {
 } from "@/types";
 import { FACTOR_EXCESO_GRAVE_SALINIDAD } from "@/lib/constants/umbrales";
 
+// Límites realistas para detección de datos erróneos (FAO / literatura agronómica)
+const SALINIDAD_MAX_REALISTA_DS_M = 30; // Suelos extremadamente salinos: ~16-30 dS/m
+const BORO_MAX_REALISTA_MG_L = 15; // Zonas con boro natural alto: hasta ~10-15 mg/L
+const ARSENICO_MAX_REALISTA_MG_L = 1; // Suelos contaminados: hasta ~0.5-1 mg/L
+
 export interface CompatibilidadSueloCultivo {
   cultivo_id: string;
   cultivo_nombre: string;
@@ -109,17 +114,35 @@ export function validarSueloTerreno(suelo: SueloTerreno): ValidationResult {
     if (suelo.quimico.salinidad_dS_m < 0) {
       return { valida: false, error: "La salinidad no puede ser negativa" };
     }
+    if (suelo.quimico.salinidad_dS_m > SALINIDAD_MAX_REALISTA_DS_M) {
+      return {
+        valida: false,
+        error: `Salinidad ${suelo.quimico.salinidad_dS_m} dS/m parece irreal (máx esperado: ${SALINIDAD_MAX_REALISTA_DS_M} dS/m). Verifica el dato.`,
+      };
+    }
   }
 
   if (suelo.quimico?.boro_mg_l != null) {
     if (suelo.quimico.boro_mg_l < 0) {
       return { valida: false, error: "El boro no puede ser negativo" };
     }
+    if (suelo.quimico.boro_mg_l > BORO_MAX_REALISTA_MG_L) {
+      return {
+        valida: false,
+        error: `Boro ${suelo.quimico.boro_mg_l} mg/L parece irreal (máx esperado: ${BORO_MAX_REALISTA_MG_L} mg/L). Verifica el dato.`,
+      };
+    }
   }
 
   if (suelo.quimico?.arsenico_mg_l != null) {
     if (suelo.quimico.arsenico_mg_l < 0) {
       return { valida: false, error: "El arsénico no puede ser negativo" };
+    }
+    if (suelo.quimico.arsenico_mg_l > ARSENICO_MAX_REALISTA_MG_L) {
+      return {
+        valida: false,
+        error: `Arsénico ${suelo.quimico.arsenico_mg_l} mg/L parece irreal (máx esperado: ${ARSENICO_MAX_REALISTA_MG_L} mg/L). Verifica el dato.`,
+      };
     }
   }
 

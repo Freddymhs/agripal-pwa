@@ -3,7 +3,7 @@
 import { useCallback } from "react";
 import { zonasDAL, transaccionesDAL } from "@/lib/dal";
 import { generateUUID, getCurrentTimestamp } from "@/lib/utils";
-import { ESTADO_ZONA, COLORES_ZONA } from "@/lib/constants/entities";
+import { ESTADO_ZONA, COLORES_ZONA, TIPO_ZONA } from "@/lib/constants/entities";
 import {
   validarNuevaZona,
   validarRedimensionarZona,
@@ -88,11 +88,46 @@ export function useZonas(
         updated_at: getCurrentTimestamp(),
       };
 
+      // Auto-asignar estanque_id cuando hay exactamente 1 estanque
+      if (data.tipo === TIPO_ZONA.CULTIVO) {
+        const estanques = zonas.filter(
+          (z) => z.tipo === TIPO_ZONA.ESTANQUE && z.estanque_config,
+        );
+        if (estanques.length === 1) {
+          nuevaZona.estanque_id = estanques[0].id;
+        }
+      }
+
       await ejecutarMutacion(
         () => zonasDAL.add(nuevaZona),
         "creando zona",
         onRefetch,
       );
+
+      // Al crear el primer estanque, asignar a zonas cultivo huérfanas
+      if (data.tipo === TIPO_ZONA.ESTANQUE) {
+        const estanquesExistentes = zonas.filter(
+          (z) => z.tipo === TIPO_ZONA.ESTANQUE && z.estanque_config,
+        );
+        if (estanquesExistentes.length === 0) {
+          const zonasHuerfanas = zonas.filter(
+            (z) => z.tipo === TIPO_ZONA.CULTIVO && !z.estanque_id,
+          );
+          for (const zona of zonasHuerfanas) {
+            await ejecutarMutacion(
+              () =>
+                zonasDAL.update(zona.id, {
+                  estanque_id: nuevaZona.id,
+                  updated_at: getCurrentTimestamp(),
+                }),
+              "auto-asignando estanque",
+            );
+          }
+          if (zonasHuerfanas.length > 0) {
+            onRefetch();
+          }
+        }
+      }
 
       return { zona: nuevaZona };
     },

@@ -96,6 +96,12 @@ const ADVANCED_ITEMS: DropdownItem[] = [
     description: "Compatibilidad química y stock",
   },
   {
+    href: ROUTES.REPORTES,
+    label: "Reportes",
+    icon: "📋",
+    description: "Descarga informes PDF",
+  },
+  {
     href: ROUTES.CONFIGURACION,
     label: "Configuración",
     icon: "⚙️",

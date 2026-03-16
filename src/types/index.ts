@@ -22,6 +22,8 @@ export interface Proyecto {
   nombre: string;
   ubicacion_referencia: string;
   clima_base_id?: UUID;
+  proveedores_agua?: ProveedorAgua[];
+  suelo?: SueloTerreno;
   created_at: Timestamp;
   updated_at: Timestamp;
   lastModified?: Timestamp;
@@ -482,7 +484,8 @@ export type TipoAlerta =
   | "deficiencia_micronutrientes"
   | "alelopatia_riesgo"
   | "veceria_riesgo"
-  | "incompatibilidad_quimica";
+  | "incompatibilidad_quimica"
+  | "zona_sin_estanque";
 
 export interface NutricionEtapa {
   etapa: string;

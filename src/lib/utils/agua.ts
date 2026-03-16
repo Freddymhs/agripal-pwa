@@ -188,7 +188,6 @@ export function calcularDescuentoAutomatico(
   zonas: Zona[],
   plantas: Planta[],
   catalogoCultivos: CatalogoCultivo[],
-  consumoSemanalOverride?: number,
 ): {
   descuentos: ResultadoDescuento[];
   consumoTotal: number;
@@ -201,42 +200,73 @@ export function calcularDescuentoAutomatico(
   const diasTranscurridos = (Date.now() - timestamp) / MS_POR_DIA;
   if (diasTranscurridos < MIN_DIAS_DESCUENTO) return null;
 
-  const consumoSemanal =
-    consumoSemanalOverride ??
-    calcularConsumoTerreno(zonas, plantas, catalogoCultivos);
-  const consumoDiario = consumoSemanal / DIAS_POR_SEMANA;
-  const consumoAcumulado = consumoDiario * diasTranscurridos;
+  const zonasCultivo = zonas.filter(
+    (z) =>
+      z.tipo === TIPO_ZONA.CULTIVO &&
+      plantas.some(
+        (p) => p.zona_id === z.id && p.estado !== ESTADO_PLANTA.MUERTA,
+      ),
+  );
 
-  if (consumoAcumulado <= 0) return null;
+  if (zonasCultivo.length === 0) return null;
 
   const estanquesConAgua = estanques.filter(
     (e) => e.estanque_config && (e.estanque_config.nivel_actual_m3 ?? 0) > 0,
   );
-  const aguaTotalActual = estanquesConAgua.reduce(
-    (sum, e) => sum + (e.estanque_config?.nivel_actual_m3 ?? 0),
-    0,
-  );
 
-  if (aguaTotalActual <= 0) return null;
+  if (estanquesConAgua.length === 0) return null;
 
-  const descuentos: ResultadoDescuento[] = [];
-  let consumoTotal = 0;
+  // Agrupar zonas por estanque_id (solo las que tienen estanque asignado consumen agua)
+  const zonasAsignadas = new Map<UUID, Zona[]>();
+
+  for (const zona of zonasCultivo) {
+    if (zona.estanque_id) {
+      const grupo = zonasAsignadas.get(zona.estanque_id) ?? [];
+      grupo.push(zona);
+      zonasAsignadas.set(zona.estanque_id, grupo);
+    }
+  }
+
+  const descuentosMap = new Map<UUID, ResultadoDescuento>();
 
   for (const estanque of estanquesConAgua) {
     const nivelAnterior = estanque.estanque_config?.nivel_actual_m3 ?? 0;
-    const proporcion = nivelAnterior / aguaTotalActual;
-    const consumoProporcional = consumoAcumulado * proporcion;
-    const consumido = Math.min(consumoProporcional, nivelAnterior);
-    const nivelNuevo = Math.max(0, nivelAnterior - consumido);
-
-    consumoTotal += consumido;
-    descuentos.push({
+    descuentosMap.set(estanque.id, {
       estanqueId: estanque.id,
       nivelAnterior,
-      nivelNuevo,
-      consumido,
+      nivelNuevo: nivelAnterior,
+      consumido: 0,
     });
   }
+
+  for (const [estanqueId, zonasDelEstanque] of zonasAsignadas) {
+    const desc = descuentosMap.get(estanqueId);
+    if (!desc) continue;
+
+    let consumoSemanal = 0;
+    for (const zona of zonasDelEstanque) {
+      const plantasZona = plantas.filter((p) => p.zona_id === zona.id);
+      const consumoRiego = calcularConsumoRiegoZona(zona);
+      consumoSemanal +=
+        consumoRiego > 0
+          ? consumoRiego
+          : calcularConsumoZona(zona, plantasZona, catalogoCultivos);
+    }
+
+    const consumoAcumulado =
+      (consumoSemanal / DIAS_POR_SEMANA) * diasTranscurridos;
+    const consumido = Math.min(consumoAcumulado, desc.nivelNuevo);
+    desc.nivelNuevo = Math.max(0, desc.nivelNuevo - consumido);
+    desc.consumido += consumido;
+  }
+
+  const descuentos = Array.from(descuentosMap.values()).filter(
+    (d) => d.consumido > 0,
+  );
+
+  if (descuentos.length === 0) return null;
+
+  const consumoTotal = descuentos.reduce((sum, d) => sum + d.consumido, 0);
 
   return { descuentos, consumoTotal, diasTranscurridos };
 }

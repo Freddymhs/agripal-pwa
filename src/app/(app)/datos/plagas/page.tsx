@@ -54,8 +54,9 @@ export default function PlagasPage() {
       (p) => p.zona_id === zonaId && p.estado !== ESTADO_PLANTA.MUERTA,
     );
 
-    const climaObj = datosBaseHook?.datosBase?.clima?.[0];
-    const climaDatos = climaObj?.datos as DatosClimaticos | undefined;
+    const climaDatos = datosBaseHook?.datosBase?.clima?.[0] as
+      | DatosClimaticos
+      | undefined;
 
     if (!zonaId || plantasZonaFiltradas.length === 0 || !climaDatos) return [];
 

@@ -106,7 +106,7 @@ export const GUIA_SECCIONES: GuiaSeccionData[] = [
         titulo: "Diseñar en el mapa",
         valor: "Verás tu finca completa con zonas, estanques y plantas.",
         comoFunciona:
-          "Dibuja zonas (cultivo, estanque, bodega) y planta en grilla automática. El sistema calcula espaciado según el cultivo. Una vez dibujadas, abre el panel de cada zona de cultivo y asígnale el estanque que la riega — así el sistema sabe de dónde descontar el agua.",
+          "Dibuja zonas (cultivo, estanque, bodega) y planta en grilla automática. El sistema calcula espaciado según el cultivo. Si solo tienes un estanque, tus zonas de cultivo se vinculan automáticamente. Con varios estanques, abre el panel de cada zona y elige cuál la riega.",
         ejemplo: "Zona A (tomate) — 45 plantas a 40 cm — regada por Estanque 1",
         ruta: ROUTES.HOME,
         rutaLabel: "Abrir mapa",
@@ -143,13 +143,26 @@ export const GUIA_SECCIONES: GuiaSeccionData[] = [
         ruta: ROUTES.DATOS_INSUMOS,
         rutaLabel: "Ver insumos",
       },
+      {
+        id: "plagas",
+        titulo: "Revisar riesgo de plagas",
+        valor:
+          "Sabrás qué plagas amenazan tus cultivos según la temporada y podrás actuar antes.",
+        comoFunciona:
+          "Muestra las plagas más comunes por cultivo y temporada según datos históricos de la región. Incluye nivel de riesgo estimado y medidas preventivas recomendadas — no requiere sensores.",
+        ejemplo:
+          "Tomate en verano → Riesgo alto de mosca blanca — aplicar trampas amarillas",
+        ruta: ROUTES.DATOS_PLAGAS,
+        rutaLabel: "Ver plagas",
+      },
     ],
   },
   {
     id: "analizar",
     titulo: "Analizar",
     subtitulo: "Revisa resultados",
-    resultado: "Sabes si tu terreno es rentable",
+    resultado:
+      "Sabes si tu terreno es rentable y tienes documentos para demostrarlo",
     pasos: [
       {
         id: "economia",
@@ -157,10 +170,21 @@ export const GUIA_SECCIONES: GuiaSeccionData[] = [
         valor:
           "Sabrás si cada cultivo te deja ganancia o pérdida, con números claros.",
         comoFunciona:
-          "El sistema cruza inversión (plantas + agua) con producción esperada y precio de mercado. Calcula ROI a 4 años, punto de equilibrio, costo por kilo y margen de ganancia. En modo avanzado ves payback y contribución por zona.",
+          "El sistema cruza inversión (plantas + agua) con producción esperada y precio de mercado. Calcula ROI a 4 años, punto de equilibrio y viabilidad por zona.",
         ejemplo: "Olivo → ROI 340%, costo $350/kg, equilibrio en 18 meses",
         ruta: ROUTES.ECONOMIA,
         rutaLabel: "Ver economía",
+      },
+      {
+        id: "economia-avanzada",
+        titulo: "Economía avanzada",
+        valor:
+          "Conocerás el costo real por kilo, el margen de ganancia y cuánto necesitas vender para cubrir costos.",
+        comoFunciona:
+          "Analiza cada zona con métricas detalladas: costo de producción por kg, punto de equilibrio en kilos, margen de contribución y tiempo de recuperación de la inversión en meses.",
+        ejemplo: "Olivo → costo $350/kg, margen 65%, equilibrio con 120 kg/año",
+        ruta: ROUTES.ECONOMIA_AVANZADO,
+        rutaLabel: "Ver avanzado",
       },
       {
         id: "escenarios",
@@ -179,8 +203,9 @@ export const GUIA_SECCIONES: GuiaSeccionData[] = [
         titulo: "Recibir alertas",
         valor: "No se te olvidará regar, fumigar ni cosechar a tiempo.",
         comoFunciona:
-          "El sistema detecta problemas automáticamente: agua baja, salinidad acumulada, riesgo de plagas por cultivo y temporada. Predice qué plagas pueden afectarte según temperatura y etapa de crecimiento, con medidas preventivas.",
-        ejemplo: "Agua para 5 días — Riesgo alto de mosca blanca en tomate",
+          "El sistema detecta problemas automáticamente: agua baja, salinidad acumulada, riesgo de plagas y replantas pendientes. Revisa las alertas activas y actúa según la prioridad.",
+        ejemplo:
+          "Agua para 5 días — Lavado salino pendiente — Replante en 2 semanas",
         ruta: ROUTES.ALERTAS,
         rutaLabel: "Ver alertas",
       },
@@ -194,6 +219,29 @@ export const GUIA_SECCIONES: GuiaSeccionData[] = [
         ejemplo: "Marzo déficit → programar recarga extra",
         ruta: ROUTES.AGUA_PLANIFICADOR,
         rutaLabel: "Abrir planificador",
+      },
+      {
+        id: "reportes",
+        titulo: "Descargar reportes PDF",
+        valor:
+          "Tendrás documentos listos para llevar al banco, INDAP o un asesor técnico.",
+        comoFunciona:
+          "Genera 3 informes descargables: financiero (inversión, ROI, proyección 4 años), hídrico (consumo, estanques, proyección 12 meses) y producción (cosechas reales vs proyectadas, calidad, ingresos).",
+        ejemplo:
+          "Reporte financiero → inversión $2.5M, ROI 340%, payback 18 meses",
+        ruta: ROUTES.REPORTES,
+        rutaLabel: "Ir a reportes",
+      },
+      {
+        id: "configuracion",
+        titulo: "Configuración",
+        valor:
+          "Ajustarás preferencias generales y revisarás el estado de sincronización.",
+        comoFunciona:
+          "Gestiona tu cuenta, preferencias de la aplicación y verifica que tus datos estén sincronizados con la nube.",
+        ejemplo: "Última sincronización: hace 2 minutos — todo al día",
+        ruta: ROUTES.CONFIGURACION,
+        rutaLabel: "Ir a configuración",
       },
     ],
   },

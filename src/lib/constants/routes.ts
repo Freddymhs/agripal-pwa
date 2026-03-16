@@ -43,6 +43,9 @@ export const ROUTES = {
   // Cosechas
   COSECHAS: "/cosechas",
 
+  // Reportes
+  REPORTES: "/reportes",
+
   // Operaciones
   ALERTAS: "/alertas",
   GUIA: "/guia",

@@ -56,7 +56,8 @@ interface PanelClimaProps {
 
 export function PanelClima({ clima: _climaOverride }: PanelClimaProps) {
   const { datosBaseHook } = useProjectContext();
-  const climaContext = datosBaseHook?.datosBase?.clima?.[0]?.datos as
+  // ClimaBase extiende DatosClimaticos (los campos están en el root tras deserialización)
+  const climaContext = datosBaseHook?.datosBase?.clima?.[0] as
     | DatosClimaticos
     | undefined;
   const clima = _climaOverride ?? climaContext;

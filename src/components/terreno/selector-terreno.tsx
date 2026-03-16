@@ -13,6 +13,7 @@ interface SelectorTerrenoProps {
   onCrearProyecto: () => void;
   onCrearTerreno: () => void;
   onGestionarTerrenos: () => void;
+  readonly?: boolean;
 }
 
 export function SelectorTerreno({
@@ -25,6 +26,7 @@ export function SelectorTerreno({
   onCrearProyecto,
   onCrearTerreno,
   onGestionarTerrenos,
+  readonly = false,
 }: SelectorTerrenoProps) {
   const [showProyectos, setShowProyectos] = useState(false);
   const [showTerrenos, setShowTerrenos] = useState(false);
@@ -33,29 +35,40 @@ export function SelectorTerreno({
     <div className="flex items-center gap-2">
       <div className="relative">
         <button
-          onClick={() => {
-            setShowProyectos(!showProyectos);
-            setShowTerrenos(false);
-          }}
-          className="flex items-center gap-2 px-3 py-1.5 bg-green-700 hover:bg-green-800 rounded text-sm transition-colors"
+          onClick={
+            readonly
+              ? undefined
+              : () => {
+                  setShowProyectos(!showProyectos);
+                  setShowTerrenos(false);
+                }
+          }
+          disabled={readonly}
+          className={`flex items-center gap-2 px-3 py-1.5 rounded text-sm transition-colors ${
+            readonly
+              ? "bg-green-700 cursor-default"
+              : "bg-green-700 hover:bg-green-800"
+          }`}
         >
           <span className="opacity-70">Proyecto:</span>
           <span className="font-medium">
             {proyectoActual?.nombre || "Seleccionar"}
           </span>
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M19 9l-7 7-7-7"
-            />
-          </svg>
+          {!readonly && (
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          )}
         </button>
 
         {showProyectos && (
@@ -108,11 +121,20 @@ export function SelectorTerreno({
       {proyectoActual && (
         <div className="relative">
           <button
-            onClick={() => {
-              setShowTerrenos(!showTerrenos);
-              setShowProyectos(false);
-            }}
-            className="flex items-center gap-2 px-3 py-1.5 bg-green-700 hover:bg-green-800 rounded text-sm transition-colors"
+            onClick={
+              readonly
+                ? undefined
+                : () => {
+                    setShowTerrenos(!showTerrenos);
+                    setShowProyectos(false);
+                  }
+            }
+            disabled={readonly}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded text-sm transition-colors ${
+              readonly
+                ? "bg-green-700 cursor-default"
+                : "bg-green-700 hover:bg-green-800"
+            }`}
           >
             <span className="opacity-70">Terreno:</span>
             <span className="font-medium">
@@ -123,19 +145,21 @@ export function SelectorTerreno({
                 ({terrenoActual.ancho_m}×{terrenoActual.alto_m}m)
               </span>
             )}
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 9l-7 7-7-7"
-              />
-            </svg>
+            {!readonly && (
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            )}
           </button>
 
           {showTerrenos && (

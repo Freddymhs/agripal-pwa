@@ -24,6 +24,7 @@ import { ROUTES } from "@/lib/constants/routes";
 
 export default function AguaPage() {
   const {
+    proyectoActual,
     terrenoActual: terreno,
     zonas,
     plantas,
@@ -240,7 +241,7 @@ export default function AguaPage() {
           <div className="bg-white rounded-lg w-full max-w-md max-h-[90vh] overflow-y-auto">
             <EntradaAguaForm
               estanques={estanques}
-              proveedores={terreno?.agua_avanzada?.proveedores ?? []}
+              proveedores={proyectoActual?.proveedores_agua ?? []}
               onRegistrar={async (data) => {
                 await registrarEntrada(data);
                 setShowEntradaForm(false);

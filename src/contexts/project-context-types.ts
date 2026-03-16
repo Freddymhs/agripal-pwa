@@ -12,6 +12,8 @@ import type {
   Proyecto,
   DashboardTerreno,
   Usuario,
+  ProveedorAgua,
+  SueloTerreno,
 } from "@/types";
 
 export interface ProjectContextType {
@@ -57,6 +59,10 @@ export interface ProjectContextType {
   }) => Promise<void>;
   handleGuardarConfigAvanzada: (updates: Partial<Terreno>) => Promise<void>;
   handleCambiarFuente: (estanqueId: string, fuenteId: string) => Promise<void>;
+  actualizarProveedoresProyecto: (
+    proveedores: ProveedorAgua[],
+  ) => Promise<void>;
+  actualizarSueloProyecto: (suelo: SueloTerreno) => Promise<void>;
 
   showCrearProyecto: boolean;
   setShowCrearProyecto: (v: boolean) => void;

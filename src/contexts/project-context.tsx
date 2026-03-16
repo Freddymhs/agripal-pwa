@@ -23,12 +23,21 @@ import { useActualizarEtapas } from "@/hooks/use-actualizar-etapas";
 import { useDatosBase } from "@/hooks/use-datos-base";
 import { useProjectDashboard } from "@/hooks/use-project-dashboard";
 import { useProjectHandlers } from "@/hooks/use-project-handlers";
-import { zonasDAL, plantasDAL } from "@/lib/dal";
+import { zonasDAL, plantasDAL, proyectosDAL } from "@/lib/dal";
 import { asignarColorCultivo } from "@/components/mapa/pixi/pixi-constants";
 import { onZonaUpdated } from "@/lib/events/zona-events";
 import { STORAGE_KEYS } from "@/lib/constants/storage";
+import { getCurrentTimestamp } from "@/lib/utils";
+import { ejecutarMutacion } from "@/lib/helpers/dal-mutation";
 import { logger } from "@/lib/logger";
-import type { Terreno, Zona, Planta, Proyecto } from "@/types";
+import type {
+  Terreno,
+  Zona,
+  Planta,
+  Proyecto,
+  ProveedorAgua,
+  SueloTerreno,
+} from "@/types";
 import type { ProjectContextType } from "./project-context-types";
 
 const ProjectContext = createContext<ProjectContextType | null>(null);
@@ -70,6 +79,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
     zonas,
     plantas,
     catalogoCultivos,
+    proyectoActual?.suelo,
   );
   const datosBaseHook = useDatosBase(proyectoActual?.id || null);
   const CULTIVOS_ESPACIADO = useMemo(
@@ -221,6 +231,40 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
     [proyectoActual, handleCrearTerrenoRaw],
   );
 
+  const actualizarSueloProyecto = useCallback(
+    async (suelo: SueloTerreno) => {
+      if (!proyectoActual) return;
+      await ejecutarMutacion(
+        () =>
+          proyectosDAL.update(proyectoActual.id, {
+            suelo,
+            updated_at: getCurrentTimestamp(),
+          }),
+        "actualizar suelo proyecto",
+      );
+      setProyectoActual((prev) => (prev ? { ...prev, suelo } : prev));
+    },
+    [proyectoActual],
+  );
+
+  const actualizarProveedoresProyecto = useCallback(
+    async (proveedores: ProveedorAgua[]) => {
+      if (!proyectoActual) return;
+      await ejecutarMutacion(
+        () =>
+          proyectosDAL.update(proyectoActual.id, {
+            proveedores_agua: proveedores,
+            updated_at: getCurrentTimestamp(),
+          }),
+        "actualizar proveedores proyecto",
+      );
+      setProyectoActual((prev) =>
+        prev ? { ...prev, proveedores_agua: proveedores } : prev,
+      );
+    },
+    [proyectoActual],
+  );
+
   const value: ProjectContextType = useMemo(
     () => ({
       usuario,
@@ -253,6 +297,8 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
       handleCrearTerreno,
       handleGuardarConfigAvanzada,
       handleCambiarFuente,
+      actualizarProveedoresProyecto,
+      actualizarSueloProyecto,
       showCrearProyecto,
       setShowCrearProyecto,
       showCrearTerreno,
@@ -291,6 +337,8 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
       handleCrearTerreno,
       handleGuardarConfigAvanzada,
       handleCambiarFuente,
+      actualizarProveedoresProyecto,
+      actualizarSueloProyecto,
       showCrearProyecto,
       showCrearTerreno,
       showConfigAvanzada,

@@ -30,6 +30,7 @@ import { ROUTES } from "@/lib/constants/routes";
 export default function PlanificadorAguaPage() {
   const {
     terrenoActual: terreno,
+    proyectoActual,
     zonas,
     plantas,
     catalogoCultivos,
@@ -105,7 +106,7 @@ export default function PlanificadorAguaPage() {
               count,
               costoAguaM3,
               consumoCultivo,
-              terreno?.suelo ?? null,
+              proyectoActual?.suelo ?? null,
             );
             acc.ingresoTotal += roi.ingreso_año2;
             acc.inversionTotal += roi.inversion_total;
@@ -135,6 +136,7 @@ export default function PlanificadorAguaPage() {
     estanques,
     proyeccion,
     fuentesAgua,
+    proyectoActual?.suelo,
   ]);
 
   if (loading) {

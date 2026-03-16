@@ -17,6 +17,7 @@ import { MODO, TIPO_ZONA } from "@/lib/constants/entities";
 
 export function MapSidebar() {
   const {
+    proyectoActual,
     terrenoActual,
     zonas,
     plantas,
@@ -177,6 +178,7 @@ export function MapSidebar() {
             <EntradaAguaForm
               estanques={estanquesHook.estanques}
               estanqueIdPrecargado={estanqueIdParaAgua || undefined}
+              proveedores={proyectoActual?.proveedores_agua ?? []}
               onRegistrar={async (data) => {
                 try {
                   await registrarEntrada(data);

@@ -19,6 +19,17 @@ import {
   ETAPAS_LIST,
 } from "@/lib/constants/entities";
 import { logger } from "@/lib/logger";
+import {
+  MARGEN,
+  ANCHO_UTIL,
+  COLOR,
+  lineaSeparadora,
+  titulo,
+  textoNormal,
+  parKV,
+  verificarPagina,
+  renderPiePagina as renderPiePaginaShared,
+} from "@/lib/utils/pdf-helpers";
 
 // ─── Tipos del informe ─────────────────────────────────────────────
 
@@ -30,6 +41,7 @@ export interface DatosInforme {
   alertas: Alerta[];
   mapaImageDataUrl: string;
   clima: DatosClimaticos;
+  suelo?: Terreno["suelo"];
 }
 
 interface ResumenTerreno {
@@ -167,6 +179,8 @@ function procesarDatos(datos: DatosInforme): DatosInformeProcessed {
   const estanques = resumenZonas.filter((z) => z.estanque);
   const dga = terreno.agua_avanzada?.derechos;
 
+  const sueloFinal = datos.suelo ?? terreno.suelo;
+
   return {
     fecha: new Date().toLocaleDateString("es-CL", {
       year: "numeric",
@@ -176,8 +190,8 @@ function procesarDatos(datos: DatosInforme): DatosInformeProcessed {
     terreno: resumenTerreno,
     zonas: resumenZonas,
     suelo: {
-      evaluacion: evaluarSuelo(terreno.suelo),
-      datosRaw: terreno.suelo,
+      evaluacion: evaluarSuelo(sueloFinal),
+      datosRaw: sueloFinal,
     },
     agua: {
       fuente: terreno.agua_fuente ?? "No especificada",
@@ -196,69 +210,8 @@ function procesarDatos(datos: DatosInforme): DatosInformeProcessed {
 }
 
 // ─── Paso 2: Renderizado PDF (solo presentación) ───────────────────
-
-const MARGEN = 15;
-const ANCHO_UTIL = 210 - MARGEN * 2;
-const COLOR = {
-  titulo: [17, 24, 39] as const,
-  subtitulo: [37, 99, 235] as const,
-  texto: [55, 65, 81] as const,
-  gris: [107, 114, 128] as const,
-  linea: [229, 231, 235] as const,
-};
-
-function lineaSeparadora(doc: jsPDF, y: number): number {
-  doc.setDrawColor(...COLOR.linea);
-  doc.setLineWidth(0.3);
-  doc.line(MARGEN, y, 210 - MARGEN, y);
-  return y + 4;
-}
-
-function titulo(doc: jsPDF, texto: string, y: number): number {
-  doc.setFontSize(14);
-  doc.setTextColor(...COLOR.subtitulo);
-  doc.setFont("helvetica", "bold");
-  doc.text(texto, MARGEN, y);
-  return y + 7;
-}
-
-function textoNormal(
-  doc: jsPDF,
-  texto: string,
-  y: number,
-  negrita = false,
-): number {
-  doc.setFontSize(9);
-  doc.setTextColor(...COLOR.texto);
-  doc.setFont("helvetica", negrita ? "bold" : "normal");
-  doc.text(texto, MARGEN, y);
-  return y + 4.5;
-}
-
-function parKV(
-  doc: jsPDF,
-  clave: string,
-  valor: string,
-  y: number,
-  x = MARGEN,
-): number {
-  doc.setFontSize(9);
-  doc.setFont("helvetica", "bold");
-  doc.setTextColor(...COLOR.gris);
-  doc.text(clave, x, y);
-  doc.setFont("helvetica", "normal");
-  doc.setTextColor(...COLOR.texto);
-  doc.text(valor, x + doc.getTextWidth(clave) + 2, y);
-  return y + 4.5;
-}
-
-function verificarPagina(doc: jsPDF, y: number, espacioNecesario = 20): number {
-  if (y + espacioNecesario > 280) {
-    doc.addPage();
-    return 20;
-  }
-  return y;
-}
+// Primitivas (lineaSeparadora, titulo, textoNormal, parKV, verificarPagina)
+// y constantes (MARGEN, ANCHO_UTIL, COLOR) importadas desde pdf-helpers.ts
 
 function renderEncabezado(doc: jsPDF, fecha: string): number {
   doc.setFontSize(20);
@@ -529,18 +482,7 @@ function renderAlertas(doc: jsPDF, alertas: Alerta[], y: number): number {
 }
 
 function renderPiePagina(doc: jsPDF, fecha: string): void {
-  const totalPaginas = doc.getNumberOfPages();
-  Array.from({ length: totalPaginas }, (_, idx) => idx + 1).forEach(
-    (pagina) => {
-      doc.setPage(pagina);
-      doc.setFontSize(7);
-      doc.setTextColor(...COLOR.gris);
-      doc.text(`AgriPlan — Informe Tecnico — ${fecha}`, MARGEN, 290);
-      doc.text(`Pagina ${pagina}/${totalPaginas}`, 210 - MARGEN, 290, {
-        align: "right",
-      });
-    },
-  );
+  renderPiePaginaShared(doc, "Informe Tecnico", fecha);
 }
 
 // ─── API pública ────────────────────────────────────────────────────

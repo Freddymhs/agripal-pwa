@@ -10,11 +10,10 @@ interface ClimaRegionSelectorProps {
 }
 
 function getClimaLabel(clima: ClimaBase): string {
-  const datos = clima.datos;
-  const zona = datos.zona?.replace(/_/g, " ") ?? "";
+  const zona = clima.zona?.replace(/_/g, " ") ?? "";
   const elev =
-    typeof datos.elevacion_m === "number" ? ` (${datos.elevacion_m}m)` : "";
-  return `${datos.region} — ${zona}${elev}`;
+    typeof clima.elevacion_m === "number" ? ` (${clima.elevacion_m}m)` : "";
+  return `${clima.region} — ${zona}${elev}`;
 }
 
 export function ClimaRegionSelector({
@@ -33,8 +32,7 @@ export function ClimaRegionSelector({
       <div className="grid gap-2">
         {climas.map((clima) => {
           const esActivo = clima.id === climaActivoId;
-          const datos = clima.datos;
-          const et0 = datos.evapotranspiracion?.et0_mm_dia;
+          const et0 = clima.evapotranspiracion?.et0_mm_dia;
           return (
             <button
               key={clima.id}
@@ -53,7 +51,7 @@ export function ClimaRegionSelector({
                   </div>
                   <div className="text-xs text-gray-500 mt-0.5">
                     ET0: {et0 ?? "?"} mm/día · Temp:{" "}
-                    {datos.temperatura?.promedio_anual_c}°C promedio
+                    {clima.temperatura?.promedio_anual_c}°C promedio
                   </div>
                 </div>
                 {esActivo && (

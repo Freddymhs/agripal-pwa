@@ -132,24 +132,24 @@ Cada archivo FASE_X.md incluye esta tarea de integración al final.
 
 | Fase       | Status | Progreso | Nombre                                       | Prioridad     |
 | ---------- | ------ | -------- | -------------------------------------------- | ------------- |
-| 16         | ⏳     | 0%       | Registro de Cosechas (UI)                    | 🟡 MEDIA      |
+| 16         | ✅     | 100%     | Registro de Cosechas (UI)                    | 🟡 MEDIA      |
 | 17         | ⏳     | 0%       | Reportes y Exportación PDF                   | 🟡 MEDIA      |
 | 18         | ⏳     | 0%       | Calendario de Eventos (Vista Mensual)        | 🟢 BAJA-MEDIA |
 | 19         | ⏳     | 0%       | Integraciones API Externas (Clima + Precios) | 🟢 BAJA       |
 | **FINAL**  | ⏳     | 0%       | Historial de Cambios (UI)                    | 🟢 BAJA       |
 | **LAUNCH** | ⏳     | 0%       | Checklist de Lanzamiento (dominio, GSC, SEO) | 🟢 BAJA       |
 
-**Total fases**: 42 (36 completadas, 6 pendientes)
+**Total fases**: 42 (37 completadas, 5 pendientes)
 
 ---
 
 ## 📍 Actual
 
-**Fase actual:** FASE_15 completada — Homepage SSG (tests arquitectónicos + docs architecture.md). Siguiente: FASE_16 Registro de Cosechas.
+**Fase actual:** FASE_16 completada — Registro de Cosechas (DAL, hook, página, componentes). Siguiente: FASE_17 Reportes y Exportación PDF.
 
 **Completadas (36)**: Estructura, Tipos, Mapa, Zonas, Plantas, Selección Múltiple, Gestión Proyectos/Terrenos, Terreno Avanzado, Panel Clima, Panel Suelo, Agua Avanzada, Motor Recomendación, Catálogo Cultivos, Estanques (8A), Control Agua, Multi-Estanque (8B), Alertas y Dashboard, PWA y Sync Offline, Performance PixiJS, Mejoras UX/Agua/Datos, Autenticación JWT Mock, Segmentación UX Agua, Dashboard + Planificador, Economía/Escenarios/Plagas/Datos/Fixes (11D), Datos Agronómicos (20), Insumos (21), Bugs UX (15B), Auth Supabase (12), Landing SEO (12B), Contenido SEO (12C), TanStack Audit (12D), Backend Supabase (13), Bugs Testing Retroactivos (15C), Billing MercadoPago (14), Homepage SSG (15)
 
-**Pendientes (6)**: Cosechas (16) → PDF (17) → Calendario (18) → APIs externas (19) → Historial → Launch Checklist
+**Pendientes (5)**: PDF (17) → Calendario (18) → APIs externas (19) → Historial → Launch Checklist
 
 **Objetivo:** Transformar AgriPlan en un SaaS con backend real y sistema de suscripciones.
 
@@ -357,6 +357,7 @@ pnpm type-check   # TypeScript check
 3. ✅ **COMPLETADA (100%)**: Bugs Testing Retroactivos (FASE_15C) — 13 bugs corregidos, todos los gaps resueltos
 4. ✅ **COMPLETADA (100%)**: Billing MercadoPago (FASE_14) — checkout, webhook, middleware guard, UI, SubscriptionBadge
 5. ✅ **COMPLETADA (100%)**: Homepage SSG (FASE_15) — tests arquitectónicos + docs/architecture.md
-6. ⏳ **SIGUIENTE**: Cosechas (FASE_16) → PDF → Calendario → APIs externas → Historial → Launch
+6. ✅ **COMPLETADA (100%)**: Cosechas (FASE_16) — DAL, hook, página, formulario, historial
+7. ⏳ **SIGUIENTE**: PDF (FASE_17) → Calendario → APIs externas → Historial → Launch
 
 **Objetivo:** Convertir AgriPlan en un SaaS funcional con suscripciones mensuales de 9,990 CLP.

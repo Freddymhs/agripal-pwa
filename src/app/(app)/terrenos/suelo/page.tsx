@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { PageLayout } from "@/components/layout";
 import {
   FormularioSuelo,
@@ -9,9 +9,6 @@ import {
   PlanBSuelo,
 } from "@/components/suelo";
 import { useProjectContext } from "@/contexts/project-context";
-import { terrenosDAL } from "@/lib/dal";
-import { ejecutarMutacion } from "@/lib/helpers/dal-mutation";
-import { getCurrentTimestamp } from "@/lib/utils";
 import { sugerirEnmiendas } from "@/lib/data/enmiendas-suelo";
 import {
   evaluarCompatibilidadSueloMultiple,
@@ -35,10 +32,12 @@ const LABELS_COMPAT = {
 
 export default function SueloPage() {
   const {
+    proyectoActual,
     terrenoActual: terreno,
     plantas,
     catalogoCultivos,
     datosBaseHook,
+    actualizarSueloProyecto,
   } = useProjectContext();
 
   const enmiendasCatalogo = useMemo(
@@ -47,20 +46,29 @@ export default function SueloPage() {
   );
 
   const [sueloOverride, setSueloOverride] = useState<SueloTerreno | null>(null);
-  const sueloTerreno = terreno?.suelo;
+  // Fuente de verdad: proyecto (cubre todo el predio, independiente del terreno)
+  const sueloProyecto = proyectoActual?.suelo;
   const suelo = useMemo(
-    () => sueloOverride ?? sueloTerreno ?? {},
-    [sueloOverride, sueloTerreno],
+    () => sueloOverride ?? sueloProyecto ?? {},
+    [sueloOverride, sueloProyecto],
   );
   const [activeTab, setActiveTab] = useState<"formulario" | "resultados">(
     "formulario",
   );
   const [guardando, setGuardando] = useState(false);
+  const [guardado, setGuardado] = useState(false);
+  const guardadoTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (guardadoTimer.current) clearTimeout(guardadoTimer.current);
+    };
+  }, []);
 
   const handleChange = useCallback(
     async (newSuelo: SueloTerreno) => {
       setSueloOverride(newSuelo);
-      if (!terreno) return;
+      if (!proyectoActual) return;
 
       const validacion = validarSueloTerreno(newSuelo);
       if (!validacion.valida) {
@@ -69,17 +77,14 @@ export default function SueloPage() {
       }
 
       setGuardando(true);
-      await ejecutarMutacion(
-        () =>
-          terrenosDAL.update(terreno.id, {
-            suelo: newSuelo,
-            updated_at: getCurrentTimestamp(),
-          }),
-        "actualizar suelo terreno",
-      );
+      setGuardado(false);
+      await actualizarSueloProyecto(newSuelo);
       setGuardando(false);
+      setGuardado(true);
+      if (guardadoTimer.current) clearTimeout(guardadoTimer.current);
+      guardadoTimer.current = setTimeout(() => setGuardado(false), 2500);
     },
-    [terreno],
+    [proyectoActual, actualizarSueloProyecto],
   );
 
   const cultivosActivos = useMemo(() => {
@@ -113,6 +118,8 @@ export default function SueloPage() {
       headerActions={
         guardando ? (
           <span className="text-xs opacity-75">Guardando...</span>
+        ) : guardado ? (
+          <span className="text-xs text-white/90 font-medium">✓ Guardado</span>
         ) : undefined
       }
     >
@@ -166,27 +173,46 @@ export default function SueloPage() {
           </p>
         </div>
 
-        <div className="flex gap-2 mb-4">
-          <button
-            onClick={() => setActiveTab("formulario")}
-            className={`px-4 py-2 rounded font-medium transition-colors ${
-              activeTab === "formulario"
-                ? "bg-green-600 text-white"
-                : "bg-white text-gray-700 border hover:bg-gray-50"
-            }`}
-          >
-            Ingresar Datos
-          </button>
-          <button
-            onClick={() => setActiveTab("resultados")}
-            className={`px-4 py-2 rounded font-medium transition-colors ${
-              activeTab === "resultados"
-                ? "bg-green-600 text-white"
-                : "bg-white text-gray-700 border hover:bg-gray-50"
-            }`}
-          >
-            Ver Resultados
-          </button>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex gap-2">
+            <button
+              onClick={() => setActiveTab("formulario")}
+              className={`px-4 py-2 rounded font-medium transition-colors ${
+                activeTab === "formulario"
+                  ? "bg-green-600 text-white"
+                  : "bg-white text-gray-700 border hover:bg-gray-50"
+              }`}
+            >
+              Ingresar Datos
+            </button>
+            <button
+              onClick={() => setActiveTab("resultados")}
+              className={`px-4 py-2 rounded font-medium transition-colors ${
+                activeTab === "resultados"
+                  ? "bg-green-600 text-white"
+                  : "bg-white text-gray-700 border hover:bg-gray-50"
+              }`}
+            >
+              Ver Resultados
+            </button>
+          </div>
+
+          {activeTab === "formulario" && (
+            <div className="flex items-center gap-3">
+              {guardado && (
+                <span className="text-sm text-green-700 font-medium">
+                  ✓ Guardado
+                </span>
+              )}
+              <button
+                onClick={() => suelo && handleChange(suelo)}
+                disabled={guardando || !terreno}
+                className="px-4 py-2 bg-green-600 text-white rounded font-medium hover:bg-green-700 disabled:opacity-50 transition-colors"
+              >
+                {guardando ? "Guardando..." : "Guardar"}
+              </button>
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">

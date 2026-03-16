@@ -23,6 +23,7 @@ const COLORES_BG = ["bg-blue-50", "bg-green-50", "bg-purple-50"];
 export default function EscenariosPage() {
   const {
     terrenoActual: terreno,
+    proyectoActual,
     zonas,
     catalogoCultivos,
     loading,
@@ -63,7 +64,7 @@ export default function EscenariosPage() {
     return compararCultivos(
       cultivosSelec,
       zonaSeleccionada,
-      terreno.suelo ?? null,
+      proyectoActual?.suelo ?? null,
       costoAguaM3,
     );
   }, [
@@ -73,6 +74,7 @@ export default function EscenariosPage() {
     catalogoCultivos,
     zonas,
     fuentesAgua,
+    proyectoActual?.suelo,
   ]);
 
   const toggleCultivo = (id: string) => {

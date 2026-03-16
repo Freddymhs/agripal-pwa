@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { useOptionalProjectContext } from "@/contexts/project-context";
 import { TIPO_ZONA } from "@/lib/constants/entities";
 import { PageNav } from "@/components/layout/page-nav";
-
+import { SelectorTerreno } from "@/components/terreno/selector-terreno";
 import { ROUTES } from "@/lib/constants/routes";
 
 interface PageLayoutProps {
@@ -57,6 +57,23 @@ export function PageLayout({
   const tieneEstanque =
     projectCtx?.zonas?.some((z) => z.tipo === TIPO_ZONA.ESTANQUE) ?? null;
 
+  // Selector readonly automático cuando la página no lo pasa como headerContext
+  const selectorReadonly =
+    !headerContext && projectCtx?.proyectoActual ? (
+      <SelectorTerreno
+        readonly
+        proyectos={projectCtx.proyectos}
+        terrenos={projectCtx.terrenos}
+        proyectoActual={projectCtx.proyectoActual}
+        terrenoActual={projectCtx.terrenoActual}
+        onSelectProyecto={() => {}}
+        onSelectTerreno={() => {}}
+        onCrearProyecto={() => {}}
+        onCrearTerreno={() => {}}
+        onGestionarTerrenos={() => {}}
+      />
+    ) : null;
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <header className={`${bgColor} text-white`}>
@@ -69,11 +86,11 @@ export function PageLayout({
               AgriPlan
             </Link>
 
-            {headerContext && (
+            {(headerContext ?? selectorReadonly) && (
               <div
                 className={`ml-2 pl-3 border-l ${borderColor} flex items-center`}
               >
-                {headerContext}
+                {headerContext ?? selectorReadonly}
               </div>
             )}
 

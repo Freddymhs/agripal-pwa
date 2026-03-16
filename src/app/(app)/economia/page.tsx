@@ -25,6 +25,7 @@ interface ResumenCultivo {
 export default function EconomiaPage() {
   const {
     terrenoActual: terreno,
+    proyectoActual,
     zonas,
     plantas,
     catalogoCultivos,
@@ -79,7 +80,7 @@ export default function EconomiaPage() {
           count,
           costoAguaM3,
           consumoCultivo,
-          terreno?.suelo ?? null,
+          proyectoActual?.suelo ?? null,
         );
         resumenCalculado.push({
           cultivoId,
@@ -93,7 +94,14 @@ export default function EconomiaPage() {
     }
 
     return resumenCalculado;
-  }, [terreno, zonas, plantas, catalogoCultivos, fuentesAgua]);
+  }, [
+    terreno,
+    zonas,
+    plantas,
+    catalogoCultivos,
+    fuentesAgua,
+    proyectoActual?.suelo,
+  ]);
 
   const totalInversion = resumen.reduce(
     (sum, r) => sum + r.roi.inversion_total,

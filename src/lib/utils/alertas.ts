@@ -8,6 +8,7 @@ import type {
   AlelopatiaCultivo,
   VeceriaCultivo,
   IncompatibilidadQuimica,
+  SueloTerreno,
 } from "@/types";
 import { generateUUID, getCurrentTimestamp } from "@/lib/utils";
 import {
@@ -43,6 +44,7 @@ function generarAlertas(
   zonas: Zona[],
   plantas: Planta[],
   catalogoCultivos: CatalogoCultivo[],
+  suelo?: SueloTerreno | null,
 ): Omit<Alerta, "id" | "created_at" | "updated_at">[] {
   const alertas: Omit<Alerta, "id" | "created_at" | "updated_at">[] = [];
 
@@ -151,6 +153,29 @@ function generarAlertas(
     }
   }
 
+  // Zonas de cultivo con plantas pero sin estanque asignado
+  if (estanques.length > 0) {
+    const zonasSinEstanque = zonas.filter(
+      (z) =>
+        z.tipo === TIPO_ZONA.CULTIVO &&
+        !z.estanque_id &&
+        plantas.some((p) => p.zona_id === z.id),
+    );
+    for (const zona of zonasSinEstanque) {
+      alertas.push({
+        terreno_id: terreno.id,
+        zona_id: zona.id,
+        tipo: "zona_sin_estanque",
+        severidad: SEVERIDAD_ALERTA.WARNING,
+        estado: ESTADO_ALERTA.ACTIVA,
+        titulo: `⚠️ "${zona.nombre}" sin estanque de riego`,
+        descripcion:
+          "Esta zona no tiene estanque asignado. No consume agua del sistema y los cálculos de agua, economía y reportes pueden ser imprecisos.",
+        sugerencia: "Asigna un estanque desde el panel de la zona en el mapa.",
+      });
+    }
+  }
+
   for (const zona of zonas) {
     const plantasZona = plantas.filter((p) => p.zona_id === zona.id);
 
@@ -248,7 +273,7 @@ function generarAlertas(
       zona.tipo === TIPO_ZONA.CULTIVO &&
       zona.configuracion_riego?.tipo === TIPO_RIEGO.CONTINUO
     ) {
-      const texturaSuelo = terreno.suelo?.fisico?.textura;
+      const texturaSuelo = suelo?.fisico?.textura;
       if (
         texturaSuelo === TEXTURA_SUELO.ARCILLOSA ||
         texturaSuelo === TEXTURA_SUELO.FRANCO_ARCILLOSA
@@ -363,7 +388,7 @@ function generarAlertas(
   }
 
   // deficiencia_micronutrientes: si el pH del suelo supera 7.5
-  const phSuelo = terreno.suelo?.fisico?.ph;
+  const phSuelo = suelo?.fisico?.ph;
   const PH_LIMITE_MICRONUTRIENTES = 7.5;
   if (phSuelo !== undefined && phSuelo > PH_LIMITE_MICRONUTRIENTES) {
     alertas.push({
@@ -473,6 +498,7 @@ export async function sincronizarAlertas(
   zonas: Zona[],
   plantas: Planta[],
   catalogoCultivos: CatalogoCultivo[],
+  suelo?: SueloTerreno | null,
 ): Promise<Alerta[]> {
   const timestamp = getCurrentTimestamp();
 
@@ -483,6 +509,7 @@ export async function sincronizarAlertas(
     zonas,
     plantas,
     catalogoCultivos,
+    suelo,
   );
 
   const resolver: Array<{ id: string; cambios: Partial<Alerta> }> = [];

@@ -28,9 +28,6 @@ const PENALIZACION_PH_AGUA = 15;
 // ── Penalizaciones de score suelo ───────────────────────────────────────────
 const PENALIZACION_PH_SUELO = 25;
 const PENALIZACION_SALINIDAD_SUELO = 30;
-const PENALIZACION_MATERIA_ORGANICA = 10;
-const MATERIA_ORGANICA_MINIMA_PCT = 2;
-
 // ── Penalizaciones de factor suelo ──────────────────────────────────────────
 const FACTOR_PH_MAX_PENALIZACION = 0.5;
 const FACTOR_PH_MULTIPLICADOR = 0.2;
@@ -38,7 +35,13 @@ const FACTOR_SALINIDAD_MAX_PENALIZACION = 0.6;
 const FACTOR_SALINIDAD_MULTIPLICADOR = 0.3;
 const FACTOR_BORO_MAX_PENALIZACION = 0.7;
 const FACTOR_BORO_MULTIPLICADOR = 0.4;
-const FACTOR_MATERIA_ORGANICA_BAJA = 0.9;
+// MO escalonada: <1% critico (-50%), 1-2% limitante (-20%), 2-4% leve (-5%)
+const FACTOR_MO_CRITICA = 0.5;
+const FACTOR_MO_LIMITANTE = 0.8;
+const FACTOR_MO_LEVE = 0.95;
+const MO_UMBRAL_CRITICO_PCT = 1;
+const MO_UMBRAL_LIMITANTE_PCT = 2;
+const MO_UMBRAL_ADECUADO_PCT = 4;
 const FACTOR_SUELO_MINIMO = 0.1;
 
 // ── Score riego ─────────────────────────────────────────────────────────────
@@ -184,11 +187,21 @@ function calcScoreSuelo(
 
   if (
     isValidNum(suelo.fisico?.materia_organica_pct) &&
-    suelo.fisico!.materia_organica_pct >= 0 &&
-    suelo.fisico!.materia_organica_pct < MATERIA_ORGANICA_MINIMA_PCT
+    suelo.fisico!.materia_organica_pct >= 0
   ) {
-    score -= PENALIZACION_MATERIA_ORGANICA;
-    mejoras.push("Aumentar materia orgánica con compost o humus");
+    const mo = suelo.fisico!.materia_organica_pct;
+    if (mo < MO_UMBRAL_CRITICO_PCT) {
+      score -= 30;
+      problemas.push(`Materia orgánica ${mo}% críticamente baja`);
+      mejoras.push("Urgente: incorporar compost o humus (>2 kg/m²)");
+    } else if (mo < MO_UMBRAL_LIMITANTE_PCT) {
+      score -= 15;
+      problemas.push(`Materia orgánica ${mo}% baja`);
+      mejoras.push("Aumentar materia orgánica con compost o humus");
+    } else if (mo < MO_UMBRAL_ADECUADO_PCT) {
+      score -= 5;
+      mejoras.push("Mantener aporte de materia orgánica");
+    }
   }
 
   return { score: clamp(score, 0, 100), problemas, mejoras };
@@ -251,10 +264,16 @@ export function calcularFactorSuelo(
 
   if (
     isValidNum(suelo.fisico?.materia_organica_pct) &&
-    suelo.fisico!.materia_organica_pct >= 0 &&
-    suelo.fisico!.materia_organica_pct < MATERIA_ORGANICA_MINIMA_PCT
+    suelo.fisico!.materia_organica_pct >= 0
   ) {
-    factor *= FACTOR_MATERIA_ORGANICA_BAJA;
+    const mo = suelo.fisico!.materia_organica_pct;
+    if (mo < MO_UMBRAL_CRITICO_PCT) {
+      factor *= FACTOR_MO_CRITICA;
+    } else if (mo < MO_UMBRAL_LIMITANTE_PCT) {
+      factor *= FACTOR_MO_LIMITANTE;
+    } else if (mo < MO_UMBRAL_ADECUADO_PCT) {
+      factor *= FACTOR_MO_LEVE;
+    }
   }
 
   return Math.max(FACTOR_SUELO_MINIMO, factor);

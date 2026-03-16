@@ -55,6 +55,7 @@ function InfoLabel({ label, tooltip }: { label: string; tooltip: string }) {
 export function ZonaCultivoPanel() {
   const {
     terrenoActual,
+    proyectoActual,
     catalogoCultivos,
     estanquesHook,
     zonasHook,
@@ -233,11 +234,12 @@ export function ZonaCultivoPanel() {
                 estanquePrincipal.estanque_config.fuente_id,
               ) ?? null)
             : null;
-          const suelo = terrenoActual?.suelo ?? null;
+          const suelo = proyectoActual?.suelo ?? null;
           const consumoEfectivoZona =
             consumoRiegoZona > 0 ? consumoRiegoZona : consumoVivasRec;
-          const climaObj = datosBaseHook?.datosBase?.clima?.[0];
-          const climaDatos = climaObj?.datos as DatosClimaticos | undefined;
+          const climaDatos = datosBaseHook?.datosBase?.clima?.[0] as
+            | DatosClimaticos
+            | undefined;
           if (!climaDatos) return null;
           const score = calcularScoreCalidad(
             cultivoZona,
@@ -289,20 +291,23 @@ export function ZonaCultivoPanel() {
           );
         })()}
 
-      {/* Selector de estanque fuente — solo si hay 2+ estanques en el terreno */}
-      {estanquesHook.estanques.length > 1 && (
+      {/* Selector de estanque fuente — visible con 1+ estanques */}
+      {estanquesHook.estanques.length >= 1 && (
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 space-y-2">
           <h4 className="text-xs font-bold text-blue-800">Estanque de riego</h4>
           <select
             value={zonaSeleccionada.estanque_id ?? ""}
             onChange={async (e) => {
+              if (!e.target.value) return;
               await zonasHook.actualizarZona(zonaSeleccionada.id, {
-                estanque_id: e.target.value || undefined,
+                estanque_id: e.target.value,
               });
             }}
-            className="w-full px-2 py-1.5 text-sm border border-blue-300 rounded bg-white text-gray-900 focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
+            className={`w-full px-2 py-1.5 text-sm border rounded bg-white text-gray-900 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 ${!zonaSeleccionada.estanque_id ? "border-orange-400" : "border-blue-300"}`}
           >
-            <option value="">Sin asignar (usa pool global)</option>
+            {!zonaSeleccionada.estanque_id && (
+              <option value="">— Selecciona un estanque —</option>
+            )}
             {estanquesHook.estanques.map((est) => (
               <option key={est.id} value={est.id}>
                 {est.nombre} (
@@ -311,9 +316,15 @@ export function ZonaCultivoPanel() {
               </option>
             ))}
           </select>
-          <p className="text-xs text-blue-600">
-            Las alertas de escasez se evaluar&aacute;n por este estanque.
-          </p>
+          {!zonaSeleccionada.estanque_id ? (
+            <p className="text-xs text-orange-600 font-medium">
+              Sin estanque asignado — esta zona no consume agua del sistema.
+            </p>
+          ) : (
+            <p className="text-xs text-blue-600">
+              Las alertas de escasez se evalúan por este estanque.
+            </p>
+          )}
         </div>
       )}
 
@@ -322,7 +333,7 @@ export function ZonaCultivoPanel() {
         plantasVivas={plantasVivas}
         catalogoCultivos={catalogoCultivos}
         sueloArcilloso={
-          terrenoActual.suelo?.fisico?.textura === TEXTURA_SUELO.ARCILLOSA
+          proyectoActual?.suelo?.fisico?.textura === TEXTURA_SUELO.ARCILLOSA
         }
         onGuardarRiego={async (zonaId, config) => {
           await zonasHook.actualizarZona(zonaId, {

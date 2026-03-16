@@ -23,6 +23,7 @@ interface ResumenAvanzado {
 export default function EconomiaAvanzadaPage() {
   const {
     terrenoActual: terreno,
+    proyectoActual,
     zonas,
     plantas,
     catalogoCultivos,
@@ -41,7 +42,7 @@ export default function EconomiaAvanzadaPage() {
       terreno,
       fuentesAgua,
     );
-    const suelo = terreno.suelo ?? null;
+    const suelo = proyectoActual?.suelo ?? null;
     const items: ResumenAvanzado[] = [];
 
     for (const zona of zonas.filter((z) => z.tipo === TIPO_ZONA.CULTIVO)) {
@@ -89,7 +90,14 @@ export default function EconomiaAvanzadaPage() {
     }
 
     return items;
-  }, [terreno, zonas, plantas, catalogoCultivos, fuentesAgua]);
+  }, [
+    terreno,
+    zonas,
+    plantas,
+    catalogoCultivos,
+    fuentesAgua,
+    proyectoActual?.suelo,
+  ]);
 
   const global = useMemo(() => {
     if (resumen.length === 0) return null;

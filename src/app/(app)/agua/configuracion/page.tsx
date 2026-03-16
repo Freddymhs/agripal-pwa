@@ -19,6 +19,7 @@ import type {
 import { terrenosDAL, baseDataDAL } from "@/lib/dal";
 import { ejecutarMutacion } from "@/lib/helpers/dal-mutation";
 import { getCurrentTimestamp } from "@/lib/utils";
+// proveedores se gestionan a nivel proyecto, no terreno
 
 type TabId = "calidad" | "proveedores" | "contingencias" | "ahorro";
 
@@ -40,12 +41,12 @@ export default function AguaConfiguracionPage() {
     terrenoActual: terreno,
     datosBaseHook,
     proyectoActual,
+    actualizarProveedoresProyecto,
   } = useProjectContext();
   const [activeTab, setActiveTab] = useState<TabId>("calidad");
   const loadedTerrenoId = useRef<string | null>(null);
 
   const [calidad, setCalidad] = useState<CalidadAguaTerreno>({});
-  const [proveedores, setProveedores] = useState<ProveedorAgua[]>([]);
   const [contingencias, setContingencias] = useState<ContingenciasAgua>(
     DEFAULT_CONTINGENCIAS,
   );
@@ -56,11 +57,11 @@ export default function AguaConfiguracionPage() {
     const avanzada = terreno.agua_avanzada ?? {};
     // eslint-disable-next-line react-hooks/set-state-in-effect -- carga inicial, ref guard evita cascada
     setCalidad(avanzada.calidad ?? {});
-
-    setProveedores(avanzada.proveedores ?? []);
-
     setContingencias(avanzada.contingencias ?? DEFAULT_CONTINGENCIAS);
   }, [terreno]);
+
+  // proveedores vienen del proyecto (fuente de verdad per-project)
+  const proveedores = proyectoActual?.proveedores_agua ?? [];
 
   const persistir = useCallback(
     async (patch: Partial<AguaAvanzadaTerreno>) => {
@@ -97,10 +98,9 @@ export default function AguaConfiguracionPage() {
 
   const handleProveedoresChange = useCallback(
     (p: ProveedorAgua[]) => {
-      setProveedores(p);
-      persistir({ proveedores: p });
+      actualizarProveedoresProyecto(p);
     },
-    [persistir],
+    [actualizarProveedoresProyecto],
   );
 
   const handleContingenciasChange = useCallback(

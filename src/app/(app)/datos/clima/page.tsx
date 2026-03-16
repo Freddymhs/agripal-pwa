@@ -31,9 +31,8 @@ export default function ClimaPage() {
   const climaActivo =
     climas.find((c) => c.id === climaActivoId) ?? climas[0] ?? null;
 
-  const etoData = climaActivo?.datos?.evapotranspiracion_detalle as
-    | DatosETo
-    | undefined;
+  // ClimaBase extiende DatosClimaticos (sin campo dados anidado tras deserialización)
+  const etoData = climaActivo?.evapotranspiracion_detalle;
 
   const temporada = getTemporadaActual();
   const factorTemporada = FACTORES_TEMPORADA[temporada];
@@ -63,7 +62,7 @@ export default function ClimaPage() {
   return (
     <PageLayout headerColor="green">
       <main className="max-w-2xl mx-auto p-4 space-y-4">
-        {climas.length > 1 && (
+        {climas.length > 0 && (
           <ClimaRegionSelector
             climas={climas}
             climaActivoId={climaActivoId}

@@ -21,10 +21,10 @@ export interface InsumoCatalogo {
   updated_at: string;
 }
 
-export interface ClimaBase {
+// ClimaBase extiende DatosClimaticos porque deserializarDesdeSupabase
+// hace spread del JSONB `datos` al root del objeto — no existe campo anidado.
+export interface ClimaBase extends DatosClimaticos {
   id: string;
-  region: string;
-  datos: DatosClimaticos;
 }
 
 export const baseDataDAL = {
