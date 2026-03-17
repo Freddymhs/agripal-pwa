@@ -3,6 +3,11 @@
 import { useState } from "react";
 import { useProjectContext } from "@/contexts/project-context";
 import { useMapContext } from "@/contexts/map-context";
+import { sesionesRiegoDAL, zonasDAL } from "@/lib/dal";
+import { ejecutarMutacion } from "@/lib/helpers/dal-mutation";
+import { useSesionesRiego } from "@/hooks/use-sesiones-riego";
+import { TIPO_RIEGO } from "@/lib/constants/entities";
+import { LITROS_POR_M3 } from "@/lib/constants/conversiones";
 import {
   ScoreCalidadPanel,
   ROIPanel,
@@ -68,6 +73,13 @@ export function ZonaCultivoPanel() {
     setCultivoSeleccionado,
     setShowGridModal,
   } = useMapContext();
+
+  const isManualRiego =
+    zonaSeleccionada?.configuracion_riego?.tipo === TIPO_RIEGO.MANUAL;
+  const { sesiones: sesionesZona, refetch: refetchSesiones } = useSesionesRiego(
+    zonaSeleccionada?.id,
+    isManualRiego,
+  );
 
   if (!zonaSeleccionada || !terrenoActual) return null;
 
@@ -339,6 +351,39 @@ export function ZonaCultivoPanel() {
           await zonasHook.actualizarZona(zonaId, {
             configuracion_riego: config,
           });
+        }}
+        terrenoId={terrenoActual.id}
+        estanqueZona={
+          zonaSeleccionada.estanque_id
+            ? estanquesHook.estanques.find(
+                (e) => e.id === zonaSeleccionada.estanque_id,
+              )
+            : undefined
+        }
+        sesionesRecientes={sesionesZona}
+        onRegistrarSesion={async (sesion) => {
+          await ejecutarMutacion(
+            async () => {
+              await sesionesRiegoDAL.crear(sesion);
+              // Descontar consumo del estanque
+              const estanque = estanquesHook.estanques.find(
+                (e) => e.id === zonaSeleccionada.estanque_id,
+              );
+              if (estanque?.estanque_config) {
+                const nivelAnterior =
+                  estanque.estanque_config.nivel_actual_m3 ?? 0;
+                const descuento = sesion.consumo_litros / LITROS_POR_M3;
+                await zonasDAL.update(estanque.id, {
+                  estanque_config: {
+                    ...estanque.estanque_config,
+                    nivel_actual_m3: Math.max(0, nivelAnterior - descuento),
+                  },
+                });
+              }
+            },
+            "registrar sesión de riego",
+            refetchSesiones,
+          );
         }}
       />
 

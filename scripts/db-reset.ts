@@ -36,6 +36,7 @@ const TABLAS_EN_ORDEN = [
   "alertas",
   "cosechas",
   "entradas_agua",
+  "sesiones_riego",
   "insumos_usuario",
   "plantas",
   "zonas",

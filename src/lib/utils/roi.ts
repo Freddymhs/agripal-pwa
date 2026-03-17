@@ -12,6 +12,7 @@ import {
   M2_POR_HECTAREA,
   SEMANAS_POR_AÑO,
   PRECIO_PLANTA_FACTOR,
+  LITROS_POR_M3,
 } from "@/lib/constants/conversiones";
 import {
   calcularPrecioKgPromedio,
@@ -61,7 +62,8 @@ export function obtenerCostoAguaM3(
     recargaConfig.cantidad_litros > 0
   ) {
     return (
-      recargaConfig.costo_recarga_clp / (recargaConfig.cantidad_litros / 1000)
+      recargaConfig.costo_recarga_clp /
+      (recargaConfig.cantidad_litros / LITROS_POR_M3)
     );
   }
   return 0;

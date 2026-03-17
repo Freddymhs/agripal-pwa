@@ -21,6 +21,7 @@ export const MAX_PLANTAS_OVERLAP_CHECK = 80;
 export const DIAS_POR_MES_PROMEDIO = 30;
 export const DIAS_POR_AÑO = 365;
 export const HORAS_POR_DIA = 24;
+export const LITROS_POR_M3 = 1000;
 export const MESES_POR_AÑO = 12;
 
 /** Terreno piloto de referencia: pampa elevada sobre Valle de Azapa, Arica */

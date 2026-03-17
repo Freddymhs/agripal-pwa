@@ -16,6 +16,7 @@ import {
   SEMANAS_POR_MES,
   DIAS_LAVADO_SALINO,
   DIAS_POR_MES_PROMEDIO,
+  LITROS_POR_M3,
 } from "@/lib/constants/conversiones";
 import { filtrarEstanques } from "@/lib/utils/helpers-cultivo";
 
@@ -97,7 +98,8 @@ export function generarProyeccionAnual(
         if (recarga.cantidad_litros <= 0) continue;
         const diasEnMes = DIAS_POR_MES_PROMEDIO;
         const recargasPorMes = Math.floor(diasEnMes / freq);
-        recargasMes += recargasPorMes * (recarga.cantidad_litros / 1000);
+        recargasMes +=
+          recargasPorMes * (recarga.cantidad_litros / LITROS_POR_M3);
       }
     }
 

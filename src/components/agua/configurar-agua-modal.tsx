@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import type { Zona } from "@/types";
 import { calcularPreviewRecarga } from "@/lib/utils/agua";
+import { LITROS_POR_M3 } from "@/lib/constants/conversiones";
 
 interface ConfigurarAguaModalProps {
   estanque: Zona;
@@ -32,7 +33,7 @@ export function ConfigurarAguaModal({
   );
   const [cantidadM3, setCantidadM3] = useState(
     config?.recarga?.cantidad_litros
-      ? config.recarga.cantidad_litros / 1000
+      ? config.recarga.cantidad_litros / LITROS_POR_M3
       : Math.min(15, capacidadM3),
   );
   const [costoRecarga, setCostoRecarga] = useState<number | "">(

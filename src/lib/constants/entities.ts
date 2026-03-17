@@ -94,6 +94,7 @@ export const ESTADO_AGUA = {
 export const TIPO_RIEGO = {
   PROGRAMADO: "programado",
   CONTINUO: "continuo_24_7",
+  MANUAL: "manual_sesiones",
 } as const satisfies Record<string, TipoSistemaRiego>;
 
 export const ESTADO_ALERTA = {

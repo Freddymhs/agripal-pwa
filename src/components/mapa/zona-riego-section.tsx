@@ -1,14 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import type { Zona, Planta, CatalogoCultivo } from "@/types";
+import type { Zona, Planta, CatalogoCultivo, SesionRiego, UUID } from "@/types";
 import { TIPO_RIEGO } from "@/lib/constants/entities";
 import { DIAS_POR_SEMANA } from "@/lib/constants/conversiones";
 import {
   calcularConsumoZona,
   calcularConsumoRiegoZona,
 } from "@/lib/utils/agua";
-import { ConfigurarRiegoModal } from "@/components/agua";
+import {
+  ConfigurarRiegoModal,
+  RegistrarSesionRiegoModal,
+} from "@/components/agua";
 
 interface InfoLabelProps {
   label: string;
@@ -51,6 +54,16 @@ interface ZonaRiegoSectionProps {
     zonaId: string,
     config: Zona["configuracion_riego"],
   ) => Promise<void>;
+  // Para riego manual: registrar sesiones
+  terrenoId?: UUID;
+  estanqueZona?: Zona;
+  sesionesRecientes?: SesionRiego[];
+  onRegistrarSesion?: (
+    sesion: Omit<
+      SesionRiego,
+      "id" | "created_at" | "updated_at" | "lastModified"
+    >,
+  ) => Promise<void>;
 }
 
 export function ZonaRiegoSection({
@@ -59,8 +72,13 @@ export function ZonaRiegoSection({
   catalogoCultivos,
   sueloArcilloso,
   onGuardarRiego,
+  terrenoId,
+  estanqueZona,
+  sesionesRecientes,
+  onRegistrarSesion,
 }: ZonaRiegoSectionProps) {
   const [showConfigRiego, setShowConfigRiego] = useState(false);
+  const [showSesionModal, setShowSesionModal] = useState(false);
 
   const consumoZonaM3Sem = calcularConsumoZona(
     zona,
@@ -103,9 +121,11 @@ export function ZonaRiegoSection({
               <div className="flex justify-between">
                 <span>Tipo:</span>
                 <span className="font-medium">
-                  {zona.configuracion_riego.tipo === TIPO_RIEGO.PROGRAMADO
-                    ? "⏰ Programado"
-                    : "💧 Continuo 24/7"}
+                  {zona.configuracion_riego.tipo === TIPO_RIEGO.MANUAL
+                    ? "🚿 Válvula manual"
+                    : zona.configuracion_riego.tipo === TIPO_RIEGO.PROGRAMADO
+                      ? "⏰ Programado"
+                      : "💧 Continuo 24/7"}
                 </span>
               </div>
               <div className="flex justify-between">
@@ -133,6 +153,38 @@ export function ZonaRiegoSection({
                 </div>
               )}
             </div>
+            {zona.configuracion_riego.tipo === TIPO_RIEGO.MANUAL &&
+              onRegistrarSesion &&
+              estanqueZona &&
+              terrenoId && (
+                <>
+                  <button
+                    onClick={() => setShowSesionModal(true)}
+                    className="w-full bg-cyan-500 text-white py-2 rounded hover:bg-cyan-600 text-sm font-medium"
+                  >
+                    💧 Registrar Riego
+                  </button>
+                  {sesionesRecientes && sesionesRecientes.length > 0 && (
+                    <div className="space-y-1">
+                      <p className="text-[10px] text-gray-500 font-medium">
+                        Últimas sesiones:
+                      </p>
+                      {sesionesRecientes.slice(0, 2).map((s) => (
+                        <div
+                          key={s.id}
+                          className="flex justify-between text-[11px] text-gray-600 bg-white px-2 py-1 rounded"
+                        >
+                          <span>{s.fecha}</span>
+                          <span>
+                            {s.duracion_horas}h · {s.consumo_litros.toFixed(0)}{" "}
+                            L
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </>
+              )}
             <button
               onClick={() => setShowConfigRiego(true)}
               className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 text-sm font-medium"
@@ -169,6 +221,16 @@ export function ZonaRiegoSection({
           </div>
         )}
       </div>
+
+      {showSesionModal && onRegistrarSesion && estanqueZona && terrenoId && (
+        <RegistrarSesionRiegoModal
+          zona={zona}
+          estanque={estanqueZona}
+          terrenoId={terrenoId}
+          onGuardar={onRegistrarSesion}
+          onCerrar={() => setShowSesionModal(false)}
+        />
+      )}
 
       {showConfigRiego && (
         <ConfigurarRiegoModal

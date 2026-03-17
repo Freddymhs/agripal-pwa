@@ -301,7 +301,10 @@ export type EstadoPlanta = "plantada" | "creciendo" | "produciendo" | "muerta";
 
 export type EtapaCrecimiento = "plántula" | "joven" | "adulta" | "madura";
 
-export type TipoSistemaRiego = "continuo_24_7" | "programado";
+export type TipoSistemaRiego =
+  | "continuo_24_7"
+  | "programado"
+  | "manual_sesiones";
 
 export interface ConfiguracionRiego {
   tipo: TipoSistemaRiego;
@@ -309,6 +312,21 @@ export interface ConfiguracionRiego {
   horas_dia?: number;
   horario_inicio?: string;
   horario_fin?: string;
+}
+
+export interface SesionRiego {
+  id: UUID;
+  zona_id: UUID;
+  terreno_id: UUID;
+  fecha: string; // "YYYY-MM-DD"
+  hora_inicio?: string; // "HH:MM"
+  duracion_horas: number;
+  caudal_lh: number;
+  consumo_litros: number;
+  notas: string;
+  created_at: Timestamp;
+  updated_at: Timestamp;
+  lastModified?: Timestamp;
 }
 
 export interface ConfiguracionGoteros {
@@ -494,7 +512,8 @@ export type TipoAlerta =
   | "zona_sin_estanque"
   | "suelo_sin_analisis"
   | "clima_no_configurado"
-  | "sin_proveedor_agua";
+  | "sin_proveedor_agua"
+  | "sin_sesiones_recientes";
 
 export interface NutricionEtapa {
   etapa: string;

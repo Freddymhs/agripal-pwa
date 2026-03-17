@@ -23,6 +23,7 @@ import {
   MS_POR_DIA,
   MIN_DIAS_DESCUENTO,
   HORAS_POR_DIA,
+  LITROS_POR_M3,
 } from "@/lib/constants/conversiones";
 import {
   calcularAguaPromedioHaAño,
@@ -93,6 +94,8 @@ export function calcularConsumoTerreno(
 export function calcularConsumoRiegoZona(zona: Zona): number {
   const config = zona.configuracion_riego;
   if (!config || !config.caudal_total_lh) return 0;
+  // Riego manual: el consumo se registra por sesión, no fluye continuamente
+  if (config.tipo === TIPO_RIEGO.MANUAL) return 0;
 
   const horasDia = (() => {
     if (config.tipo === TIPO_RIEGO.CONTINUO) return HORAS_POR_DIA;
@@ -109,7 +112,9 @@ export function calcularConsumoRiegoZona(zona: Zona): number {
 
   if (horasDia === null) return 0;
 
-  return ((config.caudal_total_lh * horasDia) / 1000) * DIAS_POR_SEMANA;
+  return (
+    ((config.caudal_total_lh * horasDia) / LITROS_POR_M3) * DIAS_POR_SEMANA
+  );
 }
 
 export function calcularConsumoRealTerreno(
@@ -280,6 +285,8 @@ export function calcularDescuentoAutomatico(
   const zonasAsignadas = new Map<UUID, Zona[]>();
 
   for (const zona of zonasCultivo) {
+    // Zonas con riego manual no descuentan automáticamente — solo al registrar sesión
+    if (zona.configuracion_riego?.tipo === TIPO_RIEGO.MANUAL) continue;
     if (zona.estanque_id) {
       const grupo = zonasAsignadas.get(zona.estanque_id) ?? [];
       grupo.push(zona);

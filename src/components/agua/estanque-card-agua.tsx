@@ -4,7 +4,7 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import type { Zona } from "@/types";
 import type { ResumenEstanque } from "@/lib/utils/agua";
-import { MS_POR_DIA } from "@/lib/constants/conversiones";
+import { MS_POR_DIA, LITROS_POR_M3 } from "@/lib/constants/conversiones";
 import { getEstadoDiasAgua, calcularPreviewRecarga } from "@/lib/utils/agua";
 
 interface EstanqueCardAguaProps {
@@ -34,7 +34,9 @@ export function EstanqueCardAgua({
           MS_POR_DIA,
       )
     : null;
-  const cantidadRecargaM3Est = configEst ? configEst.cantidad_litros / 1000 : 0;
+  const cantidadRecargaM3Est = configEst
+    ? configEst.cantidad_litros / LITROS_POR_M3
+    : 0;
 
   return (
     <div

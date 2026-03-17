@@ -8,7 +8,7 @@ import {
   HORARIO_RIEGO_INICIO_DEFAULT,
   HORARIO_RIEGO_FIN_DEFAULT,
 } from "@/lib/constants/entities";
-import { DIAS_POR_SEMANA } from "@/lib/constants/conversiones";
+import { DIAS_POR_SEMANA, LITROS_POR_M3 } from "@/lib/constants/conversiones";
 import { CaudalCalculadora } from "@/components/agua/caudal-calculadora";
 import { RiegoProgramadoFields } from "@/components/agua/riego-programado-fields";
 
@@ -32,7 +32,7 @@ export function ConfigurarRiegoModal({
   onCerrar,
 }: ConfigurarRiegoModalProps) {
   const [tipo, setTipo] = useState<TipoSistemaRiego>(
-    config?.tipo || TIPO_RIEGO.PROGRAMADO,
+    config?.tipo || TIPO_RIEGO.MANUAL,
   );
   const [caudalTotal, setCaudalTotal] = useState(
     config?.caudal_total_lh || 100,
@@ -63,8 +63,9 @@ export function ConfigurarRiegoModal({
   };
 
   const horasEfectivas = tipo === TIPO_RIEGO.CONTINUO ? 24 : horasDia;
-  const gastoDiarioL = caudalTotal * horasEfectivas;
-  const gastoDiarioM3 = gastoDiarioL / 1000;
+  const gastoDiarioL =
+    tipo === TIPO_RIEGO.MANUAL ? 0 : caudalTotal * horasEfectivas;
+  const gastoDiarioM3 = gastoDiarioL / LITROS_POR_M3;
 
   const handleGuardar = async () => {
     setGuardando(true);
@@ -109,31 +110,48 @@ export function ConfigurarRiegoModal({
             <label className="block text-sm font-medium mb-2">
               Tipo de Sistema
             </label>
-            <div className="grid grid-cols-2 gap-2">
-              {(
-                [
-                  TIPO_RIEGO.PROGRAMADO,
-                  TIPO_RIEGO.CONTINUO,
-                ] as TipoSistemaRiego[]
-              ).map((t) => (
-                <button
-                  key={t}
-                  type="button"
-                  onClick={() => setTipo(t)}
-                  className={`p-3 rounded-lg border-2 text-left ${tipo === t ? "border-blue-500 bg-blue-50" : "border-gray-200 hover:border-gray-300"}`}
-                >
-                  <div className="font-medium">
-                    {t === TIPO_RIEGO.PROGRAMADO
-                      ? "⏰ Programado"
-                      : "💧 Continuo 24/7"}
-                  </div>
-                  <div className="text-xs text-gray-500">
-                    {t === TIPO_RIEGO.PROGRAMADO
-                      ? "Horario específico"
-                      : "Válvula abierta"}
-                  </div>
-                </button>
-              ))}
+            <div className="flex flex-col gap-2">
+              <button
+                type="button"
+                onClick={() => setTipo(TIPO_RIEGO.MANUAL)}
+                className={`p-3 rounded-lg border-2 text-left ${tipo === TIPO_RIEGO.MANUAL ? "border-blue-500 bg-blue-50" : "border-gray-200 hover:border-gray-300"}`}
+              >
+                <div className="flex items-center gap-2">
+                  <span className="font-medium">🚿 Válvula manual</span>
+                  <span className="text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded font-medium">
+                    Recomendado para comenzar
+                  </span>
+                </div>
+                <div className="text-xs text-gray-500 mt-0.5">
+                  Tú abres y cierras. Registras cada sesión de riego.
+                </div>
+              </button>
+              <div className="grid grid-cols-2 gap-2">
+                {(
+                  [
+                    TIPO_RIEGO.PROGRAMADO,
+                    TIPO_RIEGO.CONTINUO,
+                  ] as TipoSistemaRiego[]
+                ).map((t) => (
+                  <button
+                    key={t}
+                    type="button"
+                    onClick={() => setTipo(t)}
+                    className={`p-3 rounded-lg border-2 text-left ${tipo === t ? "border-blue-500 bg-blue-50" : "border-gray-200 hover:border-gray-300"}`}
+                  >
+                    <div className="font-medium text-sm">
+                      {t === TIPO_RIEGO.PROGRAMADO
+                        ? "⏰ Programado"
+                        : "💧 Continuo 24/7"}
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      {t === TIPO_RIEGO.PROGRAMADO
+                        ? "Horario automático"
+                        : "Válvula siempre abierta"}
+                    </div>
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -215,6 +233,22 @@ export function ConfigurarRiegoModal({
             </p>
           </div>
 
+          {tipo === TIPO_RIEGO.MANUAL && (
+            <div className="bg-sky-50 border border-sky-200 rounded-lg p-3">
+              <p className="text-xs text-sky-800">
+                <strong>Cómo medir tu caudal:</strong> llena un balde de 20 L y
+                mide cuántos segundos tarda. L/h = 20 × 3600 / segundos.
+              </p>
+              {caudalTotal > 0 && (
+                <p className="text-xs text-sky-700 mt-1">
+                  Cada sesión de 2 horas descontará ~
+                  {((caudalTotal * 2) / LITROS_POR_M3).toFixed(2)} m³ del
+                  estanque.
+                </p>
+              )}
+            </div>
+          )}
+
           {tipo === TIPO_RIEGO.PROGRAMADO && (
             <RiegoProgramadoFields
               horasDia={horasDia}
@@ -234,24 +268,26 @@ export function ConfigurarRiegoModal({
             />
           )}
 
-          <div className="bg-cyan-50 border border-cyan-200 p-4 rounded-lg">
-            <div className="text-sm text-cyan-800 mb-1">
-              Gasto diario estimado
-            </div>
-            <div className="text-2xl font-bold text-cyan-700">
-              {gastoDiarioL.toLocaleString()} L/día
-            </div>
-            <div className="text-sm text-cyan-600">
-              {gastoDiarioM3.toFixed(2)} m³/día •{" "}
-              {(gastoDiarioM3 * DIAS_POR_SEMANA).toFixed(2)} m³/semana
-            </div>
-            {tipo === TIPO_RIEGO.PROGRAMADO && (
-              <div className="text-xs text-cyan-600 mt-2 pt-2 border-t border-cyan-200">
-                💡 vs Continuo 24/7: Ahorro de{" "}
-                {Math.round((1 - horasDia / 24) * 100)}% de agua
+          {tipo !== TIPO_RIEGO.MANUAL && (
+            <div className="bg-cyan-50 border border-cyan-200 p-4 rounded-lg">
+              <div className="text-sm text-cyan-800 mb-1">
+                Gasto diario estimado
               </div>
-            )}
-          </div>
+              <div className="text-2xl font-bold text-cyan-700">
+                {gastoDiarioL.toLocaleString()} L/día
+              </div>
+              <div className="text-sm text-cyan-600">
+                {gastoDiarioM3.toFixed(2)} m³/día •{" "}
+                {(gastoDiarioM3 * DIAS_POR_SEMANA).toFixed(2)} m³/semana
+              </div>
+              {tipo === TIPO_RIEGO.PROGRAMADO && (
+                <div className="text-xs text-cyan-600 mt-2 pt-2 border-t border-cyan-200">
+                  💡 vs Continuo 24/7: Ahorro de{" "}
+                  {Math.round((1 - horasDia / 24) * 100)}% de agua
+                </div>
+              )}
+            </div>
+          )}
 
           <div className="flex gap-2 pt-2">
             <button

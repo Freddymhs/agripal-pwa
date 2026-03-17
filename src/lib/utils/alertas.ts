@@ -10,6 +10,7 @@ import type {
   IncompatibilidadQuimica,
   SueloTerreno,
   ProveedorAgua,
+  SesionRiego,
 } from "@/types";
 import { generateUUID, getCurrentTimestamp } from "@/lib/utils";
 import {
@@ -40,6 +41,8 @@ import {
 import { distancia } from "@/lib/utils/math";
 import { filtrarEstanques } from "@/lib/utils/helpers-cultivo";
 
+const DIAS_SIN_RIEGO_UMBRAL = 7;
+
 function generarAlertas(
   terreno: Terreno,
   zonas: Zona[],
@@ -49,6 +52,7 @@ function generarAlertas(
   climaBaseId?: string | null,
   proveedoresAgua?: ProveedorAgua[],
   proyectoId?: string,
+  sesionesRecientes?: SesionRiego[],
 ): Omit<Alerta, "id" | "created_at" | "updated_at">[] {
   const alertas: Omit<Alerta, "id" | "created_at" | "updated_at">[] = [];
 
@@ -259,6 +263,30 @@ function generarAlertas(
         sugerencia:
           'Entra al mapa, selecciona esta zona y configura "Sistema de Riego" (caudal L/h + horas/día). Es el dato más importante para que el sistema sea preciso.',
       });
+    }
+
+    if (
+      zona.tipo === TIPO_ZONA.CULTIVO &&
+      zona.configuracion_riego?.tipo === TIPO_RIEGO.MANUAL &&
+      plantasZona.length > 0 &&
+      sesionesRecientes
+    ) {
+      const ultimaSesion = sesionesRecientes.find((s) => s.zona_id === zona.id);
+      const referencia = ultimaSesion?.fecha ?? zona.created_at;
+      const diasSinRegar = differenceInDays(new Date(), new Date(referencia));
+      if (diasSinRegar > DIAS_SIN_RIEGO_UMBRAL) {
+        alertas.push({
+          terreno_id: terreno.id,
+          zona_id: zona.id,
+          tipo: "sin_sesiones_recientes",
+          severidad: SEVERIDAD_ALERTA.WARNING,
+          estado: ESTADO_ALERTA.ACTIVA,
+          titulo: `⚠️ ${zona.nombre} — ${diasSinRegar} días sin registrar riego`,
+          descripcion:
+            "Con riego manual el estanque no descuenta agua automáticamente.",
+          sugerencia: "Si regaste, registra la sesión desde el mapa.",
+        });
+      }
     }
 
     if (zona.tipo === TIPO_ZONA.CULTIVO && plantasZona.length === 0) {
@@ -582,6 +610,7 @@ export async function sincronizarAlertas(
   isCurrent?: () => boolean,
   proveedoresAgua?: ProveedorAgua[],
   proyectoId?: string,
+  sesionesRecientes?: SesionRiego[],
 ): Promise<Alerta[]> {
   const timestamp = getCurrentTimestamp();
 
@@ -602,6 +631,7 @@ export async function sincronizarAlertas(
     climaBaseId,
     proveedoresAgua,
     proyectoId,
+    sesionesRecientes,
   );
 
   const mismaAlerta = (

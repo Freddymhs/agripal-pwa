@@ -10,3 +10,4 @@ export { ConfigurarAguaModal } from "./configurar-agua-modal";
 export { ConfigurarRiegoModal } from "./configurar-riego-modal";
 export { CollapsibleSection } from "./collapsible-section";
 export { EstanqueCardAgua } from "./estanque-card-agua";
+export { RegistrarSesionRiegoModal } from "./registrar-sesion-riego-modal";
