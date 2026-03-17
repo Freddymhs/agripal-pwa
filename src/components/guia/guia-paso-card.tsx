@@ -29,12 +29,15 @@ export function GuiaPasoCard({ paso, accentClasses }: GuiaPasoCardProps) {
         className="w-full text-left px-4 py-3.5 flex items-center gap-3"
       >
         <div className="flex-1 min-w-0">
-          <p className="text-[15px] font-semibold text-stone-900 leading-tight">
-            {paso.titulo}
-          </p>
-          <p className="text-sm text-stone-500 mt-0.5 leading-snug">
-            {paso.valor}
-          </p>
+          <div className="flex items-center gap-2 mb-0.5">
+            <p className="text-[15px] font-semibold text-stone-900 leading-tight">
+              {paso.titulo}
+            </p>
+            <span className="inline-flex px-2 py-0.5 text-xs font-medium rounded-full bg-stone-100 text-stone-600">
+              {paso.scope}
+            </span>
+          </div>
+          <p className="text-sm text-stone-500 leading-snug">{paso.valor}</p>
         </div>
         <svg
           className={`w-4 h-4 text-stone-400 shrink-0 transition-transform duration-200 ${
@@ -73,6 +76,8 @@ export function GuiaPasoCard({ paso, accentClasses }: GuiaPasoCardProps) {
 
           <Link
             href={paso.ruta}
+            target="_blank"
+            rel="noopener noreferrer"
             className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-medium text-white transition-opacity hover:opacity-90 ${accentClasses.button}`}
           >
             {paso.rutaLabel}

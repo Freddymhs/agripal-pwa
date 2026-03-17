@@ -18,12 +18,12 @@ export const metadata: Metadata = {
     "planificación cultivos Arica",
     "control agua cultivos",
     "ROI agricultura Chile",
-    "app agrícola sin internet",
+    "cuaderno de campo digital Chile",
     "software campo Tarapacá",
     "software horticultura Chile",
     "gestión agua cultivos norte Chile",
-    "app agricola offline Chile",
-    "cuaderno de campo digital Chile",
+    "planificador agrícola Chile",
+    "control cosechas norte Chile",
     "planificación riego Azapa",
     "software pequeños agricultores Chile",
     "cultivos hortícolas norte Chile",
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "AgriPlan — Software agrícola para el norte de Chile",
     description:
-      "Controla el agua, proyecta el ROI y gestiona tus cultivos desde el celular. Funciona sin internet.",
+      "Controla el agua, proyecta el ROI y gestiona tus cultivos desde el celular. Hecho para el norte de Chile.",
   },
   alternates: {
     canonical: "https://agriplan.cl",
@@ -58,7 +58,7 @@ const JSON_LD = {
       operatingSystem: "Web, iOS, Android",
       url: "https://agriplan.cl",
       description:
-        "Software de planificación agrícola offline-first para agricultores del norte de Chile. Control de agua por zona, ROI proyectado por cultivo y alertas automáticas de riesgo.",
+        "Software de planificación agrícola para agricultores del norte de Chile. Control de agua por zona, ROI proyectado por cultivo, planificador 12 meses y alertas automáticas de riesgo.",
       inLanguage: "es-CL",
       offers: {
         "@type": "Offer",
@@ -72,7 +72,7 @@ const JSON_LD = {
         "ROI proyectado por cultivo",
         "Alertas automáticas de riesgo",
         "Catálogo de 25+ cultivos del norte de Chile",
-        "Funciona 100% sin internet",
+        "Planificador de agua 12 meses con detección de déficit",
         "Análisis de calidad de agua (boro, salinidad, pH)",
       ],
     },
@@ -85,7 +85,7 @@ const JSON_LD = {
       softwareVersion: "1.0",
       operatingSystem: "Web",
       description:
-        "Aplicación web progresiva (PWA) para gestión agrícola en el norte de Chile. Funciona sin conexión a internet.",
+        "Aplicación web para gestión agrícola en el norte de Chile. Control de agua, economía de cultivos y alertas automáticas.",
       inLanguage: "es-CL",
     },
     {
@@ -136,7 +136,7 @@ const JSON_LD = {
           name: "¿Necesito internet para usar AgriPlan?",
           acceptedAnswer: {
             "@type": "Answer",
-            text: "Para registrarte sí necesitas internet. Después funciona sin señal. Tus datos quedan guardados en el teléfono.",
+            text: "Sí, AgriPlan es una aplicación web y requiere conexión a internet. Funciona bien con conexión móvil estándar desde el celular.",
           },
         },
         {
@@ -266,7 +266,7 @@ const NAV_LINKS = [
 
 const STATS = [
   { value: "25+", label: "cultivos de la región norte" },
-  { value: "100%", label: "operativo sin internet" },
+  { value: "12 meses", label: "de proyección de agua y economía" },
   { value: "6 meses", label: "de prueba, sin tarjeta" },
 ] as const;
 
@@ -291,9 +291,9 @@ const BEFORE_AFTER = [
   },
   {
     before:
-      "Sin señal en el campo no sabes nada. Excel en casa, campo a ciegas.",
+      "Cosechar sin registros: no sabes qué zona rindió, qué cultivo ganó ni si el año fue mejor que el anterior.",
     after:
-      "Funciona 100% sin internet. Tus datos siempre contigo, aunque estés en el cerro.",
+      "Registras cada cosecha y AgriPlan compara producción real vs proyectada. Aprendes de cada temporada.",
   },
 ] as const;
 
@@ -312,9 +312,9 @@ const PAIN_POINTS = [
   },
   {
     num: "03",
-    problema: "Sin señal, sin herramientas",
+    problema: "¿Va a alcanzar el agua los 12 meses?",
     solucion:
-      "Funciona 100% offline. Diseña zonas, registra agua y consulta alertas aunque estés en el cerro sin conexión.",
+      "El planificador proyecta mes a mes si tu recarga de agua cubre el consumo de tus cultivos. Te muestra cuándo habrá déficit antes de que ocurra.",
   },
 ] as const;
 
@@ -415,10 +415,10 @@ const FEATURES = [
     ),
   },
   {
-    label: "Offline",
-    title: "Funciona sin internet",
+    label: "Planificador",
+    title: "Proyección 12 meses",
     description:
-      "Entra una vez con señal y la app funciona aunque te quedes sin conexión. Tus datos siempre disponibles.",
+      "¿Alcanza el agua el año completo? ¿Es rentable lo que estás plantando? El planificador responde ambas preguntas antes de invertir.",
     icon: (
       <svg
         viewBox="0 0 24 24"
@@ -429,8 +429,11 @@ const FEATURES = [
         strokeLinejoin="round"
         aria-hidden
       >
-        <path d="M5 12.55a11 11 0 0114.08 0M1.42 9a16 16 0 0121.16 0M8.53 16.11a6 6 0 016.95 0M12 20h.01" />
-        <line x1="2" y1="2" x2="22" y2="22" />
+        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+        <line x1="16" y1="2" x2="16" y2="6" />
+        <line x1="8" y1="2" x2="8" y2="6" />
+        <line x1="3" y1="10" x2="21" y2="10" />
+        <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01" />
       </svg>
     ),
   },
@@ -513,7 +516,7 @@ const STEPS = [
   {
     num: "4",
     title: "Gestiona y decide",
-    desc: "Alertas de agua, rentabilidad proyectada y riesgos de plagas — todo en tu celular, sin señal.",
+    desc: "Alertas de agua, rentabilidad proyectada y riesgos de plagas — todo en tu celular, en tiempo real.",
     accent: "#c4622d",
   },
 ] as const;
@@ -566,7 +569,7 @@ const FAQ_ITEMS = [
   },
   {
     q: "¿Necesito internet para usarla?",
-    a: "Para registrarte sí necesitas internet una vez. Después funciona sin señal. Tus datos quedan guardados en tu teléfono.",
+    a: "Sí. AgriPlan es una aplicación web y requiere conexión a internet. Funciona bien con señal móvil estándar desde el celular o tablet.",
   },
   {
     q: "¿Funciona en cualquier celular?",
@@ -574,7 +577,7 @@ const FAQ_ITEMS = [
   },
   {
     q: "¿Mis datos están seguros?",
-    a: "Sí. Se guardan en tu teléfono y en servidores seguros. No compartimos tu información con nadie.",
+    a: "Sí. Se guardan en servidores seguros con respaldo automático. No compartimos tu información con nadie.",
   },
   {
     q: "¿Qué pasa si cancelo?",
@@ -592,7 +595,7 @@ const CHECKLIST = [
   "ROI proyectado a 4 años",
   "Alertas automáticas de riesgo",
   "Catálogo con 25+ cultivos de la región",
-  "Funciona 100% sin internet",
+  "Planificador de agua y economía 12 meses",
 ] as const;
 
 export default function LandingPage() {
@@ -747,7 +750,7 @@ export default function LandingPage() {
                   ★ 6 meses gratis, sin tarjeta
                 </span>
                 {(
-                  ["Funciona sin internet", "Datos del norte de Chile"] as const
+                  ["Proyección 12 meses", "Datos del norte de Chile"] as const
                 ).map((b) => (
                   <span
                     key={b}

@@ -4,35 +4,75 @@ import type { EscenarioCultivo } from "@/lib/utils/comparador-cultivos";
 import { formatCLP } from "@/lib/utils";
 
 const COLORES_LINEA = ["text-blue-600", "text-green-600", "text-purple-600"];
-const COLORES_BG = ["bg-blue-50", "bg-green-50", "bg-purple-50"];
+const COLORES_BAR = ["bg-blue-400", "bg-green-400", "bg-purple-400"];
 
 interface TablaComparativaProps {
   escenarios: EscenarioCultivo[];
 }
 
+// ─── Tabla principal ──────────────────────────────────────────────────────────
+
 export function TablaComparativa({ escenarios }: TablaComparativaProps) {
+  const sinCostoAgua = escenarios.every((e) => e.roi.costo_agua_anual === 0);
+  const sinSuelo = escenarios.every((e) => e.factorSuelo === 1.0);
+
   return (
-    <div className="bg-white rounded-lg shadow overflow-hidden">
+    <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+      {/* Supuestos del cálculo */}
+      <div className="px-4 py-3 bg-gray-50 border-b border-gray-100 text-xs text-gray-500 space-y-0.5">
+        <div className="font-medium text-gray-600 mb-1">
+          Cómo se calculan estos números
+        </div>
+        <div>
+          • <strong>Plantas:</strong> densidad calculada según espaciado
+          recomendado del catálogo y el área de la zona
+        </div>
+        <div>
+          • <strong>Inversión:</strong> costo de plantas (año 1) + agua año 1
+        </div>
+        <div>
+          • <strong>Ingresos:</strong> kg producidos × precio promedio de
+          mercado del norte de Chile
+        </div>
+        <div>
+          • <strong>Agua:</strong> Kc del cultivo × ET0 de la región × área de
+          la zona
+        </div>
+        {sinSuelo && (
+          <div className="text-amber-600 mt-1">
+            ⚠ Sin análisis de suelo configurado — factor suelo asume condiciones
+            ideales (100%)
+          </div>
+        )}
+        {sinCostoAgua && (
+          <div className="text-amber-600">
+            ⚠ Sin costo de agua configurado — Costo/kg y Margen usan estimación
+            por defecto
+          </div>
+        )}
+      </div>
+
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="text-left p-3 font-medium text-gray-700">
-                Metrica
+          <thead>
+            <tr className="border-b border-gray-200">
+              <th className="text-left px-4 py-3 font-medium text-gray-500 w-44">
+                Métrica
               </th>
               {escenarios.map((e, i) => (
                 <th
                   key={e.cultivo.id}
-                  className={`text-right p-3 font-medium ${COLORES_LINEA[i]}`}
+                  className={`text-right px-4 py-3 font-semibold ${COLORES_LINEA[i]}`}
                 >
                   {e.cultivo.nombre}
                 </th>
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-gray-50">
             <FilaMetrica
-              label="ROI 4 anos"
+              label="ROI a 4 años"
+              hint="(Ingresos − Inversión) ÷ Inversión. Cuánto ganas por cada peso invertido en 4 años."
               escenarios={escenarios}
               render={(e) => `${e.roi.roi_4_años_pct}%`}
               colorFn={(e) =>
@@ -41,23 +81,40 @@ export function TablaComparativa({ escenarios }: TablaComparativaProps) {
               bold
             />
             <FilaMetrica
-              label="Inversion"
+              label="Inversión inicial"
+              hint="Costo de las plantas + agua del año 1. Lo que necesitas poner para empezar."
               escenarios={escenarios}
               render={(e) => formatCLP(e.roi.inversion_total)}
             />
             <FilaMetrica
-              label="Ingreso Ano 3"
+              label="Ingreso año 3"
+              hint="Año 3 es cuando el cultivo está maduro. Producción kg × precio mercado."
               escenarios={escenarios}
               render={(e) => formatCLP(e.roi.ingreso_año3)}
               colorFn={() => "text-green-700 font-medium"}
             />
             <FilaMetrica
-              label="Costo/kg"
+              label="Costo por kg"
+              hint={
+                sinCostoAgua
+                  ? "Solo incluye costo de agua. Configura costo en /agua para un valor real."
+                  : "Costo total del agua ÷ kg producidos."
+              }
               escenarios={escenarios}
-              render={(e) => formatCLP(e.metricas.costoProduccionKg)}
+              render={(e) =>
+                e.metricas.costoProduccionKg === 0
+                  ? "— (sin costo agua)"
+                  : formatCLP(e.metricas.costoProduccionKg)
+              }
+              colorFn={(e) =>
+                e.metricas.costoProduccionKg === 0
+                  ? "text-gray-400"
+                  : "text-gray-900"
+              }
             />
             <FilaMetrica
               label="Margen"
+              hint="(Precio − Costo variable) ÷ Precio. Qué % del precio de venta es ganancia."
               escenarios={escenarios}
               render={(e) => `${Math.round(e.metricas.margenContribucion)}%`}
               colorFn={(e) =>
@@ -71,12 +128,18 @@ export function TablaComparativa({ escenarios }: TablaComparativaProps) {
             />
             <FilaMetrica
               label="Agua anual"
+              hint="Litros que necesita esta zona para este cultivo durante un año completo."
               escenarios={escenarios}
-              render={(e) => `${e.consumoAguaAnualM3.toFixed(1)} m3`}
+              render={(e) => `${e.consumoAguaAnualM3.toFixed(1)} m³`}
               colorFn={() => "text-cyan-700"}
             />
             <FilaMetrica
-              label="Factor suelo"
+              label="Compatibilidad suelo"
+              hint={
+                sinSuelo
+                  ? "Sin análisis de suelo — asume condiciones ideales. Registra tu suelo para un cálculo real."
+                  : "Qué tanto tolera este cultivo tu suelo (pH, salinidad, boro). 100% = ideal, <50% = riesgo alto."
+              }
               escenarios={escenarios}
               render={(e) => `${Math.round(e.factorSuelo * 100)}%`}
               colorFn={(e) =>
@@ -89,18 +152,20 @@ export function TablaComparativa({ escenarios }: TablaComparativaProps) {
               bold
             />
             <FilaMetrica
-              label="Equilibrio"
+              label="Punto de equilibrio"
+              hint="Cuántos meses hasta que los ingresos recuperan la inversión inicial."
               escenarios={escenarios}
               render={(e) =>
                 e.roi.punto_equilibrio_meses != null
                   ? `${e.roi.punto_equilibrio_meses} meses`
-                  : "N/A"
+                  : "—"
               }
             />
             <FilaMetrica
-              label="Plantas"
+              label="Plantas en la zona"
+              hint="Cantidad de plantas que caben según el espaciado recomendado y el área de la zona."
               escenarios={escenarios}
-              render={(e) => `${e.roi.num_plantas}`}
+              render={(e) => `${e.roi.num_plantas} plantas`}
             />
           </tbody>
         </table>
@@ -109,26 +174,35 @@ export function TablaComparativa({ escenarios }: TablaComparativaProps) {
   );
 }
 
+// ─── Fila con hint ────────────────────────────────────────────────────────────
+
 function FilaMetrica({
   label,
+  hint,
   escenarios,
   render,
   colorFn,
   bold,
 }: {
   label: string;
+  hint: string;
   escenarios: EscenarioCultivo[];
   render: (e: EscenarioCultivo) => string;
   colorFn?: (e: EscenarioCultivo) => string;
   bold?: boolean;
 }) {
   return (
-    <tr>
-      <td className="p-3 text-gray-600">{label}</td>
+    <tr className="hover:bg-gray-50">
+      <td className="px-4 py-3 align-top">
+        <div className="text-gray-800 font-medium text-sm">{label}</div>
+        <div className="text-[11px] text-gray-400 leading-snug mt-0.5 max-w-[170px]">
+          {hint}
+        </div>
+      </td>
       {escenarios.map((e, i) => (
         <td
           key={i}
-          className={`p-3 text-right ${bold ? "font-bold" : ""} ${colorFn ? colorFn(e) : "text-gray-900"}`}
+          className={`px-4 py-3 text-right align-top ${bold ? "font-bold" : ""} ${colorFn ? colorFn(e) : "text-gray-900"}`}
         >
           {render(e)}
         </td>
@@ -137,41 +211,86 @@ function FilaMetrica({
   );
 }
 
+// ─── Gráfico de ingresos por año ─────────────────────────────────────────────
+
 export function GraficoRoiComparativo({ escenarios }: TablaComparativaProps) {
-  const maxIngreso = Math.max(...escenarios.map((x) => x.roi.ingreso_año4));
+  const años = [
+    { key: "ingreso_año2" as const, label: "Año 2" },
+    { key: "ingreso_año3" as const, label: "Año 3" },
+    { key: "ingreso_año4" as const, label: "Año 4" },
+  ];
+
+  const maxIngreso = Math.max(
+    ...escenarios.flatMap((e) => años.map(({ key }) => e.roi[key])),
+    1,
+  );
 
   return (
-    <div className="bg-white rounded-lg shadow p-4">
-      <h3 className="font-bold text-gray-900 mb-3">
-        ROI Comparativo (Ano 2 a 4)
-      </h3>
-      <div className="space-y-3">
+    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+      <div className="mb-3">
+        <h3 className="font-semibold text-gray-900 text-sm">
+          Ingresos por año (Año 2 al 4)
+        </h3>
+        <p className="text-xs text-gray-400 mt-0.5">
+          Año 1 no genera ingreso (plantas en establecimiento). Las barras
+          muestran cuánto vende cada cultivo por año a medida que madura.
+        </p>
+      </div>
+
+      <div className="space-y-5">
         {escenarios.map((e, i) => (
           <div key={e.cultivo.id}>
-            <div className="flex justify-between text-sm mb-1">
-              <span className={`font-medium ${COLORES_LINEA[i]}`}>
+            <div className="flex justify-between items-baseline mb-2">
+              <span className={`text-sm font-semibold ${COLORES_LINEA[i]}`}>
                 {e.cultivo.nombre}
               </span>
-              <span className="text-gray-600">
-                {formatCLP(e.roi.ingreso_acumulado_4años)}
+              <span className="text-xs text-gray-500">
+                Total 4 años:{" "}
+                <strong className="text-gray-700">
+                  {formatCLP(e.roi.ingreso_acumulado_4años)}
+                </strong>
               </span>
             </div>
-            <div className="flex gap-1 h-6">
-              {[e.roi.ingreso_año2, e.roi.ingreso_año3, e.roi.ingreso_año4].map(
-                (ingreso, j) => (
-                  <div
-                    key={j}
-                    className={`rounded ${COLORES_BG[i]} flex items-center justify-center text-xs ${COLORES_LINEA[i]}`}
-                    style={{
-                      width: `${maxIngreso > 0 ? (ingreso / maxIngreso) * 100 : 0}%`,
-                      minWidth: "20px",
-                    }}
-                  >
-                    A{j + 2}
+            <div className="space-y-1.5">
+              {años.map(({ key, label }) => {
+                const ingreso = e.roi[key];
+                const pct = maxIngreso > 0 ? (ingreso / maxIngreso) * 100 : 0;
+                return (
+                  <div key={key} className="flex items-center gap-2">
+                    <div className="text-[11px] text-gray-400 w-10 shrink-0">
+                      {label}
+                    </div>
+                    <div className="flex-1 h-5 bg-gray-100 rounded overflow-hidden">
+                      <div
+                        className={`h-full ${COLORES_BAR[i]} rounded transition-all flex items-center justify-end pr-1.5`}
+                        style={{ width: `${Math.max(pct, 2)}%` }}
+                      >
+                        {pct > 15 && (
+                          <span className="text-[10px] text-white font-medium">
+                            {formatCLP(ingreso)}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    {pct <= 15 && (
+                      <div className="text-[11px] text-gray-500 shrink-0">
+                        {formatCLP(ingreso)}
+                      </div>
+                    )}
                   </div>
-                ),
-              )}
+                );
+              })}
             </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Leyenda de colores */}
+      <div className="flex gap-4 mt-4 pt-3 border-t border-gray-100">
+        {escenarios.map((e, i) => (
+          <div key={e.cultivo.id} className="flex items-center gap-1.5">
+            <div className={`w-3 h-3 rounded-sm ${COLORES_BAR[i]}`} />
+            <span className="text-xs text-gray-500">{e.cultivo.nombre}</span>
           </div>
         ))}
       </div>
@@ -179,20 +298,47 @@ export function GraficoRoiComparativo({ escenarios }: TablaComparativaProps) {
   );
 }
 
+// ─── Recomendación ────────────────────────────────────────────────────────────
+
 export function RecomendacionEscenario({ escenarios }: TablaComparativaProps) {
   const mejor = [...escenarios].sort(
     (a, b) => b.roi.roi_4_años_pct - a.roi.roi_4_años_pct,
   )[0];
 
+  const sinSuelo = mejor.factorSuelo === 1.0;
+
   return (
-    <div className="bg-green-50 border border-green-200 p-4 rounded-lg">
-      <h3 className="font-bold text-green-900 mb-1">Recomendacion</h3>
-      <p className="text-sm text-green-800">
-        <strong>{mejor.cultivo.nombre}</strong> tiene el mejor ROI (
-        {mejor.roi.roi_4_años_pct}%) con margen de contribucion del{" "}
-        {Math.round(mejor.metricas.margenContribucion)}% y factor de
-        compatibilidad con suelo del {Math.round(mejor.factorSuelo * 100)}%.
+    <div className="bg-green-50 border border-green-200 rounded-xl p-4">
+      <div className="text-xs font-semibold text-green-600 uppercase tracking-wide mb-1">
+        Recomendación
+      </div>
+      <p className="text-sm text-green-900 font-semibold mb-1">
+        {mejor.cultivo.nombre} tiene el mejor retorno para esta zona
       </p>
+      <ul className="text-sm text-green-800 space-y-0.5 mt-2">
+        <li>
+          • ROI a 4 años: <strong>{mejor.roi.roi_4_años_pct}%</strong> — por
+          cada $100 invertidos recuperas ${mejor.roi.roi_4_años_pct + 100}
+        </li>
+        <li>
+          • Margen estimado:{" "}
+          <strong>{Math.round(mejor.metricas.margenContribucion)}%</strong> del
+          precio de venta es ganancia
+        </li>
+        <li>
+          • Compatibilidad con tu suelo:{" "}
+          <strong>{Math.round(mejor.factorSuelo * 100)}%</strong>
+          {sinSuelo ? " (sin análisis — asume suelo ideal)" : ""}
+        </li>
+        <li>
+          • Punto de equilibrio:{" "}
+          <strong>
+            {mejor.roi.punto_equilibrio_meses != null
+              ? `${mejor.roi.punto_equilibrio_meses} meses`
+              : "—"}
+          </strong>
+        </li>
+      </ul>
     </div>
   );
 }

@@ -8,3 +8,5 @@ export { ResumenAgua } from "./resumen-agua";
 export { HistorialAgua } from "./historial-agua";
 export { ConfigurarAguaModal } from "./configurar-agua-modal";
 export { ConfigurarRiegoModal } from "./configurar-riego-modal";
+export { CollapsibleSection } from "./collapsible-section";
+export { EstanqueCardAgua } from "./estanque-card-agua";

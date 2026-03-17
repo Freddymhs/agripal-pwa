@@ -10,6 +10,7 @@ import {
   transaccionesDAL,
 } from "@/lib/dal";
 import { generateUUID, getCurrentTimestamp } from "@/lib/utils";
+import { SUELO_DEFAULT_AZAPA } from "@/lib/data";
 import { useAuthContext } from "@/components/providers/auth-provider";
 import { ejecutarMutacion } from "@/lib/helpers/dal-mutation";
 import { logger } from "@/lib/logger";
@@ -85,6 +86,7 @@ export function useProyectos(): UseProyectos {
         usuario_id: user.id,
         nombre: data.nombre,
         ubicacion_referencia: data.ubicacion,
+        suelo: SUELO_DEFAULT_AZAPA,
         created_at: timestamp,
         updated_at: timestamp,
       };

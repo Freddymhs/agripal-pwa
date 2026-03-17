@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { PageLayout } from "@/components/layout";
 import { useProjectContext } from "@/contexts/project-context";
 import { ESTADO_PLANTA, TIPO_ZONA } from "@/lib/constants/entities";
@@ -23,6 +23,8 @@ interface ResumenCultivo {
 }
 
 export default function EconomiaPage() {
+  const [comoSeCalculaOpen, setComoSeCalculaOpen] = useState(false);
+
   const {
     terrenoActual: terreno,
     proyectoActual,
@@ -196,15 +198,23 @@ export default function EconomiaPage() {
             </div>
           )}
 
-          <div
-            className={`p-3 rounded-lg text-sm ${roiGlobal > 50 ? "bg-green-100 text-green-800" : roiGlobal > 0 ? "bg-yellow-100 text-yellow-800" : "bg-red-100 text-red-800"}`}
-          >
-            {roiGlobal > 50
-              ? "✅ Excelente rentabilidad proyectada"
-              : roiGlobal > 0
-                ? "⚠️ Rentabilidad ajustada - considera optimizar cultivos"
-                : "❌ Proyección con pérdidas - revisa tu estrategia"}
-          </div>
+          {resumen.length === 0 ? (
+            <div className="p-3 rounded-lg text-sm bg-amber-50 text-amber-800 border border-amber-200">
+              Agrega cultivos desde el mapa para ver tu proyección económica.
+            </div>
+          ) : (
+            <div
+              className={`p-3 rounded-lg text-sm ${roiGlobal > 50 ? "bg-green-100 text-green-800" : roiGlobal > 0 ? "bg-yellow-100 text-yellow-800" : "bg-red-100 text-red-800"}`}
+            >
+              {roiGlobal > 50
+                ? "✅ Excelente rentabilidad proyectada"
+                : roiGlobal > 0
+                  ? "⚠️ Rentabilidad ajustada - considera optimizar cultivos"
+                  : totalInversion > 0
+                    ? "❌ Proyección con pérdidas - revisa tu estrategia"
+                    : "Agrega cultivos desde el mapa para ver tu proyección económica."}
+            </div>
+          )}
         </div>
 
         {resumen.length === 0 ? (
@@ -283,27 +293,53 @@ export default function EconomiaPage() {
           </div>
         )}
 
-        <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
-          <h3 className="text-sm font-bold text-blue-900 mb-2">
-            📊 ¿Cómo se calcula?
-          </h3>
-          <ul className="text-xs text-blue-800 space-y-1">
-            <li>
-              • <strong>Inversión:</strong> Costo plantas + agua año 1
-            </li>
-            <li>
-              • <strong>Ingreso neto:</strong> Producción × Precio - Costos
-              operación (años 2-4)
-            </li>
-            <li>
-              • <strong>ROI:</strong> (Ingreso neto - Inversión) / Inversión ×
-              100
-            </li>
-            <li>
-              • <strong>Equilibrio:</strong> Mes donde recuperas la inversión
-              inicial
-            </li>
-          </ul>
+        <div className="rounded-lg border border-gray-200 overflow-hidden">
+          <button
+            onClick={() => setComoSeCalculaOpen(!comoSeCalculaOpen)}
+            className="w-full flex items-center justify-between px-4 py-3 text-sm text-gray-500 hover:bg-gray-50 transition-colors"
+          >
+            <span>¿Cómo se calcula?</span>
+            <svg
+              className={`w-4 h-4 text-gray-400 transition-transform ${comoSeCalculaOpen ? "rotate-180" : ""}`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </button>
+          {comoSeCalculaOpen && (
+            <div className="px-4 pb-4 pt-1">
+              <ul className="text-xs text-gray-500 space-y-1">
+                <li>
+                  •{" "}
+                  <span className="font-medium text-gray-600">Inversión:</span>{" "}
+                  Costo plantas + agua año 1
+                </li>
+                <li>
+                  •{" "}
+                  <span className="font-medium text-gray-600">
+                    Ingreso neto:
+                  </span>{" "}
+                  Producción × Precio - Costos operación (años 2-4)
+                </li>
+                <li>
+                  • <span className="font-medium text-gray-600">ROI:</span>{" "}
+                  (Ingreso neto - Inversión) / Inversión × 100
+                </li>
+                <li>
+                  •{" "}
+                  <span className="font-medium text-gray-600">Equilibrio:</span>{" "}
+                  Mes donde recuperas la inversión inicial
+                </li>
+              </ul>
+            </div>
+          )}
         </div>
       </main>
     </PageLayout>

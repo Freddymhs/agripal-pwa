@@ -51,6 +51,24 @@ const TENDENCIA_COLORS: Record<string, string> = {
   baja: "text-red-600",
 };
 
+const TIER_DOT_COLORS: Record<number, string> = {
+  1: "bg-green-500",
+  2: "bg-yellow-400",
+  3: "bg-red-500",
+};
+
+const TIER_LABEL_COLORS: Record<number, string> = {
+  1: "text-green-700",
+  2: "text-yellow-700",
+  3: "text-red-700",
+};
+
+const RIESGO_BADGE_COLORS: Record<string, string> = {
+  bajo: "bg-green-50 text-green-700 border border-green-200",
+  medio: "bg-yellow-50 text-yellow-700 border border-yellow-200",
+  alto: "bg-red-50 text-red-700 border border-red-200",
+};
+
 function CultivoCard({
   cultivo,
   onEditar,
@@ -70,85 +88,159 @@ function CultivoCard({
   const mercado: DatosMercado | undefined =
     datosBaseHook.datosBase.precios?.find((m) => m.cultivo_id === cultivo.id);
 
-  const tierColors = {
-    1: "bg-green-100 text-green-800",
-    2: "bg-yellow-100 text-yellow-800",
-    3: "bg-red-100 text-red-800",
-  };
-
-  const riesgoColors = {
-    bajo: "bg-green-100 text-green-800",
-    medio: "bg-yellow-100 text-yellow-800",
-    alto: "bg-red-100 text-red-800",
-  };
+  const hasExpandable = variedades.length > 0 || !!mercado;
 
   return (
-    <div className="bg-white border rounded-lg p-4 hover:shadow-md transition-shadow">
-      <div className="flex items-start justify-between mb-2">
-        <div>
-          <h3 className="font-bold">{cultivo.nombre}</h3>
-          {cultivo.nombre_cientifico && (
-            <p className="text-sm text-gray-500 italic">
-              {cultivo.nombre_cientifico}
-            </p>
-          )}
+    <div className="bg-white border border-gray-200 rounded-xl p-5 hover:shadow-md transition-shadow flex flex-col gap-4">
+      {/* Header row */}
+      <div className="flex items-start justify-between gap-2">
+        {/* Tier dot + name block */}
+        <div className="flex items-start gap-2 min-w-0">
+          <div className="mt-1.5 flex-shrink-0 flex flex-col items-center gap-0.5">
+            <span
+              className={`w-2.5 h-2.5 rounded-full ${TIER_DOT_COLORS[cultivo.tier]}`}
+            />
+            <span
+              className={`text-[9px] font-semibold leading-none ${TIER_LABEL_COLORS[cultivo.tier]}`}
+            >
+              T{cultivo.tier}
+            </span>
+          </div>
+          <div className="min-w-0">
+            <h3 className="font-semibold text-gray-900 leading-tight truncate">
+              {cultivo.nombre}
+            </h3>
+            {cultivo.nombre_cientifico && (
+              <p className="text-xs text-gray-400 italic leading-tight mt-0.5 truncate">
+                {cultivo.nombre_cientifico}
+              </p>
+            )}
+          </div>
         </div>
-        <div className="flex gap-1">
+
+        {/* Right cluster: riesgo badge + action icons */}
+        <div className="flex items-center gap-1.5 flex-shrink-0">
           <span
-            className={`text-xs px-2 py-1 rounded ${tierColors[cultivo.tier]}`}
-          >
-            Tier {cultivo.tier}
-          </span>
-          <span
-            className={`text-xs px-2 py-1 rounded ${riesgoColors[cultivo.riesgo]}`}
+            className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${RIESGO_BADGE_COLORS[cultivo.riesgo]}`}
           >
             {cultivo.riesgo}
           </span>
+          <button
+            onClick={onEditar}
+            aria-label="Editar cultivo"
+            className="p-1 rounded text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+          >
+            {/* pencil icon */}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+            </svg>
+          </button>
+          <button
+            onClick={onEliminar}
+            aria-label="Eliminar cultivo"
+            className="p-1 rounded text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+          >
+            {/* trash icon */}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <polyline points="3 6 5 6 21 6" />
+              <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+              <path d="M10 11v6" />
+              <path d="M14 11v6" />
+              <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+            </svg>
+          </button>
         </div>
       </div>
 
-      <div className="space-y-1 text-sm text-gray-600 mb-3">
-        <div>
-          <span className="font-medium">Agua:</span>{" "}
-          {cultivo.agua_m3_ha_año_min}-{cultivo.agua_m3_ha_año_max} m³/ha/año
+      {/* Key stats 2-col mini-grid */}
+      <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+        <div className="flex flex-col gap-0.5">
+          <span className="text-[10px] font-medium text-gray-400 uppercase tracking-wide">
+            💧 Agua
+          </span>
+          <span className="text-sm font-semibold text-gray-800">
+            {cultivo.agua_m3_ha_año_min}–{cultivo.agua_m3_ha_año_max}
+          </span>
+          <span className="text-[10px] text-gray-400">m³/ha/año</span>
         </div>
-        <div>
-          <span className="font-medium">Espaciado:</span>{" "}
-          {cultivo.espaciado_recomendado_m}m (mín: {cultivo.espaciado_min_m}m)
+
+        <div className="flex flex-col gap-0.5">
+          <span className="text-[10px] font-medium text-gray-400 uppercase tracking-wide">
+            ⏱ Producción
+          </span>
+          <span className="text-sm font-semibold text-gray-800">
+            {cultivo.tiempo_produccion_meses} meses
+          </span>
         </div>
-        <div>
-          <span className="font-medium">Producción:</span>{" "}
-          {cultivo.tiempo_produccion_meses} meses
+
+        <div className="flex flex-col gap-0.5">
+          <span className="text-[10px] font-medium text-gray-400 uppercase tracking-wide">
+            📏 Espaciado
+          </span>
+          <span className="text-sm font-semibold text-gray-800">
+            {cultivo.espaciado_recomendado_m} m
+          </span>
+          <span className="text-[10px] text-gray-400">
+            mín {cultivo.espaciado_min_m} m
+          </span>
         </div>
+
         {cultivo.precio_kg_min_clp && cultivo.precio_kg_max_clp && (
-          <div>
-            <span className="font-medium">Precio:</span>{" "}
-            {formatCLP(cultivo.precio_kg_min_clp)}-
-            {formatCLP(cultivo.precio_kg_max_clp)}/kg
+          <div className="flex flex-col gap-0.5">
+            <span className="text-[10px] font-medium text-gray-400 uppercase tracking-wide">
+              💰 Precio
+            </span>
+            <span className="text-sm font-semibold text-gray-800">
+              {formatCLP(cultivo.precio_kg_min_clp)}–
+              {formatCLP(cultivo.precio_kg_max_clp)}
+            </span>
+            <span className="text-[10px] text-gray-400">por kg</span>
           </div>
         )}
-        {cultivo.clima && (
-          <div className="text-xs text-gray-500 mt-1 border-t pt-1">
-            {cultivo.clima.temp_min_c !== undefined &&
-              cultivo.clima.temp_max_c !== undefined && (
-                <span>
-                  🌡️ {cultivo.clima.temp_min_c}° a {cultivo.clima.temp_max_c}°C
-                </span>
-              )}
-            {cultivo.clima.tolerancia_heladas && (
-              <span className="ml-2">
-                ❄️ {cultivo.clima.tolerancia_heladas}
+      </div>
+
+      {/* Climate info — one compact line */}
+      {cultivo.clima && (
+        <p className="text-[11px] text-gray-400 leading-tight border-t border-gray-100 pt-3 -mt-1">
+          {cultivo.clima.temp_min_c !== undefined &&
+            cultivo.clima.temp_max_c !== undefined && (
+              <span>
+                🌡️ {cultivo.clima.temp_min_c}° – {cultivo.clima.temp_max_c}°C
               </span>
             )}
-          </div>
-        )}
-      </div>
+          {cultivo.clima.tolerancia_heladas && (
+            <span className="ml-2">❄️ {cultivo.clima.tolerancia_heladas}</span>
+          )}
+        </p>
+      )}
 
-      {(variedades.length > 0 || mercado) && (
-        <div className="mb-3">
+      {/* Expandable variedades / mercado */}
+      {hasExpandable && (
+        <div className="-mt-1">
           <button
             onClick={() => setExpanded(!expanded)}
-            className="text-xs text-blue-600 hover:text-blue-800"
+            className="text-[11px] text-blue-500 hover:text-blue-700 transition-colors font-medium"
           >
             {expanded ? "▾ Ocultar detalles" : "▸ Variedades y mercado"}
           </button>
@@ -211,21 +303,6 @@ function CultivoCard({
           )}
         </div>
       )}
-
-      <div className="flex gap-2">
-        <button
-          onClick={onEditar}
-          className="flex-1 text-sm bg-gray-100 py-1 rounded hover:bg-gray-200"
-        >
-          Editar
-        </button>
-        <button
-          onClick={onEliminar}
-          className="text-sm text-red-600 hover:text-red-800 px-3"
-        >
-          Eliminar
-        </button>
-      </div>
     </div>
   );
 }

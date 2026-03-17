@@ -197,17 +197,28 @@ export function EntradaAguaForm({
             ))}
           </select>
         ) : (
-          <div className="bg-yellow-50 border border-yellow-200 p-3 rounded">
-            <p className="text-sm text-yellow-800">
-              No hay proveedores configurados.{" "}
-              <Link
-                href={ROUTES.AGUA_CONFIGURACION}
-                className="text-cyan-600 underline font-medium"
-              >
-                Configura al menos un proveedor
-              </Link>{" "}
-              antes de registrar entradas de agua.
-            </p>
+          <div className="space-y-2">
+            <div className="bg-amber-50 border border-amber-200 p-3 rounded">
+              <p className="text-sm text-amber-800">
+                Sin proveedores de agua registrados — el costo no se calculará
+                automáticamente.{" "}
+                <Link
+                  href={ROUTES.AGUA_CONFIGURACION}
+                  className="text-cyan-600 underline font-medium"
+                >
+                  Configura proveedores
+                </Link>{" "}
+                para un seguimiento completo.
+              </p>
+            </div>
+            <input
+              type="text"
+              value={proveedorSeleccionado}
+              onChange={(e) => setProveedorSeleccionado(e.target.value)}
+              className="w-full px-3 py-2 border rounded text-gray-900"
+              placeholder="Ej: camión cisterna, pozo propio..."
+              required
+            />
           </div>
         )}
       </div>
@@ -236,7 +247,7 @@ export function EntradaAguaForm({
       <div className="flex gap-2">
         <button
           type="submit"
-          disabled={loading || cantidadFinal <= 0 || proveedores.length === 0}
+          disabled={loading || cantidadFinal <= 0 || !proveedorSeleccionado}
           className="flex-1 bg-cyan-600 text-white py-2 rounded hover:bg-cyan-700 disabled:opacity-50"
         >
           {loading ? "Registrando..." : "Registrar Entrada"}

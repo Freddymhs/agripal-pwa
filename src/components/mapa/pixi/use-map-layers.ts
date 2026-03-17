@@ -245,7 +245,7 @@ export function useMapLayers(
   const zonaEstanqueLabels = useMemo(() => {
     const labels = new Map<string, string>();
     const estanques = zonas.filter((z) => z.tipo === TIPO_ZONA.ESTANQUE);
-    if (estanques.length < 2) return labels;
+    if (estanques.length === 0) return labels;
 
     const shortNames = new Map<string, string>();
     estanques.forEach((est, i) => {

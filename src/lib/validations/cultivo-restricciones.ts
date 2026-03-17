@@ -197,8 +197,8 @@ export function rankearCultivosViables(
         ? 100 - cultivo.agua_m3_ha_año_max
         : priorizarPor === "rentabilidad"
           ? (cultivo.precio_kg_max_clp *
-              cultivo.produccion.produccion_kg_ha_año4) /
-            cultivo.agua_m3_ha_año_min
+              (cultivo.produccion?.produccion_kg_ha_año4 ?? 0)) /
+            (cultivo.agua_m3_ha_año_min || 1)
           : priorizarPor === "seguridad"
             ? (SCORE_RIESGO[cultivo.riesgo] ?? 0) +
               (TIER_SCORE_BASE - cultivo.tier) * SCORE_TIER_MULTIPLICADOR

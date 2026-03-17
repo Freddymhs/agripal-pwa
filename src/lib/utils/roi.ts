@@ -126,11 +126,9 @@ export function calcularROI(
   const factorArea = plantasPorHa > 0 ? numPlantasVivas / plantasPorHa : 0;
   const factorSuelo = suelo ? calcularFactorSuelo(suelo, cultivo) : 1.0;
 
-  const {
-    produccion_kg_ha_año2,
-    produccion_kg_ha_año3,
-    produccion_kg_ha_año4,
-  } = cultivo.produccion;
+  const produccion_kg_ha_año2 = cultivo.produccion?.produccion_kg_ha_año2 ?? 0;
+  const produccion_kg_ha_año3 = cultivo.produccion?.produccion_kg_ha_año3 ?? 0;
+  const produccion_kg_ha_año4 = cultivo.produccion?.produccion_kg_ha_año4 ?? 0;
 
   const kg2 = produccion_kg_ha_año2 * factorArea * factorSuelo;
   const kg3 = produccion_kg_ha_año3 * factorArea * factorSuelo;

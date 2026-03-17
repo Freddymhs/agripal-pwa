@@ -40,7 +40,7 @@ export function PlantaInfo({
     planta.etapa_actual && ETAPA_INFO[planta.etapa_actual]
       ? planta.etapa_actual
       : ETAPA.ADULTA;
-  const kc = cultivo ? getKc(cultivo.nombre, etapaActual) : 1.0;
+  const kc = cultivo ? getKc(cultivo, etapaActual) : 1.0;
   const diasRestantes =
     cultivo && planta.fecha_plantacion
       ? getDiasRestantesEtapa(
@@ -162,7 +162,7 @@ export function PlantaInfo({
           >
             {ETAPAS_LIST.map((etapa) => {
               const info = ETAPA_INFO[etapa];
-              const etapaKc = cultivo ? getKc(cultivo.nombre, etapa) : 1.0;
+              const etapaKc = cultivo ? getKc(cultivo, etapa) : 1.0;
               return (
                 <option key={etapa} value={etapa}>
                   {info.emoji} {info.label} (Kc {etapaKc.toFixed(2)})

@@ -36,32 +36,28 @@ const DRENAJES: { value: DrenajeSuelo; label: string }[] = [
 export function FormularioSuelo({ suelo, onChange }: FormularioSueloProps) {
   const [fisico, setFisico] = useState(suelo?.fisico || {});
   const [quimico, setQuimico] = useState(suelo?.quimico || {});
+  const [prevSuelo, setPrevSuelo] = useState(suelo);
   const isInitialMount = useRef(true);
-  const lastSuelo = useRef(suelo);
-
+  const onChangeRef = useRef(onChange);
   useEffect(() => {
-    if (suelo && !deepEqual(suelo, lastSuelo.current)) {
-      // Solo disparar cuando suelo (prop externa) cambia; fisico/quimico locales
-      // no son deps porque su cambio ya está guardado en lastSuelo.current
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- sincronización de prop externa → estado local del formulario
-      if (suelo.fisico) setFisico(suelo.fisico);
-      if (suelo.quimico) setQuimico(suelo.quimico);
-      lastSuelo.current = suelo;
-    }
-  }, [suelo]);
+    onChangeRef.current = onChange;
+  }, [onChange]);
+
+  // Patrón React: ajustar estado durante render basado en prop cambiada
+  // https://react.dev/reference/react/useState#storing-information-from-previous-renders
+  if (suelo && !deepEqual(suelo, prevSuelo)) {
+    setPrevSuelo(suelo);
+    if (suelo.fisico) setFisico(suelo.fisico);
+    if (suelo.quimico) setQuimico(suelo.quimico);
+  }
 
   useEffect(() => {
     if (isInitialMount.current) {
       isInitialMount.current = false;
       return;
     }
-
-    const newSuelo = { fisico, quimico };
-    if (!deepEqual(newSuelo, lastSuelo.current)) {
-      lastSuelo.current = newSuelo;
-      onChange(newSuelo);
-    }
-  }, [fisico, quimico, onChange]);
+    onChangeRef.current({ fisico, quimico });
+  }, [fisico, quimico]);
 
   const { ph: umbralPh, profundidad_frutales: umbralProfundidad } =
     UMBRALES_SUELO;

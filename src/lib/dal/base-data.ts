@@ -133,7 +133,10 @@ export const baseDataDAL = {
     }
   },
 
-  async setClimaActivo(proyectoId: UUID, climaBaseId: UUID): Promise<void> {
+  async setClimaActivo(
+    proyectoId: UUID,
+    climaBaseId: UUID | null,
+  ): Promise<void> {
     try {
       const { error } = await supabase
         .from("proyectos")

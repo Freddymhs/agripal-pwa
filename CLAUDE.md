@@ -39,6 +39,12 @@
 - Hooks > HOC. HOC solo para librerías legacy o integraciones raras.
 - Prohibido usar `fetch`, `query` o `mutate` directamente en componentes UI.
 
+### Reglas de Hooks estrictas (eslint react-hooks plugin)
+
+- **Prohibido `setState` dentro de `useEffect`** (`react-hooks/set-state-in-effect`). Usar el patrón React de "adjusting state during render": comparar prop actual vs estado previo en el body del componente y llamar `setState` condicionalmente. Ver: https://react.dev/reference/react/useState#storing-information-from-previous-renders
+- **Prohibido mutar refs durante render** (`react-hooks/refs`). Actualizar refs solo dentro de `useEffect` o event handlers.
+- **`eslint --fix` elimina disable comments**: lint-staged ejecuta `eslint --fix` que remueve `eslint-disable-next-line` antes de evaluar. No usar disable comments como workaround — refactorizar el código.
+
 ### Data Layer (DAL)
 
 - APIs en `src/lib/dal/` por dominio (ej: `terrenosDAL`, `plantasDAL`).
@@ -61,7 +67,16 @@
 - **Logger**: usar logger centralizado. Prohibido `console.log/warn/error` directo en código de producción.
 - **Funciones utilitarias**: antes de crear una función, verificar si ya existe en `src/lib/utils/`.
 
-### Migraciones SQL
+### Migraciones SQL — Checklist obligatorio
+
+Cada vez que se agrega una columna nueva a Supabase, los 4 pasos son **todos obligatorios**:
+
+1. `supabase/migrations/` → nueva migración SQL con `ADD COLUMN IF NOT EXISTS`
+2. `src/lib/supabase/schema.ts` → agregar la columna en `COLUMNAS_EXPLICITAS[tabla]`
+3. `src/types/index.ts` → agregar el campo en la interfaz TypeScript correspondiente
+4. DAL correspondiente → actualizar queries si es necesario
+
+Reglas adicionales:
 
 - Toda columna FK nueva → **siempre** crear index (`CREATE INDEX IF NOT EXISTS`).
 - Usar `IF NOT EXISTS` / `IF EXISTS` en todos los DDL para idempotencia.

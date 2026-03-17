@@ -272,7 +272,7 @@ export interface EstanqueConfig {
   material?: MaterialEstanque;
   tiene_tapa?: boolean;
   tiene_filtro?: boolean;
-  recarga?: ConfiguracionRecarga;
+  recarga?: ConfiguracionRecarga | null;
 }
 
 export interface Zona {
@@ -419,6 +419,12 @@ export interface CatalogoCultivo {
 
   costo_variable_kg?: number;
 
+  // Coeficiente de cultivo (Kc) por etapa — definido en BD, fallback a kc-cultivos.ts
+  kc_plantula?: number;
+  kc_joven?: number;
+  kc_adulta?: number;
+  kc_madura?: number;
+
   temperatura_base_C?: number;
   grados_dia_etapas?: {
     plantula: number;
@@ -485,7 +491,10 @@ export type TipoAlerta =
   | "alelopatia_riesgo"
   | "veceria_riesgo"
   | "incompatibilidad_quimica"
-  | "zona_sin_estanque";
+  | "zona_sin_estanque"
+  | "suelo_sin_analisis"
+  | "clima_no_configurado"
+  | "sin_proveedor_agua";
 
 export interface NutricionEtapa {
   etapa: string;
@@ -557,7 +566,8 @@ export type EstadoAlerta = "activa" | "resuelta" | "ignorada";
 
 export interface Alerta {
   id: UUID;
-  terreno_id: UUID;
+  proyecto_id?: UUID;
+  terreno_id?: UUID;
   zona_id?: UUID;
   planta_id?: UUID;
   tipo: TipoAlerta;

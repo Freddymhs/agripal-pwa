@@ -13,7 +13,6 @@ export function CrearProyectoModal({
   onCancel,
 }: CrearProyectoModalProps) {
   const [nombre, setNombre] = useState("");
-  const [ubicacion, setUbicacion] = useState("");
   const [creando, setCreando] = useState(false);
 
   const valido = nombre.trim().length > 0;
@@ -23,7 +22,7 @@ export function CrearProyectoModal({
     if (valido && !creando) {
       setCreando(true);
       try {
-        await onCreated({ nombre: nombre.trim(), ubicacion: ubicacion.trim() });
+        await onCreated({ nombre: nombre.trim(), ubicacion: "" });
       } catch (error) {
         logger.error("Error creando proyecto", {
           error:
@@ -51,19 +50,6 @@ export function CrearProyectoModal({
               placeholder="Ej: Mi Finca"
               className="w-full px-3 py-2 border rounded text-gray-900"
               autoFocus
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Ubicación (referencia)
-            </label>
-            <input
-              type="text"
-              value={ubicacion}
-              onChange={(e) => setUbicacion(e.target.value)}
-              placeholder="Ej: Arica, Chile"
-              className="w-full px-3 py-2 border rounded text-gray-900"
             />
           </div>
 

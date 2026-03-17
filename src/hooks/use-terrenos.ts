@@ -6,7 +6,6 @@ import { generateUUID, getCurrentTimestamp } from "@/lib/utils";
 import { ejecutarMutacion } from "@/lib/helpers/dal-mutation";
 import { logger } from "@/lib/logger";
 import type { Terreno, UUID } from "@/types";
-import { SUELO_DEFAULT_AZAPA } from "@/lib/data";
 
 interface EliminacionCascada {
   zonas: number;
@@ -96,7 +95,6 @@ export function useTerrenos(proyectoId: UUID | null): UseTerrenos {
           descuento_auto: false,
           ultima_actualizacion: timestamp,
         },
-        suelo: SUELO_DEFAULT_AZAPA,
         ultima_simulacion_agua: timestamp,
         created_at: timestamp,
         updated_at: timestamp,

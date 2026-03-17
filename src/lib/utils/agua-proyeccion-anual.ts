@@ -17,10 +17,7 @@ import {
   DIAS_LAVADO_SALINO,
   DIAS_POR_MES_PROMEDIO,
 } from "@/lib/constants/conversiones";
-import {
-  filtrarEstanques,
-  obtenerStockAgua,
-} from "@/lib/utils/helpers-cultivo";
+import { filtrarEstanques } from "@/lib/utils/helpers-cultivo";
 
 export interface ProyeccionMensual {
   mes: number;
@@ -72,11 +69,9 @@ export function generarProyeccionAnual(
 
   const estanques = filtrarEstanques(zonas);
   const { aguaTotal } = calcularStockEstanques(estanques);
-  let nivelActual = obtenerStockAgua(
-    estanques,
-    terreno.agua_actual_m3,
-    aguaTotal,
-  );
+  // La proyección parte de capacidad máxima — ignora el nivel operacional actual.
+  // La pregunta es estructural: ¿el ciclo de recargas configrado sostiene el consumo?
+  let nivelActual = aguaTotal;
   let consumoTotalAnual = 0;
   let recargasTotales = 0;
   let mesesDeficit = 0;

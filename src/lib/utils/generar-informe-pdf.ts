@@ -163,7 +163,7 @@ function procesarDatos(datos: DatosInforme): DatosInformeProcessed {
         (p) => p.tipo_cultivo_id === cultivo.id,
       ).length;
       const kc = Object.fromEntries(
-        ETAPAS_LIST.map((e) => [e, getKc(cultivo.nombre, e)]),
+        ETAPAS_LIST.map((e) => [e, getKc(cultivo, e)]),
       ) as Record<EtapaCrecimiento, number>;
 
       return {

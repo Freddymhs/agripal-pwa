@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { zonasDAL } from "@/lib/dal";
 import { ejecutarMutacion } from "@/lib/helpers/dal-mutation";
@@ -9,17 +9,24 @@ import { useAgua } from "@/hooks/use-agua";
 import { logger } from "@/lib/logger";
 import { PageLayout } from "@/components/layout";
 import {
-  PanelEstanques,
   EntradaAguaForm,
   ResumenAgua,
   HistorialAgua,
+  CollapsibleSection,
+  EstanqueCardAgua,
 } from "@/components/agua";
 import { ConfigurarAguaModal } from "@/components/agua/configurar-agua-modal";
 import { addDays } from "date-fns";
 import { getCurrentTimestamp } from "@/lib/utils";
 import { emitZonaUpdated } from "@/lib/events/zona-events";
 import { TIPO_ZONA } from "@/lib/constants/entities";
-
+import {
+  calcularConsumoZona,
+  calcularDiasRestantesCritico,
+  calcularConsumoEstanque,
+} from "@/lib/utils/agua";
+import { getTemporadaActual } from "@/lib/utils";
+import { MS_POR_DIA } from "@/lib/constants/conversiones";
 import { ROUTES } from "@/lib/constants/routes";
 
 export default function AguaPage() {
@@ -31,12 +38,7 @@ export default function AguaPage() {
     catalogoCultivos,
     loading,
     cargarDatosTerreno: refetch,
-    estanquesHook: {
-      estanques,
-      aguaTotalDisponible,
-      aguaTotalActual,
-      agregarAgua,
-    },
+    estanquesHook: { estanques, aguaTotalDisponible, aguaTotalActual },
   } = useProjectContext();
   const [showEntradaForm, setShowEntradaForm] = useState(false);
   const [showConfigRecarga, setShowConfigRecarga] = useState(false);
@@ -44,7 +46,7 @@ export default function AguaPage() {
     string | null
   >(null);
 
-  const { entradas, consumoSemanal, estadoAgua, registrarEntrada } = useAgua(
+  const { entradas, consumoSemanal, registrarEntrada } = useAgua(
     terreno,
     zonas,
     plantas,
@@ -69,6 +71,69 @@ export default function AguaPage() {
     estanques.find((e) => e.id === estanqueSeleccionadoId) ||
     estanques[0] ||
     null;
+
+  const temporada = useMemo(() => getTemporadaActual(), []);
+
+  const zonasConsumo = useMemo(() => {
+    return zonas
+      .filter((z) => z.tipo === TIPO_ZONA.CULTIVO)
+      .map((zona) => {
+        const plantasZona = plantas.filter((p) => p.zona_id === zona.id);
+        const consumo = calcularConsumoZona(
+          zona,
+          plantasZona,
+          catalogoCultivos,
+          temporada,
+        );
+        return {
+          zona,
+          consumo,
+          porcentaje: consumoSemanal > 0 ? (consumo / consumoSemanal) * 100 : 0,
+        };
+      })
+      .filter((z) => z.consumo > 0)
+      .sort((a, b) => b.consumo - a.consumo);
+  }, [zonas, plantas, catalogoCultivos, consumoSemanal, temporada]);
+
+  const configRecarga = estanqueActual?.estanque_config?.recarga;
+
+  // Días restantes por estanque (cuello de botella real para multi-estanque)
+  const { diasCritico, porEstanque: diasPorEstanque } = useMemo(
+    () =>
+      calcularDiasRestantesCritico(
+        estanques,
+        zonas,
+        plantas,
+        catalogoCultivos,
+        temporada,
+      ),
+    [estanques, zonas, plantas, catalogoCultivos, temporada],
+  );
+
+  // Math.round evita el off-by-one que generaba Math.ceil (ej: 153.00001 → 154)
+  const diasHastaRecarga = useMemo(() => {
+    if (!configRecarga?.proxima_recarga) return null;
+    return Math.round(
+      (new Date(configRecarga.proxima_recarga).getTime() -
+        new Date().getTime()) /
+        MS_POR_DIA,
+    );
+  }, [configRecarga]);
+
+  // Consumo y nivel del estanque seleccionado (para proyección de recarga)
+  const consumoEstanqueActual = useMemo(
+    () =>
+      estanqueActual
+        ? calcularConsumoEstanque(
+            estanqueActual.id,
+            zonas,
+            plantas,
+            catalogoCultivos,
+            temporada,
+          )
+        : 0,
+    [estanqueActual, zonas, plantas, catalogoCultivos, temporada],
+  );
 
   if (loading) {
     return (
@@ -98,38 +163,23 @@ export default function AguaPage() {
   return (
     <PageLayout headerColor="cyan">
       <main className="p-4 space-y-4 max-w-4xl mx-auto">
+        {/* Header informativo */}
         <div className="bg-cyan-50 border-l-4 border-cyan-500 p-4 rounded-lg">
-          <h2 className="text-lg font-bold text-cyan-900 mb-2">
+          <h2 className="text-lg font-bold text-cyan-900 mb-1">
             💧 Gestión Diaria del Agua
           </h2>
-          <p className="text-sm text-cyan-800">
-            Monitorea tu agua <strong>actual</strong>, registra entradas reales,
-            y controla el consumo día a día. Este es el seguimiento de tu
-            sistema <strong>en operación</strong>.
-          </p>
-          <p className="text-xs text-cyan-700 mt-2">
+          <p className="text-xs text-cyan-700">
             🧪 <strong>¿Quieres planificar antes de invertir?</strong>{" "}
             <Link
               href={ROUTES.AGUA_PLANIFICADOR}
               className="underline font-medium"
             >
               Usa el Planificador
-            </Link>{" "}
-            para simular diferentes escenarios.
+            </Link>
           </p>
         </div>
 
-        <ResumenAgua
-          aguaActual={aguaTotalActual}
-          aguaMaxima={aguaTotalDisponible}
-          consumoSemanal={consumoSemanal}
-          estadoAgua={estadoAgua}
-          zonas={zonas}
-          plantas={plantas}
-          catalogoCultivos={catalogoCultivos}
-          configRecarga={estanqueActual?.estanque_config?.recarga}
-        />
-
+        {/* Aviso zonas sin configurar */}
         {zonas.some(
           (z) => z.tipo === TIPO_ZONA.ESTANQUE && !z.estanque_config,
         ) && (
@@ -142,97 +192,68 @@ export default function AguaPage() {
           </div>
         )}
 
-        {estanques.length > 1 && (
-          <div className="bg-white border border-gray-200 rounded-lg p-3">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Estanque Seleccionado:
-            </label>
-            <select
-              value={estanqueSeleccionadoId || ""}
-              onChange={(e) => {
-                const newId = e.target.value;
-                setEstanqueSeleccionadoId(newId);
-              }}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
-            >
-              {estanques.map((est) => (
-                <option key={est.id} value={est.id}>
-                  {est.nombre}{" "}
-                  {est.estanque_config
-                    ? `(${est.estanque_config.nivel_actual_m3}/${est.estanque_config.capacidad_m3} m³)`
-                    : "(sin configurar)"}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
-
-        <div className="grid grid-cols-2 gap-3">
-          <div className="flex flex-col gap-1">
-            <button
-              onClick={() => setShowEntradaForm(true)}
-              disabled={estanques.length === 0}
-              className="bg-cyan-600 text-white py-3 rounded-lg hover:bg-cyan-700 font-medium flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 4v16m8-8H4"
-                />
-              </svg>
-              Registrar Agua
-            </button>
-            <p className="text-xs text-gray-500 text-center">
-              Registra una entrada de agua que ya llegó hoy
-            </p>
-          </div>
-          <div className="flex flex-col gap-1">
-            <button
-              onClick={() => setShowConfigRecarga(true)}
-              disabled={estanques.length === 0}
-              className="bg-gray-100 text-gray-700 py-3 rounded-lg hover:bg-gray-200 font-medium flex items-center justify-center gap-2 disabled:opacity-50"
-            >
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-                />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                />
-              </svg>
-              Frecuencia de entrega
-            </button>
-            <p className="text-xs text-gray-500 text-center">
-              Indica cada cuántos días esperas recibir agua
-            </p>
-          </div>
-        </div>
-
-        <PanelEstanques
-          estanques={estanques}
-          aguaTotal={aguaTotalActual}
-          capacidadTotal={aguaTotalDisponible}
-          onAgregarAgua={agregarAgua}
+        {/* CAPA 1: Estado HOY — Hero */}
+        <ResumenAgua
+          aguaActual={aguaTotalActual}
+          aguaMaxima={aguaTotalDisponible}
+          consumoSemanal={consumoSemanal}
+          onRegistrarAgua={() => setShowEntradaForm(true)}
+          deshabilitarRegistro={estanques.length === 0}
+          diasHastaRecarga={diasHastaRecarga}
+          diasRestantesOverride={diasCritico}
         />
 
+        {/* CAPA 2: Detalles colapsables */}
+        {zonasConsumo.length > 0 && (
+          <CollapsibleSection titulo="Ver consumo por zona">
+            <div className="pt-2 space-y-2">
+              {zonasConsumo.map(({ zona, consumo, porcentaje: pct }) => (
+                <div
+                  key={zona.id}
+                  className="flex items-center justify-between text-sm bg-gray-50 p-2 rounded"
+                >
+                  <div className="flex items-center gap-2">
+                    <div
+                      className="w-3 h-3 rounded-full"
+                      style={{ backgroundColor: zona.color }}
+                    />
+                    <span className="font-medium text-gray-700">
+                      {zona.nombre}
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    <div className="font-semibold text-gray-900">
+                      {consumo.toFixed(2)} m³/sem
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      {pct.toFixed(0)}%
+                    </div>
+                  </div>
+                </div>
+              ))}
+              <p className="text-xs text-gray-500 pt-1">
+                Este cálculo se actualiza automáticamente según tus cultivos.
+              </p>
+            </div>
+          </CollapsibleSection>
+        )}
+
+        {/* Cards por estanque (siempre, aunque sea 1 solo) */}
+        <div className="space-y-3">
+          {estanques.map((est) => (
+            <EstanqueCardAgua
+              key={est.id}
+              estanque={est}
+              resumen={diasPorEstanque.find((r) => r.estanqueId === est.id)}
+              onConfigurarRecarga={() => {
+                setEstanqueSeleccionadoId(est.id);
+                setShowConfigRecarga(true);
+              }}
+            />
+          ))}
+        </div>
+
+        {/* CAPA 3: Historial */}
         <HistorialAgua entradas={entradas} estanques={estanques} />
       </main>
 
@@ -255,6 +276,7 @@ export default function AguaPage() {
       {showConfigRecarga && estanqueActual && (
         <ConfigurarAguaModal
           estanque={estanqueActual}
+          consumoSemanal={consumoEstanqueActual}
           onGuardar={async (config) => {
             if (!estanqueActual?.estanque_config) return;
 
@@ -283,12 +305,16 @@ export default function AguaPage() {
               config.frecuencia_dias,
             ).toISOString();
 
-            const configActual = estanqueActual.estanque_config;
+            // Leer config fresca de BD para no sobrescribir nivel_actual_m3 con dato stale del closure
+            const zonaFresca = await zonasDAL.getById(estanqueActual.id);
+            const configFresca =
+              zonaFresca?.estanque_config ?? estanqueActual.estanque_config;
+
             await ejecutarMutacion(
               () =>
                 zonasDAL.update(estanqueActual.id, {
                   estanque_config: {
-                    ...configActual,
+                    ...configFresca,
                     recarga: {
                       frecuencia_dias: config.frecuencia_dias,
                       cantidad_litros: config.cantidad_litros,
@@ -300,6 +326,30 @@ export default function AguaPage() {
                   updated_at: now,
                 }),
               "configurar recarga estanque",
+              async () => {
+                emitZonaUpdated(estanqueActual.id);
+                await refetch();
+              },
+            );
+            setShowConfigRecarga(false);
+          }}
+          onQuitar={async () => {
+            if (!estanqueActual?.estanque_config) return;
+
+            const zonaFresca = await zonasDAL.getById(estanqueActual.id);
+            const configFresca =
+              zonaFresca?.estanque_config ?? estanqueActual.estanque_config;
+
+            await ejecutarMutacion(
+              () =>
+                zonasDAL.update(estanqueActual.id, {
+                  estanque_config: {
+                    ...configFresca,
+                    recarga: null,
+                  },
+                  updated_at: getCurrentTimestamp(),
+                }),
+              "quitar recarga estanque",
               async () => {
                 emitZonaUpdated(estanqueActual.id);
                 await refetch();

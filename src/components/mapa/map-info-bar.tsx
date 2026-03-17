@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useProjectContext } from "@/contexts/project-context";
 import { ESTADO_AGUA } from "@/lib/constants/entities";
 import {
-  DIAS_AGUA_UMBRAL_ALTO,
+  DIAS_AGUA_UMBRAL_SEGURO,
   DIAS_AGUA_UMBRAL_CRITICO,
 } from "@/lib/constants/umbrales";
 
@@ -45,7 +45,7 @@ export function MapInfoBar() {
   const diasColor =
     diasAgua === Infinity
       ? "text-gray-500"
-      : diasAgua > DIAS_AGUA_UMBRAL_ALTO
+      : diasAgua > DIAS_AGUA_UMBRAL_SEGURO
         ? "text-green-700"
         : diasAgua > DIAS_AGUA_UMBRAL_CRITICO
           ? "text-yellow-700"
@@ -114,7 +114,7 @@ export function MapInfoBar() {
             sublabel={
               diasAgua === Infinity
                 ? "sin consumo activo"
-                : diasAgua > DIAS_AGUA_UMBRAL_ALTO
+                : diasAgua > DIAS_AGUA_UMBRAL_SEGURO
                   ? "agua suficiente"
                   : diasAgua > DIAS_AGUA_UMBRAL_CRITICO
                     ? "planifica recarga"

@@ -20,12 +20,55 @@ import { calcularConsumoZona } from "@/lib/utils/agua";
 type TabActiva = "viabilidad" | "proyeccion" | "economia";
 
 const TABS = [
-  { id: "viabilidad" as const, label: "Viabilidad Cultivos" },
-  { id: "proyeccion" as const, label: "Proyeccion Agua" },
-  { id: "economia" as const, label: "Economia Anual" },
+  {
+    id: "viabilidad" as const,
+    label: "¿Qué plantar?",
+    sub: "Cultivos viables",
+  },
+  {
+    id: "proyeccion" as const,
+    label: "¿Alcanza 12 meses?",
+    sub: "Proyección agua",
+  },
+  { id: "economia" as const, label: "¿Es rentable?", sub: "Economía anual" },
 ];
 
 import { ROUTES } from "@/lib/constants/routes";
+
+interface Prerequisito {
+  cumplido: boolean;
+  label: string;
+  accion?: { label: string; href: string };
+}
+
+function PrerequisitosBloque({ items }: { items: Prerequisito[] }) {
+  const incumplidos = items.filter((p) => !p.cumplido);
+  if (incumplidos.length === 0) return null;
+
+  return (
+    <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 space-y-2">
+      <div className="text-sm font-semibold text-amber-900">
+        Para usar esta sección necesitas:
+      </div>
+      {incumplidos.map((p, i) => (
+        <div key={i} className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2 text-sm text-amber-800">
+            <span className="text-amber-500">○</span>
+            {p.label}
+          </div>
+          {p.accion && (
+            <Link
+              href={p.accion.href}
+              className="shrink-0 text-xs bg-amber-600 text-white px-2.5 py-1 rounded hover:bg-amber-700"
+            >
+              {p.accion.label}
+            </Link>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export default function PlanificadorAguaPage() {
   const {
@@ -139,6 +182,64 @@ export default function PlanificadorAguaPage() {
     proyectoActual?.suelo,
   ]);
 
+  const tieneEstanques = estanques.length > 0;
+  const tieneRecarga = estanques.some((e) => e.estanque_config?.recarga);
+  const tienePlantas = plantas.some((p) => p.estado !== ESTADO_PLANTA.MUERTA);
+  const tieneZonasCultivo = zonas.some((z) => z.tipo === TIPO_ZONA.CULTIVO);
+  const tieneSuelo = !!proyectoActual?.suelo;
+  const tieneCostoAgua =
+    !!terreno?.agua_costo_clp_por_m3 ||
+    fuentesAgua.some((f) => !!f.costo_m3_clp);
+
+  const prerequisitosViabilidad: Prerequisito[] = [
+    {
+      cumplido: tieneEstanques,
+      label: "Al menos un estanque configurado",
+      accion: { label: "Ir al mapa", href: ROUTES.HOME },
+    },
+    {
+      cumplido: tieneZonasCultivo,
+      label: "Al menos una zona de cultivo en el mapa",
+      accion: { label: "Ir al mapa", href: ROUTES.HOME },
+    },
+    {
+      cumplido: tieneSuelo,
+      label: "Análisis de suelo registrado (mejora precisión)",
+      accion: { label: "Registrar suelo", href: ROUTES.TERRENOS_SUELO },
+    },
+  ];
+
+  const prerequisitosProyeccion: Prerequisito[] = [
+    {
+      cumplido: tieneEstanques,
+      label: "Al menos un estanque configurado",
+      accion: { label: "Ir al mapa", href: ROUTES.HOME },
+    },
+    {
+      cumplido: tieneRecarga,
+      label: "Frecuencia e importe de recarga configurados",
+      accion: { label: "Configurar recarga", href: ROUTES.AGUA },
+    },
+    {
+      cumplido: tienePlantas,
+      label: "Plantas registradas en el mapa (define el consumo)",
+      accion: { label: "Ir al mapa", href: ROUTES.HOME },
+    },
+  ];
+
+  const prerequisitosEconomia: Prerequisito[] = [
+    {
+      cumplido: tienePlantas,
+      label: "Plantas registradas en zonas de cultivo",
+      accion: { label: "Ir al mapa", href: ROUTES.HOME },
+    },
+    {
+      cumplido: tieneCostoAgua,
+      label: "Costo del agua configurado (CLP/m³)",
+      accion: { label: "Configurar costo", href: ROUTES.AGUA },
+    },
+  ];
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -185,75 +286,117 @@ export default function PlanificadorAguaPage() {
       headerActions={headerActions}
     >
       <main className="p-4 space-y-4 max-w-4xl mx-auto">
-        <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg">
-          <h2 className="text-lg font-bold text-blue-900 mb-2">
-            Vista CEO: Proyeccion Anual
-          </h2>
-          <p className="text-sm text-blue-800">
-            Simula y proyecta tu negocio agricola a <strong>12 meses</strong>.
-            Anticipa problemas de agua, planifica recargas y calcula la
-            economia.
-          </p>
-        </div>
+        {/* Snapshot de métricas clave */}
+        {economiaAnual && proyeccion && (
+          <div className="grid grid-cols-3 gap-2">
+            <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-3 text-center">
+              <div className="text-[10px] text-gray-400 uppercase tracking-wide">
+                Ingresos año 2
+              </div>
+              <div className="text-base font-bold text-emerald-700">
+                {economiaAnual.ingresoAnual > 0
+                  ? new Intl.NumberFormat("es-CL", {
+                      style: "currency",
+                      currency: "CLP",
+                      maximumFractionDigits: 0,
+                    }).format(economiaAnual.ingresoAnual)
+                  : "—"}
+              </div>
+            </div>
+            <div
+              className={`rounded-xl border shadow-sm p-3 text-center ${proyeccion.resumen.mesesDeficit > 0 ? "bg-red-50 border-red-200" : "bg-cyan-50 border-cyan-100"}`}
+            >
+              <div className="text-[10px] text-gray-400 uppercase tracking-wide">
+                Meses déficit
+              </div>
+              <div
+                className={`text-base font-bold ${proyeccion.resumen.mesesDeficit > 0 ? "text-red-700" : "text-cyan-700"}`}
+              >
+                {proyeccion.resumen.mesesDeficit === 0
+                  ? "Ninguno"
+                  : proyeccion.resumen.mesesDeficit}
+              </div>
+            </div>
+            <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-3 text-center">
+              <div className="text-[10px] text-gray-400 uppercase tracking-wide">
+                ROI año 2
+              </div>
+              <div
+                className={`text-base font-bold ${economiaAnual.roi > 0 ? "text-emerald-700" : "text-red-600"}`}
+              >
+                {Math.round(economiaAnual.roi)}%
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="flex gap-2 overflow-x-auto pb-2">
           {TABS.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setTabActiva(tab.id)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap ${
+              className={`px-4 py-2.5 rounded-lg text-left whitespace-nowrap transition-colors ${
                 tabActiva === tab.id
-                  ? "bg-blue-600 text-white"
+                  ? "bg-blue-600 text-white shadow-sm"
                   : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50"
               }`}
             >
-              {tab.label}
+              <div className="text-sm font-semibold">{tab.label}</div>
+              <div
+                className={`text-[10px] ${tabActiva === tab.id ? "text-blue-200" : "text-gray-400"}`}
+              >
+                {tab.sub}
+              </div>
             </button>
           ))}
         </div>
 
-        {tabActiva === "viabilidad" && (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-            <RecomendacionPanel
-              terreno={terreno}
-              estanques={estanques}
-              entradasAgua={entradas}
-              zonas={zonas}
-              plantas={plantas}
-              catalogoCultivos={catalogoCultivos}
-              areaHa={areaHa}
-            />
-          </div>
-        )}
+        {/* min-h evita layout shift al cambiar tabs con distinta altura de contenido */}
+        <div className="min-h-[320px]">
+          {tabActiva === "viabilidad" && (
+            <>
+              <PrerequisitosBloque items={prerequisitosViabilidad} />
+              {tieneEstanques && tieneZonasCultivo && (
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                  <RecomendacionPanel
+                    terreno={terreno}
+                    estanques={estanques}
+                    entradasAgua={entradas}
+                    zonas={zonas}
+                    plantas={plantas}
+                    catalogoCultivos={catalogoCultivos}
+                    areaHa={areaHa}
+                  />
+                </div>
+              )}
+            </>
+          )}
 
-        {tabActiva === "proyeccion" && proyeccion && (
-          <PlanificadorProyeccionTab
-            proyeccion={proyeccion}
-            estanques={estanques}
-          />
-        )}
+          {tabActiva === "proyeccion" && (
+            <>
+              <PrerequisitosBloque items={prerequisitosProyeccion} />
+              {proyeccion &&
+                prerequisitosProyeccion.every((p) => p.cumplido) && (
+                  <PlanificadorProyeccionTab
+                    proyeccion={proyeccion}
+                    estanques={estanques}
+                  />
+                )}
+            </>
+          )}
 
-        {tabActiva === "economia" && economiaAnual && (
-          <PlanificadorEconomiaTab
-            economiaAnual={economiaAnual}
-            plantas={plantas}
-          />
-        )}
-
-        <div className="bg-green-50 border border-green-200 p-4 rounded-lg">
-          <h3 className="text-sm font-bold text-green-900 mb-2">
-            Siguiente Paso
-          </h3>
-          <p className="text-xs text-green-800 mb-3">
-            Una vez que hayas identificado cultivos viables, usa el{" "}
-            <strong>mapa interactivo</strong> para plantar.
-          </p>
-          <Link
-            href={ROUTES.HOME}
-            className="inline-block bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 text-sm font-medium"
-          >
-            Ir al Mapa
-          </Link>
+          {tabActiva === "economia" && (
+            <>
+              <PrerequisitosBloque items={prerequisitosEconomia} />
+              {economiaAnual &&
+                prerequisitosEconomia.every((p) => p.cumplido) && (
+                  <PlanificadorEconomiaTab
+                    economiaAnual={economiaAnual}
+                    plantas={plantas}
+                  />
+                )}
+            </>
+          )}
         </div>
       </main>
     </PageLayout>

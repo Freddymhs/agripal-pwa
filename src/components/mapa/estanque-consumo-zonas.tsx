@@ -1,10 +1,7 @@
 "use client";
 
 import type { Zona } from "@/types";
-import {
-  DIAS_AGUA_UMBRAL_ALTO,
-  DIAS_AGUA_UMBRAL_CRITICO,
-} from "@/lib/constants/umbrales";
+import { getEstadoDiasAgua } from "@/lib/utils/agua";
 
 interface ConsumoZona {
   zona: Zona;
@@ -19,13 +16,17 @@ interface EstanqueConsumoZonasProps {
   consumoPorZona: ConsumoZona[];
   consumoTotal: number;
   diasRestantes: number;
+  ocultarResumen?: boolean;
 }
 
 export function EstanqueConsumoZonas({
   consumoPorZona,
   consumoTotal,
   diasRestantes,
+  ocultarResumen = false,
 }: EstanqueConsumoZonasProps) {
+  const estadoDias = getEstadoDiasAgua(diasRestantes);
+
   if (consumoTotal === 0) {
     return (
       <div className="bg-gray-50 p-3 rounded text-xs text-gray-600">
@@ -37,28 +38,30 @@ export function EstanqueConsumoZonas({
 
   return (
     <div className="space-y-3">
-      <div
-        className={`p-3 rounded-lg text-sm ${
-          diasRestantes > DIAS_AGUA_UMBRAL_ALTO
-            ? "bg-green-50 text-green-800"
-            : diasRestantes > DIAS_AGUA_UMBRAL_CRITICO
-              ? "bg-yellow-50 text-yellow-800"
-              : "bg-red-50 text-red-800"
-        }`}
-      >
-        <div className="font-medium">
-          {diasRestantes === Infinity
-            ? "Sin consumo activo"
-            : `Agua para ~${Math.floor(diasRestantes)} días`}
+      {!ocultarResumen ? (
+        <div
+          className={`p-3 rounded-lg text-sm ${estadoDias.colorFondo} ${estadoDias.colorTexto}`}
+        >
+          <div className="font-medium">
+            {diasRestantes === Infinity
+              ? "Sin consumo activo"
+              : `Agua para ~${Math.floor(diasRestantes)} días`}
+          </div>
+          <div className="text-xs opacity-75">
+            Consumo total: {consumoTotal.toFixed(2)} m³/semana
+          </div>
         </div>
-        <div className="text-xs opacity-75">
-          Consumo total: {consumoTotal.toFixed(2)} m³/semana
+      ) : (
+        <div className="text-xs text-gray-500">
+          Consumo total del terreno: {consumoTotal.toFixed(2)} m³/semana
         </div>
-      </div>
+      )}
 
       <div>
         <h5 className="text-xs font-medium text-gray-700 mb-2">
-          Consumo por zona
+          {ocultarResumen
+            ? "Consumo por zona (todo el terreno)"
+            : "Consumo por zona"}
         </h5>
         <div className="space-y-1.5">
           {consumoPorZona.map(

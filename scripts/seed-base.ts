@@ -52,8 +52,22 @@ async function seedCatalogoBase(sb: SupabaseClient): Promise<void> {
   const extras = readJson<RawRecord[]>("data/seed/cultivos-extras.json");
 
   const payload = [...frutas, ...extras].map((c) => {
-    const { id, nombre, tier, proyecto_id: _p, created_at: _ca, updated_at: _ua, ...datos } = c;
-    return { id: id as string, nombre: nombre as string, tier: (tier as string) ?? "base", datos };
+    const {
+      id, nombre, tier,
+      kc_plantula, kc_joven, kc_adulta, kc_madura,
+      proyecto_id: _p, created_at: _ca, updated_at: _ua,
+      ...datos
+    } = c;
+    return {
+      id: id as string,
+      nombre: nombre as string,
+      tier: (tier as string) ?? "base",
+      kc_plantula: (kc_plantula as number) ?? null,
+      kc_joven: (kc_joven as number) ?? null,
+      kc_adulta: (kc_adulta as number) ?? null,
+      kc_madura: (kc_madura as number) ?? null,
+      datos,
+    };
   });
 
   const { error } = await sb.from("catalogo_base").upsert(payload, { onConflict: "id" });

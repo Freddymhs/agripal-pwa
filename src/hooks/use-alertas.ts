@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { alertasDAL } from "@/lib/dal";
 import { ejecutarMutacion } from "@/lib/helpers/dal-mutation";
 import { sincronizarAlertas } from "@/lib/utils/alertas";
 import { getCurrentTimestamp } from "@/lib/utils";
+import { logger } from "@/lib/logger";
 import { ESTADO_ALERTA, SEVERIDAD_ALERTA } from "@/lib/constants/entities";
 import type {
   Alerta,
@@ -14,6 +15,7 @@ import type {
   CatalogoCultivo,
   SueloTerreno,
   UUID,
+  ProveedorAgua,
 } from "@/types";
 
 interface UseAlertas {
@@ -32,27 +34,68 @@ export function useAlertas(
   plantas: Planta[],
   catalogoCultivos: CatalogoCultivo[],
   suelo?: SueloTerreno | null,
+  datosListos?: boolean,
+  climaBaseId?: string | null,
+  proveedoresAgua?: ProveedorAgua[],
+  proyectoId?: string,
 ): UseAlertas {
   const [alertas, setAlertas] = useState<Alerta[]>([]);
   const [loading, setLoading] = useState(true);
+  // Cancela ejecuciones anteriores si llega una nueva antes de que termine
+  const syncIdRef = useRef(0);
 
   const refrescarAlertas = useCallback(async () => {
-    if (!terreno) return;
+    if (!terreno || datosListos === false) {
+      setLoading(false);
+      return;
+    }
+
+    const syncId = ++syncIdRef.current;
+    const isCurrent = () => syncId === syncIdRef.current;
 
     setLoading(true);
-    const activas = await sincronizarAlertas(
-      terreno,
-      zonas,
-      plantas,
-      catalogoCultivos,
-      suelo,
-    );
-    setAlertas(activas);
-    setLoading(false);
-  }, [terreno, zonas, plantas, catalogoCultivos, suelo]);
+    try {
+      const activas = await sincronizarAlertas(
+        terreno,
+        zonas,
+        plantas,
+        catalogoCultivos,
+        suelo,
+        climaBaseId,
+        isCurrent,
+        proveedoresAgua,
+        proyectoId,
+      );
+
+      // Si llegó una ejecución más reciente mientras esperábamos, descartar resultado
+      if (!isCurrent()) return;
+
+      setAlertas(activas);
+    } catch (err) {
+      logger.error(
+        "Error al sincronizar alertas",
+        err instanceof Error ? { message: err.message } : undefined,
+      );
+      if (!isCurrent()) return;
+      setAlertas([]);
+    } finally {
+      if (syncId === syncIdRef.current) {
+        setLoading(false);
+      }
+    }
+  }, [
+    terreno,
+    zonas,
+    plantas,
+    catalogoCultivos,
+    suelo,
+    datosListos,
+    climaBaseId,
+    proveedoresAgua,
+    proyectoId,
+  ]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- patrón useCallback+useEffect para inicialización reactiva; refrescarAlertas es estable y captura todas las deps transitivamente
     refrescarAlertas();
   }, [refrescarAlertas]);
 

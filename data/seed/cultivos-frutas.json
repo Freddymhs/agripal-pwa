@@ -140,7 +140,11 @@
       "descripcion": "Cladodio maduro de 1-2 años, secar al sol 5-7 días antes de plantar. Plantar vertical enterrando 1/3. Sin riego los primeros 15 días."
     },
     "created_at": "2024-12-01T00:00:00Z",
-    "updated_at": "2026-03-08T00:00:00Z"
+    "updated_at": "2026-03-08T00:00:00Z",
+    "kc_plantula": 0.4,
+    "kc_joven": 0.6,
+    "kc_adulta": 0.75,
+    "kc_madura": 0.65
   },
   {
     "id": "cultivo-higuera",
@@ -288,7 +292,11 @@
       "descripcion": "Estacas de 25-40cm en dormancia (jun-jul). Sin hormona necesaria. Enraizamiento casi asegurado en suelo húmedo. Método más fácil del catálogo."
     },
     "created_at": "2024-12-01T00:00:00Z",
-    "updated_at": "2026-03-08T00:00:00Z"
+    "updated_at": "2026-03-08T00:00:00Z",
+    "kc_plantula": 0.5,
+    "kc_joven": 0.7,
+    "kc_adulta": 0.85,
+    "kc_madura": 0.75
   },
   {
     "id": "cultivo-pitahaya",
@@ -386,7 +394,11 @@
     "notas": "Cultivo gourmet, alto precio. Produce en contra-estación.",
     "notas_arica": "Área limitada (0.1 ha). Mejor rentabilidad/agua. Requiere protección viento.",
     "created_at": "2024-12-01T00:00:00Z",
-    "updated_at": "2026-03-07T00:00:00Z"
+    "updated_at": "2026-03-07T00:00:00Z",
+    "kc_plantula": 0.45,
+    "kc_joven": 0.65,
+    "kc_adulta": 0.9,
+    "kc_madura": 0.7
   },
   {
     "id": "cultivo-guayaba",
@@ -516,7 +528,11 @@
       "descripcion": "Semilla con alta variabilidad. Acodo aéreo en rama madura (25-30cm): anillar corteza, cubrir con musgo húmedo, plástico negro. Enraizamiento en 60-90 días."
     },
     "created_at": "2024-12-01T00:00:00Z",
-    "updated_at": "2026-03-08T00:00:00Z"
+    "updated_at": "2026-03-08T00:00:00Z",
+    "kc_plantula": 0.5,
+    "kc_joven": 0.8,
+    "kc_adulta": 1.0,
+    "kc_madura": 0.85
   },
   {
     "id": "cultivo-datil-medjool",
@@ -609,7 +625,11 @@
     "notas": "Palmera de alto valor; tolera salinidad y boro. Requiere larga espera para retorno y agua abundante.",
     "notas_arica": "Escala muy chica por agua limitada (~1,040 m³/ha disponibles). Tolerante a sal y algo de boro de Lluta; ideal con agua Azapa/desalada.",
     "created_at": "2024-12-02T00:00:00Z",
-    "updated_at": "2026-03-07T00:00:00Z"
+    "updated_at": "2026-03-07T00:00:00Z",
+    "kc_plantula": 0.5,
+    "kc_joven": 0.75,
+    "kc_adulta": 1.0,
+    "kc_madura": 0.9
   },
   {
     "id": "cultivo-maracuya",
@@ -702,7 +722,11 @@
     "notas": "Retorno rápido y buen flujo de caja; sensible a salinidad y viento fuerte.",
     "notas_arica": "Excelente para rotación corta en valles bajos. Requiere agua <2 dS/m y protección de viento.",
     "created_at": "2024-12-02T00:00:00Z",
-    "updated_at": "2026-03-07T00:00:00Z"
+    "updated_at": "2026-03-07T00:00:00Z",
+    "kc_plantula": 0.45,
+    "kc_joven": 0.7,
+    "kc_adulta": 0.95,
+    "kc_madura": 0.8
   },
   {
     "id": "cultivo-uva-mesa-primor",
@@ -801,7 +825,11 @@
     "notas": "Necesita manejo técnico alto para primores tempranos.",
     "notas_arica": "Ventaja de ventana temprana (nov-ene). Requiere riego preciso y manejo de salinidad.",
     "created_at": "2024-12-02T00:00:00Z",
-    "updated_at": "2026-03-07T00:00:00Z"
+    "updated_at": "2026-03-07T00:00:00Z",
+    "kc_plantula": 0.4,
+    "kc_joven": 0.6,
+    "kc_adulta": 0.8,
+    "kc_madura": 0.5
   },
   {
     "id": "cultivo-limon",
@@ -894,7 +922,11 @@
     "notas": "Requiere riego y portainjerto tolerante a sales.",
     "notas_arica": "Usar patrón tolerante (C-35/Swingle) por sales y boro. Ajustar riego presurizado; agua Lluta no recomendable.",
     "created_at": "2024-12-02T00:00:00Z",
-    "updated_at": "2026-03-07T00:00:00Z"
+    "updated_at": "2026-03-07T00:00:00Z",
+    "kc_plantula": 0.5,
+    "kc_joven": 0.7,
+    "kc_adulta": 0.85,
+    "kc_madura": 0.8
   },
   {
     "id": "cultivo-mandarina-w-murcott",
@@ -987,7 +1019,11 @@
     "notas": "Buena calidad tardía; exige manejo de riego uniforme.",
     "notas_arica": "Usar portainjerto tolerante a sales; evitar Lluta sin mezcla. Proteger de viento durante floración.",
     "created_at": "2024-12-02T00:00:00Z",
-    "updated_at": "2026-03-07T00:00:00Z"
+    "updated_at": "2026-03-07T00:00:00Z",
+    "kc_plantula": 0.5,
+    "kc_joven": 0.7,
+    "kc_adulta": 0.85,
+    "kc_madura": 0.8
   },
   {
     "id": "cultivo-arandano-maceta",
@@ -1081,7 +1117,11 @@
     "notas": "Manejo intensivo en maceta; costo inicial alto pero control de pH y sales.",
     "notas_arica": "Usar sustrato acidificado y riego con agua tratada/desalada (<0.8 dS/m, boro <0.2 ppm). Viable en patio/pequeña escala.",
     "created_at": "2024-12-02T00:00:00Z",
-    "updated_at": "2026-03-07T00:00:00Z"
+    "updated_at": "2026-03-07T00:00:00Z",
+    "kc_plantula": 0.5,
+    "kc_joven": 0.75,
+    "kc_adulta": 0.95,
+    "kc_madura": 0.85
   },
   {
     "id": "cultivo-lucuma",
@@ -1174,7 +1214,11 @@
     "notas": "Producto nicho; árbol lento en establecer.",
     "notas_arica": "Rendimiento lento; probar en áreas con menor viento y buen drenaje. Mercado pequeño local.",
     "created_at": "2024-12-02T00:00:00Z",
-    "updated_at": "2026-03-07T00:00:00Z"
+    "updated_at": "2026-03-07T00:00:00Z",
+    "kc_plantula": 0.5,
+    "kc_joven": 0.7,
+    "kc_adulta": 0.85,
+    "kc_madura": 0.75
   },
   {
     "id": "cultivo-granada",
@@ -1267,7 +1311,11 @@
     "notas": "Una de las frutas más tolerantes a sequía, calor y salinidad. Producción alta con bajo insumo hídrico.",
     "notas_arica": "Perfecta para zonas expuestas y desérticas. Variedad Wonderful. Tolera viento mejor que cítricos. ROI sólido desde año 2.",
     "created_at": "2026-03-07T00:00:00Z",
-    "updated_at": "2026-03-07T00:00:00Z"
+    "updated_at": "2026-03-07T00:00:00Z",
+    "kc_plantula": 0.45,
+    "kc_joven": 0.75,
+    "kc_adulta": 1.0,
+    "kc_madura": 0.8
   },
   {
     "id": "cultivo-zapote-blanco",
@@ -1360,7 +1408,11 @@
     "notas": "Fruta exótica de mercado pequeño; árbol rústico.",
     "notas_arica": "Experimental; probar en microparcelas. Agua moderada y cierta tolerancia a sales.",
     "created_at": "2024-12-02T00:00:00Z",
-    "updated_at": "2026-03-07T00:00:00Z"
+    "updated_at": "2026-03-07T00:00:00Z",
+    "kc_plantula": 0.5,
+    "kc_joven": 0.7,
+    "kc_adulta": 0.85,
+    "kc_madura": 0.75
   },
   {
     "id": "cultivo-olivo",
@@ -1523,6 +1575,10 @@
       "distancia_minima_m": 8
     },
     "created_at": "2024-12-01T00:00:00Z",
-    "updated_at": "2026-03-08T00:00:00Z"
+    "updated_at": "2026-03-08T00:00:00Z",
+    "kc_plantula": 0.5,
+    "kc_joven": 0.65,
+    "kc_adulta": 0.75,
+    "kc_madura": 0.65
   }
 ]

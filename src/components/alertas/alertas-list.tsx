@@ -53,28 +53,32 @@ function AlertaCard({
   const config = SEVERIDAD_CONFIG[alerta.severidad];
 
   return (
-    <div className={`${config.bg} ${config.border} border rounded-lg p-4`}>
+    <div
+      className={`${config.bg} ${config.leftBorder} rounded-lg p-4 shadow-sm`}
+    >
       <div className="flex items-start gap-3">
-        <span className="text-xl">{config.icon}</span>
+        <span className="text-lg leading-tight mt-0.5">{config.icon}</span>
         <div className="flex-1">
-          <h4 className={`font-medium ${config.color}`}>{alerta.titulo}</h4>
+          <h4 className={`font-semibold text-base ${config.color}`}>
+            {alerta.titulo}
+          </h4>
           <p className="text-sm text-gray-600 mt-1">{alerta.descripcion}</p>
           {alerta.sugerencia && (
-            <p className="text-sm text-gray-500 mt-2 italic">
+            <p className="text-xs text-gray-400 mt-1 italic">
               💡 {alerta.sugerencia}
             </p>
           )}
 
-          <div className="flex gap-2 mt-3">
+          <div className="flex items-center gap-3 mt-3">
             <button
               onClick={() => onResolver(alerta.id, "Resuelto manualmente")}
-              className="text-sm px-3 py-1 bg-white rounded border hover:bg-gray-50"
+              className="text-sm text-green-600 border border-green-300 rounded px-3 py-1.5 hover:bg-green-50 transition-colors"
             >
               Marcar resuelta
             </button>
             <button
               onClick={() => onIgnorar(alerta.id)}
-              className="text-sm px-3 py-1 text-gray-500 hover:text-gray-700"
+              className="text-sm text-gray-400 hover:text-gray-600 transition-colors"
             >
               Ignorar
             </button>

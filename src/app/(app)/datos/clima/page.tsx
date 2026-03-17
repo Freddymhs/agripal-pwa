@@ -28,8 +28,7 @@ export default function ClimaPage() {
   }, [proyectoActual?.clima_base_id]);
 
   const climas = datosBaseHook.datosBase.clima ?? [];
-  const climaActivo =
-    climas.find((c) => c.id === climaActivoId) ?? climas[0] ?? null;
+  const climaActivo = climas.find((c) => c.id === climaActivoId) ?? null;
 
   // ClimaBase extiende DatosClimaticos (sin campo dados anidado tras deserialización)
   const etoData = climaActivo?.evapotranspiracion_detalle;
@@ -43,17 +42,17 @@ export default function ClimaPage() {
   }, [zonas, plantas, catalogoCultivos, temporada]);
 
   const handleCambiarClima = async (climaId: string) => {
-    if (!proyectoActual?.id || climaId === climaActivoId) return;
+    if (!proyectoActual?.id) return;
+    const nuevoId = climaId === climaActivoId ? null : climaId;
     setCambiandoClima(true);
-    setClimaActivoId(climaId); // optimista
+    setClimaActivoId(nuevoId ?? undefined); // optimista
     try {
       await ejecutarMutacion(
-        () => baseDataDAL.setClimaActivo(proyectoActual.id, climaId),
+        () => baseDataDAL.setClimaActivo(proyectoActual.id, nuevoId),
         "cambiar clima activo",
       );
     } catch {
-      // Revertir si falla
-      setClimaActivoId(proyectoActual.clima_base_id ?? climas[0]?.id);
+      setClimaActivoId(proyectoActual.clima_base_id ?? undefined); // revertir
     } finally {
       setCambiandoClima(false);
     }

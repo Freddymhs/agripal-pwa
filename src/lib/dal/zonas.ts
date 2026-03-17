@@ -8,11 +8,25 @@ import type { Zona } from "@/types";
 const TABLA = "zonas";
 
 export const zonasDAL = {
+  getById: async (id: string): Promise<Zona | null> => {
+    const { data, error } = await supabase
+      .from(TABLA)
+      .select("*")
+      .eq("id", id)
+      .single();
+    if (error) {
+      if (error.code === "PGRST116") return null;
+      throw error;
+    }
+    return data ? deserializarDesdeSupabase<Zona>(data) : null;
+  },
+
   getByTerrenoId: async (terrenoId: string): Promise<Zona[]> => {
     const { data, error } = await supabase
       .from(TABLA)
       .select("*")
-      .eq("terreno_id", terrenoId);
+      .eq("terreno_id", terrenoId)
+      .order("created_at", { ascending: true });
     if (error) throw error;
     return (data ?? []).map((row) => deserializarDesdeSupabase<Zona>(row));
   },
@@ -22,7 +36,8 @@ export const zonasDAL = {
     const { data, error } = await supabase
       .from(TABLA)
       .select("*")
-      .in("terreno_id", terrenoIds);
+      .in("terreno_id", terrenoIds)
+      .order("created_at", { ascending: true });
     if (error) throw error;
     return (data ?? []).map((row) => deserializarDesdeSupabase<Zona>(row));
   },

@@ -37,7 +37,7 @@ export function ClimaRegionSelector({
             <button
               key={clima.id}
               onClick={() => onCambiarClima(clima.id)}
-              disabled={cambiandoClima || esActivo}
+              disabled={cambiandoClima}
               className={`text-left p-3 rounded-lg border-2 transition-colors ${
                 esActivo
                   ? "border-green-500 bg-green-50"

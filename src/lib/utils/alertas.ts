@@ -9,6 +9,7 @@ import type {
   VeceriaCultivo,
   IncompatibilidadQuimica,
   SueloTerreno,
+  ProveedorAgua,
 } from "@/types";
 import { generateUUID, getCurrentTimestamp } from "@/lib/utils";
 import {
@@ -45,6 +46,9 @@ function generarAlertas(
   plantas: Planta[],
   catalogoCultivos: CatalogoCultivo[],
   suelo?: SueloTerreno | null,
+  climaBaseId?: string | null,
+  proveedoresAgua?: ProveedorAgua[],
+  proyectoId?: string,
 ): Omit<Alerta, "id" | "created_at" | "updated_at">[] {
   const alertas: Omit<Alerta, "id" | "created_at" | "updated_at">[] = [];
 
@@ -137,6 +141,45 @@ function generarAlertas(
     }
   }
 
+  const tienZonasCultivo = zonas.some((z) => z.tipo === TIPO_ZONA.CULTIVO);
+
+  // Clima no configurado — ET0 usará valor hardcodeado de Arica pampa (4.2 mm/día)
+  if (tienZonasCultivo && !climaBaseId) {
+    alertas.push({
+      ...(proyectoId
+        ? { proyecto_id: proyectoId }
+        : { terreno_id: terreno.id }),
+      tipo: "clima_no_configurado",
+      severidad: SEVERIDAD_ALERTA.WARNING,
+      estado: ESTADO_ALERTA.ACTIVA,
+      titulo: "⚠️ Clima de la región no configurado",
+      descripcion:
+        "Los cálculos de agua usan ET0 estimado de Arica pampa (4.2 mm/día). Tu terreno puede tener condiciones distintas.",
+      sugerencia:
+        "Selecciona la zona climática más cercana en Avanzado > Clima de tu región para cálculos precisos.",
+    });
+  }
+
+  // Suelo estimado (default Azapa) — el usuario nunca hizo análisis real
+  if (
+    tienZonasCultivo &&
+    (!suelo || suelo?.quimico?.analisis_realizado === false)
+  ) {
+    alertas.push({
+      ...(proyectoId
+        ? { proyecto_id: proyectoId }
+        : { terreno_id: terreno.id }),
+      tipo: "suelo_sin_analisis",
+      severidad: SEVERIDAD_ALERTA.WARNING,
+      estado: ESTADO_ALERTA.ACTIVA,
+      titulo: "⚠️ Datos de suelo estimados",
+      descripcion:
+        "Se están usando datos de suelo por defecto para pampa de Azapa (pH 8.2, salinidad 5 dS/m, boro 4 mg/L). La compatibilidad de cultivos puede no reflejar tu terreno real.",
+      sugerencia:
+        "Realiza un análisis de suelo con laboratorio y actualiza los datos en Avanzado > Tipo de suelo.",
+    });
+  }
+
   for (const est of estanques) {
     if (!est.estanque_config?.fuente_id) {
       alertas.push({
@@ -151,6 +194,26 @@ function generarAlertas(
           "Asigna una fuente (Lluta, Azapa, aljibe, etc.) para tener riesgos y costos reales.",
       });
     }
+  }
+
+  // Sin proveedores de agua registrados — el usuario no puede trackear costos de entrada
+  if (
+    estanques.length > 0 &&
+    (!proveedoresAgua || proveedoresAgua.length === 0)
+  ) {
+    alertas.push({
+      ...(proyectoId
+        ? { proyecto_id: proyectoId }
+        : { terreno_id: terreno.id }),
+      tipo: "sin_proveedor_agua",
+      severidad: SEVERIDAD_ALERTA.WARNING,
+      estado: ESTADO_ALERTA.ACTIVA,
+      titulo: "⚠️ Sin proveedores de agua configurados",
+      descripcion:
+        "No hay proveedores de agua registrados. El costo de las entradas de agua no se calcula automáticamente.",
+      sugerencia:
+        "Agrega al menos un proveedor (camión cisterna, pozo, río) en Agua > Configuración para un seguimiento completo.",
+    });
   }
 
   // Zonas de cultivo con plantas pero sin estanque asignado
@@ -188,13 +251,13 @@ function generarAlertas(
         terreno_id: terreno.id,
         zona_id: zona.id,
         tipo: "zona_sin_riego",
-        severidad: SEVERIDAD_ALERTA.WARNING,
+        severidad: SEVERIDAD_ALERTA.CRITICAL,
         estado: ESTADO_ALERTA.ACTIVA,
-        titulo: `⚠️ Sistema de riego no configurado en "${zona.nombre}"`,
+        titulo: `🚨 Sin sistema de riego en "${zona.nombre}" — consumo estimado sin validar`,
         descripcion:
-          "El consumo se calcula solo con datos del cultivo y clima, no con tu instalación real.",
+          "No hay caudal ni horas de riego configurados. El sistema descuenta agua usando una estimación teórica (Kc × ET0), que puede estar muy alejada de tu consumo real. Sin este dato, no puedes confiar en los días restantes ni en el balance de agua.",
         sugerencia:
-          "Configura caudal (L/h) y horas de riego para comparar riego recomendado vs real.",
+          'Entra al mapa, selecciona esta zona y configura "Sistema de Riego" (caudal L/h + horas/día). Es el dato más importante para que el sistema sea preciso.',
       });
     }
 
@@ -350,12 +413,21 @@ function generarAlertas(
 
   // --- Alertas FASE_20: datos agronómicos enriquecidos ---
 
-  // fertilizacion_etapa: cuando la planta entra a una nueva etapa con recomendación de fertilización
+  // fertilizacion_etapa: una alerta por (zona + cultivo + etapa), no por planta individual
   for (const zona of zonas) {
-    const plantasZona = plantas.filter((p) => p.zona_id === zona.id);
+    const plantasZona = plantas.filter(
+      (p) =>
+        p.zona_id === zona.id &&
+        p.estado !== ESTADO_PLANTA.MUERTA &&
+        !!p.etapa_actual,
+    );
+
+    // Deduplicar por cultivo+etapa dentro de la zona
+    const combinacionesVistas = new Set<string>();
     for (const planta of plantasZona) {
-      if (planta.estado === ESTADO_PLANTA.MUERTA || !planta.etapa_actual)
-        continue;
+      const clave = `${planta.tipo_cultivo_id}__${planta.etapa_actual}`;
+      if (combinacionesVistas.has(clave)) continue;
+
       const cultivo = catalogoCultivos.find(
         (c) => c.id === planta.tipo_cultivo_id,
       );
@@ -371,10 +443,11 @@ function generarAlertas(
       );
       if (!nutricionEtapa) continue;
 
+      combinacionesVistas.add(clave);
       alertas.push({
         terreno_id: terreno.id,
         zona_id: zona.id,
-        planta_id: planta.id,
+        // Sin planta_id: la alerta aplica a toda la zona para ese cultivo/etapa
         tipo: "fertilizacion_etapa",
         severidad: SEVERIDAD_ALERTA.INFO,
         estado: ESTADO_ALERTA.ACTIVA,
@@ -387,12 +460,18 @@ function generarAlertas(
     }
   }
 
-  // deficiencia_micronutrientes: si el pH del suelo supera 7.5
+  // deficiencia_micronutrientes: si el pH del suelo supera 7.5, solo con análisis real
   const phSuelo = suelo?.fisico?.ph;
   const PH_LIMITE_MICRONUTRIENTES = 7.5;
-  if (phSuelo !== undefined && phSuelo > PH_LIMITE_MICRONUTRIENTES) {
+  if (
+    phSuelo !== undefined &&
+    phSuelo > PH_LIMITE_MICRONUTRIENTES &&
+    suelo?.quimico?.analisis_realizado === true
+  ) {
     alertas.push({
-      terreno_id: terreno.id,
+      ...(proyectoId
+        ? { proyecto_id: proyectoId }
+        : { terreno_id: terreno.id }),
       tipo: "deficiencia_micronutrientes",
       severidad: SEVERIDAD_ALERTA.WARNING,
       estado: ESTADO_ALERTA.ACTIVA,
@@ -499,10 +578,20 @@ export async function sincronizarAlertas(
   plantas: Planta[],
   catalogoCultivos: CatalogoCultivo[],
   suelo?: SueloTerreno | null,
+  climaBaseId?: string | null,
+  isCurrent?: () => boolean,
+  proveedoresAgua?: ProveedorAgua[],
+  proyectoId?: string,
 ): Promise<Alerta[]> {
   const timestamp = getCurrentTimestamp();
 
-  const alertasExistentes = await alertasDAL.getActiveByTerrenoId(terreno.id);
+  const alertasExistentes = await alertasDAL.getActiveByTerrenoId(
+    terreno.id,
+    proyectoId,
+  );
+
+  // Si llegó una nueva sincronización mientras esperábamos, abortar sin escribir en BD
+  if (isCurrent && !isCurrent()) return alertasExistentes;
 
   const nuevasAlertas = generarAlertas(
     terreno,
@@ -510,17 +599,34 @@ export async function sincronizarAlertas(
     plantas,
     catalogoCultivos,
     suelo,
+    climaBaseId,
+    proveedoresAgua,
+    proyectoId,
   );
+
+  const mismaAlerta = (
+    a: Omit<Alerta, "id" | "created_at" | "updated_at"> | Alerta,
+    b: Omit<Alerta, "id" | "created_at" | "updated_at"> | Alerta,
+  ) => {
+    if (a.tipo !== b.tipo) return false;
+    // Alerta de proyecto: matchea por tipo + proyecto_id únicamente
+    // También cubre caso mixto (uno con proyecto_id, otro con terreno_id del mismo proyecto)
+    if (a.proyecto_id || b.proyecto_id) {
+      return (
+        (a.proyecto_id ?? a.terreno_id) === (b.proyecto_id ?? b.terreno_id)
+      );
+    }
+    // Alerta de terreno: matchea por tipo + terreno_id + zona_id + planta_id
+    return (
+      a.terreno_id === b.terreno_id &&
+      a.zona_id === b.zona_id &&
+      a.planta_id === b.planta_id
+    );
+  };
 
   const resolver: Array<{ id: string; cambios: Partial<Alerta> }> = [];
   for (const existente of alertasExistentes) {
-    const sigueSiendo = nuevasAlertas.some(
-      (n) =>
-        n.tipo === existente.tipo &&
-        n.zona_id === existente.zona_id &&
-        n.planta_id === existente.planta_id,
-    );
-
+    const sigueSiendo = nuevasAlertas.some((n) => mismaAlerta(n, existente));
     if (!sigueSiendo) {
       resolver.push({
         id: existente.id,
@@ -536,12 +642,7 @@ export async function sincronizarAlertas(
 
   const nuevas: Alerta[] = [];
   for (const nueva of nuevasAlertas) {
-    const yaExiste = alertasExistentes.some(
-      (e) =>
-        e.tipo === nueva.tipo &&
-        e.zona_id === nueva.zona_id &&
-        e.planta_id === nueva.planta_id,
-    );
+    const yaExiste = alertasExistentes.some((e) => mismaAlerta(nueva, e));
 
     if (!yaExiste) {
       nuevas.push({
@@ -553,9 +654,11 @@ export async function sincronizarAlertas(
     }
   }
 
+  if (isCurrent && !isCurrent()) return alertasExistentes;
+
   if (resolver.length > 0 || nuevas.length > 0) {
     await transaccionesDAL.sincronizarAlertas(resolver, nuevas);
   }
 
-  return alertasDAL.getActiveByTerrenoId(terreno.id);
+  return alertasDAL.getActiveByTerrenoId(terreno.id, proyectoId);
 }

@@ -26,6 +26,8 @@ import { useProjectHandlers } from "@/hooks/use-project-handlers";
 import { zonasDAL, plantasDAL, proyectosDAL } from "@/lib/dal";
 import { asignarColorCultivo } from "@/components/mapa/pixi/pixi-constants";
 import { onZonaUpdated } from "@/lib/events/zona-events";
+import { aplicarDescuentoAutomaticoAgua } from "@/lib/utils/agua-descuento";
+import { filtrarEstanques } from "@/lib/utils/helpers-cultivo";
 import { STORAGE_KEYS } from "@/lib/constants/storage";
 import { getCurrentTimestamp } from "@/lib/utils";
 import { ejecutarMutacion } from "@/lib/helpers/dal-mutation";
@@ -65,6 +67,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
   const [zonas, setZonas] = useState<Zona[]>([]);
   const [plantas, setPlantas] = useState<Planta[]>([]);
   const [loading, setLoading] = useState(true);
+  const [terrenoIdCargado, setTerrenoIdCargado] = useState<string | null>(null);
   const [initialLoad, setInitialLoad] = useState(true);
   const [showCrearProyecto, setShowCrearProyecto] = useState(false);
   const [showCrearTerreno, setShowCrearTerreno] = useState(false);
@@ -74,12 +77,21 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
   const terrenosHook = useTerrenos(proyectoActual?.id || null);
   const catalogoHook = useCatalogo(proyectoActual?.id || null);
   const catalogoCultivos = catalogoHook.cultivos;
+  const proveedoresAgua = useMemo(
+    () => proyectoActual?.proveedores_agua ?? [],
+    [proyectoActual?.proveedores_agua],
+  );
+  const datosListos = terrenoIdCargado === terrenoActual?.id;
   const alertasHook = useAlertas(
     terrenoActual,
     zonas,
     plantas,
     catalogoCultivos,
     proyectoActual?.suelo,
+    datosListos,
+    proyectoActual?.clima_base_id ?? null,
+    proveedoresAgua,
+    proyectoActual?.id,
   );
   const datosBaseHook = useDatosBase(proyectoActual?.id || null);
   const CULTIVOS_ESPACIADO = useMemo(
@@ -158,6 +170,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
       setZonas([]);
       setPlantas([]);
       setLoading(false);
+      setTerrenoIdCargado(null);
       return;
     }
     try {
@@ -168,6 +181,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
       setPlantas(
         zonaIds.length > 0 ? await plantasDAL.getByZonaIds(zonaIds) : [],
       );
+      setTerrenoIdCargado(terrenoActual.id);
     } catch (error) {
       logger.error("Error cargando datos", {
         error: error instanceof Error ? { message: error.message } : { error },
@@ -185,6 +199,52 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     return onZonaUpdated(() => cargarDatosTerreno());
   }, [cargarDatosTerreno]);
+
+  // Descuento automático de agua — corre al cargar el proyecto, sin importar qué página se abra
+  const descuentoAguaAplicado = useRef(false);
+  useEffect(() => {
+    descuentoAguaAplicado.current = false;
+  }, [terrenoActual?.id]);
+  useEffect(() => {
+    if (!datosListos || !terrenoActual || descuentoAguaAplicado.current) return;
+
+    const estanques = filtrarEstanques(zonas);
+    if (estanques.length === 0) return;
+
+    const cancelledRef = { current: false };
+    descuentoAguaAplicado.current = true;
+
+    aplicarDescuentoAutomaticoAgua(
+      terrenoActual,
+      estanques,
+      zonas,
+      plantas,
+      catalogoCultivos,
+      cancelledRef,
+    )
+      .then((resultado) => {
+        if (resultado.aplicado && !cancelledRef.current) {
+          cargarDatosTerreno();
+        }
+      })
+      .catch((err) => {
+        logger.error("Error aplicando descuento automático de agua", {
+          error: err instanceof Error ? { message: err.message } : undefined,
+        });
+        descuentoAguaAplicado.current = false;
+      });
+
+    return () => {
+      cancelledRef.current = true;
+    };
+  }, [
+    datosListos,
+    terrenoActual,
+    zonas,
+    plantas,
+    catalogoCultivos,
+    cargarDatosTerreno,
+  ]);
   const estanquesHook = useEstanques(zonas, cargarDatosTerreno);
   const zonasHook = useZonas(
     terrenoActual?.id || "",

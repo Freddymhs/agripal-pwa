@@ -52,7 +52,11 @@
     "tier": 1,
     "riesgo": "bajo",
     "notas": "Ciclo corto, alta producción, ideal para autoconsumo. Dos ciclos anuales posibles en Arica.",
-    "notas_arica": "Producción casi continua por ausencia de heladas. Requiere soporte (estaca/malla). Muy eficiente en agua con goteo."
+    "notas_arica": "Producción casi continua por ausencia de heladas. Requiere soporte (estaca/malla). Muy eficiente en agua con goteo.",
+    "kc_plantula": 0.45,
+    "kc_joven": 0.75,
+    "kc_adulta": 1.15,
+    "kc_madura": 0.85
   },
   {
     "id": "huerto-sandia",
@@ -107,7 +111,11 @@
     "tier": 1,
     "riesgo": "bajo",
     "notas": "Ideal para clima desértico caluroso. Alta tolerancia al calor extremo de Arica en verano.",
-    "notas_arica": "Excelente en terreno expuesto. Ciclo dic-mar coincide con peak de calor. Alta producción con bajo costo de insumos."
+    "notas_arica": "Excelente en terreno expuesto. Ciclo dic-mar coincide con peak de calor. Alta producción con bajo costo de insumos.",
+    "kc_plantula": 0.45,
+    "kc_joven": 0.75,
+    "kc_adulta": 1.05,
+    "kc_madura": 0.7
   },
   {
     "id": "huerto-melon",
@@ -162,7 +170,11 @@
     "tier": 1,
     "riesgo": "bajo",
     "notas": "Fruta de alta demanda estival. El calor seco de Arica favorece dulzor elevado (mayor Brix).",
-    "notas_arica": "El ambiente desértico seco produce melones de sabor más concentrado. Riego por goteo crítico en cuaje."
+    "notas_arica": "El ambiente desértico seco produce melones de sabor más concentrado. Riego por goteo crítico en cuaje.",
+    "kc_plantula": 0.45,
+    "kc_joven": 0.75,
+    "kc_adulta": 1.05,
+    "kc_madura": 0.75
   },
   {
     "id": "huerto-pepino-dulce",
@@ -217,7 +229,11 @@
     "tier": 1,
     "riesgo": "bajo",
     "notas": "Fruta andina nativa, extremadamente rústica. Uno de los cultivos más eficientes en uso de agua.",
-    "notas_arica": "Origen andino árido — perfecta para este sitio. Muy bajo requerimiento hídrico. Producción sostenida con escaso manejo."
+    "notas_arica": "Origen andino árido — perfecta para este sitio. Muy bajo requerimiento hídrico. Producción sostenida con escaso manejo.",
+    "kc_plantula": 0.45,
+    "kc_joven": 0.75,
+    "kc_adulta": 1.0,
+    "kc_madura": 0.8
   },
   {
     "id": "huerto-aji",
@@ -272,7 +288,11 @@
     "tier": 1,
     "riesgo": "bajo",
     "notas": "Excelente rendimiento en climas cálidos. El calor intensifica el sabor y el nivel de capsaicina.",
-    "notas_arica": "Calor de Arica produce ajíes de alta concentración. Producción casi continua sin heladas. Bajo costo de establecimiento."
+    "notas_arica": "Calor de Arica produce ajíes de alta concentración. Producción casi continua sin heladas. Bajo costo de establecimiento.",
+    "kc_plantula": 0.45,
+    "kc_joven": 0.75,
+    "kc_adulta": 1.1,
+    "kc_madura": 0.85
   },
   {
     "id": "huerto-choclo",
@@ -335,6 +355,10 @@
     "tier": 1,
     "riesgo": "medio",
     "notas": "Ciclo corto (90-120 días). Dos ciclos anuales posibles en Arica. Sensible a salinidad y boro — requiere agua de buena calidad. Etapa de floración es crítica para riego.",
-    "notas_arica": "El Valle de Azapa produce choclo primor de alta demanda. Ausencia de heladas permite doble ciclo anual. Usar agua de Azapa o aljibe (Río Lluta NO apto por boro 11 ppm). Cosecha muy perecible (5 días), vender rápido o procesar."
+    "notas_arica": "El Valle de Azapa produce choclo primor de alta demanda. Ausencia de heladas permite doble ciclo anual. Usar agua de Azapa o aljibe (Río Lluta NO apto por boro 11 ppm). Cosecha muy perecible (5 días), vender rápido o procesar.",
+    "kc_plantula": 0.4,
+    "kc_joven": 0.8,
+    "kc_adulta": 1.15,
+    "kc_madura": 0.7
   }
 ]

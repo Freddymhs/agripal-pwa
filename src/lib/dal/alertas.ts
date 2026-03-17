@@ -9,14 +9,33 @@ import { ESTADO_ALERTA } from "@/lib/constants/entities";
 const TABLA = "alertas";
 
 export const alertasDAL = {
-  getActiveByTerrenoId: async (terrenoId: string): Promise<Alerta[]> => {
-    const { data, error } = await supabase
+  getActiveByTerrenoId: async (
+    terrenoId: string,
+    proyectoId?: string,
+  ): Promise<Alerta[]> => {
+    const base = supabase
       .from(TABLA)
       .select("*")
-      .eq("terreno_id", terrenoId)
       .eq("estado", ESTADO_ALERTA.ACTIVA);
-    if (error) throw error;
-    return (data ?? []).map((row) => deserializarDesdeSupabase<Alerta>(row));
+
+    const queries = [base.eq("terreno_id", terrenoId)];
+    if (proyectoId) {
+      queries.push(
+        supabase
+          .from(TABLA)
+          .select("*")
+          .eq("estado", ESTADO_ALERTA.ACTIVA)
+          .eq("proyecto_id", proyectoId)
+          .is("terreno_id", null),
+      );
+    }
+
+    const results = await Promise.all(queries.map((q) => q));
+    for (const { error } of results) {
+      if (error) throw error;
+    }
+    const rows = results.flatMap(({ data }) => data ?? []);
+    return rows.map((row) => deserializarDesdeSupabase<Alerta>(row));
   },
 
   add: async (alerta: Alerta): Promise<void> => {

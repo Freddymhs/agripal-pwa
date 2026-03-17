@@ -28,6 +28,10 @@ import {
   calcularAguaPromedioHaAño,
   calcularPlantasPorHa,
 } from "@/lib/utils/helpers-cultivo";
+import {
+  DIAS_AGUA_UMBRAL_SEGURO,
+  DIAS_AGUA_UMBRAL_CRITICO,
+} from "@/lib/constants/umbrales";
 
 function calcularConsumoPlanta(
   planta: Planta,
@@ -37,7 +41,7 @@ function calcularConsumoPlanta(
   if (planta.estado === ESTADO_PLANTA.MUERTA) return 0;
 
   const factorTemporada = FACTORES_TEMPORADA[temporada];
-  const kc = getKc(cultivo.nombre, planta.etapa_actual || ETAPA.ADULTA);
+  const kc = getKc(cultivo, planta.etapa_actual || ETAPA.ADULTA);
 
   if (!cultivo.agua_m3_ha_año_min || !cultivo.agua_m3_ha_año_max) return 0;
   const aguaPromedio = calcularAguaPromedioHaAño(cultivo);
@@ -59,20 +63,16 @@ export function calcularConsumoZona(
     return 0;
   }
 
-  let consumoTotal = 0;
-
-  for (const planta of plantas) {
-    if (planta.estado === ESTADO_PLANTA.MUERTA) continue;
+  return plantas.reduce((total, planta) => {
+    if (planta.estado === ESTADO_PLANTA.MUERTA) return total;
 
     const cultivo = catalogoCultivos.find(
       (c) => c.id === planta.tipo_cultivo_id,
     );
-    if (!cultivo) continue;
+    if (!cultivo) return total;
 
-    consumoTotal += calcularConsumoPlanta(planta, cultivo, temporada);
-  }
-
-  return consumoTotal;
+    return total + calcularConsumoPlanta(planta, cultivo, temporada);
+  }, 0);
 }
 
 export function calcularConsumoTerreno(
@@ -81,42 +81,33 @@ export function calcularConsumoTerreno(
   catalogoCultivos: CatalogoCultivo[],
   temporada: Temporada = getTemporadaActual(),
 ): number {
-  let consumoTotal = 0;
-
-  for (const zona of zonas) {
+  return zonas.reduce((total, zona) => {
     const plantasZona = plantas.filter((p) => p.zona_id === zona.id);
-    consumoTotal += calcularConsumoZona(
-      zona,
-      plantasZona,
-      catalogoCultivos,
-      temporada,
+    return (
+      total +
+      calcularConsumoZona(zona, plantasZona, catalogoCultivos, temporada)
     );
-  }
-
-  return consumoTotal;
+  }, 0);
 }
 
 export function calcularConsumoRiegoZona(zona: Zona): number {
   const config = zona.configuracion_riego;
   if (!config || !config.caudal_total_lh) return 0;
 
-  let horasDia: number;
-
-  if (config.tipo === TIPO_RIEGO.CONTINUO) {
-    horasDia = HORAS_POR_DIA;
-  } else {
-    if (config.horas_dia) {
-      horasDia = config.horas_dia;
-    } else if (config.horario_inicio && config.horario_fin) {
+  const horasDia = (() => {
+    if (config.tipo === TIPO_RIEGO.CONTINUO) return HORAS_POR_DIA;
+    if (config.horas_dia) return config.horas_dia;
+    if (config.horario_inicio && config.horario_fin) {
       const [hi, mi] = config.horario_inicio.split(":").map(Number);
       const [hf, mf] = config.horario_fin.split(":").map(Number);
-      if (isNaN(hi) || isNaN(mi) || isNaN(hf) || isNaN(mf)) return 0;
-      horasDia = hf + mf / 60 - (hi + mi / 60);
-      if (horasDia <= 0) horasDia += 24;
-    } else {
-      return 0;
+      if (isNaN(hi) || isNaN(mi) || isNaN(hf) || isNaN(mf)) return null;
+      const diff = hf + mf / 60 - (hi + mi / 60);
+      return diff <= 0 ? diff + 24 : diff;
     }
-  }
+    return null;
+  })();
+
+  if (horasDia === null) return 0;
 
   return ((config.caudal_total_lh * horasDia) / 1000) * DIAS_POR_SEMANA;
 }
@@ -127,27 +118,19 @@ export function calcularConsumoRealTerreno(
   catalogoCultivos: CatalogoCultivo[],
   temporada: Temporada = getTemporadaActual(),
 ): number {
-  let consumoTotal = 0;
-
-  for (const zona of zonas) {
-    if (zona.tipo !== TIPO_ZONA.CULTIVO) continue;
+  return zonas.reduce((total, zona) => {
+    if (zona.tipo !== TIPO_ZONA.CULTIVO) return total;
     const plantasZona = plantas.filter((p) => p.zona_id === zona.id);
-    if (plantasZona.length === 0) continue;
+    if (plantasZona.length === 0) return total;
 
     const consumoRiego = calcularConsumoRiegoZona(zona);
-    if (consumoRiego > 0) {
-      consumoTotal += consumoRiego;
-    } else {
-      consumoTotal += calcularConsumoZona(
-        zona,
-        plantasZona,
-        catalogoCultivos,
-        temporada,
-      );
-    }
-  }
-
-  return consumoTotal;
+    return (
+      total +
+      (consumoRiego > 0
+        ? consumoRiego
+        : calcularConsumoZona(zona, plantasZona, catalogoCultivos, temporada))
+    );
+  }, 0);
 }
 
 export function calcularDiasRestantes(
@@ -160,19 +143,96 @@ export function calcularDiasRestantes(
   return aguaActualM3 / consumoDiario;
 }
 
+/**
+ * Calcula el consumo semanal de un estanque específico sumando solo las zonas asignadas a él.
+ */
+export function calcularConsumoEstanque(
+  estanqueId: UUID,
+  zonas: Zona[],
+  plantas: Planta[],
+  catalogoCultivos: CatalogoCultivo[],
+  temporada: Temporada = getTemporadaActual(),
+): number {
+  return zonas
+    .filter(
+      (zona) =>
+        zona.tipo === TIPO_ZONA.CULTIVO && zona.estanque_id === estanqueId,
+    )
+    .reduce((total, zona) => {
+      const plantasZona = plantas.filter((p) => p.zona_id === zona.id);
+      if (plantasZona.length === 0) return total;
+      const consumoRiego = calcularConsumoRiegoZona(zona);
+      return (
+        total +
+        (consumoRiego > 0
+          ? consumoRiego
+          : calcularConsumoZona(zona, plantasZona, catalogoCultivos, temporada))
+      );
+    }, 0);
+}
+
+export interface ResumenEstanque {
+  estanqueId: UUID;
+  consumoSemanal: number;
+  diasRestantes: number;
+}
+
+/**
+ * Calcula días restantes por estanque y retorna el más crítico.
+ * Solo considera estanques que tienen zonas de cultivo asignadas.
+ * Estanques sin zonas asignadas no forman parte del cuello de botella.
+ */
+export function calcularDiasRestantesCritico(
+  estanques: Zona[],
+  zonas: Zona[],
+  plantas: Planta[],
+  catalogoCultivos: CatalogoCultivo[],
+  temporada: Temporada = getTemporadaActual(),
+): { diasCritico: number; porEstanque: ResumenEstanque[] } {
+  const porEstanque: ResumenEstanque[] = estanques
+    .filter((e) => e.estanque_config)
+    .map((e) => {
+      const consumoSemanal = calcularConsumoEstanque(
+        e.id,
+        zonas,
+        plantas,
+        catalogoCultivos,
+        temporada,
+      );
+      const nivel = e.estanque_config!.nivel_actual_m3 ?? 0;
+      const diasRestantes =
+        consumoSemanal > 0
+          ? (nivel / consumoSemanal) * DIAS_POR_SEMANA
+          : Infinity;
+      return { estanqueId: e.id, consumoSemanal, diasRestantes };
+    });
+
+  const activos = porEstanque.filter((e) => e.consumoSemanal > 0);
+  const diasCritico =
+    activos.length > 0
+      ? Math.min(...activos.map((e) => e.diasRestantes))
+      : Infinity;
+
+  return { diasCritico, porEstanque };
+}
+
 export function calcularStockEstanques(estanques: Zona[]): {
   aguaTotal: number;
   capacidadTotal: number;
 } {
-  let aguaTotal = 0;
-  let capacidadTotal = 0;
-  for (const e of estanques) {
-    if (e.estanque_config) {
-      aguaTotal += e.estanque_config.nivel_actual_m3 ?? 0;
-      capacidadTotal += e.estanque_config.capacidad_m3 ?? 0;
-    }
-  }
-  return { aguaTotal, capacidadTotal };
+  return estanques.reduce(
+    (acc, e) => {
+      if (e.estanque_config) {
+        return {
+          aguaTotal: acc.aguaTotal + (e.estanque_config.nivel_actual_m3 ?? 0),
+          capacidadTotal:
+            acc.capacidadTotal + (e.estanque_config.capacidad_m3 ?? 0),
+        };
+      }
+      return acc;
+    },
+    { aguaTotal: 0, capacidadTotal: 0 },
+  );
 }
 
 export interface ResultadoDescuento {
@@ -243,15 +303,16 @@ export function calcularDescuentoAutomatico(
     const desc = descuentosMap.get(estanqueId);
     if (!desc) continue;
 
-    let consumoSemanal = 0;
-    for (const zona of zonasDelEstanque) {
+    const consumoSemanal = zonasDelEstanque.reduce((total, zona) => {
       const plantasZona = plantas.filter((p) => p.zona_id === zona.id);
       const consumoRiego = calcularConsumoRiegoZona(zona);
-      consumoSemanal +=
-        consumoRiego > 0
+      return (
+        total +
+        (consumoRiego > 0
           ? consumoRiego
-          : calcularConsumoZona(zona, plantasZona, catalogoCultivos);
-    }
+          : calcularConsumoZona(zona, plantasZona, catalogoCultivos))
+      );
+    }, 0);
 
     const consumoAcumulado =
       (consumoSemanal / DIAS_POR_SEMANA) * diasTranscurridos;
@@ -269,6 +330,97 @@ export function calcularDescuentoAutomatico(
   const consumoTotal = descuentos.reduce((sum, d) => sum + d.consumido, 0);
 
   return { descuentos, consumoTotal, diasTranscurridos };
+}
+
+export interface PreviewRecarga {
+  nivelLlegada: number;
+  nivelDespues: number;
+  pctHoy: number;
+  pctLlegada: number;
+  pctDespues: number;
+  cabeCompleta: boolean;
+  excedenteM3: number;
+  alcanza: boolean;
+  diasRestantes: number;
+}
+
+/**
+ * Calcula la proyección de una recarga: nivel al llegar, nivel después de cargar,
+ * si cabe completa, si el agua alcanza hasta la próxima entrega.
+ * Shared: usado por configurar-agua-modal (preview en vivo) y estanque-card-agua (resumen).
+ */
+export function calcularPreviewRecarga(
+  nivelActualM3: number,
+  capacidadM3: number,
+  consumoSemanal: number,
+  frecuenciaDias: number,
+  cantidadM3: number,
+): PreviewRecarga {
+  const consumoDiario = consumoSemanal / DIAS_POR_SEMANA;
+  const nivelLlegada = Math.max(
+    0,
+    nivelActualM3 - consumoDiario * frecuenciaDias,
+  );
+  const espacioLibre = capacidadM3 - nivelLlegada;
+  const nivelDespues = Math.min(capacidadM3, nivelLlegada + cantidadM3);
+  const cabeCompleta = espacioLibre >= cantidadM3;
+  const excedenteM3 = cabeCompleta ? 0 : cantidadM3 - espacioLibre;
+  const alcanza =
+    consumoSemanal > 0 ? nivelActualM3 / consumoDiario >= frecuenciaDias : true;
+  const diasRestantes =
+    consumoDiario > 0 ? nivelActualM3 / consumoDiario : Infinity;
+
+  return {
+    nivelLlegada,
+    nivelDespues,
+    pctHoy: capacidadM3 > 0 ? (nivelActualM3 / capacidadM3) * 100 : 0,
+    pctLlegada: capacidadM3 > 0 ? (nivelLlegada / capacidadM3) * 100 : 0,
+    pctDespues: capacidadM3 > 0 ? (nivelDespues / capacidadM3) * 100 : 0,
+    cabeCompleta,
+    excedenteM3,
+    alcanza,
+    diasRestantes,
+  };
+}
+
+export interface EstadoDiasAgua {
+  texto: string;
+  colorBarra: string;
+  colorTexto: string;
+  colorFondo: string;
+  colorBorde: string;
+}
+
+/**
+ * Determina estado visual (color + texto) según los días de agua restantes.
+ * Shared: usado por resumen-agua hero, estanque-panel del mapa, cards de /agua.
+ */
+export function getEstadoDiasAgua(diasRestantes: number): EstadoDiasAgua {
+  if (diasRestantes > DIAS_AGUA_UMBRAL_SEGURO) {
+    return {
+      texto: "Agua suficiente",
+      colorBarra: "bg-green-500",
+      colorTexto: "text-green-800",
+      colorFondo: "bg-green-50",
+      colorBorde: "border-green-200",
+    };
+  }
+  if (diasRestantes >= DIAS_AGUA_UMBRAL_CRITICO) {
+    return {
+      texto: "Stock bajo — planificar recarga",
+      colorBarra: "bg-yellow-500",
+      colorTexto: "text-yellow-800",
+      colorFondo: "bg-yellow-50",
+      colorBorde: "border-yellow-200",
+    };
+  }
+  return {
+    texto: "CRÍTICO — recargar pronto",
+    colorBarra: "bg-red-500",
+    colorTexto: "text-red-800",
+    colorFondo: "bg-red-50",
+    colorBorde: "border-red-200",
+  };
 }
 
 export function determinarEstadoAgua(

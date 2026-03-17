@@ -89,6 +89,17 @@ export function HistorialCosechas({
         <p className="text-gray-400 text-xs mt-1">
           Registra tu primera cosecha para comenzar a trackear resultados.
         </p>
+        <div className="mt-4 flex flex-col items-center gap-1.5">
+          <span className="text-xs text-gray-400">
+            📊 Compara producción real vs proyectada
+          </span>
+          <span className="text-xs text-gray-400">
+            💰 Calcula ingresos reales por zona
+          </span>
+          <span className="text-xs text-gray-400">
+            📈 Detecta tendencias de rendimiento
+          </span>
+        </div>
       </div>
     );
   }

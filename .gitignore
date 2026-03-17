@@ -81,3 +81,5 @@ supabase/.temp/
 .agents
 # MCP virtual env
 .venv-mcp/
+
+

@@ -8,6 +8,7 @@ export interface GuiaPaso {
   ejemplo: string;
   ruta: string;
   rutaLabel: string;
+  scope: "Proyecto" | "Terreno" | "Zona";
 }
 
 export interface GuiaSeccionData {
@@ -35,6 +36,7 @@ export const GUIA_SECCIONES: GuiaSeccionData[] = [
         ejemplo: "Finca Azapa — Pampa elevada, 3 ha",
         ruta: ROUTES.HOME,
         rutaLabel: "Ir al mapa",
+        scope: "Proyecto",
       },
       {
         id: "terreno",
@@ -46,6 +48,7 @@ export const GUIA_SECCIONES: GuiaSeccionData[] = [
         ejemplo: "100m × 80m → 8.000 m²",
         ruta: ROUTES.HOME,
         rutaLabel: "Ir al mapa",
+        scope: "Terreno",
       },
       {
         id: "agua",
@@ -56,7 +59,8 @@ export const GUIA_SECCIONES: GuiaSeccionData[] = [
           "Configura de dónde viene tu agua (pozo, camión, canal), la calidad (boro, salinidad) y el tipo de riego (goteo, aspersión).",
         ejemplo: "Pozo artesiano — boro 2.5 ppm — riego por goteo",
         ruta: ROUTES.AGUA_CONFIGURACION,
-        rutaLabel: "Configurar agua",
+        rutaLabel: "Crear mi fuente de agua",
+        scope: "Proyecto",
       },
       {
         id: "suelo",
@@ -68,7 +72,8 @@ export const GUIA_SECCIONES: GuiaSeccionData[] = [
         ejemplo:
           "pH 7.2, franco-arenoso → compatible con olivo (100% rendimiento)",
         ruta: ROUTES.TERRENOS_SUELO,
-        rutaLabel: "Ver suelo",
+        rutaLabel: "Configurar suelo de mi proyecto",
+        scope: "Terreno",
       },
       {
         id: "clima",
@@ -80,7 +85,8 @@ export const GUIA_SECCIONES: GuiaSeccionData[] = [
         ejemplo:
           "Iquique Costa — ET0 3.5 mm/día, menos evaporación que pampa interior",
         ruta: ROUTES.DATOS_CLIMA,
-        rutaLabel: "Configurar clima",
+        rutaLabel: "Elegir clima para mi proyecto",
+        scope: "Proyecto",
       },
       {
         id: "catalogo",
@@ -91,7 +97,8 @@ export const GUIA_SECCIONES: GuiaSeccionData[] = [
           "Revisa las fichas con días a cosecha, consumo de agua, precio de mercado. Puedes editar o agregar cultivos propios.",
         ejemplo: "Tuna → 90 días, Kc 0.5, $1.200/kg mayorista",
         ruta: ROUTES.DATOS_CATALOGO,
-        rutaLabel: "Ver catálogo",
+        rutaLabel: "Gestionar mi catálogo",
+        scope: "Proyecto",
       },
     ],
   },
@@ -110,6 +117,7 @@ export const GUIA_SECCIONES: GuiaSeccionData[] = [
         ejemplo: "Zona A (tomate) — 45 plantas a 40 cm — regada por Estanque 1",
         ruta: ROUTES.HOME,
         rutaLabel: "Abrir mapa",
+        scope: "Terreno",
       },
       {
         id: "riego",
@@ -121,6 +129,7 @@ export const GUIA_SECCIONES: GuiaSeccionData[] = [
         ejemplo: "Hoy regué 2 m³ → quedan 8 m³ (5 días)",
         ruta: ROUTES.AGUA,
         rutaLabel: "Ver agua",
+        scope: "Proyecto",
       },
       {
         id: "cosecha",
@@ -132,6 +141,7 @@ export const GUIA_SECCIONES: GuiaSeccionData[] = [
         ejemplo: "160 kg tomate calidad B → $99.200",
         ruta: ROUTES.COSECHAS,
         rutaLabel: "Registrar cosecha",
+        scope: "Zona",
       },
       {
         id: "insumos",
@@ -142,6 +152,7 @@ export const GUIA_SECCIONES: GuiaSeccionData[] = [
         ejemplo: "¿Fungicida + fertilizante? → Compatible",
         ruta: ROUTES.DATOS_INSUMOS,
         rutaLabel: "Ver insumos",
+        scope: "Proyecto",
       },
       {
         id: "plagas",
@@ -154,6 +165,7 @@ export const GUIA_SECCIONES: GuiaSeccionData[] = [
           "Tomate en verano → Riesgo alto de mosca blanca — aplicar trampas amarillas",
         ruta: ROUTES.DATOS_PLAGAS,
         rutaLabel: "Ver plagas",
+        scope: "Proyecto",
       },
     ],
   },
@@ -174,6 +186,7 @@ export const GUIA_SECCIONES: GuiaSeccionData[] = [
         ejemplo: "Olivo → ROI 340%, costo $350/kg, equilibrio en 18 meses",
         ruta: ROUTES.ECONOMIA,
         rutaLabel: "Ver economía",
+        scope: "Proyecto",
       },
       {
         id: "economia-avanzada",
@@ -185,6 +198,7 @@ export const GUIA_SECCIONES: GuiaSeccionData[] = [
         ejemplo: "Olivo → costo $350/kg, margen 65%, equilibrio con 120 kg/año",
         ruta: ROUTES.ECONOMIA_AVANZADO,
         rutaLabel: "Ver avanzado",
+        scope: "Proyecto",
       },
       {
         id: "escenarios",
@@ -197,6 +211,7 @@ export const GUIA_SECCIONES: GuiaSeccionData[] = [
           "¿Tuna, olivo o higuera? → Olivo gana en ROI, tuna en velocidad",
         ruta: ROUTES.ECONOMIA_ESCENARIOS,
         rutaLabel: "Comparar cultivos",
+        scope: "Proyecto",
       },
       {
         id: "alertas",
@@ -208,6 +223,7 @@ export const GUIA_SECCIONES: GuiaSeccionData[] = [
           "Agua para 5 días — Lavado salino pendiente — Replante en 2 semanas",
         ruta: ROUTES.ALERTAS,
         rutaLabel: "Ver alertas",
+        scope: "Proyecto",
       },
       {
         id: "planificador",
@@ -219,6 +235,7 @@ export const GUIA_SECCIONES: GuiaSeccionData[] = [
         ejemplo: "Marzo déficit → programar recarga extra",
         ruta: ROUTES.AGUA_PLANIFICADOR,
         rutaLabel: "Abrir planificador",
+        scope: "Proyecto",
       },
       {
         id: "reportes",
@@ -231,6 +248,7 @@ export const GUIA_SECCIONES: GuiaSeccionData[] = [
           "Reporte financiero → inversión $2.5M, ROI 340%, payback 18 meses",
         ruta: ROUTES.REPORTES,
         rutaLabel: "Ir a reportes",
+        scope: "Proyecto",
       },
       {
         id: "configuracion",
@@ -242,6 +260,7 @@ export const GUIA_SECCIONES: GuiaSeccionData[] = [
         ejemplo: "Última sincronización: hace 2 minutos — todo al día",
         ruta: ROUTES.CONFIGURACION,
         rutaLabel: "Ir a configuración",
+        scope: "Proyecto",
       },
     ],
   },

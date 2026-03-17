@@ -1,4 +1,4 @@
-import type { EtapaCrecimiento } from "@/types";
+import type { CatalogoCultivo, EtapaCrecimiento } from "@/types";
 
 export const KC_POR_CULTIVO: Record<
   string,
@@ -239,18 +239,38 @@ function quitarAcentos(str: string): string {
   return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
 
-export function getKc(tipoCultivo: string, etapa: EtapaCrecimiento): number {
-  const nombreNormalizado = quitarAcentos(tipoCultivo.toLowerCase().trim());
+/**
+ * Obtiene el Kc para un cultivo y etapa dados.
+ * Acepta un objeto CatalogoCultivo (usa campos kc_* de BD si existen)
+ * o un string de nombre (fallback al archivo de constantes).
+ */
+export function getKc(
+  cultivo: CatalogoCultivo | string,
+  etapa: EtapaCrecimiento,
+): number {
+  if (typeof cultivo !== "string") {
+    // Prioridad: campos kc_* del objeto de BD
+    const kcMap: Record<EtapaCrecimiento, number | undefined> = {
+      plántula: cultivo.kc_plantula,
+      joven: cultivo.kc_joven,
+      adulta: cultivo.kc_adulta,
+      madura: cultivo.kc_madura,
+    };
+    const kcBD = kcMap[etapa];
+    if (kcBD !== undefined && kcBD !== null) return kcBD;
+    // Fallback al nombre si no hay campos en BD aún
+    return getKc(cultivo.nombre, etapa);
+  }
 
-  for (const [cultivo, kcs] of Object.entries(KC_POR_CULTIVO)) {
-    const cultivoNormalizado = quitarAcentos(cultivo);
+  const nombreNormalizado = quitarAcentos(cultivo.toLowerCase().trim());
+  for (const [key, kcs] of Object.entries(KC_POR_CULTIVO)) {
+    const keyNormalizado = quitarAcentos(key);
     if (
-      nombreNormalizado.includes(cultivoNormalizado) ||
-      cultivoNormalizado.includes(nombreNormalizado)
+      nombreNormalizado.includes(keyNormalizado) ||
+      keyNormalizado.includes(nombreNormalizado)
     ) {
       return kcs[etapa] ?? KC_DEFAULT[etapa];
     }
   }
-
   return KC_DEFAULT[etapa];
 }
