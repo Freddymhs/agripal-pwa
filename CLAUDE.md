@@ -6,8 +6,9 @@
 - **Language**: TypeScript (Strict)
 - **Styling**: TailwindCSS 4
 - **State**: React Hooks (useState, useEffect, useCallback, useMemo)
-- **Persistence**: Supabase (PostgreSQL) — sin almacenamiento local
+- **Persistence**: Supabase (PostgreSQL) + Supabase Auth
 - **PWA**: @ducanh2912/next-pwa
+- **Nota**: No hay capa de cache (TanStack Query, SWR, etc). Datos se cargan directo desde Supabase via hooks.
 
 ## Architecture
 
@@ -111,7 +112,7 @@ Reglas adicionales:
 
 Componentes nunca importan datos de catálogo desde archivos locales. Siempre desde la BD via hooks.
 
-## Sistema de Agua (FASE 11C)
+## Sistema de Agua
 
 ### Páginas principales
 

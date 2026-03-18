@@ -1,15 +1,15 @@
 # AgriPlan PWA
 
-Sistema de planificación agrícola offline-first para pequeños agricultores de Arica, Chile.
+Sistema de planificación agrícola para pequeños agricultores de Arica, Chile.
 
 ## Stack Técnico
 
 - **Framework:** Next.js 16 + App Router + TypeScript
-- **Estilos:** TailwindCSS
+- **Estilos:** TailwindCSS 4
 - **PWA:** @ducanh2912/next-pwa
-- **Estado:** SWR
-- **Persistencia:** IndexedDB con Dexie
-- **Mapa:** SVG interactivo (zoom, pan, dibujo de zonas)
+- **Database:** Supabase (PostgreSQL + Auth)
+- **State:** React Hooks (useState, useEffect, useCallback)
+- **Mapa:** PixiJS v8 WebGL (zoom, pan, dibujo de zonas, 66k+ plantas a 60 FPS)
 
 ## Características Principales
 
@@ -18,7 +18,8 @@ Sistema de planificación agrícola offline-first para pequeños agricultores de
 - Colocación de plantas individual o en grilla
 - Control de agua (entradas, consumo, alertas)
 - Catálogo de cultivos editable por proyecto
-- Funciona 100% offline con sincronización
+- Sistema de billing con MercadoPago
+- Autenticación con Supabase
 
 ## Setup
 
@@ -47,11 +48,11 @@ src/
 └── types/         # TypeScript types
 ```
 
-Ver `backlog/` para la especificación completa del proyecto.
+Ver `docs/backlog/` para la especificación completa del proyecto.
 
 ## Backlog
 
-El directorio `backlog/` contiene la especificación detallada:
+El directorio `docs/backlog/` contiene la especificación detallada:
 
 - `README.md` - Overview y decisiones técnicas
 - `MODELO_DATOS.md` - Esquemas TypeScript completos
