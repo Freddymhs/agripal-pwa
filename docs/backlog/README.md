@@ -133,23 +133,25 @@ Cada archivo FASE_X.md incluye esta tarea de integración al final.
 | Fase       | Status | Progreso | Nombre                                       | Prioridad     |
 | ---------- | ------ | -------- | -------------------------------------------- | ------------- |
 | 16         | ✅     | 100%     | Registro de Cosechas (UI)                    | 🟡 MEDIA      |
-| 17         | ⏳     | 0%       | Reportes y Exportación PDF                   | 🟡 MEDIA      |
-| 18         | ⏳     | 0%       | Calendario de Eventos (Vista Mensual)        | 🟢 BAJA-MEDIA |
-| 19         | ⏳     | 0%       | Integraciones API Externas (Clima + Precios) | 🟢 BAJA       |
+| **17**     | ✅     | 100%     | Reportes y Exportación PDF                   | 🟡 MEDIA      |
+| ~~18~~     | ❌     | —        | ~~Calendario de Eventos (duplicado UX)~~     | 🟢 DESCARTADO |
+| 19         | ⏳     | 0%       | Integraciones API Externas (Clima + Precios) | 🔴 CRÍTICA    |
 | **FINAL**  | ⏳     | 0%       | Historial de Cambios (UI)                    | 🟢 BAJA       |
 | **LAUNCH** | ⏳     | 0%       | Checklist de Lanzamiento (dominio, GSC, SEO) | 🟢 BAJA       |
 
-**Total fases**: 42 (37 completadas, 5 pendientes)
+**Total fases**: 41 (38 completadas, 3 pendientes)
 
 ---
 
 ## 📍 Actual
 
-**Fase actual:** FASE_16 completada — Registro de Cosechas (DAL, hook, página, componentes). Siguiente: FASE_17 Reportes y Exportación PDF.
+**Fase actual:** FASE_17 completada — Reportes y Exportación PDF (3 tipos: Financiero, Agua, Producción). Siguiente: **FASE_19 Integraciones API Externas** (Clima real + Precios ODEPA).
 
-**Completadas (36)**: Estructura, Tipos, Mapa, Zonas, Plantas, Selección Múltiple, Gestión Proyectos/Terrenos, Terreno Avanzado, Panel Clima, Panel Suelo, Agua Avanzada, Motor Recomendación, Catálogo Cultivos, Estanques (8A), Control Agua, Multi-Estanque (8B), Alertas y Dashboard, PWA y Sync Offline, Performance PixiJS, Mejoras UX/Agua/Datos, Autenticación JWT Mock, Segmentación UX Agua, Dashboard + Planificador, Economía/Escenarios/Plagas/Datos/Fixes (11D), Datos Agronómicos (20), Insumos (21), Bugs UX (15B), Auth Supabase (12), Landing SEO (12B), Contenido SEO (12C), TanStack Audit (12D), Backend Supabase (13), Bugs Testing Retroactivos (15C), Billing MercadoPago (14), Homepage SSG (15)
+**Completadas (38)**: Estructura, Tipos, Mapa, Zonas, Plantas, Selección Múltiple, Gestión Proyectos/Terrenos, Terreno Avanzado, Panel Clima, Panel Suelo, Agua Avanzada, Motor Recomendación, Catálogo Cultivos, Estanques (8A), Control Agua, Multi-Estanque (8B), Alertas y Dashboard, PWA y Sync Offline, Performance PixiJS, Mejoras UX/Agua/Datos, Autenticación JWT Mock, Segmentación UX Agua, Dashboard + Planificador, Economía/Escenarios/Plagas/Datos/Fixes (11D), Datos Agronómicos (20), Insumos (21), Bugs UX (15B), Auth Supabase (12), Landing SEO (12B), Contenido SEO (12C), TanStack Audit (12D), Backend Supabase (13), Bugs Testing Retroactivos (15C), Billing MercadoPago (14), Homepage SSG (15), Cosechas (16), PDF (17)
 
-**Pendientes (5)**: PDF (17) → Calendario (18) → APIs externas (19) → Historial → Launch Checklist
+**Pendientes (3)**: APIs externas (19) → Historial → Launch Checklist
+
+**Descartada (1)**: Calendario (18) — duplicado UX respecto a /agua/planificador
 
 **Objetivo:** Transformar AgriPlan en un SaaS con backend real y sistema de suscripciones.
 
@@ -269,11 +271,17 @@ Cada archivo FASE_X.md incluye esta tarea de integración al final.
 - `FASE_14_BILLING_MERCADOPAGO.md` - Sistema de Billing con MercadoPago ✅
 - `FASE_15/` - Homepage SSG (6/6 stories, tests + docs) ✅
 
-### Pendientes (16–LAUNCH) ⏳
+### Completadas adicionales (16–17) ✅
 
-- `FASE_16_COSECHAS.md` - Registro de Cosechas (UI) ⏳
-- `FASE_17_REPORTES_PDF.md` - Reportes y Exportación PDF ⏳
-- `FASE_18_CALENDARIO.md` - Calendario de Eventos (Vista Mensual) ⏳
+- `FASE_16_COSECHAS.md` - Registro de Cosechas (UI) ✅
+- `FASE_17_REPORTES_PDF.md` - Reportes y Exportación PDF ✅
+
+### Descartadas ❌
+
+- `FASE_18_CALENDARIO.md` - ~~Calendario de Eventos (duplicado UX respecto a /agua/planificador)~~ ❌
+
+### Pendientes (19–LAUNCH) ⏳
+
 - `FASE_19_INTEGRACIONES_API.md` - Integraciones API Externas (Open-Meteo + ODEPA) ⏳
 - `FASE_FINAL_HISTORIAL.md` - Historial de Cambios (UI) ⏳
 - `FASE_LAUNCH_CHECKLIST.md` - Checklist de Lanzamiento (dominio, GSC, Lighthouse) ⏳
