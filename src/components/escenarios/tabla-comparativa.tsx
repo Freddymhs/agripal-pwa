@@ -71,10 +71,10 @@ export function TablaComparativa({ escenarios }: TablaComparativaProps) {
           </thead>
           <tbody className="divide-y divide-gray-50">
             <FilaMetrica
-              label="ROI a 4 años"
+              label="ROI a 5 años"
               hint="(Ingresos − Inversión) ÷ Inversión. Cuánto ganas por cada peso invertido en 4 años."
               escenarios={escenarios}
-              render={(e) => `${e.roi.roi_4_años_pct}%`}
+              render={(e) => `${e.roi.roi_5_años_pct}%`}
               colorFn={(e) =>
                 e.roi.viable ? "text-green-700" : "text-red-700"
               }
@@ -247,7 +247,7 @@ export function GraficoRoiComparativo({ escenarios }: TablaComparativaProps) {
               <span className="text-xs text-gray-500">
                 Total 4 años:{" "}
                 <strong className="text-gray-700">
-                  {formatCLP(e.roi.ingreso_acumulado_4años)}
+                  {formatCLP(e.roi.ingreso_acumulado_5años)}
                 </strong>
               </span>
             </div>
@@ -302,7 +302,7 @@ export function GraficoRoiComparativo({ escenarios }: TablaComparativaProps) {
 
 export function RecomendacionEscenario({ escenarios }: TablaComparativaProps) {
   const mejor = [...escenarios].sort(
-    (a, b) => b.roi.roi_4_años_pct - a.roi.roi_4_años_pct,
+    (a, b) => b.roi.roi_5_años_pct - a.roi.roi_5_años_pct,
   )[0];
 
   const sinSuelo = mejor.factorSuelo === 1.0;
@@ -317,8 +317,8 @@ export function RecomendacionEscenario({ escenarios }: TablaComparativaProps) {
       </p>
       <ul className="text-sm text-green-800 space-y-0.5 mt-2">
         <li>
-          • ROI a 4 años: <strong>{mejor.roi.roi_4_años_pct}%</strong> — por
-          cada $100 invertidos recuperas ${mejor.roi.roi_4_años_pct + 100}
+          • ROI a 5 años: <strong>{mejor.roi.roi_5_años_pct}%</strong> — por
+          cada $100 invertidos recuperas ${mejor.roi.roi_5_años_pct + 100}
         </li>
         <li>
           • Margen estimado:{" "}

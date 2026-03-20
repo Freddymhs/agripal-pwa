@@ -65,6 +65,14 @@ export const catalogoDAL = {
     if (error) throw error;
   },
 
+  marcarOrigenUsuario: async (cultivoId: string): Promise<void> => {
+    const { error } = await supabase
+      .from("catalogo_cultivos_config")
+      .update({ origen: "usuario", updated_at: new Date().toISOString() })
+      .eq("cultivo_id", cultivoId);
+    if (error) throw error;
+  },
+
   deleteByProyectoId: async (proyectoId: string): Promise<void> => {
     const { error } = await supabase
       .from(TABLA)

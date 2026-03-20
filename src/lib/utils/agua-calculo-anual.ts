@@ -1,5 +1,5 @@
 import type { Zona, EntradaAgua, Planta, CatalogoCultivo } from "@/types";
-import { calcularConsumoTerreno } from "./agua";
+import { calcularConsumoTerreno, type OpcionesConsumoAgua } from "./agua";
 import { SEMANAS_POR_AÑO, DIAS_POR_AÑO } from "@/lib/constants/conversiones";
 
 /** Llenadas estimadas por año cuando no hay historial (cada ~2 semanas) */
@@ -18,6 +18,7 @@ export function calcularAguaAnualAutomatica(
   zonas: Zona[],
   plantas: Planta[],
   catalogoCultivos: CatalogoCultivo[],
+  opcionesConsumoAgua?: OpcionesConsumoAgua,
 ): CalculoAguaAnual {
   if (entradasAgua.length >= 2) {
     return calcularPorHistorial(estanques, entradasAgua);
@@ -27,6 +28,8 @@ export function calcularAguaAnualAutomatica(
     zonas,
     plantas,
     catalogoCultivos,
+    undefined,
+    opcionesConsumoAgua,
   );
   if (consumoSemanal > 0) {
     return calcularPorConsumoCultivos(consumoSemanal);

@@ -34,17 +34,21 @@ export interface ProyeccionROI {
   costo_agua_anual: number;
   inversion_total: number;
 
+  kg_año1: number;
   kg_año2: number;
   kg_año3: number;
   kg_año4: number;
+  kg_año5: number;
 
   precio_kg_estimado: number;
+  ingreso_año1: number;
   ingreso_año2: number;
   ingreso_año3: number;
   ingreso_año4: number;
+  ingreso_año5: number;
 
-  ingreso_acumulado_4años: number;
-  roi_4_años_pct: number;
+  ingreso_acumulado_5años: number;
+  roi_5_años_pct: number;
   punto_equilibrio_meses: number | null;
   viable: boolean;
 }
@@ -128,41 +132,58 @@ export function calcularROI(
   const factorArea = plantasPorHa > 0 ? numPlantasVivas / plantasPorHa : 0;
   const factorSuelo = suelo ? calcularFactorSuelo(suelo, cultivo) : 1.0;
 
+  // Año 1: la mayoría de frutales no producen, hortalizas pueden producir parcial
+  const tiempoProduccionMeses = cultivo.tiempo_produccion_meses ?? 12;
+  const fraccionAño1 = Math.max(
+    0,
+    Math.min(1, (12 - tiempoProduccionMeses) / 12),
+  );
   const produccion_kg_ha_año2 = cultivo.produccion?.produccion_kg_ha_año2 ?? 0;
+  const produccion_kg_ha_año1 = produccion_kg_ha_año2 * fraccionAño1 * 0.5;
   const produccion_kg_ha_año3 = cultivo.produccion?.produccion_kg_ha_año3 ?? 0;
   const produccion_kg_ha_año4 = cultivo.produccion?.produccion_kg_ha_año4 ?? 0;
+  // Año 5: se estabiliza al nivel del año 4
+  const produccion_kg_ha_año5 = produccion_kg_ha_año4;
 
+  const kg1 = produccion_kg_ha_año1 * factorArea * factorSuelo;
   const kg2 = produccion_kg_ha_año2 * factorArea * factorSuelo;
   const kg3 = produccion_kg_ha_año3 * factorArea * factorSuelo;
   const kg4 = produccion_kg_ha_año4 * factorArea * factorSuelo;
+  const kg5 = produccion_kg_ha_año5 * factorArea * factorSuelo;
 
   const precioKg = precioKgPromedio;
 
+  const ingreso1 = kg1 * precioKg;
   const ingreso2 = kg2 * precioKg;
   const ingreso3 = kg3 * precioKg;
   const ingreso4 = kg4 * precioKg;
+  const ingreso5 = kg5 * precioKg;
 
   const costoAnualOperacion = costoAguaAnual;
+  const ingresoNeto1 = ingreso1 - costoAnualOperacion;
   const ingresoNeto2 = ingreso2 - costoAnualOperacion;
   const ingresoNeto3 = ingreso3 - costoAnualOperacion;
   const ingresoNeto4 = ingreso4 - costoAnualOperacion;
+  const ingresoNeto5 = ingreso5 - costoAnualOperacion;
 
-  const ingresoAcumulado = ingresoNeto2 + ingresoNeto3 + ingresoNeto4;
+  const ingresoAcumulado =
+    ingresoNeto1 + ingresoNeto2 + ingresoNeto3 + ingresoNeto4 + ingresoNeto5;
 
-  const roi4 =
+  const roi5 =
     inversion > 0 ? ((ingresoAcumulado - inversion) / inversion) * 100 : 0;
 
   let puntoEquilibrio: number | null = null;
   if (ingresoAcumulado > 0) {
     let acum = -costoPlantasTotal;
     const mesesPorAño = [
-      { año: 1, ingresoMensual: 0 - costoAnualOperacion / 12 },
-      { año: 2, ingresoMensual: (ingreso2 - costoAnualOperacion) / 12 },
-      { año: 3, ingresoMensual: (ingreso3 - costoAnualOperacion) / 12 },
-      { año: 4, ingresoMensual: (ingreso4 - costoAnualOperacion) / 12 },
+      { ingresoMensual: (ingreso1 - costoAnualOperacion) / 12 },
+      { ingresoMensual: (ingreso2 - costoAnualOperacion) / 12 },
+      { ingresoMensual: (ingreso3 - costoAnualOperacion) / 12 },
+      { ingresoMensual: (ingreso4 - costoAnualOperacion) / 12 },
+      { ingresoMensual: (ingreso5 - costoAnualOperacion) / 12 },
     ];
-    for (let mes = 1; mes <= 48; mes++) {
-      const añoIdx = Math.min(Math.floor((mes - 1) / 12), 3);
+    for (let mes = 1; mes <= 60; mes++) {
+      const añoIdx = Math.min(Math.floor((mes - 1) / 12), 4);
       acum += mesesPorAño[añoIdx].ingresoMensual;
       if (acum >= 0) {
         puntoEquilibrio = mes;
@@ -181,16 +202,20 @@ export function calcularROI(
     costo_plantas: costoPlantasTotal,
     costo_agua_anual: costoAguaAnual,
     inversion_total: inversion,
+    kg_año1: kg1,
     kg_año2: kg2,
     kg_año3: kg3,
     kg_año4: kg4,
+    kg_año5: kg5,
     precio_kg_estimado: precioKg,
+    ingreso_año1: ingreso1,
     ingreso_año2: ingreso2,
     ingreso_año3: ingreso3,
     ingreso_año4: ingreso4,
-    ingreso_acumulado_4años: ingresoAcumulado,
-    roi_4_años_pct: Math.round(roi4),
+    ingreso_año5: ingreso5,
+    ingreso_acumulado_5años: ingresoAcumulado,
+    roi_5_años_pct: Math.round(roi5),
     punto_equilibrio_meses: puntoEquilibrio,
-    viable: roi4 > 0,
+    viable: roi5 > 0,
   };
 }

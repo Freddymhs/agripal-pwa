@@ -6,8 +6,8 @@ import { logger } from "@/lib/logger";
 import type { FuenteAgua, UUID } from "@/types";
 import type { Enmienda } from "@/lib/data/enmiendas-suelo";
 import type { TecnicaMejora } from "@/lib/data/tecnicas-mejora";
-import type { VariedadCultivo } from "@/lib/data/variedades";
-import type { DatosMercado } from "@/lib/data/mercado";
+import type { VariedadCultivo } from "@/lib/data/tipos-variedades";
+import type { PrecioMayorista, MercadoDetalle } from "@/lib/data/tipos-mercado";
 import type { ClimaBase } from "@/lib/dal/base-data";
 
 export interface DatosBase {
@@ -16,7 +16,8 @@ export interface DatosBase {
   clima: ClimaBase[];
   fuentesAgua: FuenteAgua[];
   variedades: VariedadCultivo[];
-  precios: DatosMercado[];
+  precios: PrecioMayorista[];
+  mercadoDetalle: MercadoDetalle[];
 }
 
 const DATOS_BASE_VACIOS: DatosBase = {
@@ -26,6 +27,7 @@ const DATOS_BASE_VACIOS: DatosBase = {
   fuentesAgua: [],
   variedades: [],
   precios: [],
+  mercadoDetalle: [],
 };
 
 export function useDatosBase(proyectoId: UUID | null) {
@@ -51,8 +53,11 @@ export function useDatosBase(proyectoId: UUID | null) {
           baseDataDAL.getClimasDisponibles(),
           baseDataDAL.getFuentesAguaByProyectoId(proyectoId),
           baseDataDAL.getVariedadesGlobales(),
-          baseDataDAL.getPreciosGlobales(),
+          baseDataDAL.getPreciosMayoristas(),
         ]);
+
+      const preciosIds = precios.map((p) => p.id);
+      const mercadoDetalle = await baseDataDAL.getMercadoDetalle(preciosIds);
 
       setDatosBase({
         enmiendas,
@@ -61,6 +66,7 @@ export function useDatosBase(proyectoId: UUID | null) {
         fuentesAgua,
         variedades,
         precios,
+        mercadoDetalle,
       });
     } catch (err) {
       const e =

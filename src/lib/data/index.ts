@@ -7,7 +7,7 @@ export {
   type DatosETo,
   type EtoMensual,
   type DatosCamanchaca,
-} from "./clima";
+} from "./calculos-clima";
 export { UMBRALES_AGUA } from "./umbrales-agua";
 export {
   UMBRALES_SUELO,
@@ -20,6 +20,6 @@ export {
   sugerirEnmiendas,
   type Enmienda,
 } from "./enmiendas-suelo";
-export { type VariedadCultivo } from "./variedades";
+export { type VariedadCultivo } from "./tipos-variedades";
 export { type TecnicaMejora } from "./tecnicas-mejora";
-export { SUELO_DEFAULT_AZAPA } from "./suelo-arica";
+export { SUELO_EJEMPLO } from "./suelo-ejemplo";

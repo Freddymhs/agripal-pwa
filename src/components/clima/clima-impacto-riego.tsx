@@ -5,7 +5,7 @@ import {
   hayCamanchaca,
   getFactorClimatico,
   type DatosETo,
-} from "@/lib/data/clima";
+} from "@/lib/data/calculos-clima";
 
 /** Valor máximo del eje ETo en el gráfico de barras (mm/día) */
 const ETO_MAX_ESCALA_MM_DIA = 6.5;

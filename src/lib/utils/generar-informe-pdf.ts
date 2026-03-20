@@ -8,9 +8,9 @@ import type {
   Alerta,
   EtapaCrecimiento,
 } from "@/types";
-import type { DatosClimaticos } from "@/lib/data/clima";
+import type { DatosClimaticos } from "@/lib/data/calculos-clima";
 import { evaluarSuelo, NIVEL_ALERTA } from "@/lib/data/umbrales-suelo";
-import { getKc } from "@/lib/data/kc-cultivos";
+import { getKc } from "@/lib/data/coeficientes-kc";
 import { UBICACION_PILOTO } from "@/lib/constants/conversiones";
 import {
   ESTADO_ALERTA,

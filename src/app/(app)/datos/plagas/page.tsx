@@ -9,7 +9,7 @@ import {
   type RiesgoPlaga,
 } from "@/lib/utils/riesgo-plagas";
 import type { CatalogoCultivo, EtapaCrecimiento } from "@/types";
-import type { DatosClimaticos } from "@/lib/data/clima";
+import type { DatosClimaticos } from "@/lib/data/calculos-clima";
 import { TIPO_ZONA, ESTADO_PLANTA } from "@/lib/constants/entities";
 
 const ALERT_COLORS: Record<RiesgoPlaga["alertaNivel"], string> = {

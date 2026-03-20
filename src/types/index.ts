@@ -402,6 +402,7 @@ export interface PlantClima {
 export interface CatalogoCultivo {
   id: UUID;
   proyecto_id: UUID;
+  cultivo_base_id?: string;
   nombre: string;
   nombre_cientifico?: string;
 
@@ -453,6 +454,8 @@ export interface CatalogoCultivo {
 
   notas: string;
   notas_arica?: string;
+
+  recomendacion?: 1 | 2 | 3;
 
   created_at: Timestamp;
   updated_at: Timestamp;

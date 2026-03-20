@@ -33,6 +33,7 @@ export default function EconomiaPage() {
     catalogoCultivos,
     loading,
     datosBaseHook,
+    opcionesConsumoAgua,
   } = useProjectContext();
 
   const fuentesAgua = datosBaseHook.datosBase.fuentesAgua;
@@ -75,6 +76,8 @@ export default function EconomiaPage() {
           zona,
           plantasCultivo,
           catalogoCultivos,
+          undefined,
+          opcionesConsumoAgua,
         );
         const roi = calcularROI(
           cultivo,
@@ -103,6 +106,7 @@ export default function EconomiaPage() {
     catalogoCultivos,
     fuentesAgua,
     proyectoActual?.suelo,
+    opcionesConsumoAgua,
   ]);
 
   const totalInversion = resumen.reduce(
@@ -110,7 +114,7 @@ export default function EconomiaPage() {
     0,
   );
   const totalIngresoAcumulado = resumen.reduce(
-    (sum, r) => sum + r.roi.ingreso_acumulado_4años,
+    (sum, r) => sum + r.roi.ingreso_acumulado_5años,
     0,
   );
   const totalCostoAgua = resumen.reduce(
@@ -149,7 +153,7 @@ export default function EconomiaPage() {
       <main className="p-4 space-y-4 max-w-4xl mx-auto">
         <div className="bg-white rounded-lg shadow p-4">
           <h2 className="text-lg font-bold text-gray-900 mb-4">
-            💰 Resumen Global (4 años)
+            💰 Resumen Global (5 años)
           </h2>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
@@ -164,7 +168,7 @@ export default function EconomiaPage() {
                 {formatCLP(totalIngresoAcumulado)}
               </div>
               <div className="text-xs text-green-600">
-                Ingreso Neto (4 años)
+                Ingreso Neto (5 años)
               </div>
             </div>
             <div className="bg-purple-50 p-3 rounded-lg text-center">
@@ -246,7 +250,7 @@ export default function EconomiaPage() {
                       Inversión
                     </th>
                     <th className="text-right p-3 font-medium text-gray-700">
-                      Ingreso 4a
+                      Ingreso 5a
                     </th>
                     <th className="text-right p-3 font-medium text-gray-700">
                       ROI
@@ -273,12 +277,12 @@ export default function EconomiaPage() {
                         {formatCLP(r.roi.inversion_total)}
                       </td>
                       <td className="p-3 text-right text-green-700 font-medium">
-                        {formatCLP(r.roi.ingreso_acumulado_4años)}
+                        {formatCLP(r.roi.ingreso_acumulado_5años)}
                       </td>
                       <td
                         className={`p-3 text-right font-bold ${r.roi.viable ? "text-green-700" : "text-red-700"}`}
                       >
-                        {r.roi.roi_4_años_pct}%
+                        {r.roi.roi_5_años_pct}%
                       </td>
                       <td className="p-3 text-right text-gray-600">
                         {r.roi.punto_equilibrio_meses != null

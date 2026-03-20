@@ -4,6 +4,7 @@ import type { useZonas } from "@/hooks/use-zonas";
 import type { usePlantas } from "@/hooks/use-plantas";
 import type { usePlantasLote } from "@/hooks/use-plantas-lote";
 import type { useDatosBase } from "@/hooks/use-datos-base";
+import type { OpcionesConsumoAgua } from "@/lib/utils/agua";
 import type {
   Terreno,
   Zona,
@@ -44,6 +45,7 @@ export interface ProjectContextType {
   dashboard: DashboardTerreno | null;
   CULTIVOS_ESPACIADO: Record<string, number>;
   CULTIVOS_COLORES: Record<string, number>;
+  opcionesConsumoAgua: OpcionesConsumoAgua;
 
   cargarDatosTerreno: () => Promise<void>;
   handleSelectProyecto: (p: Proyecto) => void;

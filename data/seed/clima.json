@@ -2,9 +2,12 @@
   "region": "Arica y Parinacota",
   "zona": "pampa_interior",
   "elevacion_m": 1086,
-  "coordenadas": { "lat": -18.366, "lon": -70.045 },
+  "coordenadas": {
+    "lat": -18.366,
+    "lon": -70.045
+  },
   "lluvia": {
-    "anual_mm": 23,
+    "anual_mm": 0,
     "max_24h_mm": 10,
     "meses_lluviosos": ["ene", "feb", "jun"],
     "meses_secos": [
@@ -20,9 +23,9 @@
     ]
   },
   "temperatura": {
-    "minima_historica_c": 10,
-    "maxima_verano_c": 26,
-    "promedio_anual_c": 18,
+    "minima_historica_c": 14.6,
+    "maxima_verano_c": 28.8,
+    "promedio_anual_c": 21.7,
     "horas_frio_aprox": 50,
     "horas_frio_nota": "~50h <10°C/año. Esencialmente 0h <7°C. Suficiente para olivo cv. Azapa (requiere ~70h <10°C)."
   },
@@ -42,7 +45,7 @@
     "radiacion_mj_m2_dia": 18
   },
   "evapotranspiracion": {
-    "et0_mm_dia": 4.2,
+    "et0_mm_dia": 4.65,
     "nota": "Promedio anual real Open-Meteo 2025. Menor que costa por elevación y temperatura moderada."
   },
   "estacionalidad": {

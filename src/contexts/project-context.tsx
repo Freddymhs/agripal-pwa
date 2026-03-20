@@ -32,6 +32,7 @@ import { STORAGE_KEYS } from "@/lib/constants/storage";
 import { getCurrentTimestamp } from "@/lib/utils";
 import { ejecutarMutacion } from "@/lib/helpers/dal-mutation";
 import { logger } from "@/lib/logger";
+import type { OpcionesConsumoAgua } from "@/lib/utils/agua";
 import type {
   Terreno,
   Zona,
@@ -82,6 +83,22 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
     [proyectoActual?.proveedores_agua],
   );
   const datosListos = terrenoIdCargado === terrenoActual?.id;
+  const datosBaseHook = useDatosBase(proyectoActual?.id || null);
+
+  const opcionesConsumoAgua = useMemo<OpcionesConsumoAgua>(() => {
+    const climaId = proyectoActual?.clima_base_id;
+    const climas = datosBaseHook.datosBase.clima;
+    const climaDatos = climaId
+      ? climas.find((c) => c.id === climaId)
+      : undefined;
+    const texturaSuelo = proyectoActual?.suelo?.fisico?.textura;
+    return { climaDatos, texturaSuelo };
+  }, [
+    proyectoActual?.clima_base_id,
+    proyectoActual?.suelo?.fisico?.textura,
+    datosBaseHook.datosBase.clima,
+  ]);
+
   const alertasHook = useAlertas(
     terrenoActual,
     zonas,
@@ -92,8 +109,8 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
     proyectoActual?.clima_base_id ?? null,
     proveedoresAgua,
     proyectoActual?.id,
+    opcionesConsumoAgua,
   );
-  const datosBaseHook = useDatosBase(proyectoActual?.id || null);
   const CULTIVOS_ESPACIADO = useMemo(
     () =>
       catalogoCultivos.reduce<Record<string, number>>(
@@ -263,6 +280,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
     plantas,
     catalogoCultivos,
     alertasHook,
+    opcionesConsumoAgua,
   );
   const {
     handleSelectProyecto,
@@ -350,6 +368,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
       dashboard,
       CULTIVOS_ESPACIADO,
       CULTIVOS_COLORES,
+      opcionesConsumoAgua,
       cargarDatosTerreno,
       handleSelectProyecto,
       handleSelectTerreno,
@@ -390,6 +409,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
       dashboard,
       CULTIVOS_ESPACIADO,
       CULTIVOS_COLORES,
+      opcionesConsumoAgua,
       cargarDatosTerreno,
       handleSelectProyecto,
       handleSelectTerreno,

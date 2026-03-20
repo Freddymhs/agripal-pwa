@@ -52,6 +52,9 @@ const TABLAS_EN_ORDEN = [
   "suscripciones",
   // Proyecto (padre de todo lo per-proyecto)
   "proyectos",
+  // Config (1:1, CASCADE se encarga pero explícito es mejor)
+  "precios_mayoristas_config",
+  "catalogo_cultivos_config",
   // Tablas base globales (seed:base las repuebla)
   "catalogo_base",
   "variedades_base",
@@ -60,7 +63,8 @@ const TABLAS_EN_ORDEN = [
   "tecnicas_base",
   "clima_base",
   "fuentes_agua_base",
-  "precios_base",
+  "mercado_detalle",
+  "precios_mayoristas",
   // Billing base
   "planes",
 ] as const;

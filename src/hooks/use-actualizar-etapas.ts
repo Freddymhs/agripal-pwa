@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import { transaccionesDAL } from "@/lib/dal";
 import { ejecutarMutacion } from "@/lib/helpers/dal-mutation";
-import { calcularEtapaActual } from "@/lib/data/duracion-etapas";
+import { calcularEtapaActual } from "@/lib/data/calculos-etapas";
 import { getCurrentTimestamp } from "@/lib/utils";
 import type { Planta, CatalogoCultivo } from "@/types";
 import { ESTADO_PLANTA } from "@/lib/constants/entities";

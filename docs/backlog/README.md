@@ -8,10 +8,9 @@ Sistema de planificación agrícola offline-first para pequeños agricultores de
 
 - Next.js 16 + App Router + TypeScript
 - TailwindCSS 4
-- **Supabase** (PostgreSQL + Auth + Realtime)
-- IndexedDB con Dexie (offline-first)
-- PWA con @ducanh2912/next-pwa
-- SWR para estado
+- **Supabase** (PostgreSQL + Auth) — sin capa offline, datos siempre en Supabase
+- PWA con @ducanh2912/next-pwa (service worker para assets UI, NO datos)
+- React Hooks (useState, useEffect, useCallback) — sin SWR ni TanStack Query
 - PixiJS v8 (WebGL) para mapa interactivo (migrado desde SVG en FASE_10B)
 - **MercadoPago** para billing y suscripciones
 
@@ -39,11 +38,11 @@ Usuario (Supabase Auth)
 - **Plantas**: Colocación individual o grilla con preview
 - **Espaciado**: Definido por cultivo (ej: zanahoria 0.05m, tomate 0.4m)
 - **Agua**: Por terreno, factores temporada (verano=1.4, invierno=0.6)
-- **Sync**: Offline-first con SupabaseAdapter, usuario resuelve conflictos manualmente
+- **Datos**: Supabase directo via DAL. Sin capa offline ni IndexedDB.
 - **Auth**: Supabase Auth con sesiones seguras (cookies httpOnly)
 - **Billing**: MercadoPago, suscripción mensual 9,990 CLP
-- **Datos estáticos**: `data/static/` (JSON) + `src/lib/data/` (loaders TS)
-- **Datos dinámicos**: PostgreSQL (Supabase) + IndexedDB (offline)
+- **Datos estáticos**: `data/seed/` (JSON) + `src/lib/data/` (funciones de cálculo TS)
+- **Datos dinámicos**: PostgreSQL (Supabase) — tablas globales (seed) + tablas per-proyecto (trigger)
 
 ## ✨ Features UX Implementadas
 
@@ -74,7 +73,7 @@ Usuario (Supabase Auth)
 > 1. Actualiza la página principal o crea nueva página
 > 2. Agrega controles en la UI (botones, modos, estados)
 > 3. Conecta los hooks con la interfaz
-> 4. Usa datos reales de IndexedDB (NO datos demo)
+> 4. Usa datos reales de Supabase (NO datos demo)
 > 5. Permite al usuario USAR la funcionalidad
 
 Cada archivo FASE_X.md incluye esta tarea de integración al final.
@@ -135,21 +134,22 @@ Cada archivo FASE_X.md incluye esta tarea de integración al final.
 | 16         | ✅     | 100%     | Registro de Cosechas (UI)                    | 🟡 MEDIA      |
 | **17**     | ✅     | 100%     | Reportes y Exportación PDF                   | 🟡 MEDIA      |
 | ~~18~~     | ❌     | —        | ~~Calendario de Eventos (duplicado UX)~~     | 🟢 DESCARTADO |
-| 19         | ⏳     | 0%       | Integraciones API Externas (Clima + Precios) | 🔴 CRÍTICA    |
+| 19         | 🔄     | 70%      | Integraciones API Externas (Clima + Precios) | 🔴 CRÍTICA    |
 | **FINAL**  | ⏳     | 0%       | Historial de Cambios (UI)                    | 🟢 BAJA       |
 | **LAUNCH** | ⏳     | 0%       | Checklist de Lanzamiento (dominio, GSC, SEO) | 🟢 BAJA       |
 
-**Total fases**: 41 (38 completadas, 3 pendientes)
+**Total fases**: 41 (38 completadas, 1 en progreso, 2 pendientes)
 
 ---
 
 ## 📍 Actual
 
-**Fase actual:** FASE_17 completada — Reportes y Exportación PDF (3 tipos: Financiero, Agua, Producción). Siguiente: **FASE_19 Integraciones API Externas** (Clima real + Precios ODEPA).
+**Fase actual:** FASE_19 en progreso (~70%) — API NestJS funcional (clima + precios ODEPA + plaguicidas + recomendaciones INIA + directorio). Integración API→Supabase→PWA conectada para clima_base y precios_mayoristas. Pendiente: desplegar API en producción + actualizar precios_mayoristas_config desde cron.
 
 **Completadas (38)**: Estructura, Tipos, Mapa, Zonas, Plantas, Selección Múltiple, Gestión Proyectos/Terrenos, Terreno Avanzado, Panel Clima, Panel Suelo, Agua Avanzada, Motor Recomendación, Catálogo Cultivos, Estanques (8A), Control Agua, Multi-Estanque (8B), Alertas y Dashboard, PWA y Sync Offline, Performance PixiJS, Mejoras UX/Agua/Datos, Autenticación JWT Mock, Segmentación UX Agua, Dashboard + Planificador, Economía/Escenarios/Plagas/Datos/Fixes (11D), Datos Agronómicos (20), Insumos (21), Bugs UX (15B), Auth Supabase (12), Landing SEO (12B), Contenido SEO (12C), TanStack Audit (12D), Backend Supabase (13), Bugs Testing Retroactivos (15C), Billing MercadoPago (14), Homepage SSG (15), Cosechas (16), PDF (17)
 
-**Pendientes (3)**: APIs externas (19) → Historial → Launch Checklist
+**En progreso (1)**: APIs externas (19) ~70%
+**Pendientes (2)**: Historial → Launch Checklist
 
 **Descartada (1)**: Calendario (18) — duplicado UX respecto a /agua/planificador
 
@@ -366,6 +366,7 @@ pnpm type-check   # TypeScript check
 4. ✅ **COMPLETADA (100%)**: Billing MercadoPago (FASE_14) — checkout, webhook, middleware guard, UI, SubscriptionBadge
 5. ✅ **COMPLETADA (100%)**: Homepage SSG (FASE_15) — tests arquitectónicos + docs/architecture.md
 6. ✅ **COMPLETADA (100%)**: Cosechas (FASE_16) — DAL, hook, página, formulario, historial
-7. ⏳ **SIGUIENTE**: PDF (FASE_17) → Calendario → APIs externas → Historial → Launch
+7. 🔄 **EN PROGRESO**: APIs externas (FASE_19) ~70% — API NestJS funcional, integración Supabase conectada. Pendiente: deploy + config sync.
+8. ⏳ **SIGUIENTE**: Historial → Launch
 
 **Objetivo:** Convertir AgriPlan en un SaaS funcional con suscripciones mensuales de 9,990 CLP.

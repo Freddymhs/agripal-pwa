@@ -71,7 +71,7 @@ export function ROIPanel({ roi }: ROIPanelProps) {
               : "bg-red-100 text-red-800"
           }`}
         >
-          ROI {roi.roi_4_años_pct}% (4 años)
+          ROI {roi.roi_5_años_pct}% (5 años)
         </span>
       </div>
 
@@ -125,7 +125,7 @@ export function ROIPanel({ roi }: ROIPanelProps) {
           <span
             className={`font-bold ${roi.viable ? "text-green-900" : "text-red-900"}`}
           >
-            {formatCLP(roi.ingreso_acumulado_4años)}
+            {formatCLP(roi.ingreso_acumulado_5años)}
           </span>
         </div>
         {roi.punto_equilibrio_meses != null && (

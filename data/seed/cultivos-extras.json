@@ -1,11 +1,490 @@
 [
   {
+    "id": "verdura-oregano",
+    "proyecto_id": "proyecto-arica-piloto",
+    "categoria": "produccion",
+    "nombre": "Orégano",
+    "nombre_cientifico": "Origanum vulgare",
+    "tipo": "verdura",
+    "origen": "seed",
+    "agua_m3_ha_año_min": 1500,
+    "agua_m3_ha_año_max": 2500,
+    "espaciado_min_m": 0.3,
+    "espaciado_recomendado_m": 0.4,
+    "ph_min": 6,
+    "ph_max": 8,
+    "salinidad_tolerancia_dS_m": 4,
+    "boro_tolerancia_ppm": 3,
+    "tolerancia_boro": "media",
+    "tolerancia_salinidad": "media",
+    "clima": {
+      "temp_min_c": -5,
+      "temp_max_c": 40,
+      "tolerancia_heladas": "media"
+    },
+    "viabilidad_proyecto": "mejor_opcion",
+    "calendario": {
+      "meses_siembra": [8, 9, 10],
+      "meses_cosecha": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+      "meses_descanso": []
+    },
+    "produccion": {
+      "produccion_kg_ha_año2": 1500,
+      "produccion_kg_ha_año3": 2500,
+      "produccion_kg_ha_año4": 3000,
+      "vida_util_dias": 180
+    },
+    "precio_kg_min_clp": 8000,
+    "precio_kg_max_clp": 12000,
+    "precio_planta_clp": 200,
+    "plagas": [
+      {
+        "nombre": "Araña roja",
+        "nombre_cientifico": "Tetranychus urticae",
+        "grados_dia_base": 10,
+        "grados_dia_ciclo": 200,
+        "grados_dia_ovicida_ventana": 60,
+        "control_recomendado": "Aceite de neem + ventilación. El ambiente seco de la pampa favorece el ácaro."
+      }
+    ],
+    "tiempo_produccion_meses": 4,
+    "vida_util_años": 6,
+    "tier": 1,
+    "riesgo": "bajo",
+    "notas": "Perenne. Ultra bajo consumo de agua. Valor altísimo seco. Resistente a viento. Cosecha continua una vez establecido.",
+    "notas_arica": "El calor seco de la pampa concentra aceites esenciales — orégano de altísima calidad. Ideal para secar al sol directamente. Sin heladas severas produce todo el año.",
+    "propagacion": {
+      "metodo_principal": "esqueje",
+      "descripcion": "Esquejes de 10cm en primavera. Enraízan en 2-3 semanas. También por división de matas cada 2-3 años."
+    },
+    "created_at": "2026-03-19T00:00:00Z",
+    "updated_at": "2026-03-19T00:00:00Z",
+    "kc_plantula": 0.35,
+    "kc_joven": 0.6,
+    "kc_adulta": 0.9,
+    "kc_madura": 0.8,
+    "recomendacion": 3,
+    "alelopatia": {
+      "negativa": ["lechuga", "acelga"],
+      "distancia_minima_m": 1.5
+    }
+  },
+  {
+    "id": "verdura-ajo",
+    "proyecto_id": "proyecto-arica-piloto",
+    "categoria": "produccion",
+    "nombre": "Ajo",
+    "nombre_cientifico": "Allium sativum",
+    "tipo": "verdura",
+    "origen": "seed",
+    "agua_m3_ha_año_min": 2000,
+    "agua_m3_ha_año_max": 3500,
+    "espaciado_min_m": 0.1,
+    "espaciado_recomendado_m": 0.15,
+    "ph_min": 6,
+    "ph_max": 7.5,
+    "salinidad_tolerancia_dS_m": 3,
+    "boro_tolerancia_ppm": 2,
+    "tolerancia_boro": "media",
+    "tolerancia_salinidad": "media",
+    "clima": {
+      "temp_min_c": -5,
+      "temp_max_c": 35,
+      "tolerancia_heladas": "media"
+    },
+    "viabilidad_proyecto": "mejor_opcion",
+    "calendario": {
+      "meses_siembra": [4, 5, 6],
+      "meses_cosecha": [10, 11, 12],
+      "meses_descanso": [1, 2, 3]
+    },
+    "produccion": {
+      "produccion_kg_ha_año2": 6000,
+      "produccion_kg_ha_año3": 8000,
+      "produccion_kg_ha_año4": 8000,
+      "vida_util_dias": 180
+    },
+    "precio_kg_min_clp": 3000,
+    "precio_kg_max_clp": 5000,
+    "precio_planta_clp": 0,
+    "plagas": [
+      {
+        "nombre": "Trips del ajo",
+        "nombre_cientifico": "Thrips tabaci",
+        "grados_dia_base": 10,
+        "grados_dia_ciclo": 260,
+        "grados_dia_ovicida_ventana": 90,
+        "control_recomendado": "Trampa azul adhesiva + spinosad. Mantener humedad foliar baja."
+      }
+    ],
+    "tiempo_produccion_meses": 6,
+    "vida_util_años": 1,
+    "tier": 1,
+    "riesgo": "bajo",
+    "notas": "Ultra resistente a sequía. Alto valor/kg. Almacenamiento prolongado (6-8 meses). Siembra en invierno-primavera.",
+    "notas_arica": "Ajo rosado o morado de Arica. El frío relativo de invierno en pampa (10°C) es suficiente para vernalización. Almacenado puede venderse escalonado todo el año.",
+    "propagacion": {
+      "metodo_principal": "diente",
+      "descripcion": "Plantar dientes seleccionados de la cosecha anterior, 3-4 cm de profundidad, punta hacia arriba."
+    },
+    "created_at": "2026-03-19T00:00:00Z",
+    "updated_at": "2026-03-19T00:00:00Z",
+    "kc_plantula": 0.4,
+    "kc_joven": 0.7,
+    "kc_adulta": 1,
+    "kc_madura": 0.7,
+    "recomendacion": 3,
+    "alelopatia": {
+      "negativa": ["quinoa", "poroto"],
+      "distancia_minima_m": 2
+    }
+  },
+  {
+    "id": "verdura-cebolla",
+    "proyecto_id": "proyecto-arica-piloto",
+    "categoria": "produccion",
+    "nombre": "Cebolla",
+    "nombre_cientifico": "Allium cepa",
+    "tipo": "verdura",
+    "origen": "seed",
+    "agua_m3_ha_año_min": 3500,
+    "agua_m3_ha_año_max": 5000,
+    "espaciado_min_m": 0.1,
+    "espaciado_recomendado_m": 0.15,
+    "ph_min": 6,
+    "ph_max": 7.5,
+    "salinidad_tolerancia_dS_m": 4,
+    "boro_tolerancia_ppm": 2,
+    "tolerancia_boro": "media",
+    "tolerancia_salinidad": "media",
+    "clima": {
+      "temp_min_c": 0,
+      "temp_max_c": 35,
+      "tolerancia_heladas": "baja"
+    },
+    "viabilidad_proyecto": "viable",
+    "calendario": {
+      "meses_siembra": [3, 4, 5],
+      "meses_cosecha": [9, 10, 11],
+      "meses_descanso": [12, 1, 2]
+    },
+    "produccion": {
+      "produccion_kg_ha_año2": 25000,
+      "produccion_kg_ha_año3": 35000,
+      "produccion_kg_ha_año4": 35000,
+      "vida_util_dias": 90
+    },
+    "precio_kg_min_clp": 500,
+    "precio_kg_max_clp": 1000,
+    "precio_planta_clp": 0,
+    "plagas": [
+      {
+        "nombre": "Trips de la cebolla",
+        "nombre_cientifico": "Thrips tabaci",
+        "grados_dia_base": 10,
+        "grados_dia_ciclo": 260,
+        "grados_dia_ovicida_ventana": 90,
+        "control_recomendado": "Trampa azul adhesiva. Riego por goteo reduce humedad foliar."
+      }
+    ],
+    "tiempo_produccion_meses": 6,
+    "vida_util_años": 1,
+    "tier": 1,
+    "riesgo": "bajo",
+    "notas": "Demanda constante. Almacenamiento prolongado. Fácil manejo. Precio moderado pero volumen alto.",
+    "notas_arica": "Cebolla ariqueña de renombre nacional. El suelo arenoso de pampa da bulbos bien formados. Requiere agua de calidad — evitar agua con boro alto.",
+    "propagacion": {
+      "metodo_principal": "semilla",
+      "descripcion": "Almácigo en bandejas, trasplantar a las 6-8 semanas con 3-4 hojas verdaderas."
+    },
+    "created_at": "2026-03-19T00:00:00Z",
+    "updated_at": "2026-03-19T00:00:00Z",
+    "kc_plantula": 0.45,
+    "kc_joven": 0.7,
+    "kc_adulta": 1.05,
+    "kc_madura": 0.8,
+    "recomendacion": 1,
+    "alelopatia": {
+      "negativa": ["quinoa", "poroto"],
+      "distancia_minima_m": 2
+    }
+  },
+  {
+    "id": "verdura-zapallo",
+    "proyecto_id": "proyecto-arica-piloto",
+    "categoria": "produccion",
+    "nombre": "Zapallo",
+    "nombre_cientifico": "Cucurbita maxima",
+    "tipo": "verdura",
+    "origen": "seed",
+    "agua_m3_ha_año_min": 3000,
+    "agua_m3_ha_año_max": 5000,
+    "espaciado_min_m": 1,
+    "espaciado_recomendado_m": 1.5,
+    "ph_min": 6,
+    "ph_max": 7.5,
+    "salinidad_tolerancia_dS_m": 3,
+    "boro_tolerancia_ppm": 2,
+    "tolerancia_boro": "media",
+    "tolerancia_salinidad": "media",
+    "clima": {
+      "temp_min_c": 10,
+      "temp_max_c": 40,
+      "tolerancia_heladas": "nula"
+    },
+    "viabilidad_proyecto": "mejor_opcion",
+    "calendario": {
+      "meses_siembra": [9, 10, 1, 2],
+      "meses_cosecha": [12, 1, 2, 3, 4, 5],
+      "meses_descanso": [6, 7, 8]
+    },
+    "produccion": {
+      "produccion_kg_ha_año2": 15000,
+      "produccion_kg_ha_año3": 20000,
+      "produccion_kg_ha_año4": 20000,
+      "vida_util_dias": 180
+    },
+    "precio_kg_min_clp": 500,
+    "precio_kg_max_clp": 900,
+    "precio_planta_clp": 100,
+    "plagas": [
+      {
+        "nombre": "Araña roja",
+        "nombre_cientifico": "Tetranychus urticae",
+        "grados_dia_base": 10,
+        "grados_dia_ciclo": 200,
+        "grados_dia_ovicida_ventana": 60,
+        "control_recomendado": "Acaricida biológico. Mantener plantas bien hidratadas."
+      }
+    ],
+    "tiempo_produccion_meses": 3,
+    "vida_util_años": 1,
+    "tier": 1,
+    "riesgo": "bajo",
+    "notas": "Muy resistente una vez establecido. Se almacena bien. Bajo mantenimiento. Zapallo italiano o butternut.",
+    "notas_arica": "El calor extremo de verano en pampa acelera maduración. Cosecha escalonada posible. Almacenado aguanta 6 meses — vender cuando precio suba.",
+    "propagacion": {
+      "metodo_principal": "semilla directa",
+      "descripcion": "Semilla directa en sitio definitivo. 2-3 semillas por hoyo, ralear a 1. No trasplantar — sensible a raíz."
+    },
+    "created_at": "2026-03-19T00:00:00Z",
+    "updated_at": "2026-03-19T00:00:00Z",
+    "kc_plantula": 0.4,
+    "kc_joven": 0.7,
+    "kc_adulta": 1,
+    "kc_madura": 0.8,
+    "recomendacion": 3
+  },
+  {
+    "id": "verdura-camote",
+    "proyecto_id": "proyecto-arica-piloto",
+    "categoria": "produccion",
+    "nombre": "Camote / Batata",
+    "nombre_cientifico": "Ipomoea batatas",
+    "tipo": "verdura",
+    "origen": "seed",
+    "agua_m3_ha_año_min": 3000,
+    "agua_m3_ha_año_max": 4500,
+    "espaciado_min_m": 0.3,
+    "espaciado_recomendado_m": 0.4,
+    "ph_min": 5.5,
+    "ph_max": 7.5,
+    "salinidad_tolerancia_dS_m": 2,
+    "boro_tolerancia_ppm": 2,
+    "tolerancia_boro": "media",
+    "tolerancia_salinidad": "baja",
+    "clima": {
+      "temp_min_c": 15,
+      "temp_max_c": 40,
+      "tolerancia_heladas": "nula"
+    },
+    "viabilidad_proyecto": "mejor_opcion",
+    "calendario": {
+      "meses_siembra": [10, 11, 12],
+      "meses_cosecha": [3, 4, 5],
+      "meses_descanso": [6, 7, 8, 9]
+    },
+    "produccion": {
+      "produccion_kg_ha_año2": 18000,
+      "produccion_kg_ha_año3": 25000,
+      "produccion_kg_ha_año4": 25000,
+      "vida_util_dias": 120
+    },
+    "precio_kg_min_clp": 700,
+    "precio_kg_max_clp": 1300,
+    "precio_planta_clp": 150,
+    "plagas": [
+      {
+        "nombre": "Gorgojo del camote",
+        "nombre_cientifico": "Cylas formicarius",
+        "grados_dia_base": 12,
+        "grados_dia_ciclo": 350,
+        "grados_dia_ovicida_ventana": 100,
+        "control_recomendado": "Trampas de feromona + cosecha oportuna. No dejar raíces en suelo."
+      }
+    ],
+    "tiempo_produccion_meses": 4,
+    "vida_util_años": 1,
+    "tier": 1,
+    "riesgo": "bajo",
+    "notas": "Tropical. Ama el calor. Bajo consumo de agua relativo. Se almacena bien. Tubérculo de alta demanda.",
+    "notas_arica": "El calor de la pampa en verano (26°C) es ideal. Usar esquejes de tallo (guías) de 25-30cm. Agua de calidad — sensible a salinidad.",
+    "propagacion": {
+      "metodo_principal": "esqueje de guía",
+      "descripcion": "Cortar guías de 25-30cm de plantas madre. Plantar directamente en surco con riego inmediato."
+    },
+    "created_at": "2026-03-19T00:00:00Z",
+    "updated_at": "2026-03-19T00:00:00Z",
+    "kc_plantula": 0.4,
+    "kc_joven": 0.7,
+    "kc_adulta": 1,
+    "kc_madura": 0.75,
+    "recomendacion": 3
+  },
+  {
+    "id": "verdura-romero",
+    "proyecto_id": "proyecto-arica-piloto",
+    "categoria": "produccion",
+    "nombre": "Romero",
+    "nombre_cientifico": "Salvia rosmarinus",
+    "tipo": "verdura",
+    "origen": "seed",
+    "agua_m3_ha_año_min": 1000,
+    "agua_m3_ha_año_max": 2000,
+    "espaciado_min_m": 0.6,
+    "espaciado_recomendado_m": 0.8,
+    "ph_min": 6,
+    "ph_max": 8,
+    "salinidad_tolerancia_dS_m": 5,
+    "boro_tolerancia_ppm": 3,
+    "tolerancia_boro": "media",
+    "tolerancia_salinidad": "alta",
+    "clima": {
+      "temp_min_c": -10,
+      "temp_max_c": 40,
+      "tolerancia_heladas": "alta"
+    },
+    "viabilidad_proyecto": "mejor_opcion",
+    "calendario": {
+      "meses_siembra": [8, 9, 10],
+      "meses_cosecha": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+      "meses_descanso": []
+    },
+    "produccion": {
+      "produccion_kg_ha_año2": 1000,
+      "produccion_kg_ha_año3": 2000,
+      "produccion_kg_ha_año4": 3000,
+      "vida_util_dias": 180
+    },
+    "precio_kg_min_clp": 6000,
+    "precio_kg_max_clp": 10000,
+    "precio_planta_clp": 300,
+    "plagas": [
+      {
+        "nombre": "Cochinilla harinosa",
+        "nombre_cientifico": "Planococcus citri",
+        "grados_dia_base": 10,
+        "grados_dia_ciclo": 350,
+        "grados_dia_ovicida_ventana": 100,
+        "control_recomendado": "Aceite de neem + jabón potásico. Lavar ramas con agua a presión."
+      }
+    ],
+    "tiempo_produccion_meses": 6,
+    "vida_util_años": 10,
+    "tier": 1,
+    "riesgo": "bajo",
+    "notas": "Perenne. Consumo de agua mínimo. Valor alto seco. Resistente a todo. Cosecha continua.",
+    "notas_arica": "El ambiente desértico seco concentra aceites esenciales. Prácticamente sin mantenimiento una vez establecido. Combina bien con orégano como cortaviento bajo.",
+    "propagacion": {
+      "metodo_principal": "esqueje",
+      "descripcion": "Esquejes semileñosos de 10-15cm. Enraízan en 3-4 semanas. También por semilla aunque más lento."
+    },
+    "created_at": "2026-03-19T00:00:00Z",
+    "updated_at": "2026-03-19T00:00:00Z",
+    "kc_plantula": 0.3,
+    "kc_joven": 0.5,
+    "kc_adulta": 0.75,
+    "kc_madura": 0.65,
+    "recomendacion": 3,
+    "alelopatia": {
+      "negativa": ["lechuga", "acelga", "zanahoria"],
+      "distancia_minima_m": 1.5
+    }
+  },
+  {
+    "id": "verdura-quinoa",
+    "proyecto_id": "proyecto-arica-piloto",
+    "categoria": "produccion",
+    "nombre": "Quinoa",
+    "nombre_cientifico": "Chenopodium quinoa",
+    "tipo": "verdura",
+    "origen": "seed",
+    "agua_m3_ha_año_min": 1000,
+    "agua_m3_ha_año_max": 2500,
+    "espaciado_min_m": 0.3,
+    "espaciado_recomendado_m": 0.5,
+    "ph_min": 6,
+    "ph_max": 8.5,
+    "salinidad_tolerancia_dS_m": 8,
+    "boro_tolerancia_ppm": 4,
+    "tolerancia_boro": "alta",
+    "tolerancia_salinidad": "alta",
+    "clima": {
+      "temp_min_c": -4,
+      "temp_max_c": 35,
+      "tolerancia_heladas": "media"
+    },
+    "viabilidad_proyecto": "mejor_opcion",
+    "calendario": {
+      "meses_siembra": [8, 9, 10],
+      "meses_cosecha": [1, 2, 3],
+      "meses_descanso": [4, 5, 6, 7]
+    },
+    "produccion": {
+      "produccion_kg_ha_año2": 2000,
+      "produccion_kg_ha_año3": 3000,
+      "produccion_kg_ha_año4": 3500,
+      "vida_util_dias": 365
+    },
+    "precio_kg_min_clp": 4000,
+    "precio_kg_max_clp": 8000,
+    "precio_planta_clp": 0,
+    "plagas": [
+      {
+        "nombre": "Kcona kcona",
+        "nombre_cientifico": "Eurysacca melanocampta",
+        "grados_dia_base": 8,
+        "grados_dia_ciclo": 300,
+        "grados_dia_ovicida_ventana": 80,
+        "control_recomendado": "Bt en larvas jóvenes. Monitoreo desde panoja. Control cultural con variedades resistentes."
+      }
+    ],
+    "tiempo_produccion_meses": 5,
+    "vida_util_años": 1,
+    "tier": 1,
+    "riesgo": "bajo",
+    "notas": "Andina nativa. Casi sin riego suplementario. Alto valor/kg. Mercado premium en crecimiento. Alta tolerancia a salinidad y altitud.",
+    "notas_arica": "Origen andino — perfecta para la pampa ariqueña. Tolera el agua de baja calidad mejor que cualquier otro cultivo. Variedad real blanca o roja de Tarapacá si consigue semilla local.",
+    "propagacion": {
+      "metodo_principal": "semilla directa",
+      "descripcion": "Siembra directa superficial (0.5-1cm). No enterrar demasiado. Ralear a 30-50cm al mes."
+    },
+    "created_at": "2026-03-19T00:00:00Z",
+    "updated_at": "2026-03-19T00:00:00Z",
+    "kc_plantula": 0.4,
+    "kc_joven": 0.7,
+    "kc_adulta": 1,
+    "kc_madura": 0.4,
+    "recomendacion": 3
+  },
+  {
     "id": "huerto-tomate-cherry",
     "proyecto_id": "proyecto-arica-piloto",
     "categoria": "huerto_personal",
     "nombre": "Tomate Cherry",
     "nombre_cientifico": "Solanum lycopersicum var. cerasiforme",
-    "tipo": "hortaliza_fruto",
+    "tipo": "verdura",
+    "origen": "seed",
     "escala": "huerto_personal",
     "agua_m3_ha_año_min": 3000,
     "agua_m3_ha_año_max": 5000,
@@ -56,184 +535,12 @@
     "kc_plantula": 0.45,
     "kc_joven": 0.75,
     "kc_adulta": 1.15,
-    "kc_madura": 0.85
-  },
-  {
-    "id": "huerto-sandia",
-    "proyecto_id": "proyecto-arica-piloto",
-    "categoria": "huerto_personal",
-    "nombre": "Sandía",
-    "nombre_cientifico": "Citrullus lanatus",
-    "tipo": "fruta",
-    "escala": "huerto_personal",
-    "agua_m3_ha_año_min": 3000,
-    "agua_m3_ha_año_max": 4500,
-    "espaciado_min_m": 1.5,
-    "espaciado_recomendado_m": 2,
-    "ph_min": 6,
-    "ph_max": 7.5,
-    "salinidad_tolerancia_dS_m": 3,
-    "boro_tolerancia_ppm": 2,
-    "tolerancia_boro": "media",
-    "tolerancia_salinidad": "media",
-    "clima": {
-      "temp_min_c": 15,
-      "temp_max_c": 40,
-      "tolerancia_heladas": "nula"
-    },
-    "viabilidad_proyecto": "mejor_opcion",
-    "calendario": {
-      "meses_siembra": [9, 10, 11],
-      "meses_cosecha": [12, 1, 2, 3],
-      "meses_descanso": [4, 5, 6, 7, 8]
-    },
-    "produccion": {
-      "produccion_kg_ha_año2": 25000,
-      "produccion_kg_ha_año3": 30000,
-      "produccion_kg_ha_año4": 30000,
-      "vida_util_dias": 21
-    },
-    "precio_kg_min_clp": 300,
-    "precio_kg_max_clp": 600,
-    "precio_planta_clp": 200,
-    "plagas": [
-      {
-        "nombre": "Araña roja",
-        "nombre_cientifico": "Tetranychus urticae",
-        "grados_dia_base": 10,
-        "grados_dia_ciclo": 200,
-        "grados_dia_ovicida_ventana": 60,
-        "control_recomendado": "Riego por aspersión esporádico + acaricida biológico"
-      }
-    ],
-    "tiempo_produccion_meses": 3,
-    "vida_util_años": 1,
-    "tier": 1,
-    "riesgo": "bajo",
-    "notas": "Ideal para clima desértico caluroso. Alta tolerancia al calor extremo de Arica en verano.",
-    "notas_arica": "Excelente en terreno expuesto. Ciclo dic-mar coincide con peak de calor. Alta producción con bajo costo de insumos.",
-    "kc_plantula": 0.45,
-    "kc_joven": 0.75,
-    "kc_adulta": 1.05,
-    "kc_madura": 0.7
-  },
-  {
-    "id": "huerto-melon",
-    "proyecto_id": "proyecto-arica-piloto",
-    "categoria": "huerto_personal",
-    "nombre": "Melón",
-    "nombre_cientifico": "Cucumis melo",
-    "tipo": "fruta",
-    "escala": "huerto_personal",
-    "agua_m3_ha_año_min": 3000,
-    "agua_m3_ha_año_max": 4500,
-    "espaciado_min_m": 1.2,
-    "espaciado_recomendado_m": 1.5,
-    "ph_min": 6,
-    "ph_max": 7.5,
-    "salinidad_tolerancia_dS_m": 2.2,
-    "boro_tolerancia_ppm": 2,
-    "tolerancia_boro": "media",
-    "tolerancia_salinidad": "media",
-    "clima": {
-      "temp_min_c": 15,
-      "temp_max_c": 40,
-      "tolerancia_heladas": "nula"
-    },
-    "viabilidad_proyecto": "mejor_opcion",
-    "calendario": {
-      "meses_siembra": [9, 10],
-      "meses_cosecha": [12, 1, 2],
-      "meses_descanso": [3, 4, 5, 6, 7, 8]
-    },
-    "produccion": {
-      "produccion_kg_ha_año2": 20000,
-      "produccion_kg_ha_año3": 25000,
-      "produccion_kg_ha_año4": 25000,
-      "vida_util_dias": 14
-    },
-    "precio_kg_min_clp": 400,
-    "precio_kg_max_clp": 900,
-    "precio_planta_clp": 200,
-    "plagas": [
-      {
-        "nombre": "Mosca del melón",
-        "nombre_cientifico": "Bactrocera cucurbitae",
-        "grados_dia_base": 10,
-        "grados_dia_ciclo": 250,
-        "grados_dia_ovicida_ventana": 80,
-        "control_recomendado": "Trampas proteicas + monitoreo en cuaje"
-      }
-    ],
-    "tiempo_produccion_meses": 3,
-    "vida_util_años": 1,
-    "tier": 1,
-    "riesgo": "bajo",
-    "notas": "Fruta de alta demanda estival. El calor seco de Arica favorece dulzor elevado (mayor Brix).",
-    "notas_arica": "El ambiente desértico seco produce melones de sabor más concentrado. Riego por goteo crítico en cuaje.",
-    "kc_plantula": 0.45,
-    "kc_joven": 0.75,
-    "kc_adulta": 1.05,
-    "kc_madura": 0.75
-  },
-  {
-    "id": "huerto-pepino-dulce",
-    "proyecto_id": "proyecto-arica-piloto",
-    "categoria": "huerto_personal",
-    "nombre": "Pepino Dulce",
-    "nombre_cientifico": "Solanum muricatum",
-    "tipo": "fruta",
-    "escala": "huerto_personal",
-    "agua_m3_ha_año_min": 1500,
-    "agua_m3_ha_año_max": 2500,
-    "espaciado_min_m": 0.8,
-    "espaciado_recomendado_m": 1,
-    "ph_min": 5.5,
-    "ph_max": 7.5,
-    "salinidad_tolerancia_dS_m": 3,
-    "boro_tolerancia_ppm": 2,
-    "tolerancia_boro": "media",
-    "tolerancia_salinidad": "media",
-    "clima": {
-      "temp_min_c": 5,
-      "temp_max_c": 35,
-      "tolerancia_heladas": "baja"
-    },
-    "viabilidad_proyecto": "mejor_opcion",
-    "calendario": {
-      "meses_siembra": [8, 9, 10],
-      "meses_cosecha": [12, 1, 2, 3, 4],
-      "meses_descanso": [5, 6, 7]
-    },
-    "produccion": {
-      "produccion_kg_ha_año2": 15000,
-      "produccion_kg_ha_año3": 20000,
-      "produccion_kg_ha_año4": 20000,
-      "vida_util_dias": 14
-    },
-    "precio_kg_min_clp": 600,
-    "precio_kg_max_clp": 1200,
-    "precio_planta_clp": 500,
-    "plagas": [
-      {
-        "nombre": "Araña roja",
-        "nombre_cientifico": "Tetranychus urticae",
-        "grados_dia_base": 10,
-        "grados_dia_ciclo": 200,
-        "grados_dia_ovicida_ventana": 60,
-        "control_recomendado": "Acaricida biológico + humidificación foliar esporádica"
-      }
-    ],
-    "tiempo_produccion_meses": 4,
-    "vida_util_años": 3,
-    "tier": 1,
-    "riesgo": "bajo",
-    "notas": "Fruta andina nativa, extremadamente rústica. Uno de los cultivos más eficientes en uso de agua.",
-    "notas_arica": "Origen andino árido — perfecta para este sitio. Muy bajo requerimiento hídrico. Producción sostenida con escaso manejo.",
-    "kc_plantula": 0.45,
-    "kc_joven": 0.75,
-    "kc_adulta": 1.0,
-    "kc_madura": 0.8
+    "kc_madura": 0.85,
+    "recomendacion": 3,
+    "alelopatia": {
+      "negativa": ["aji"],
+      "distancia_minima_m": 2
+    }
   },
   {
     "id": "huerto-aji",
@@ -241,7 +548,8 @@
     "categoria": "huerto_personal",
     "nombre": "Ají / Pimiento",
     "nombre_cientifico": "Capsicum annuum",
-    "tipo": "fruta",
+    "tipo": "verdura",
+    "origen": "seed",
     "escala": "huerto_personal",
     "agua_m3_ha_año_min": 2000,
     "agua_m3_ha_año_max": 3500,
@@ -292,7 +600,12 @@
     "kc_plantula": 0.45,
     "kc_joven": 0.75,
     "kc_adulta": 1.1,
-    "kc_madura": 0.85
+    "kc_madura": 0.85,
+    "recomendacion": 3,
+    "alelopatia": {
+      "negativa": ["tomate"],
+      "distancia_minima_m": 2
+    }
   },
   {
     "id": "huerto-choclo",
@@ -300,7 +613,8 @@
     "categoria": "huerto_personal",
     "nombre": "Choclo (Maíz Dulce)",
     "nombre_cientifico": "Zea mays var. saccharata",
-    "tipo": "hortaliza_fruto",
+    "tipo": "verdura",
+    "origen": "seed",
     "escala": "huerto_personal",
     "agua_m3_ha_año_min": 5000,
     "agua_m3_ha_año_max": 7500,
@@ -309,7 +623,7 @@
     "ph_min": 6,
     "ph_max": 8,
     "salinidad_tolerancia_dS_m": 1.7,
-    "boro_tolerancia_ppm": 1.0,
+    "boro_tolerancia_ppm": 1,
     "tolerancia_boro": "baja",
     "tolerancia_salinidad": "baja",
     "clima": {
@@ -359,6 +673,11 @@
     "kc_plantula": 0.4,
     "kc_joven": 0.8,
     "kc_adulta": 1.15,
-    "kc_madura": 0.7
+    "kc_madura": 0.7,
+    "recomendacion": 3,
+    "alelopatia": {
+      "negativa": ["tomate", "oregano"],
+      "distancia_minima_m": 3
+    }
   }
 ]

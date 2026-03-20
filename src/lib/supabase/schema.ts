@@ -16,6 +16,7 @@ export const COLUMNAS_EXPLICITAS: Record<string, string[]> = {
     "kc_joven",
     "kc_adulta",
     "kc_madura",
+    "cultivo_base_id",
   ],
   insumos_usuario: ["id", "terreno_id", "nombre", "tipo"],
   // Tablas base globales / por proyecto
@@ -36,8 +37,31 @@ export const COLUMNAS_EXPLICITAS: Record<string, string[]> = {
     "created_at",
     "updated_at",
   ],
-  precios_base: ["id", "nombre"],
+  precios_mayoristas: [
+    "id",
+    "cultivo_id",
+    "region",
+    "nombre",
+    "nombre_odepa",
+    "precio_min_clp",
+    "precio_max_clp",
+    "precio_actual_clp",
+    "tendencia",
+    "actualizado_en",
+    "fuente",
+  ],
+  mercado_detalle: [
+    "id",
+    "precio_mayorista_id",
+    "demanda_local",
+    "competencia_local",
+    "mercado_exportacion",
+    "notas",
+    "actualizado_en",
+  ],
   variedades_base: ["id", "cultivo_id", "nombre"],
+  precios_mayoristas_config: ["id", "precio_id", "updated_by", "origen"],
+  catalogo_cultivos_config: ["id", "cultivo_id", "tipo", "origen"],
 };
 
 /** Campos de control que no se envían a Supabase (los maneja el servidor) */

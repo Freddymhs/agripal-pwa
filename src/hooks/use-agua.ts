@@ -11,6 +11,7 @@ import {
   calcularConsumoRealTerreno,
   calcularStockEstanques,
   determinarEstadoAgua,
+  type OpcionesConsumoAgua,
 } from "@/lib/utils/agua";
 import { aplicarDescuentoAutomaticoAgua } from "@/lib/utils/agua-descuento";
 import { emitZonaUpdated } from "@/lib/events/zona-events";
@@ -48,6 +49,7 @@ export function useAgua(
   plantas: Planta[],
   catalogoCultivos: CatalogoCultivo[],
   onRefetch: () => void,
+  opcionesConsumoAgua?: OpcionesConsumoAgua,
 ): UseAgua {
   const terrenoId = terreno?.id ?? "";
   const [entradas, setEntradas] = useState<EntradaAgua[]>([]);
@@ -125,9 +127,15 @@ export function useAgua(
   const consumoSemanal = useMemo(
     () =>
       terreno
-        ? calcularConsumoRealTerreno(zonas, plantas, catalogoCultivos)
+        ? calcularConsumoRealTerreno(
+            zonas,
+            plantas,
+            catalogoCultivos,
+            undefined,
+            opcionesConsumoAgua,
+          )
         : 0,
-    [terreno, zonas, plantas, catalogoCultivos],
+    [terreno, zonas, plantas, catalogoCultivos, opcionesConsumoAgua],
   );
 
   const estadoAgua = useMemo(() => {

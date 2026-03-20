@@ -7,9 +7,13 @@ import type {
   FuenteAgua,
 } from "@/types";
 import { ESTADO_PLANTA, TEMPORADA } from "@/lib/constants/entities";
-import { calcularConsumoTerreno, calcularStockEstanques } from "./agua";
+import {
+  calcularConsumoTerreno,
+  calcularStockEstanques,
+  type OpcionesConsumoAgua,
+} from "./agua";
 import { obtenerCostoAguaPromedio } from "./roi";
-import { getDiasTotalesCultivo } from "@/lib/data/duracion-etapas";
+import { getDiasTotalesCultivo } from "@/lib/data/calculos-etapas";
 import { addMonths, addDays, format, getMonth } from "date-fns";
 import { es } from "date-fns/locale";
 import {
@@ -63,6 +67,7 @@ export function generarProyeccionAnual(
   plantas: Planta[],
   catalogoCultivos: CatalogoCultivo[],
   fuentesAgua: FuenteAgua[],
+  opcionesConsumoAgua?: OpcionesConsumoAgua,
 ): ProyeccionAnual {
   const hoy = new Date();
   const meses: ProyeccionMensual[] = [];
@@ -85,7 +90,13 @@ export function generarProyeccionAnual(
     // const factorTemporada = FACTORES_TEMPORADA[temporada] // No se usa aún
 
     const consumoSemanal =
-      calcularConsumoTerreno(zonas, plantas, catalogoCultivos, temporada) || 0;
+      calcularConsumoTerreno(
+        zonas,
+        plantas,
+        catalogoCultivos,
+        temporada,
+        opcionesConsumoAgua,
+      ) || 0;
     const consumoMensual =
       (isNaN(consumoSemanal) ? 0 : consumoSemanal) * SEMANAS_POR_MES;
 

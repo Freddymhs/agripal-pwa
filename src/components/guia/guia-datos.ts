@@ -81,9 +81,9 @@ export const GUIA_SECCIONES: GuiaSeccionData[] = [
         valor:
           "Los cálculos de agua usarán datos climáticos reales de tu zona.",
         comoFunciona:
-          "Selecciona la región climática más cercana a tu terreno (Arica, Iquique, Antofagasta). Esto ajusta la evapotranspiración (ET0) y los factores estacionales de consumo de agua.",
+          "Selecciona la región climática más cercana a tu terreno. Esto ajusta la evapotranspiración (ET0) y los factores estacionales de consumo de agua.",
         ejemplo:
-          "Iquique Costa — ET0 3.5 mm/día, menos evaporación que pampa interior",
+          "Cada región tiene distinto ET0, temperatura y estacionalidad. Elige la más parecida a donde está tu terreno.",
         ruta: ROUTES.DATOS_CLIMA,
         rutaLabel: "Elegir clima para mi proyecto",
         scope: "Proyecto",

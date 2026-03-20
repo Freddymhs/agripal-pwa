@@ -1,5 +1,5 @@
 import type { CatalogoCultivo, FuenteAgua, SueloTerreno } from "@/types";
-import type { DatosClimaticos } from "@/lib/data/clima";
+import type { DatosClimaticos } from "@/lib/data/calculos-clima";
 import { clamp, isValidNum } from "@/lib/utils/math";
 import { DIAS_POR_SEMANA } from "@/lib/constants/conversiones";
 import {
@@ -43,6 +43,13 @@ const MO_UMBRAL_CRITICO_PCT = 1;
 const MO_UMBRAL_LIMITANTE_PCT = 2;
 const MO_UMBRAL_ADECUADO_PCT = 4;
 const FACTOR_SUELO_MINIMO = 0.1;
+
+// ── Umbrales de deficiencia N/P/K (cuando el suelo tiene análisis) ──────────
+// Valores en ppm por debajo de los cuales hay deficiencia
+const NPK_UMBRAL_CRITICO = { n: 10, p: 5, k: 50 };
+const NPK_UMBRAL_BAJO = { n: 25, p: 15, k: 120 };
+const FACTOR_NPK_CRITICO = 0.7;
+const FACTOR_NPK_BAJO = 0.9;
 
 // ── Score riego ─────────────────────────────────────────────────────────────
 const SCORE_RIEGO_CRITICO = 10;
@@ -273,6 +280,33 @@ export function calcularFactorSuelo(
       factor *= FACTOR_MO_LIMITANTE;
     } else if (mo < MO_UMBRAL_ADECUADO_PCT) {
       factor *= FACTOR_MO_LEVE;
+    }
+  }
+
+  // N/P/K: cuando el usuario tiene análisis con valores, penalizar si hay deficiencia
+  const nutrientes = [
+    {
+      valor: suelo.quimico?.nitrogeno_ppm,
+      critico: NPK_UMBRAL_CRITICO.n,
+      bajo: NPK_UMBRAL_BAJO.n,
+    },
+    {
+      valor: suelo.quimico?.fosforo_ppm,
+      critico: NPK_UMBRAL_CRITICO.p,
+      bajo: NPK_UMBRAL_BAJO.p,
+    },
+    {
+      valor: suelo.quimico?.potasio_ppm,
+      critico: NPK_UMBRAL_CRITICO.k,
+      bajo: NPK_UMBRAL_BAJO.k,
+    },
+  ];
+  for (const { valor, critico, bajo } of nutrientes) {
+    if (!isValidNum(valor) || valor < 0) continue;
+    if (valor < critico) {
+      factor *= FACTOR_NPK_CRITICO;
+    } else if (valor < bajo) {
+      factor *= FACTOR_NPK_BAJO;
     }
   }
 

@@ -1,5 +1,5 @@
 import type { UUID, Timestamp } from "@/types";
-export { getTemporadaActual } from "@/lib/data/clima";
+export { getTemporadaActual } from "@/lib/data/calculos-clima";
 
 export function generateUUID(): UUID {
   return crypto.randomUUID();

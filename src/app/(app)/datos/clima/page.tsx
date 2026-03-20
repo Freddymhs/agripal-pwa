@@ -8,15 +8,21 @@ import {
   ClimaImpactoRiego,
 } from "@/components/clima";
 import { useProjectContext } from "@/contexts/project-context";
-import { getTemporadaActual, type DatosETo } from "@/lib/data/clima";
+import { getTemporadaActual } from "@/lib/data/calculos-clima";
 import { calcularConsumoTerreno } from "@/lib/utils/agua";
 import { FACTORES_TEMPORADA } from "@/lib/constants/entities";
 import { ejecutarMutacion } from "@/lib/helpers/dal-mutation";
 import { baseDataDAL } from "@/lib/dal";
 
 export default function ClimaPage() {
-  const { zonas, plantas, catalogoCultivos, datosBaseHook, proyectoActual } =
-    useProjectContext();
+  const {
+    zonas,
+    plantas,
+    catalogoCultivos,
+    datosBaseHook,
+    proyectoActual,
+    opcionesConsumoAgua,
+  } = useProjectContext();
   const [cambiandoClima, setCambiandoClima] = useState(false);
   const [climaActivoId, setClimaActivoId] = useState<string | undefined>(
     proyectoActual?.clima_base_id ?? undefined,
@@ -38,8 +44,14 @@ export default function ClimaPage() {
 
   const consumoBase = useMemo(() => {
     if (plantas.length === 0) return 0;
-    return calcularConsumoTerreno(zonas, plantas, catalogoCultivos, temporada);
-  }, [zonas, plantas, catalogoCultivos, temporada]);
+    return calcularConsumoTerreno(
+      zonas,
+      plantas,
+      catalogoCultivos,
+      temporada,
+      opcionesConsumoAgua,
+    );
+  }, [zonas, plantas, catalogoCultivos, temporada, opcionesConsumoAgua]);
 
   const handleCambiarClima = async (climaId: string) => {
     if (!proyectoActual?.id) return;

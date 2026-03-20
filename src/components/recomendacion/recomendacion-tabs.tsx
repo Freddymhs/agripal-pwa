@@ -1,9 +1,6 @@
 "use client";
 
-import type {
-  Recomendacion,
-  CultivoRecomendado,
-} from "@/lib/utils/recomendacion";
+import type { Recomendacion } from "@/lib/utils/recomendacion";
 import type { CatalogoCultivo } from "@/types";
 
 interface RecomendacionViablesProps {

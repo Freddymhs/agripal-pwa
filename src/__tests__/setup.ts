@@ -10,18 +10,18 @@ vi.mock("@/lib/utils/index.ts", () => ({
   formatCLP: vi.fn((clp: number) => `$${clp}`),
 }));
 
-vi.mock("@/lib/data/kc-cultivos.ts", async (importOriginal) => {
+vi.mock("@/lib/data/coeficientes-kc.ts", async (importOriginal) => {
   const actual =
-    await importOriginal<typeof import("@/lib/data/kc-cultivos")>();
+    await importOriginal<typeof import("@/lib/data/coeficientes-kc")>();
   return {
     ...actual,
     getKc: vi.fn(() => 1.15),
   };
 });
 
-vi.mock("@/lib/data/duracion-etapas.ts", async (importOriginal) => {
+vi.mock("@/lib/data/calculos-etapas.ts", async (importOriginal) => {
   const actual =
-    await importOriginal<typeof import("@/lib/data/duracion-etapas")>();
+    await importOriginal<typeof import("@/lib/data/calculos-etapas")>();
   return {
     ...actual,
   };

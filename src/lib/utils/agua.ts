@@ -6,10 +6,12 @@ import type {
   EstadoAgua,
   Timestamp,
   UUID,
+  TexturaSuelo,
 } from "@/types";
 import { FACTORES_TEMPORADA } from "@/lib/constants/entities";
-import { getTemporadaActual } from "@/lib/data/clima";
-import { getKc } from "@/lib/data/kc-cultivos";
+import type { DatosClimaticos } from "@/lib/data/calculos-clima";
+import { getTemporadaActual } from "@/lib/data/calculos-clima";
+import { getKc } from "@/lib/data/coeficientes-kc";
 import {
   ESTADO_PLANTA,
   ETAPA,
@@ -28,20 +30,52 @@ import {
 import {
   calcularAguaPromedioHaAño,
   calcularPlantasPorHa,
+  resolverAreaZona,
 } from "@/lib/utils/helpers-cultivo";
 import {
   DIAS_AGUA_UMBRAL_SEGURO,
   DIAS_AGUA_UMBRAL_CRITICO,
 } from "@/lib/constants/umbrales";
 
+/** Parámetros opcionales de contexto para cálculos de agua más precisos */
+export interface OpcionesConsumoAgua {
+  climaDatos?: DatosClimaticos;
+  texturaSuelo?: TexturaSuelo;
+}
+
+/** Factor de retención de agua por textura de suelo (arena drena rápido → más riego) */
+const FACTOR_TEXTURA_SUELO: Record<TexturaSuelo, number> = {
+  arenosa: 1.3,
+  "franco-arenosa": 1.15,
+  franco: 1.0,
+  "franco-arcillosa": 0.9,
+  arcillosa: 0.8,
+};
+
+function getFactorTemporada(
+  temporada: Temporada,
+  climaDatos?: DatosClimaticos,
+): number {
+  return (
+    climaDatos?.estacionalidad?.[temporada]?.factor_agua ??
+    FACTORES_TEMPORADA[temporada]
+  );
+}
+
+function getFactorTextura(textura?: TexturaSuelo): number {
+  return textura ? (FACTOR_TEXTURA_SUELO[textura] ?? 1.0) : 1.0;
+}
+
 function calcularConsumoPlanta(
   planta: Planta,
   cultivo: CatalogoCultivo,
   temporada: Temporada = getTemporadaActual(),
+  opciones?: OpcionesConsumoAgua,
 ): number {
   if (planta.estado === ESTADO_PLANTA.MUERTA) return 0;
 
-  const factorTemporada = FACTORES_TEMPORADA[temporada];
+  const factorTemporada = getFactorTemporada(temporada, opciones?.climaDatos);
+  const factorTextura = getFactorTextura(opciones?.texturaSuelo);
   const kc = getKc(cultivo, planta.etapa_actual || ETAPA.ADULTA);
 
   if (!cultivo.agua_m3_ha_año_min || !cultivo.agua_m3_ha_año_max) return 0;
@@ -51,7 +85,7 @@ function calcularConsumoPlanta(
   const aguaPorPlantaAño = aguaPromedio / plantasPorHa;
   const aguaPorPlantaSemana = aguaPorPlantaAño / SEMANAS_POR_AÑO;
 
-  return aguaPorPlantaSemana * factorTemporada * kc;
+  return aguaPorPlantaSemana * factorTemporada * factorTextura * kc;
 }
 
 export function calcularConsumoZona(
@@ -59,12 +93,13 @@ export function calcularConsumoZona(
   plantas: Planta[],
   catalogoCultivos: CatalogoCultivo[],
   temporada: Temporada = getTemporadaActual(),
+  opciones?: OpcionesConsumoAgua,
 ): number {
   if (zona.tipo !== TIPO_ZONA.CULTIVO || plantas.length === 0) {
     return 0;
   }
 
-  return plantas.reduce((total, planta) => {
+  const consumoBruto = plantas.reduce((total, planta) => {
     if (planta.estado === ESTADO_PLANTA.MUERTA) return total;
 
     const cultivo = catalogoCultivos.find(
@@ -72,8 +107,18 @@ export function calcularConsumoZona(
     );
     if (!cultivo) return total;
 
-    return total + calcularConsumoPlanta(planta, cultivo, temporada);
+    return total + calcularConsumoPlanta(planta, cultivo, temporada, opciones);
   }, 0);
+
+  // Restar aporte de lluvia: mm sobre m² → m³, dividido en semanas
+  const lluviaAnualMm = opciones?.climaDatos?.lluvia?.anual_mm;
+  if (lluviaAnualMm && lluviaAnualMm > 0) {
+    const areaM2 = resolverAreaZona(zona);
+    const lluviaSemanalM3 = ((lluviaAnualMm / 1000) * areaM2) / SEMANAS_POR_AÑO;
+    return Math.max(0, consumoBruto - lluviaSemanalM3);
+  }
+
+  return consumoBruto;
 }
 
 export function calcularConsumoTerreno(
@@ -81,12 +126,19 @@ export function calcularConsumoTerreno(
   plantas: Planta[],
   catalogoCultivos: CatalogoCultivo[],
   temporada: Temporada = getTemporadaActual(),
+  opciones?: OpcionesConsumoAgua,
 ): number {
   return zonas.reduce((total, zona) => {
     const plantasZona = plantas.filter((p) => p.zona_id === zona.id);
     return (
       total +
-      calcularConsumoZona(zona, plantasZona, catalogoCultivos, temporada)
+      calcularConsumoZona(
+        zona,
+        plantasZona,
+        catalogoCultivos,
+        temporada,
+        opciones,
+      )
     );
   }, 0);
 }
@@ -122,6 +174,7 @@ export function calcularConsumoRealTerreno(
   plantas: Planta[],
   catalogoCultivos: CatalogoCultivo[],
   temporada: Temporada = getTemporadaActual(),
+  opciones?: OpcionesConsumoAgua,
 ): number {
   return zonas.reduce((total, zona) => {
     if (zona.tipo !== TIPO_ZONA.CULTIVO) return total;
@@ -133,7 +186,13 @@ export function calcularConsumoRealTerreno(
       total +
       (consumoRiego > 0
         ? consumoRiego
-        : calcularConsumoZona(zona, plantasZona, catalogoCultivos, temporada))
+        : calcularConsumoZona(
+            zona,
+            plantasZona,
+            catalogoCultivos,
+            temporada,
+            opciones,
+          ))
     );
   }, 0);
 }
@@ -157,6 +216,7 @@ export function calcularConsumoEstanque(
   plantas: Planta[],
   catalogoCultivos: CatalogoCultivo[],
   temporada: Temporada = getTemporadaActual(),
+  opciones?: OpcionesConsumoAgua,
 ): number {
   return zonas
     .filter(
@@ -171,7 +231,13 @@ export function calcularConsumoEstanque(
         total +
         (consumoRiego > 0
           ? consumoRiego
-          : calcularConsumoZona(zona, plantasZona, catalogoCultivos, temporada))
+          : calcularConsumoZona(
+              zona,
+              plantasZona,
+              catalogoCultivos,
+              temporada,
+              opciones,
+            ))
       );
     }, 0);
 }
@@ -193,6 +259,7 @@ export function calcularDiasRestantesCritico(
   plantas: Planta[],
   catalogoCultivos: CatalogoCultivo[],
   temporada: Temporada = getTemporadaActual(),
+  opciones?: OpcionesConsumoAgua,
 ): { diasCritico: number; porEstanque: ResumenEstanque[] } {
   const porEstanque: ResumenEstanque[] = estanques
     .filter((e) => e.estanque_config)
@@ -203,6 +270,7 @@ export function calcularDiasRestantesCritico(
         plantas,
         catalogoCultivos,
         temporada,
+        opciones,
       );
       const nivel = e.estanque_config!.nivel_actual_m3 ?? 0;
       const diasRestantes =

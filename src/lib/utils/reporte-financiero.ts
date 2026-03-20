@@ -132,9 +132,9 @@ export function generarReporteFinanciero(datos: DatosReporteFinanciero): void {
 
   y = lineaSeparadora(doc, y);
 
-  // 4. Proyeccion de ingresos (4 años)
+  // 4. Proyeccion de ingresos (5 años)
   y = verificarPagina(doc, y, 30);
-  y = titulo(doc, "4. Proyeccion de Ingresos (4 años)", y);
+  y = titulo(doc, "4. Proyeccion de Ingresos (5 años)", y);
 
   if (datos.rois.length > 0) {
     const ingHeaders = ["Zona", "Año 1", "Año 2", "Año 3", "Año 4"];
@@ -189,7 +189,7 @@ export function generarReporteFinanciero(datos: DatosReporteFinanciero): void {
     const rentHeaders = ["Zona", "ROI 4 años", "Payback", "Viable"];
     const rentRows = datos.rois.map((r) => [
       r.zona_nombre.slice(0, 20),
-      `${r.roi_4_años_pct}%`,
+      `${r.roi_5_años_pct}%`,
       r.punto_equilibrio_meses != null
         ? `${r.punto_equilibrio_meses} meses`
         : "N/A",
@@ -210,7 +210,7 @@ export function generarReporteFinanciero(datos: DatosReporteFinanciero): void {
     // Resumen global
     const invTotal = datos.rois.reduce((s, r) => s + r.inversion_total, 0);
     const ingAcum = datos.rois.reduce(
-      (s, r) => s + r.ingreso_acumulado_4años,
+      (s, r) => s + r.ingreso_acumulado_5años,
       0,
     );
     const roiGlobal =
@@ -221,7 +221,7 @@ export function generarReporteFinanciero(datos: DatosReporteFinanciero): void {
     y = parKV(doc, "Inversion total:", formatCLPpdf(invTotal), y);
     y = parKV(
       doc,
-      "Ingreso neto acumulado (4 años):",
+      "Ingreso neto acumulado (5 años):",
       formatCLPpdf(ingAcum),
       y,
     );

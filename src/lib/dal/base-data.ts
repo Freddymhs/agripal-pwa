@@ -7,9 +7,14 @@ import { logger } from "@/lib/logger";
 import type { FuenteAgua, UUID } from "@/types";
 import type { Enmienda } from "@/lib/data/enmiendas-suelo";
 import type { TecnicaMejora } from "@/lib/data/tecnicas-mejora";
-import type { VariedadCultivo } from "@/lib/data/variedades";
-import type { DatosMercado } from "@/lib/data/mercado";
-import type { DatosClimaticos } from "@/lib/data/clima";
+import type { VariedadCultivo } from "@/lib/data/tipos-variedades";
+import type {
+  PrecioMayorista,
+  MercadoDetalle,
+  PrecioMayoristaConfig,
+  CatalogoCultivoConfig,
+} from "@/lib/data/tipos-mercado";
+import type { DatosClimaticos } from "@/lib/data/calculos-clima";
 
 export interface InsumoCatalogo {
   id: string;
@@ -105,15 +110,36 @@ export const baseDataDAL = {
     }
   },
 
-  async getPreciosGlobales(): Promise<DatosMercado[]> {
+  async getPreciosMayoristas(): Promise<PrecioMayorista[]> {
     try {
-      const { data, error } = await supabase.from("precios_base").select("*");
+      const { data, error } = await supabase
+        .from("precios_mayoristas")
+        .select("*");
       if (error) throw error;
       return (data ?? []).map((row) =>
-        deserializarDesdeSupabase<DatosMercado>(row),
+        deserializarDesdeSupabase<PrecioMayorista>(row),
       );
     } catch (error) {
-      logger.error("Error en getPreciosGlobales", { error });
+      logger.error("Error en getPreciosMayoristas", { error });
+      throw error;
+    }
+  },
+
+  async getMercadoDetalle(
+    preciosMayoristasIds: string[],
+  ): Promise<MercadoDetalle[]> {
+    try {
+      if (preciosMayoristasIds.length === 0) return [];
+      const { data, error } = await supabase
+        .from("mercado_detalle")
+        .select("*")
+        .in("precio_mayorista_id", preciosMayoristasIds);
+      if (error) throw error;
+      return (data ?? []).map((row) =>
+        deserializarDesdeSupabase<MercadoDetalle>(row),
+      );
+    } catch (error) {
+      logger.error("Error en getMercadoDetalle", { error });
       throw error;
     }
   },
@@ -174,6 +200,44 @@ export const baseDataDAL = {
       return deserializarDesdeSupabase<FuenteAgua>(data);
     } catch (error) {
       logger.error("Error en createFuenteAgua", { error });
+      throw error;
+    }
+  },
+
+  async getPreciosConfig(
+    precioIds: string[],
+  ): Promise<PrecioMayoristaConfig[]> {
+    try {
+      if (precioIds.length === 0) return [];
+      const { data, error } = await supabase
+        .from("precios_mayoristas_config")
+        .select("*")
+        .in("precio_id", precioIds);
+      if (error) throw error;
+      return (data ?? []).map((row) =>
+        deserializarDesdeSupabase<PrecioMayoristaConfig>(row),
+      );
+    } catch (error) {
+      logger.error("Error en getPreciosConfig", { error });
+      throw error;
+    }
+  },
+
+  async getCatalogoConfig(
+    cultivoIds: string[],
+  ): Promise<CatalogoCultivoConfig[]> {
+    try {
+      if (cultivoIds.length === 0) return [];
+      const { data, error } = await supabase
+        .from("catalogo_cultivos_config")
+        .select("*")
+        .in("cultivo_id", cultivoIds);
+      if (error) throw error;
+      return (data ?? []).map((row) =>
+        deserializarDesdeSupabase<CatalogoCultivoConfig>(row),
+      );
+    } catch (error) {
+      logger.error("Error en getCatalogoConfig", { error });
       throw error;
     }
   },

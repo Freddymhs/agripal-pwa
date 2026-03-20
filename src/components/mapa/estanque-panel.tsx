@@ -72,7 +72,7 @@ export function EstanquePanel({
   onAbrirFormularioAgua,
   onCambiarFuente,
 }: EstanquePanelProps) {
-  const { datosBaseHook } = useProjectContext();
+  const { datosBaseHook, opcionesConsumoAgua } = useProjectContext();
   const fuentesAgua = useMemo(
     () => datosBaseHook?.datosBase?.fuentesAgua || [],
     [datosBaseHook?.datosBase?.fuentesAgua],
@@ -96,6 +96,8 @@ export function EstanquePanel({
           zona,
           plantasZona,
           catalogoCultivos,
+          undefined,
+          opcionesConsumoAgua,
         );
         const consumoRiego = calcularConsumoRiegoZona(zona);
         const consumoEfectivo =
@@ -118,13 +120,20 @@ export function EstanquePanel({
         };
       })
       .filter((z) => z.plantasCount > 0);
-  }, [zonasCultivo, plantas, catalogoCultivos]);
+  }, [zonasCultivo, plantas, catalogoCultivos, opcionesConsumoAgua]);
 
   // Consumo propio: solo las zonas asignadas a ESTE estanque
   const consumoEstanquePropio = useMemo(
     () =>
-      calcularConsumoEstanque(estanque.id, zonas, plantas, catalogoCultivos),
-    [estanque.id, zonas, plantas, catalogoCultivos],
+      calcularConsumoEstanque(
+        estanque.id,
+        zonas,
+        plantas,
+        catalogoCultivos,
+        undefined,
+        opcionesConsumoAgua,
+      ),
+    [estanque.id, zonas, plantas, catalogoCultivos, opcionesConsumoAgua],
   );
 
   const cultivosActivos = useMemo(() => {

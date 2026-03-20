@@ -16,9 +16,9 @@ vi.mock("@/lib/utils/agua", () => ({
   calcularDiasRestantes: vi.fn(() => 3),
 }));
 
-vi.mock("@/lib/data/duracion-etapas", async (importOriginal) => {
+vi.mock("@/lib/data/calculos-etapas", async (importOriginal) => {
   const actual =
-    await importOriginal<typeof import("@/lib/data/duracion-etapas")>();
+    await importOriginal<typeof import("@/lib/data/calculos-etapas")>();
   return {
     ...actual,
     getDiasTotalesCultivo: vi.fn(() => 240),

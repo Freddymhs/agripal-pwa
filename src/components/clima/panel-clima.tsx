@@ -1,7 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { getTemporadaActual, type DatosClimaticos } from "@/lib/data/clima";
+import {
+  getTemporadaActual,
+  type DatosClimaticos,
+} from "@/lib/data/calculos-clima";
 import type { Temporada } from "@/types";
 
 interface SeccionProps {

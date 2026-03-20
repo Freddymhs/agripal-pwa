@@ -1,6 +1,6 @@
 import type { CatalogoCultivo } from "@/types";
-import { KC_POR_CULTIVO } from "@/lib/data/kc-cultivos";
-import { DURACION_ETAPAS } from "@/lib/data/duracion-etapas";
+import { KC_POR_CULTIVO } from "@/lib/data/coeficientes-kc";
+import { DURACION_ETAPAS } from "@/lib/data/calculos-etapas";
 
 export interface DataConsistencyReport {
   cultivos_catalogoArica: string[];

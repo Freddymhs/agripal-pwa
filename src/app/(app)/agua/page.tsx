@@ -39,6 +39,7 @@ export default function AguaPage() {
     loading,
     cargarDatosTerreno: refetch,
     estanquesHook: { estanques, aguaTotalDisponible, aguaTotalActual },
+    opcionesConsumoAgua,
   } = useProjectContext();
   const [showEntradaForm, setShowEntradaForm] = useState(false);
   const [showConfigRecarga, setShowConfigRecarga] = useState(false);
@@ -52,6 +53,7 @@ export default function AguaPage() {
     plantas,
     catalogoCultivos,
     refetch,
+    opcionesConsumoAgua,
   );
 
   useEffect(() => {
@@ -84,6 +86,7 @@ export default function AguaPage() {
           plantasZona,
           catalogoCultivos,
           temporada,
+          opcionesConsumoAgua,
         );
         return {
           zona,
@@ -93,7 +96,14 @@ export default function AguaPage() {
       })
       .filter((z) => z.consumo > 0)
       .sort((a, b) => b.consumo - a.consumo);
-  }, [zonas, plantas, catalogoCultivos, consumoSemanal, temporada]);
+  }, [
+    zonas,
+    plantas,
+    catalogoCultivos,
+    consumoSemanal,
+    temporada,
+    opcionesConsumoAgua,
+  ]);
 
   const configRecarga = estanqueActual?.estanque_config?.recarga;
 
@@ -106,8 +116,16 @@ export default function AguaPage() {
         plantas,
         catalogoCultivos,
         temporada,
+        opcionesConsumoAgua,
       ),
-    [estanques, zonas, plantas, catalogoCultivos, temporada],
+    [
+      estanques,
+      zonas,
+      plantas,
+      catalogoCultivos,
+      temporada,
+      opcionesConsumoAgua,
+    ],
   );
 
   // Math.round evita el off-by-one que generaba Math.ceil (ej: 153.00001 → 154)
@@ -130,9 +148,17 @@ export default function AguaPage() {
             plantas,
             catalogoCultivos,
             temporada,
+            opcionesConsumoAgua,
           )
         : 0,
-    [estanqueActual, zonas, plantas, catalogoCultivos, temporada],
+    [
+      estanqueActual,
+      zonas,
+      plantas,
+      catalogoCultivos,
+      temporada,
+      opcionesConsumoAgua,
+    ],
   );
 
   if (loading) {

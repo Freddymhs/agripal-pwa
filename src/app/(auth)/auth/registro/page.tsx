@@ -1,14 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuthContext } from "@/components/providers/auth-provider";
 import { ROUTES } from "@/lib/constants/routes";
 import { logger } from "@/lib/logger";
 
 export default function RegistroPage() {
-  const router = useRouter();
   const { signUp } = useAuthContext();
 
   const [nombre, setNombre] = useState("");

@@ -7,6 +7,7 @@ import { DIAS_POR_SEMANA } from "@/lib/constants/conversiones";
 import {
   calcularConsumoZona,
   calcularConsumoRiegoZona,
+  type OpcionesConsumoAgua,
 } from "@/lib/utils/agua";
 import {
   ConfigurarRiegoModal,
@@ -64,6 +65,7 @@ interface ZonaRiegoSectionProps {
       "id" | "created_at" | "updated_at" | "lastModified"
     >,
   ) => Promise<void>;
+  opcionesConsumoAgua?: OpcionesConsumoAgua;
 }
 
 export function ZonaRiegoSection({
@@ -76,6 +78,7 @@ export function ZonaRiegoSection({
   estanqueZona,
   sesionesRecientes,
   onRegistrarSesion,
+  opcionesConsumoAgua,
 }: ZonaRiegoSectionProps) {
   const [showConfigRiego, setShowConfigRiego] = useState(false);
   const [showSesionModal, setShowSesionModal] = useState(false);
@@ -84,6 +87,8 @@ export function ZonaRiegoSection({
     zona,
     plantasVivas,
     catalogoCultivos,
+    undefined,
+    opcionesConsumoAgua,
   );
   const consumoRecLDia = (consumoZonaM3Sem * 1000) / DIAS_POR_SEMANA;
   const lPorPlantaDia =

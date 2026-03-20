@@ -28,6 +28,7 @@ export function MapSidebar() {
     handleCambiarFuente,
     setShowConfigAvanzada,
     cargarDatosTerreno,
+    opcionesConsumoAgua,
   } = useProjectContext();
 
   const {
@@ -62,6 +63,7 @@ export function MapSidebar() {
     plantas,
     catalogoCultivos,
     cargarDatosTerreno,
+    opcionesConsumoAgua,
   );
 
   const handleAbrirFormularioAgua = useCallback((estanqueId: UUID) => {

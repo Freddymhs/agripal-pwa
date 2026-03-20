@@ -88,11 +88,13 @@ export function useCatalogo(proyectoId: UUID | null): UseCatalogo {
   const actualizarCultivo = useCallback(
     async (id: UUID, cambios: Partial<CatalogoCultivo>): Promise<void> => {
       await ejecutarMutacion(
-        () =>
-          catalogoDAL.update(id, {
+        async () => {
+          await catalogoDAL.update(id, {
             ...cambios,
             updated_at: getCurrentTimestamp(),
-          }),
+          });
+          await catalogoDAL.marcarOrigenUsuario(id);
+        },
         "actualizando cultivo",
         fetchCatalogo,
       );

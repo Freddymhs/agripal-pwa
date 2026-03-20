@@ -7,6 +7,7 @@ import { sincronizarAlertas } from "@/lib/utils/alertas";
 import { getCurrentTimestamp } from "@/lib/utils";
 import { logger } from "@/lib/logger";
 import { ESTADO_ALERTA, SEVERIDAD_ALERTA } from "@/lib/constants/entities";
+import type { OpcionesConsumoAgua } from "@/lib/utils/agua";
 import type {
   Alerta,
   Terreno,
@@ -38,6 +39,7 @@ export function useAlertas(
   climaBaseId?: string | null,
   proveedoresAgua?: ProveedorAgua[],
   proyectoId?: string,
+  opcionesConsumoAgua?: OpcionesConsumoAgua,
 ): UseAlertas {
   const [alertas, setAlertas] = useState<Alerta[]>([]);
   const [loading, setLoading] = useState(true);
@@ -65,6 +67,8 @@ export function useAlertas(
         isCurrent,
         proveedoresAgua,
         proyectoId,
+        undefined,
+        opcionesConsumoAgua,
       );
 
       // Si llegó una ejecución más reciente mientras esperábamos, descartar resultado
@@ -93,6 +97,7 @@ export function useAlertas(
     climaBaseId,
     proveedoresAgua,
     proyectoId,
+    opcionesConsumoAgua,
   ]);
 
   useEffect(() => {

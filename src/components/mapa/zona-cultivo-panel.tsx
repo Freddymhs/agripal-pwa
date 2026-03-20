@@ -16,7 +16,7 @@ import {
 import { calcularScoreCalidad } from "@/lib/utils/calidad";
 import { calcularROI, obtenerCostoAguaPromedio } from "@/lib/utils/roi";
 import { obtenerFuente } from "@/lib/data/fuentes-agua";
-import type { DatosClimaticos } from "@/lib/data/clima";
+import type { DatosClimaticos } from "@/lib/data/calculos-clima";
 import {
   calcularConsumoZona,
   calcularConsumoRiegoZona,
@@ -65,6 +65,7 @@ export function ZonaCultivoPanel() {
     estanquesHook,
     zonasHook,
     datosBaseHook,
+    opcionesConsumoAgua,
   } = useProjectContext();
   const {
     zonaSeleccionada,
@@ -156,6 +157,8 @@ export function ZonaCultivoPanel() {
             zonaSeleccionada,
             plantasZonaSeleccionada,
             catalogoCultivos,
+            undefined,
+            opcionesConsumoAgua,
           );
           const consumoRiego = calcularConsumoRiegoZona(zonaSeleccionada);
           const consumoEfectivo =
@@ -231,6 +234,8 @@ export function ZonaCultivoPanel() {
             zonaSeleccionada,
             plantasVivas,
             catalogoCultivos,
+            undefined,
+            opcionesConsumoAgua,
           );
           const consumoParaRoi =
             consumoRiegoZona > 0 ? consumoRiegoZona : consumoVivasRec;
@@ -360,6 +365,7 @@ export function ZonaCultivoPanel() {
               )
             : undefined
         }
+        opcionesConsumoAgua={opcionesConsumoAgua}
         sesionesRecientes={sesionesZona}
         onRegistrarSesion={async (sesion) => {
           await ejecutarMutacion(
@@ -410,11 +416,22 @@ export function ZonaCultivoPanel() {
                 Seleccionar cultivo…
               </option>
             )}
-            {catalogoCultivos.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.nombre}
-              </option>
-            ))}
+            {catalogoCultivos.map((c) => {
+              const precio = datosBaseHook.datosBase.precios?.find(
+                (p) => p.cultivo_id === c.cultivo_base_id,
+              );
+              const tieneContexto = precio
+                ? (datosBaseHook.datosBase.mercadoDetalle?.some(
+                    (m) => m.precio_mayorista_id === precio.id,
+                  ) ?? false)
+                : false;
+              return (
+                <option key={c.id} value={c.id} disabled={!tieneContexto}>
+                  {c.nombre}
+                  {!tieneContexto ? " ⚠ sin datos" : ""}
+                </option>
+              );
+            })}
           </select>
         </div>
         {cultivoSeleccionado && (

@@ -2,9 +2,12 @@
   "region": "Tarapacá",
   "zona": "costa_iquique",
   "elevacion_m": 5,
-  "coordenadas": { "lat": -20.213, "lon": -70.149 },
+  "coordenadas": {
+    "lat": -20.213,
+    "lon": -70.149
+  },
   "lluvia": {
-    "anual_mm": 1,
+    "anual_mm": 0,
     "max_24h_mm": 5,
     "meses_lluviosos": [],
     "meses_secos": [
@@ -23,9 +26,9 @@
     ]
   },
   "temperatura": {
-    "minima_historica_c": 12,
-    "maxima_verano_c": 24,
-    "promedio_anual_c": 18,
+    "minima_historica_c": 19.0,
+    "maxima_verano_c": 24.2,
+    "promedio_anual_c": 21.6,
     "horas_frio_aprox": 0,
     "horas_frio_nota": "0h <10°C/año. Clima costero templado sin heladas. No apto para cultivos con requerimiento de frío."
   },
@@ -45,7 +48,7 @@
     "radiacion_mj_m2_dia": 16
   },
   "evapotranspiracion": {
-    "et0_mm_dia": 3.5,
+    "et0_mm_dia": 3.99,
     "nota": "Promedio anual estimado Open-Meteo. Menor que pampa por alta humedad relativa costera."
   },
   "estacionalidad": {

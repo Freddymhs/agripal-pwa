@@ -31,6 +31,10 @@
 - `pnpm build` - Build for production
 - `pnpm lint` - Run linter
 - `pnpm type-check` - Run TypeScript compiler check
+- `pnpm db:reset` - Vacía todas las tablas + usuarios auth (solo dev)
+- `pnpm db:migrate` - Aplica migraciones SQL pendientes
+- `pnpm seed:base` - Puebla tablas globales (\_base, precios, mercado_detalle, config)
+- `pnpm seed` - (opcional) Crea proyecto piloto con datos de ejemplo
 
 ## Reglas React / Next.js
 
@@ -82,6 +86,13 @@ Reglas adicionales:
 - Toda columna FK nueva → **siempre** crear index (`CREATE INDEX IF NOT EXISTS`).
 - Usar `IF NOT EXISTS` / `IF EXISTS` en todos los DDL para idempotencia.
 - Si se dropea una columna con RLS policies, dropear la policy primero.
+
+### Regla crítica: cultivo_base_id
+
+- `catalogo_cultivos.id` es UUID (per-proyecto). `precios_mayoristas.cultivo_id` es TEXT (referencia `catalogo_base.id`).
+- Para vincular un cultivo del usuario con precios/mercado/variedades, SIEMPRE usar `cultivo.cultivo_base_id` (TEXT), NUNCA `cultivo.id` (UUID).
+- Ejemplo correcto: `precios.find((p) => p.cultivo_id === cultivo.cultivo_base_id)`
+- Lo mismo aplica para `variedades_base.cultivo_id` → match contra `cultivo_base_id`.
 
 ### Error Handling
 

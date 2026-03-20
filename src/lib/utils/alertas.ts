@@ -18,8 +18,9 @@ import {
   calcularConsumoZona,
   calcularStockEstanques,
   calcularDiasRestantes,
+  type OpcionesConsumoAgua,
 } from "@/lib/utils/agua";
-import { getDiasTotalesCultivo } from "@/lib/data/duracion-etapas";
+import { getDiasTotalesCultivo } from "@/lib/data/calculos-etapas";
 import { alertasDAL, transaccionesDAL } from "@/lib/dal";
 import { differenceInDays } from "date-fns";
 import {
@@ -53,6 +54,7 @@ function generarAlertas(
   proveedoresAgua?: ProveedorAgua[],
   proyectoId?: string,
   sesionesRecientes?: SesionRiego[],
+  opcionesConsumoAgua?: OpcionesConsumoAgua,
 ): Omit<Alerta, "id" | "created_at" | "updated_at">[] {
   const alertas: Omit<Alerta, "id" | "created_at" | "updated_at">[] = [];
 
@@ -64,6 +66,8 @@ function generarAlertas(
     zonas,
     plantas,
     catalogoCultivos,
+    undefined,
+    opcionesConsumoAgua,
   );
   const diasRestantes = calcularDiasRestantes(aguaActual, consumoSemanal);
   if (isNaN(diasRestantes)) return alertas;
@@ -121,7 +125,15 @@ function generarAlertas(
 
     const nivelEst = est.estanque_config?.nivel_actual_m3 ?? 0;
     const consumoSemanalEst = zonasAsignadas.reduce(
-      (sum, z) => sum + calcularConsumoZona(z, plantas, catalogoCultivos),
+      (sum, z) =>
+        sum +
+        calcularConsumoZona(
+          z,
+          plantas,
+          catalogoCultivos,
+          undefined,
+          opcionesConsumoAgua,
+        ),
       0,
     );
     if (consumoSemanalEst <= 0) continue;
@@ -532,9 +544,14 @@ function generarAlertas(
         );
         if (!cultivoB) continue;
 
-        const nombreBNorm = cultivoB.nombre.toLowerCase();
+        const sinAcentos = (s: string) =>
+          s
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .toLowerCase();
+        const nombreBNorm = sinAcentos(cultivoB.nombre);
         const esIncompatible = alelopatia.negativa.some((nombre) =>
-          nombreBNorm.includes(nombre.toLowerCase()),
+          nombreBNorm.includes(sinAcentos(nombre)),
         );
 
         if (!esIncompatible) continue;
@@ -611,6 +628,7 @@ export async function sincronizarAlertas(
   proveedoresAgua?: ProveedorAgua[],
   proyectoId?: string,
   sesionesRecientes?: SesionRiego[],
+  opcionesConsumoAgua?: OpcionesConsumoAgua,
 ): Promise<Alerta[]> {
   const timestamp = getCurrentTimestamp();
 
@@ -632,6 +650,7 @@ export async function sincronizarAlertas(
     proveedoresAgua,
     proyectoId,
     sesionesRecientes,
+    opcionesConsumoAgua,
   );
 
   const mismaAlerta = (

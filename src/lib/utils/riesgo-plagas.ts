@@ -1,5 +1,5 @@
 import type { PlantPlague, CatalogoCultivo, EtapaCrecimiento } from "@/types";
-import type { DatosClimaticos } from "@/lib/data/clima";
+import type { DatosClimaticos } from "@/lib/data/calculos-clima";
 
 // ── Constantes de riesgo de plagas ────────────────────────────────────────────
 const TEMP_DEFAULT_C = 19;

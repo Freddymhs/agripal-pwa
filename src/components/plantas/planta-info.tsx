@@ -14,8 +14,8 @@ import {
   ETAPA,
   ETAPAS_LIST,
 } from "@/lib/constants/entities";
-import { getKc } from "@/lib/data/kc-cultivos";
-import { getDiasRestantesEtapa } from "@/lib/data/duracion-etapas";
+import { getKc } from "@/lib/data/coeficientes-kc";
+import { getDiasRestantesEtapa } from "@/lib/data/calculos-etapas";
 
 interface PlantaInfoProps {
   planta: Planta;

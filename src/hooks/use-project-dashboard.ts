@@ -2,7 +2,11 @@
 
 import { useMemo } from "react";
 import { getTemporadaActual } from "@/lib/utils";
-import { calcularConsumoTerreno, determinarEstadoAgua } from "@/lib/utils/agua";
+import {
+  calcularConsumoTerreno,
+  determinarEstadoAgua,
+  type OpcionesConsumoAgua,
+} from "@/lib/utils/agua";
 import {
   FACTORES_TEMPORADA,
   TIPO_ZONA,
@@ -24,6 +28,7 @@ export function useProjectDashboard(
   plantas: Planta[],
   catalogoCultivos: CatalogoCultivo[],
   alertasHook: ReturnType<typeof useAlertas>,
+  opcionesAgua?: OpcionesConsumoAgua,
 ): DashboardTerreno | null {
   return useMemo(() => {
     if (!terrenoActual) return null;
@@ -46,6 +51,8 @@ export function useProjectDashboard(
       zonas,
       plantas,
       catalogoCultivos,
+      undefined,
+      opcionesAgua,
     );
     const estadoAgua = determinarEstadoAgua(aguaDisponible, aguaNecesaria);
     const diasRestantes =
@@ -96,5 +103,6 @@ export function useProjectDashboard(
     catalogoCultivos,
     alertasHook.alertas.length,
     alertasHook.alertasCriticas,
+    opcionesAgua,
   ]);
 }

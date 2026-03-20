@@ -53,7 +53,7 @@ async function seedCatalogoBase(sb: SupabaseClient): Promise<void> {
 
   const payload = [...frutas, ...extras].map((c) => {
     const {
-      id, nombre, tier,
+      id, nombre, tier, tipo, origen,
       kc_plantula, kc_joven, kc_adulta, kc_madura,
       proyecto_id: _p, created_at: _ca, updated_at: _ua,
       ...datos
@@ -62,6 +62,8 @@ async function seedCatalogoBase(sb: SupabaseClient): Promise<void> {
       id: id as string,
       nombre: nombre as string,
       tier: (tier as string) ?? "base",
+      tipo: (tipo as string) ?? "fruta",
+      origen: (origen as string) ?? "seed",
       kc_plantula: (kc_plantula as number) ?? null,
       kc_joven: (kc_joven as number) ?? null,
       kc_adulta: (kc_adulta as number) ?? null,
@@ -147,6 +149,30 @@ async function seedClima(sb: SupabaseClient): Promise<void> {
       etoFile: "data/seed/evapotranspiracion-antofagasta.json",
       label: "Antofagasta litoral",
     },
+    {
+      id: "arica-valle-azapa",
+      climaFile: "data/seed/clima-azapa.json",
+      etoFile: "data/seed/evapotranspiracion-azapa.json",
+      label: "Arica Valle Azapa",
+    },
+    {
+      id: "arica-valle-lluta",
+      climaFile: "data/seed/clima-lluta.json",
+      etoFile: "data/seed/evapotranspiracion-lluta.json",
+      label: "Arica Valle Lluta",
+    },
+    {
+      id: "arica-ciudad",
+      climaFile: "data/seed/clima-arica-ciudad.json",
+      etoFile: "data/seed/evapotranspiracion-arica-ciudad.json",
+      label: "Arica ciudad costera",
+    },
+    {
+      id: "tacna-ciudad",
+      climaFile: "data/seed/clima-tacna.json",
+      etoFile: "data/seed/evapotranspiracion-tacna.json",
+      label: "Tacna ciudad (Perú)",
+    },
   ];
 
   const payload = regiones.map(({ id, climaFile, etoFile }) => {
@@ -178,13 +204,65 @@ async function seedPrecios(sb: SupabaseClient): Promise<void> {
   const raw = readJson<RawRecord[]>("data/seed/precios.json");
 
   const payload = raw.map((p) => {
-    const { cultivo_id, nombre, ...datos } = p;
-    return { id: cultivo_id as string, nombre: nombre as string, datos };
+    const {
+      id, cultivo_id, nombre, region, nombre_odepa,
+      precio_actual_clp, precio_min_clp, precio_max_clp,
+      tendencia, fuente,
+      ...datos
+    } = p;
+    return {
+      id: id as string,
+      cultivo_id: cultivo_id as string,
+      nombre: nombre as string,
+      region: region as string,
+      nombre_odepa: (nombre_odepa as string) ?? null,
+      precio_actual_clp: (precio_actual_clp as number) ?? null,
+      precio_min_clp: (precio_min_clp as number) ?? null,
+      precio_max_clp: (precio_max_clp as number) ?? null,
+      tendencia: (tendencia as string) ?? null,
+      fuente: (fuente as string) ?? null,
+      datos,
+    };
   });
 
-  const { error } = await sb.from("precios_base").upsert(payload, { onConflict: "id" });
-  if (error) throw new Error(`precios_base: ${error.message}`);
-  console.log(`  ✓ ${payload.length} precios de mercado`);
+  const { error } = await sb.from("precios_mayoristas").upsert(payload, { onConflict: "id" });
+  if (error) throw new Error(`precios_mayoristas: ${error.message}`);
+  console.log(`  ✓ ${payload.length} precios mayoristas`);
+
+  // Config: trazabilidad de quién estableció cada precio
+  const FUENTE_TO_UPDATED_BY: Record<string, string> = {
+    odepa: "api",
+    estimado: "skill",
+    investigacion: "admin",
+  };
+
+  const configPayload = raw.map((p) => ({
+    precio_id: p.id as string,
+    updated_by: FUENTE_TO_UPDATED_BY[(p.fuente as string) ?? ""] ?? "seed",
+    origen: "seed" as const,
+  }));
+
+  const { error: configError } = await sb
+    .from("precios_mayoristas_config")
+    .upsert(configPayload, { onConflict: "precio_id" });
+  if (configError) throw new Error(`precios_mayoristas_config: ${configError.message}`);
+  console.log(`  ✓ ${configPayload.length} precios config (trazabilidad)`);
+}
+
+async function seedMercadoDetalle(sb: SupabaseClient): Promise<void> {
+  const raw = readJson<RawRecord[]>("data/seed/mercado-detalle.json");
+
+  const payload = raw.map((p) => ({
+    precio_mayorista_id: p.precio_mayorista_id as string,
+    demanda_local: (p.demanda_local as string) ?? null,
+    competencia_local: (p.competencia_local as string) ?? null,
+    mercado_exportacion: (p.mercado_exportacion as boolean) ?? false,
+    notas: (p.notas as string) ?? null,
+  }));
+
+  const { error } = await sb.from("mercado_detalle").upsert(payload, { onConflict: "precio_mayorista_id" });
+  if (error) throw new Error(`mercado_detalle: ${error.message}`);
+  console.log(`  ✓ ${payload.length} contextos de mercado`);
 }
 
 async function seedPlanes(sb: SupabaseClient): Promise<void> {
@@ -239,10 +317,13 @@ async function seedPlanes(sb: SupabaseClient): Promise<void> {
     console.log("\n[7] Fuentes de agua");
     await seedFuentesAgua(supabase);
 
-    console.log("\n[8] Precios de mercado");
+    console.log("\n[8] Precios mayoristas");
     await seedPrecios(supabase);
 
-    console.log("\n[9] Plan de suscripcion");
+    console.log("\n[9] Precios contexto (inteligencia de mercado)");
+    await seedMercadoDetalle(supabase);
+
+    console.log("\n[10] Plan de suscripcion");
     await seedPlanes(supabase);
 
     console.log("\n✅ Seed base completado. Nuevos usuarios recibiran estos datos al crear su primer proyecto.\n");

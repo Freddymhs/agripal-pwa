@@ -156,16 +156,16 @@ describe("calcularROI", () => {
     );
 
     expect(result.viable).toBe(true);
-    expect(result.roi_4_años_pct).toBeGreaterThan(0);
+    expect(result.roi_5_años_pct).toBeGreaterThan(0);
     expect(result.punto_equilibrio_meses).toBeGreaterThan(0);
-    expect(result.punto_equilibrio_meses).toBeLessThanOrEqual(48);
+    expect(result.punto_equilibrio_meses).toBeLessThanOrEqual(60);
   });
 
   it("returns viable=false when water cost is extremely high", () => {
     const result = calcularROI(cultivoFixture, zonaFixture, numPlantas, 50000);
 
     expect(result.viable).toBe(false);
-    expect(result.roi_4_años_pct).toBeLessThan(0);
+    expect(result.roi_5_años_pct).toBeLessThan(0);
   });
 
   it("applies suelo factor to reduce kg production", () => {

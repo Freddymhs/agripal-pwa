@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import type { CatalogoCultivo, FuenteAgua, SueloTerreno } from "@/types";
-import type { DatosClimaticos } from "@/lib/data/clima";
+import type { DatosClimaticos } from "@/lib/data/calculos-clima";
 import { calcularFactorSuelo, calcularScoreCalidad } from "../calidad";
 
 const climaFixture: DatosClimaticos = {
@@ -141,20 +141,20 @@ describe("calcularFactorSuelo", () => {
     expect(result).toBeLessThan(1.0);
   });
 
-  it("penaliza materia organica baja (< 2%)", () => {
+  it("penaliza materia organica baja (1-2%)", () => {
     const suelo: SueloTerreno = {
       fisico: { materia_organica_pct: 1.0 },
     };
     const result = calcularFactorSuelo(suelo, cultivoFixture);
-    expect(result).toBe(0.9);
+    expect(result).toBe(0.8);
   });
 
-  it("no penaliza materia organica >= 2%", () => {
+  it("penaliza levemente materia organica 2-4%", () => {
     const suelo: SueloTerreno = {
       fisico: { materia_organica_pct: 3.0 },
     };
     const result = calcularFactorSuelo(suelo, cultivoFixture);
-    expect(result).toBe(1.0);
+    expect(result).toBe(0.95);
   });
 
   it("acumula penalizaciones de multiples factores", () => {
@@ -215,7 +215,7 @@ describe("calcularScoreCalidad", () => {
       climaFixture,
     );
     expect(result.score_agua).toBe(100);
-    expect(result.score_suelo).toBe(100);
+    expect(result.score_suelo).toBe(95);
     expect(result.score_total).toBeGreaterThanOrEqual(70);
     expect(
       result.categoria === "excelente" || result.categoria === "buena",

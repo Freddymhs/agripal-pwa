@@ -2,9 +2,12 @@
   "region": "Antofagasta",
   "zona": "litoral_antofagasta",
   "elevacion_m": 95,
-  "coordenadas": { "lat": -23.65, "lon": -70.4 },
+  "coordenadas": {
+    "lat": -23.65,
+    "lon": -70.4
+  },
   "lluvia": {
-    "anual_mm": 4,
+    "anual_mm": 0,
     "max_24h_mm": 8,
     "meses_lluviosos": [],
     "meses_secos": [
@@ -23,9 +26,9 @@
     ]
   },
   "temperatura": {
-    "minima_historica_c": 10,
-    "maxima_verano_c": 25,
-    "promedio_anual_c": 17,
+    "minima_historica_c": 17.9,
+    "maxima_verano_c": 22.5,
+    "promedio_anual_c": 20.2,
     "horas_frio_aprox": 10,
     "horas_frio_nota": "~10h <10°C/año. Clima desértico litoral. Inversión térmica mantiene temperaturas estables."
   },
@@ -45,7 +48,7 @@
     "radiacion_mj_m2_dia": 17
   },
   "evapotranspiracion": {
-    "et0_mm_dia": 4.0,
+    "et0_mm_dia": 3.73,
     "nota": "Promedio anual estimado Open-Meteo. Intermedio entre costa húmeda y pampa interior."
   },
   "estacionalidad": {

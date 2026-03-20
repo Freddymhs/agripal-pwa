@@ -10,9 +10,9 @@ vi.mock("@/lib/utils/roi", () => ({
   obtenerCostoAguaPromedio: vi.fn(() => 200),
 }));
 
-vi.mock("@/lib/data/duracion-etapas", async (importOriginal) => {
+vi.mock("@/lib/data/calculos-etapas", async (importOriginal) => {
   const actual =
-    await importOriginal<typeof import("@/lib/data/duracion-etapas")>();
+    await importOriginal<typeof import("@/lib/data/calculos-etapas")>();
   return {
     ...actual,
     getDiasTotalesCultivo: vi.fn(() => 240),
@@ -299,6 +299,6 @@ describe("generarProyeccionAnual", () => {
       [cultivoFixture],
       [],
     );
-    expect(result.meses[0].nivelInicio).toBe(terrenoFixture.agua_actual_m3);
+    expect(result.meses[0].nivelInicio).toBe(20);
   });
 });

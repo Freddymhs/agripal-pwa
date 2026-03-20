@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { KC_POR_CULTIVO } from "@/lib/data/kc-cultivos";
-import { DURACION_ETAPAS } from "@/lib/data/duracion-etapas";
+import { KC_POR_CULTIVO } from "@/lib/data/coeficientes-kc";
+import { DURACION_ETAPAS } from "@/lib/data/calculos-etapas";
 
 // Cultivos esperados del catálogo Arica
 const CULTIVOS_ARICA = [
@@ -128,23 +128,6 @@ describe("Data Consistency", () => {
 
   describe("Field Validation", () => {
     it("cultivos de Arica tienen campos requeridos", () => {
-      // Este test requeriría cargar el JSON, se puede extender luego
-      // Por ahora verificamos que kc-cultivos y duracion-etapas cubren los IDs esperados
-      const cultivosIdsEsperados = [
-        "cultivo-tuna",
-        "cultivo-higuera",
-        "cultivo-pitahaya",
-        "cultivo-guayaba",
-        "cultivo-datil-medjool",
-        "cultivo-maracuya",
-        "cultivo-uva-mesa-primor",
-        "cultivo-limon",
-        "cultivo-mandarina-w-murcott",
-        "cultivo-arandano-maceta",
-        "cultivo-lucuma",
-        "cultivo-zapote-blanco",
-      ];
-
       // Mapeo de IDs a claves en KC/Duracion
       const mapping: Record<string, string> = {
         "cultivo-tuna": "tuna",

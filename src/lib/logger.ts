@@ -1,6 +1,7 @@
 type LogLevel = "debug" | "info" | "warn" | "error";
 
 const isDev = process.env.NODE_ENV === "development";
+const isServer = typeof window === "undefined";
 
 function log(
   level: LogLevel,
@@ -10,7 +11,12 @@ function log(
   if (level === "debug" && !isDev) return;
 
   const method = level === "debug" ? "log" : level;
-  console[method](`[${level.toUpperCase()}] ${message}`, context ?? "");
+
+  if (isServer || isDev) {
+    console[method](`[${level.toUpperCase()}] ${message}`, context ?? "");
+  } else {
+    console[method](`[${level.toUpperCase()}] ${message}`);
+  }
 }
 
 export const logger = {

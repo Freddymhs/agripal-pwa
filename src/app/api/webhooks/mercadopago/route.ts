@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createHmac } from "crypto";
+import { createHmac, timingSafeEqual } from "crypto";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { paymentClient } from "@/lib/mercadopago/client";
 import { logger } from "@/lib/logger";
@@ -56,7 +56,7 @@ function verifyWebhookSignature(request: Request, body: string): boolean {
     .update(manifest)
     .digest("hex");
 
-  return computedHash === hash;
+  return timingSafeEqual(Buffer.from(computedHash), Buffer.from(hash));
 }
 
 async function handlePayment(paymentId: string) {

@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import type { CatalogoCultivo, PlantPlague } from "@/types";
-import type { DatosClimaticos } from "@/lib/data/clima";
+import type { DatosClimaticos } from "@/lib/data/calculos-clima";
 import { evaluarRiesgoPlagas } from "../riesgo-plagas";
 
 const mockClima = {} as DatosClimaticos;

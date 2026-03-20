@@ -4,8 +4,12 @@
  */
 
 export const ROUTES = {
-  // Public
+  // Public / Marketing
   LANDING: "/",
+  NORTE_CHILE: "/norte-chile",
+  TARAPACA: "/tarapaca",
+  ARICA: "/arica",
+  COMPARATIVA: "/comparativa",
 
   // Authentication
   AUTH_LOGIN: "/auth/login",

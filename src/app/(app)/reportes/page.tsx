@@ -43,6 +43,7 @@ export default function ReportesPage() {
     loading,
     datosBaseHook,
     cargarDatosTerreno,
+    opcionesConsumoAgua,
   } = useProjectContext();
 
   const fuentesAgua = datosBaseHook.datosBase.fuentesAgua;
@@ -65,6 +66,7 @@ export default function ReportesPage() {
     cosechas,
     fuentesAgua,
     suelo: proyectoActual?.suelo,
+    opcionesConsumoAgua,
   });
 
   const acciones = useMemo(

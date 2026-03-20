@@ -117,11 +117,11 @@ export function Comparador({
               />
               <CompRow
                 label="ROI 4 años"
-                a={`${roiA.roi_4_años_pct}%`}
-                b={`${roiB.roi_4_años_pct}%`}
+                a={`${roiA.roi_5_años_pct}%`}
+                b={`${roiB.roi_5_años_pct}%`}
                 highlight
-                colorA={roiA.roi_4_años_pct > 0}
-                colorB={roiB.roi_4_años_pct > 0}
+                colorA={roiA.roi_5_años_pct > 0}
+                colorB={roiB.roi_5_años_pct > 0}
               />
               <CompRow
                 label="Equilibrio"
@@ -139,11 +139,11 @@ export function Comparador({
             </tbody>
           </table>
 
-          {roiA.roi_4_años_pct !== roiB.roi_4_años_pct && (
+          {roiA.roi_5_años_pct !== roiB.roi_5_años_pct && (
             <div className="mt-2 bg-green-50 p-2 rounded text-green-800">
-              {roiA.roi_4_años_pct > roiB.roi_4_años_pct
-                ? `${roiA.cultivo_nombre} tiene mejor ROI (+${roiA.roi_4_años_pct - roiB.roi_4_años_pct}%)`
-                : `${roiB.cultivo_nombre} tiene mejor ROI (+${roiB.roi_4_años_pct - roiA.roi_4_años_pct}%)`}
+              {roiA.roi_5_años_pct > roiB.roi_5_años_pct
+                ? `${roiA.cultivo_nombre} tiene mejor ROI (+${roiA.roi_5_años_pct - roiB.roi_5_años_pct}%)`
+                : `${roiB.cultivo_nombre} tiene mejor ROI (+${roiB.roi_5_años_pct - roiA.roi_5_años_pct}%)`}
             </div>
           )}
         </div>

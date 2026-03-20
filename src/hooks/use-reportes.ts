@@ -10,7 +10,10 @@ import {
   obtenerCostoAguaPromedio,
   type ProyeccionROI,
 } from "@/lib/utils/roi";
-import { calcularConsumoZona } from "@/lib/utils/agua";
+import {
+  calcularConsumoZona,
+  type OpcionesConsumoAgua,
+} from "@/lib/utils/agua";
 import { calcularMetricasEconomicas } from "@/lib/utils/economia-avanzada";
 import { generarProyeccionAnual } from "@/lib/utils/agua-proyeccion-anual";
 import { generarReporteFinanciero } from "@/lib/utils/reporte-financiero";
@@ -46,6 +49,7 @@ interface UseReportesParams {
   cosechas: Cosecha[];
   fuentesAgua: FuenteAgua[];
   suelo?: SueloTerreno | null;
+  opcionesConsumoAgua?: OpcionesConsumoAgua;
 }
 
 // ─── Helpers internos ───────────────────────────────────────────────
@@ -57,6 +61,7 @@ function calcularROIsPorZona(
   catalogoCultivos: CatalogoCultivo[],
   fuentesAgua: FuenteAgua[],
   suelo?: SueloTerreno | null,
+  opcionesConsumoAgua?: OpcionesConsumoAgua,
 ): Array<{
   zona: Zona;
   cultivo: CatalogoCultivo;
@@ -100,6 +105,8 @@ function calcularROIsPorZona(
         zona,
         plantasCultivo,
         catalogoCultivos,
+        undefined,
+        opcionesConsumoAgua,
       );
       const roi = calcularROI(
         cultivo,
@@ -133,6 +140,7 @@ export function useReportes(params: UseReportesParams): UseReportes {
     cosechas,
     fuentesAgua,
     suelo,
+    opcionesConsumoAgua,
   } = params;
   const [generando, setGenerando] = useState<TipoReporte | null>(null);
 
@@ -160,6 +168,7 @@ export function useReportes(params: UseReportesParams): UseReportes {
         catalogoCultivos,
         fuentesAgua,
         suelo,
+        opcionesConsumoAgua,
       );
 
       const zonasReporte = roisData.map((r) => ({
@@ -203,6 +212,7 @@ export function useReportes(params: UseReportesParams): UseReportes {
     catalogoCultivos,
     fuentesAgua,
     suelo,
+    opcionesConsumoAgua,
     generando,
   ]);
 
@@ -227,6 +237,8 @@ export function useReportes(params: UseReportesParams): UseReportes {
             zona,
             plantasZona,
             catalogoCultivos,
+            undefined,
+            opcionesConsumoAgua,
           );
 
           return {
@@ -282,7 +294,15 @@ export function useReportes(params: UseReportesParams): UseReportes {
     } finally {
       setGenerando(null);
     }
-  }, [terreno, zonas, plantas, catalogoCultivos, fuentesAgua, generando]);
+  }, [
+    terreno,
+    zonas,
+    plantas,
+    catalogoCultivos,
+    fuentesAgua,
+    opcionesConsumoAgua,
+    generando,
+  ]);
 
   const generarProduccionPdf = useCallback(() => {
     if (!terreno || generando) return;
@@ -296,6 +316,7 @@ export function useReportes(params: UseReportesParams): UseReportes {
         catalogoCultivos,
         fuentesAgua,
         suelo,
+        opcionesConsumoAgua,
       );
 
       // Produccion real por zona
@@ -388,6 +409,7 @@ export function useReportes(params: UseReportesParams): UseReportes {
     cosechas,
     fuentesAgua,
     suelo,
+    opcionesConsumoAgua,
     generando,
   ]);
 

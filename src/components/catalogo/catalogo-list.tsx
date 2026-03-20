@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import type { VariedadCultivo } from "@/lib/data/variedades";
-import type { DatosMercado } from "@/lib/data/mercado";
+import type { VariedadCultivo } from "@/lib/data/tipos-variedades";
+import type { PrecioMayorista, MercadoDetalle } from "@/lib/data/tipos-mercado";
 import { useProjectContext } from "@/contexts/project-context";
 import type { CatalogoCultivo, UUID } from "@/types";
 import { formatCLP } from "@/lib/utils";
@@ -13,11 +13,26 @@ interface CatalogoListProps {
   onEliminar: (id: UUID) => void;
 }
 
+function esCultivoCompleto(
+  cultivo: CatalogoCultivo,
+  precios: PrecioMayorista[],
+  mercadoDetalle: MercadoDetalle[],
+): boolean {
+  if (!cultivo.cultivo_base_id) return false;
+  const precio = precios.find((p) => p.cultivo_id === cultivo.cultivo_base_id);
+  if (!precio) return false;
+  return mercadoDetalle.some((m) => m.precio_mayorista_id === precio.id);
+}
+
 export function CatalogoList({
   cultivos,
   onEditar,
   onEliminar,
 }: CatalogoListProps) {
+  const { datosBaseHook } = useProjectContext();
+  const precios = datosBaseHook.datosBase.precios ?? [];
+  const mercadoDetalle = datosBaseHook.datosBase.mercadoDetalle ?? [];
+
   if (cultivos.length === 0) {
     return (
       <div className="text-center py-8 text-gray-500">
@@ -26,16 +41,54 @@ export function CatalogoList({
     );
   }
 
+  const completos = cultivos.filter((c) =>
+    esCultivoCompleto(c, precios, mercadoDetalle),
+  );
+  const incompletos = cultivos.filter(
+    (c) => !esCultivoCompleto(c, precios, mercadoDetalle),
+  );
+
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-      {cultivos.map((cultivo) => (
-        <CultivoCard
-          key={cultivo.id}
-          cultivo={cultivo}
-          onEditar={() => onEditar(cultivo)}
-          onEliminar={() => onEliminar(cultivo.id)}
-        />
-      ))}
+    <div className="space-y-6">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {completos.map((cultivo) => (
+          <CultivoCard
+            key={cultivo.id}
+            cultivo={cultivo}
+            completo
+            onEditar={() => onEditar(cultivo)}
+            onEliminar={() => onEliminar(cultivo.id)}
+          />
+        ))}
+      </div>
+
+      {incompletos.length > 0 && (
+        <div>
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-sm font-medium text-amber-700">
+              ⚠ Cultivos sin datos de mercado completos
+            </span>
+            <span className="text-xs text-amber-600 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
+              {incompletos.length} pendiente{incompletos.length > 1 ? "s" : ""}
+            </span>
+          </div>
+          <p className="text-xs text-gray-500 mb-3">
+            Estos cultivos no pueden usarse para plantar hasta que tengan datos
+            de mercado. Están disponibles para consulta.
+          </p>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {incompletos.map((cultivo) => (
+              <CultivoCard
+                key={cultivo.id}
+                cultivo={cultivo}
+                completo={false}
+                onEditar={() => onEditar(cultivo)}
+                onEliminar={() => onEliminar(cultivo.id)}
+              />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -69,12 +122,33 @@ const RIESGO_BADGE_COLORS: Record<string, string> = {
   alto: "bg-red-50 text-red-700 border border-red-200",
 };
 
+function EstrellaRecomendacion({ nivel }: { nivel: number }) {
+  if (nivel < 1 || nivel > 3) return null;
+  return (
+    <span
+      className="text-amber-400 text-[11px] tracking-tight"
+      title={
+        nivel === 3
+          ? "Altamente recomendado para Arica"
+          : nivel === 2
+            ? "Recomendado"
+            : "Viable con limitaciones"
+      }
+    >
+      {"★".repeat(nivel)}
+      {"☆".repeat(3 - nivel)}
+    </span>
+  );
+}
+
 function CultivoCard({
   cultivo,
+  completo,
   onEditar,
   onEliminar,
 }: {
   cultivo: CatalogoCultivo;
+  completo: boolean;
   onEditar: () => void;
   onEliminar: () => void;
 }) {
@@ -83,15 +157,32 @@ function CultivoCard({
 
   const variedades: VariedadCultivo[] = (
     datosBaseHook.datosBase.variedades ?? []
-  ).filter((v) => v.cultivo_id === cultivo.id);
+  ).filter((v) => v.cultivo_id === cultivo.cultivo_base_id);
 
-  const mercado: DatosMercado | undefined =
-    datosBaseHook.datosBase.precios?.find((m) => m.cultivo_id === cultivo.id);
+  const mercado: PrecioMayorista | undefined =
+    datosBaseHook.datosBase.precios?.find(
+      (m) => m.cultivo_id === cultivo.cultivo_base_id,
+    );
+
+  const contexto: MercadoDetalle | undefined = mercado
+    ? datosBaseHook.datosBase.mercadoDetalle?.find(
+        (c) => c.precio_mayorista_id === mercado.id,
+      )
+    : undefined;
 
   const hasExpandable = variedades.length > 0 || !!mercado;
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl p-5 hover:shadow-md transition-shadow flex flex-col gap-4">
+    <div
+      className={`bg-white border rounded-xl p-5 flex flex-col gap-4 transition-shadow ${completo ? "border-gray-200 hover:shadow-md" : "border-amber-200 bg-amber-50/30 opacity-80"}`}
+    >
+      {/* Incomplete banner */}
+      {!completo && (
+        <div className="flex items-center gap-1.5 text-[10px] font-medium text-amber-700 bg-amber-100 border border-amber-200 rounded-lg px-2 py-1 -mb-1">
+          <span>⚠</span>
+          <span>Sin datos de mercado — no disponible para plantar</span>
+        </div>
+      )}
       {/* Header row */}
       <div className="flex items-start justify-between gap-2">
         {/* Tier dot + name block */}
@@ -107,9 +198,14 @@ function CultivoCard({
             </span>
           </div>
           <div className="min-w-0">
-            <h3 className="font-semibold text-gray-900 leading-tight truncate">
-              {cultivo.nombre}
-            </h3>
+            <div className="flex items-center gap-1.5">
+              <h3 className="font-semibold text-gray-900 leading-tight truncate">
+                {cultivo.nombre}
+              </h3>
+              {cultivo.recomendacion && (
+                <EstrellaRecomendacion nivel={cultivo.recomendacion} />
+              )}
+            </div>
             {cultivo.nombre_cientifico && (
               <p className="text-xs text-gray-400 italic leading-tight mt-0.5 truncate">
                 {cultivo.nombre_cientifico}
@@ -127,8 +223,18 @@ function CultivoCard({
           </span>
           <button
             onClick={onEditar}
-            aria-label="Editar cultivo"
-            className="p-1 rounded text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+            disabled={!completo}
+            aria-label={
+              completo
+                ? "Editar cultivo"
+                : "No disponible — faltan datos de mercado"
+            }
+            title={
+              !completo
+                ? "Completa los datos de mercado para usar este cultivo"
+                : undefined
+            }
+            className="p-1 rounded text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
           >
             {/* pencil icon */}
             <svg
@@ -251,22 +357,48 @@ function CultivoCard({
                 <div className="bg-blue-50 p-2 rounded text-xs">
                   <div className="flex justify-between items-center mb-1">
                     <span className="font-medium text-blue-900">Mercado</span>
-                    <span
-                      className={`font-bold ${TENDENCIA_COLORS[mercado.tendencia]}`}
-                    >
-                      {TENDENCIA_ICONS[mercado.tendencia]} {mercado.tendencia}
-                    </span>
+                    {mercado.tendencia && (
+                      <span
+                        className={`font-bold ${TENDENCIA_COLORS[mercado.tendencia]}`}
+                      >
+                        {TENDENCIA_ICONS[mercado.tendencia]} {mercado.tendencia}
+                      </span>
+                    )}
                   </div>
-                  <div className="text-blue-800">
-                    {formatCLP(mercado.precio_kg_actual_clp)}/kg actual
-                  </div>
-                  <div className="text-blue-700">
-                    Demanda: {mercado.demanda_local} | Competencia:{" "}
-                    {mercado.competencia_local}
-                    {mercado.mercado_exportacion && " | Exportable"}
-                  </div>
-                  {mercado.notas && (
-                    <p className="text-blue-600 mt-1 italic">{mercado.notas}</p>
+                  {mercado.precio_actual_clp && (
+                    <div className="text-blue-800">
+                      {formatCLP(mercado.precio_actual_clp)}/kg actual
+                    </div>
+                  )}
+                  {mercado.precio_min_clp && mercado.precio_max_clp && (
+                    <div className="text-blue-700">
+                      Rango: {formatCLP(mercado.precio_min_clp)} -{" "}
+                      {formatCLP(mercado.precio_max_clp)}/kg
+                    </div>
+                  )}
+                  {mercado.fuente && (
+                    <div className="text-blue-600 text-[10px]">
+                      Fuente: {mercado.fuente} |{" "}
+                      {mercado.actualizado_en
+                        ? new Date(mercado.actualizado_en).toLocaleDateString(
+                            "es-CL",
+                          )
+                        : "sin actualizar"}
+                    </div>
+                  )}
+                  {contexto && (
+                    <div className="mt-1 pt-1 border-t border-blue-200">
+                      <div className="text-blue-700">
+                        Demanda: {contexto.demanda_local} | Competencia:{" "}
+                        {contexto.competencia_local}
+                        {contexto.mercado_exportacion && " | Exportable"}
+                      </div>
+                      {contexto.notas && (
+                        <p className="text-blue-600 mt-1 italic">
+                          {contexto.notas}
+                        </p>
+                      )}
+                    </div>
                   )}
                 </div>
               )}

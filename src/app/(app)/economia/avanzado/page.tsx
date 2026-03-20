@@ -29,6 +29,7 @@ export default function EconomiaAvanzadaPage() {
     catalogoCultivos,
     loading,
     datosBaseHook,
+    opcionesConsumoAgua,
   } = useProjectContext();
 
   const fuentesAgua = datosBaseHook.datosBase.fuentesAgua;
@@ -70,6 +71,8 @@ export default function EconomiaAvanzadaPage() {
           zona,
           plantasCultivo,
           catalogoCultivos,
+          undefined,
+          opcionesConsumoAgua,
         );
         const roi = calcularROI(
           cultivo,
@@ -97,6 +100,7 @@ export default function EconomiaAvanzadaPage() {
     catalogoCultivos,
     fuentesAgua,
     proyectoActual?.suelo,
+    opcionesConsumoAgua,
   ]);
 
   const global = useMemo(() => {

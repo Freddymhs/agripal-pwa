@@ -81,6 +81,7 @@ export default function PlanificadorAguaPage() {
     cargarDatosTerreno: refetch,
     estanquesHook: { estanques },
     datosBaseHook,
+    opcionesConsumoAgua,
   } = useProjectContext();
   const [tabActiva, setTabActiva] = useState<TabActiva>("viabilidad");
 
@@ -92,6 +93,7 @@ export default function PlanificadorAguaPage() {
     plantas,
     catalogoCultivos,
     refetch,
+    opcionesConsumoAgua,
   );
 
   const proyeccion = useMemo<ProyeccionAnual | null>(() => {
@@ -142,6 +144,8 @@ export default function PlanificadorAguaPage() {
               zona,
               plantasCultivo,
               catalogoCultivos,
+              undefined,
+              opcionesConsumoAgua,
             );
             const roi = calcularROI(
               cultivo,
@@ -180,6 +184,7 @@ export default function PlanificadorAguaPage() {
     proyeccion,
     fuentesAgua,
     proyectoActual?.suelo,
+    opcionesConsumoAgua,
   ]);
 
   const tieneEstanques = estanques.length > 0;
