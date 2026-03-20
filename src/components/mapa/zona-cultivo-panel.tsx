@@ -28,6 +28,7 @@ import {
   ESTADO_AGUA,
   TEXTURA_SUELO,
 } from "@/lib/constants/entities";
+import { esCultivoCompleto } from "@/lib/utils/helpers-cultivo";
 import { ZonaRiegoSection } from "./zona-riego-section";
 
 function InfoLabel({ label, tooltip }: { label: string; tooltip: string }) {
@@ -417,18 +418,15 @@ export function ZonaCultivoPanel() {
               </option>
             )}
             {catalogoCultivos.map((c) => {
-              const precio = datosBaseHook.datosBase.precios?.find(
-                (p) => p.cultivo_id === c.cultivo_base_id,
+              const completo = esCultivoCompleto(
+                c,
+                datosBaseHook.datosBase.precios ?? [],
+                datosBaseHook.datosBase.mercadoDetalle ?? [],
               );
-              const tieneContexto = precio
-                ? (datosBaseHook.datosBase.mercadoDetalle?.some(
-                    (m) => m.precio_mayorista_id === precio.id,
-                  ) ?? false)
-                : false;
               return (
-                <option key={c.id} value={c.id} disabled={!tieneContexto}>
+                <option key={c.id} value={c.id} disabled={!completo}>
                   {c.nombre}
-                  {!tieneContexto ? " ⚠ sin datos" : ""}
+                  {!completo ? " ⚠ sin datos" : ""}
                 </option>
               );
             })}

@@ -1,0 +1,83 @@
+{
+  "region": "Arica y Parinacota",
+  "zona": "valle_lluta",
+  "elevacion_m": 812,
+  "coordenadas": {
+    "lat": -18.4059,
+    "lon": -69.9921
+  },
+  "lluvia": {
+    "anual_mm": 0.6,
+    "max_24h_mm": 10,
+    "meses_lluviosos": ["ene", "feb"],
+    "meses_secos": [
+      "mar",
+      "abr",
+      "may",
+      "jun",
+      "jul",
+      "ago",
+      "sep",
+      "oct",
+      "nov",
+      "dic"
+    ]
+  },
+  "temperatura": {
+    "minima_historica_c": 16.4,
+    "maxima_verano_c": 28.8,
+    "promedio_anual_c": 22.6,
+    "horas_frio_aprox": 80,
+    "horas_frio_nota": "~80h <10°C/año por mayor altitud. Apto para frutales con leve requerimiento de frío (olivo, membrillo)."
+  },
+  "heladas": {
+    "anuales": 0,
+    "meses_riesgo": ["jul", "ago"],
+    "plantas_sensibles": ["papaya", "mango", "pitahaya"]
+  },
+  "viento": {
+    "max_kmh": 45,
+    "meses_fuerte": ["nov", "dic", "ene"],
+    "direccion_predominante": "SW",
+    "nota": "Valle más expuesto al viento que Azapa por orientación perpendicular a la costa."
+  },
+  "humedad_radiacion": {
+    "humedad_relativa_pct": 60,
+    "radiacion_mj_m2_dia": 18
+  },
+  "evapotranspiracion": {
+    "et0_mm_dia": 4.77,
+    "nota": "ET0 similar a pampa interior. Mayor altitud compensa la menor humedad relativa."
+  },
+  "estacionalidad": {
+    "verano": {
+      "meses": ["dic", "ene", "feb"],
+      "factor_agua": 1.35,
+      "caracteristica": "Caluroso, máxima evaporación"
+    },
+    "otoño": {
+      "meses": ["mar", "abr", "may"],
+      "factor_agua": 1.0,
+      "caracteristica": "Templado, transición"
+    },
+    "invierno": {
+      "meses": ["jun", "jul", "ago"],
+      "factor_agua": 0.6,
+      "caracteristica": "Fresco, riesgo helada esporádica"
+    },
+    "primavera": {
+      "meses": ["sep", "oct", "nov"],
+      "factor_agua": 1.15,
+      "caracteristica": "Templado, vientos crecientes"
+    }
+  },
+  "camanchaca": {
+    "nota": "Menor influencia de camanchaca que Azapa. Valle más interior y árido.",
+    "meses_presencia": [6, 7, 8, 9],
+    "aporte_estimado_mm_dia": 0.3,
+    "reduccion_eto_pct": 6,
+    "info": "Neblina ocasional. Potencial de atrapanieblas bajo comparado con valles costeros."
+  },
+  "fuentes": ["Open-Meteo Archive", "DMC Chile", "NASA POWER"],
+  "eto_referencia_mm_dia": 4.2
+}

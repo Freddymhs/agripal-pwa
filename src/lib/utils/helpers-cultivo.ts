@@ -1,4 +1,5 @@
 import type { CatalogoCultivo, Zona } from "@/types";
+import type { PrecioMayorista, MercadoDetalle } from "@/lib/data/tipos-mercado";
 import { M2_POR_HECTAREA } from "@/lib/constants/conversiones";
 import { TIPO_ZONA } from "@/lib/constants/entities";
 
@@ -47,4 +48,16 @@ export function obtenerStockAgua(
   aguaTotalEstanques: number,
 ): number {
   return estanques.length > 0 ? aguaTotalEstanques : aguaTerrenoM3;
+}
+
+/** Cultivo "completo" = tiene precio + mercado_detalle. Sin ambos, no es plantable. */
+export function esCultivoCompleto(
+  cultivo: CatalogoCultivo,
+  precios: PrecioMayorista[],
+  mercadoDetalle: MercadoDetalle[],
+): boolean {
+  if (!cultivo.cultivo_base_id) return false;
+  const precio = precios.find((p) => p.cultivo_id === cultivo.cultivo_base_id);
+  if (!precio) return false;
+  return mercadoDetalle.some((m) => m.precio_mayorista_id === precio.id);
 }

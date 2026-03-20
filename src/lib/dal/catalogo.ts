@@ -3,6 +3,7 @@ import {
   serializarParaSupabase,
   deserializarDesdeSupabase,
 } from "@/lib/supabase/schema";
+import { getCurrentTimestamp } from "@/lib/utils";
 import type { CatalogoCultivo } from "@/types";
 
 const TABLA = "catalogo_cultivos";
@@ -68,7 +69,7 @@ export const catalogoDAL = {
   marcarOrigenUsuario: async (cultivoId: string): Promise<void> => {
     const { error } = await supabase
       .from("catalogo_cultivos_config")
-      .update({ origen: "usuario", updated_at: new Date().toISOString() })
+      .update({ origen: "usuario", updated_at: getCurrentTimestamp() })
       .eq("cultivo_id", cultivoId);
     if (error) throw error;
   },

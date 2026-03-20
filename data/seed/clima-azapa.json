@@ -1,0 +1,83 @@
+{
+  "region": "Arica y Parinacota",
+  "zona": "valle_azapa",
+  "elevacion_m": 520,
+  "coordenadas": {
+    "lat": -18.517,
+    "lon": -70.1885
+  },
+  "lluvia": {
+    "anual_mm": 0,
+    "max_24h_mm": 8,
+    "meses_lluviosos": ["ene", "feb"],
+    "meses_secos": [
+      "mar",
+      "abr",
+      "may",
+      "jun",
+      "jul",
+      "ago",
+      "sep",
+      "oct",
+      "nov",
+      "dic"
+    ]
+  },
+  "temperatura": {
+    "minima_historica_c": 19.0,
+    "maxima_verano_c": 27.5,
+    "promedio_anual_c": 23.3,
+    "horas_frio_aprox": 20,
+    "horas_frio_nota": "~20h <10°C/año. Valle encajonado con efecto invernadero nocturno. Microclima más cálido que pampa."
+  },
+  "heladas": {
+    "anuales": 0,
+    "meses_riesgo": [],
+    "plantas_sensibles": []
+  },
+  "viento": {
+    "max_kmh": 35,
+    "meses_fuerte": ["nov", "dic", "ene"],
+    "direccion_predominante": "SW",
+    "nota": "Valle encajonado que canaliza el viento. Menor exposición que pampa abierta."
+  },
+  "humedad_radiacion": {
+    "humedad_relativa_pct": 72,
+    "radiacion_mj_m2_dia": 19
+  },
+  "evapotranspiracion": {
+    "et0_mm_dia": 4.33,
+    "nota": "Mayor ET0 que pampa interior por temperaturas más altas y menor altitud."
+  },
+  "estacionalidad": {
+    "verano": {
+      "meses": ["dic", "ene", "feb"],
+      "factor_agua": 1.4,
+      "caracteristica": "Caluroso, alta evaporación"
+    },
+    "otoño": {
+      "meses": ["mar", "abr", "may"],
+      "factor_agua": 1.0,
+      "caracteristica": "Templado, transición"
+    },
+    "invierno": {
+      "meses": ["jun", "jul", "ago"],
+      "factor_agua": 0.65,
+      "caracteristica": "Fresco, menor demanda hídrica"
+    },
+    "primavera": {
+      "meses": ["sep", "oct", "nov"],
+      "factor_agua": 1.2,
+      "caracteristica": "Templado, vientos crecientes"
+    }
+  },
+  "camanchaca": {
+    "nota": "Valle Azapa recibe camanchaca desde la costa. Aporta humedad significativa en madrugadas de invierno.",
+    "meses_presencia": [5, 6, 7, 8, 9],
+    "aporte_estimado_mm_dia": 0.8,
+    "reduccion_eto_pct": 12,
+    "info": "Con atrapanieblas en laderas del valle se puede captar 5-10 L/m²/día."
+  },
+  "fuentes": ["Open-Meteo Archive", "DMC Chile", "INIA RedAgroclima"],
+  "eto_referencia_mm_dia": 4.5
+}

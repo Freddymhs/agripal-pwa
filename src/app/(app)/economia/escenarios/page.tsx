@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useProjectContext } from "@/contexts/project-context";
 import { obtenerCostoAguaPromedio } from "@/lib/utils/roi";
 import {
@@ -12,7 +12,10 @@ import {
   GraficoRoiComparativo,
   RecomendacionEscenario,
 } from "@/components/escenarios/tabla-comparativa";
-import { filtrarEstanques } from "@/lib/utils/helpers-cultivo";
+import {
+  filtrarEstanques,
+  esCultivoCompleto,
+} from "@/lib/utils/helpers-cultivo";
 import { TIPO_ZONA } from "@/lib/constants/entities";
 import { PageLayout } from "@/components/layout/page-layout";
 import type { CatalogoCultivo } from "@/types";
@@ -33,32 +36,47 @@ export default function EscenariosPage() {
   const [seleccion, setSeleccion] = useState<string[]>([]);
 
   const fuentesAgua = datosBaseHook.datosBase.fuentesAgua;
+  const rawPrecios = datosBaseHook.datosBase.precios;
+  const rawMercadoDetalle = datosBaseHook.datosBase.mercadoDetalle;
 
-  useEffect(() => {
+  const precios = useMemo(() => rawPrecios ?? [], [rawPrecios]);
+  const mercadoDetalle = useMemo(
+    () => rawMercadoDetalle ?? [],
+    [rawMercadoDetalle],
+  );
+
+  const cultivosCompletos = useMemo(
+    () =>
+      catalogoCultivos.filter((c) =>
+        esCultivoCompleto(c, precios, mercadoDetalle),
+      ),
+    [catalogoCultivos, precios, mercadoDetalle],
+  );
+
+  const [prevCultivosCompletos, setPrevCultivosCompletos] =
+    useState(cultivosCompletos);
+  const [prevZonas, setPrevZonas] = useState(zonas);
+
+  if (zonas !== prevZonas || cultivosCompletos !== prevCultivosCompletos) {
+    setPrevZonas(zonas);
+    setPrevCultivosCompletos(cultivosCompletos);
     if (zonas.length > 0) {
       const zonaCultivo = zonas.find((zona) => zona.tipo === TIPO_ZONA.CULTIVO);
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- inicialización de selección con los primeros cultivos disponibles
-      if (zonaCultivo) setZonaId(zonaCultivo.id);
-      const cultivosCompletos = catalogoCultivos.filter((c) => {
-        const precio = (datosBaseHook.datosBase.precios ?? []).find(
-          (p) => p.cultivo_id === c.cultivo_base_id,
-        );
-        if (!precio) return false;
-        return (datosBaseHook.datosBase.mercadoDetalle ?? []).some(
-          (m) => m.precio_mayorista_id === precio.id,
-        );
-      });
-      if (cultivosCompletos.length >= 2)
-        setSeleccion([cultivosCompletos[0].id, cultivosCompletos[1].id]);
-      else if (cultivosCompletos.length === 1)
-        setSeleccion([cultivosCompletos[0].id]);
+      const zonaIdValida = zonaId && zonas.some((z) => z.id === zonaId);
+      if (zonaCultivo && !zonaIdValida) setZonaId(zonaCultivo.id);
+
+      const seleccionValida =
+        seleccion.length > 0 &&
+        seleccion.every((id) => catalogoCultivos.some((c) => c.id === id));
+      if (!seleccionValida) {
+        if (cultivosCompletos.length >= 2)
+          setSeleccion([cultivosCompletos[0].id, cultivosCompletos[1].id]);
+        else if (cultivosCompletos.length === 1)
+          setSeleccion([cultivosCompletos[0].id]);
+        else setSeleccion([]);
+      }
     }
-  }, [
-    zonas,
-    catalogoCultivos,
-    datosBaseHook.datosBase.precios,
-    datosBaseHook.datosBase.mercadoDetalle,
-  ]);
+  }
 
   const zonaSeleccionada = zonas.find((z) => z.id === zonaId) ?? null;
 
@@ -109,17 +127,6 @@ export default function EscenariosPage() {
 
   const zonasCultivo = zonas.filter((z) => z.tipo === TIPO_ZONA.CULTIVO);
 
-  const precios = datosBaseHook.datosBase.precios ?? [];
-  const mercadoDetalle = datosBaseHook.datosBase.mercadoDetalle ?? [];
-  const esCultivoCompleto = (cultivo: CatalogoCultivo) => {
-    if (!cultivo.cultivo_base_id) return false;
-    const precio = precios.find(
-      (p) => p.cultivo_id === cultivo.cultivo_base_id,
-    );
-    if (!precio) return false;
-    return mercadoDetalle.some((m) => m.precio_mayorista_id === precio.id);
-  };
-
   return (
     <PageLayout headerColor="green" title="Escenarios Comparativos">
       <main className="p-4 space-y-4 max-w-4xl mx-auto">
@@ -157,7 +164,7 @@ export default function EscenariosPage() {
               {catalogoCultivos.map((c) => {
                 const idx = seleccion.indexOf(c.id);
                 const selected = idx >= 0;
-                const completo = esCultivoCompleto(c);
+                const completo = esCultivoCompleto(c, precios, mercadoDetalle);
                 return (
                   <button
                     key={c.id}

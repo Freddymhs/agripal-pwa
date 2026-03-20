@@ -1,0 +1,25 @@
+{
+  "nota": "ETo mensual promedio para Arica ciudad costera (~10m, 18°28'S 70°18'W). Fuente: Open-Meteo Archive 2025.",
+  "eto_referencia_mm_dia": 3.4,
+  "mensual": {
+    "1": { "eto_mm_dia": 4.1, "label": "Enero" },
+    "2": { "eto_mm_dia": 3.9, "label": "Febrero" },
+    "3": { "eto_mm_dia": 3.6, "label": "Marzo" },
+    "4": { "eto_mm_dia": 3.1, "label": "Abril" },
+    "5": { "eto_mm_dia": 2.6, "label": "Mayo" },
+    "6": { "eto_mm_dia": 2.2, "label": "Junio" },
+    "7": { "eto_mm_dia": 2.4, "label": "Julio" },
+    "8": { "eto_mm_dia": 2.7, "label": "Agosto" },
+    "9": { "eto_mm_dia": 3.2, "label": "Septiembre" },
+    "10": { "eto_mm_dia": 3.7, "label": "Octubre" },
+    "11": { "eto_mm_dia": 4.0, "label": "Noviembre" },
+    "12": { "eto_mm_dia": 4.3, "label": "Diciembre" }
+  },
+  "camanchaca": {
+    "nota": "Costa de Arica con camanchaca muy frecuente. Reduce evaporación significativamente.",
+    "meses_presencia": [4, 5, 6, 7, 8, 9, 10],
+    "aporte_estimado_mm_dia": 0.9,
+    "reduccion_eto_pct": 15,
+    "info": "Alto potencial de atrapanieblas. Puede captar 6-12 L/m²/día en temporada."
+  }
+}

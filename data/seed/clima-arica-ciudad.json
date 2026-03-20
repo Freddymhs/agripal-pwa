@@ -1,0 +1,85 @@
+{
+  "region": "Arica y Parinacota",
+  "zona": "ciudad_arica",
+  "elevacion_m": 10,
+  "coordenadas": {
+    "lat": -18.4755,
+    "lon": -70.3006
+  },
+  "lluvia": {
+    "anual_mm": 0,
+    "max_24h_mm": 5,
+    "meses_lluviosos": [],
+    "meses_secos": [
+      "ene",
+      "feb",
+      "mar",
+      "abr",
+      "may",
+      "jun",
+      "jul",
+      "ago",
+      "sep",
+      "oct",
+      "nov",
+      "dic"
+    ]
+  },
+  "temperatura": {
+    "minima_historica_c": 20.4,
+    "maxima_verano_c": 25.0,
+    "promedio_anual_c": 22.7,
+    "horas_frio_aprox": 0,
+    "horas_frio_nota": "0h <10°C/año. Costa árida con temperatura muy estable. No apto para cultivos con requerimiento de frío."
+  },
+  "heladas": {
+    "anuales": 0,
+    "meses_riesgo": [],
+    "plantas_sensibles": []
+  },
+  "viento": {
+    "max_kmh": 50,
+    "meses_fuerte": ["oct", "nov", "dic", "ene"],
+    "direccion_predominante": "S-SW",
+    "nota": "Viento costero moderado a fuerte. Brisa marina constante. Requiere cortavientos para cultivos sensibles."
+  },
+  "humedad_radiacion": {
+    "humedad_relativa_pct": 80,
+    "radiacion_mj_m2_dia": 16
+  },
+  "evapotranspiracion": {
+    "et0_mm_dia": 4.09,
+    "nota": "ET0 reducida por alta humedad costera y nubosidad matinal. La camanchaca es factor relevante."
+  },
+  "estacionalidad": {
+    "verano": {
+      "meses": ["dic", "ene", "feb"],
+      "factor_agua": 1.25,
+      "caracteristica": "Templado costero, nublados matinales"
+    },
+    "otoño": {
+      "meses": ["mar", "abr", "may"],
+      "factor_agua": 1.0,
+      "caracteristica": "Templado, camanchaca frecuente"
+    },
+    "invierno": {
+      "meses": ["jun", "jul", "ago"],
+      "factor_agua": 0.7,
+      "caracteristica": "Fresco costero, camanchaca intensa"
+    },
+    "primavera": {
+      "meses": ["sep", "oct", "nov"],
+      "factor_agua": 1.1,
+      "caracteristica": "Templado, vientos crecientes"
+    }
+  },
+  "camanchaca": {
+    "nota": "Costa de Arica con camanchaca muy frecuente. Neblina reduce significativamente la evaporación efectiva.",
+    "meses_presencia": [4, 5, 6, 7, 8, 9, 10],
+    "aporte_estimado_mm_dia": 0.9,
+    "reduccion_eto_pct": 15,
+    "info": "Zona costera con alto potencial de atrapanieblas. Puede captar 6-12 L/m²/día en temporada."
+  },
+  "fuentes": ["Open-Meteo Archive", "DMC Chile - Estación Arica"],
+  "eto_referencia_mm_dia": 3.4
+}

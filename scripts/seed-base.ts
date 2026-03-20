@@ -53,9 +53,18 @@ async function seedCatalogoBase(sb: SupabaseClient): Promise<void> {
 
   const payload = [...frutas, ...extras].map((c) => {
     const {
-      id, nombre, tier, tipo, origen,
-      kc_plantula, kc_joven, kc_adulta, kc_madura,
-      proyecto_id: _p, created_at: _ca, updated_at: _ua,
+      id,
+      nombre,
+      tier,
+      tipo,
+      origen,
+      kc_plantula,
+      kc_joven,
+      kc_adulta,
+      kc_madura,
+      proyecto_id: _p,
+      created_at: _ca,
+      updated_at: _ua,
       ...datos
     } = c;
     return {
@@ -72,7 +81,9 @@ async function seedCatalogoBase(sb: SupabaseClient): Promise<void> {
     };
   });
 
-  const { error } = await sb.from("catalogo_base").upsert(payload, { onConflict: "id" });
+  const { error } = await sb
+    .from("catalogo_base")
+    .upsert(payload, { onConflict: "id" });
   if (error) throw new Error(`catalogo_base: ${error.message}`);
   console.log(`  ✓ ${payload.length} cultivos (frutas.json + extras.json)`);
 }
@@ -82,10 +93,17 @@ async function seedVariedades(sb: SupabaseClient): Promise<void> {
 
   const payload = raw.map((v) => {
     const { id, cultivo_id, nombre, ...datos } = v;
-    return { id: id as string, cultivo_id: cultivo_id as string, nombre: nombre as string, datos };
+    return {
+      id: id as string,
+      cultivo_id: cultivo_id as string,
+      nombre: nombre as string,
+      datos,
+    };
   });
 
-  const { error } = await sb.from("variedades_base").upsert(payload, { onConflict: "id" });
+  const { error } = await sb
+    .from("variedades_base")
+    .upsert(payload, { onConflict: "id" });
   if (error) throw new Error(`variedades_base: ${error.message}`);
   console.log(`  ✓ ${payload.length} variedades`);
 }
@@ -95,10 +113,17 @@ async function seedInsumos(sb: SupabaseClient): Promise<void> {
 
   const payload = raw.insumos.map((i) => {
     const { id, nombre, tipo, ...datos } = i;
-    return { id: id as string, nombre: nombre as string, tipo: tipo as string, datos };
+    return {
+      id: id as string,
+      nombre: nombre as string,
+      tipo: tipo as string,
+      datos,
+    };
   });
 
-  const { error } = await sb.from("insumos_base").upsert(payload, { onConflict: "id" });
+  const { error } = await sb
+    .from("insumos_base")
+    .upsert(payload, { onConflict: "id" });
   if (error) throw new Error(`insumos_base: ${error.message}`);
   console.log(`  ✓ ${payload.length} insumos`);
 }
@@ -108,10 +133,17 @@ async function seedEnmiendas(sb: SupabaseClient): Promise<void> {
 
   const payload = raw.map((e) => {
     const { id, nombre, tipo, ...datos } = e;
-    return { id: id as string, nombre: nombre as string, tipo: tipo as string, datos };
+    return {
+      id: id as string,
+      nombre: nombre as string,
+      tipo: tipo as string,
+      datos,
+    };
   });
 
-  const { error } = await sb.from("enmiendas_base").upsert(payload, { onConflict: "id" });
+  const { error } = await sb
+    .from("enmiendas_base")
+    .upsert(payload, { onConflict: "id" });
   if (error) throw new Error(`enmiendas_base: ${error.message}`);
   console.log(`  ✓ ${payload.length} enmiendas de suelo`);
 }
@@ -121,16 +153,28 @@ async function seedTecnicas(sb: SupabaseClient): Promise<void> {
 
   const payload = raw.map((t) => {
     const { id, nombre, categoria, ...datos } = t;
-    return { id: id as string, nombre: nombre as string, categoria: categoria as string, datos };
+    return {
+      id: id as string,
+      nombre: nombre as string,
+      categoria: categoria as string,
+      datos,
+    };
   });
 
-  const { error } = await sb.from("tecnicas_base").upsert(payload, { onConflict: "id" });
+  const { error } = await sb
+    .from("tecnicas_base")
+    .upsert(payload, { onConflict: "id" });
   if (error) throw new Error(`tecnicas_base: ${error.message}`);
   console.log(`  ✓ ${payload.length} tecnicas de mejora`);
 }
 
 async function seedClima(sb: SupabaseClient): Promise<void> {
-  const regiones: { id: string; climaFile: string; etoFile: string; label: string }[] = [
+  const regiones: {
+    id: string;
+    climaFile: string;
+    etoFile: string;
+    label: string;
+  }[] = [
     {
       id: "arica-pampa-interior",
       climaFile: "data/seed/clima.json",
@@ -182,9 +226,13 @@ async function seedClima(sb: SupabaseClient): Promise<void> {
     return { id, region, datos: { ...clima, evapotranspiracion_detalle: eto } };
   });
 
-  const { error } = await sb.from("clima_base").upsert(payload, { onConflict: "id" });
+  const { error } = await sb
+    .from("clima_base")
+    .upsert(payload, { onConflict: "id" });
   if (error) throw new Error(`clima_base: ${error.message}`);
-  console.log(`  ✓ ${payload.length} registros de clima (${regiones.map((r) => r.label).join(", ")})`);
+  console.log(
+    `  ✓ ${payload.length} registros de clima (${regiones.map((r) => r.label).join(", ")})`,
+  );
 }
 
 async function seedFuentesAgua(sb: SupabaseClient): Promise<void> {
@@ -192,10 +240,17 @@ async function seedFuentesAgua(sb: SupabaseClient): Promise<void> {
 
   const payload = raw.map((f) => {
     const { id, nombre, tipo, ...datos } = f;
-    return { id: id as string, nombre: nombre as string, tipo: tipo as string, datos };
+    return {
+      id: id as string,
+      nombre: nombre as string,
+      tipo: tipo as string,
+      datos,
+    };
   });
 
-  const { error } = await sb.from("fuentes_agua_base").upsert(payload, { onConflict: "id" });
+  const { error } = await sb
+    .from("fuentes_agua_base")
+    .upsert(payload, { onConflict: "id" });
   if (error) throw new Error(`fuentes_agua_base: ${error.message}`);
   console.log(`  ✓ ${payload.length} fuentes de agua`);
 }
@@ -205,9 +260,16 @@ async function seedPrecios(sb: SupabaseClient): Promise<void> {
 
   const payload = raw.map((p) => {
     const {
-      id, cultivo_id, nombre, region, nombre_odepa,
-      precio_actual_clp, precio_min_clp, precio_max_clp,
-      tendencia, fuente,
+      id,
+      cultivo_id,
+      nombre,
+      region,
+      nombre_odepa,
+      precio_actual_clp,
+      precio_min_clp,
+      precio_max_clp,
+      tendencia,
+      fuente,
       ...datos
     } = p;
     return {
@@ -225,7 +287,9 @@ async function seedPrecios(sb: SupabaseClient): Promise<void> {
     };
   });
 
-  const { error } = await sb.from("precios_mayoristas").upsert(payload, { onConflict: "id" });
+  const { error } = await sb
+    .from("precios_mayoristas")
+    .upsert(payload, { onConflict: "id" });
   if (error) throw new Error(`precios_mayoristas: ${error.message}`);
   console.log(`  ✓ ${payload.length} precios mayoristas`);
 
@@ -245,7 +309,8 @@ async function seedPrecios(sb: SupabaseClient): Promise<void> {
   const { error: configError } = await sb
     .from("precios_mayoristas_config")
     .upsert(configPayload, { onConflict: "precio_id" });
-  if (configError) throw new Error(`precios_mayoristas_config: ${configError.message}`);
+  if (configError)
+    throw new Error(`precios_mayoristas_config: ${configError.message}`);
   console.log(`  ✓ ${configPayload.length} precios config (trazabilidad)`);
 }
 
@@ -260,7 +325,9 @@ async function seedMercadoDetalle(sb: SupabaseClient): Promise<void> {
     notas: (p.notas as string) ?? null,
   }));
 
-  const { error } = await sb.from("mercado_detalle").upsert(payload, { onConflict: "precio_mayorista_id" });
+  const { error } = await sb
+    .from("mercado_detalle")
+    .upsert(payload, { onConflict: "precio_mayorista_id" });
   if (error) throw new Error(`mercado_detalle: ${error.message}`);
   console.log(`  ✓ ${payload.length} contextos de mercado`);
 }
@@ -290,13 +357,116 @@ async function seedPlanes(sb: SupabaseClient): Promise<void> {
   console.log(`  ✓ Plan Mensual ($9.990 CLP)`);
 }
 
+// ─── Usuarios de prueba ───────────────────────────────────────────────────────
+
+/**
+ * Freddy Huaylla — usuario propietario con suscripción pagada activa.
+ * El trigger `on_auth_user_created` crea automáticamente una suscripción
+ * en estado 'trialing'. Esta función la eleva a 'active'.
+ */
+async function addFreddyWithSubscription(sb: SupabaseClient): Promise<void> {
+  const email = "fmarcosdev@gmail.com";
+
+  const { data: existing } = await sb
+    .from("users")
+    .select("id")
+    .eq("email", email)
+    .maybeSingle();
+
+  if (existing) {
+    console.log(`  ✓ Freddy ya existe (skip)`);
+    return;
+  }
+
+  const { data: created, error: createError } = await sb.auth.admin.createUser({
+    email,
+    password: "freddy1992",
+    email_confirm: true,
+    user_metadata: { full_name: "Freddy Huaylla" },
+  });
+  if (createError)
+    throw new Error(`addFreddyWithSubscription: ${createError.message}`);
+
+  const userId = created.user.id;
+  const now = new Date();
+  const in1Year = new Date(now);
+  in1Year.setFullYear(in1Year.getFullYear() + 1);
+
+  const { error: subError } = await sb
+    .from("suscripciones")
+    .update({
+      estado: "active",
+      current_period_start: now.toISOString(),
+      current_period_end: in1Year.toISOString(),
+    })
+    .eq("usuario_id", userId);
+  if (subError)
+    throw new Error(`addFreddyWithSubscription (sub): ${subError.message}`);
+
+  console.log(
+    `  ✓ Freddy Huaylla creado con suscripcion activa hasta ${in1Year.toISOString().slice(0, 10)}`,
+  );
+}
+
+/**
+ * Usuario de prueba — trial de 6 meses activo, sin suscripción pagada.
+ * El trigger ya crea el estado 'trialing' con 180 días. No se modifica.
+ */
+async function addUsuarioPrueba(sb: SupabaseClient): Promise<void> {
+  const email = "prueba@agriplan.cl";
+
+  const { data: existing } = await sb
+    .from("users")
+    .select("id")
+    .eq("email", email)
+    .maybeSingle();
+
+  if (existing) {
+    console.log(`  ✓ Usuario prueba ya existe (skip)`);
+    return;
+  }
+
+  const { error } = await sb.auth.admin.createUser({
+    email,
+    password: "agriplan",
+    email_confirm: true,
+    user_metadata: { full_name: "Usuario Prueba Compartido" },
+  });
+  if (error) throw new Error(`addUsuarioPrueba: ${error.message}`);
+
+  console.log(`  ✓ Usuario prueba creado (trial 6 meses activo por trigger)`);
+}
+
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 (async () => {
   try {
-    console.log("\n[0] Inicio del Seed Base\n");
+    console.log("\n[0] Verificando estado de la BD...");
+    const { data: freddyExists, error: checkError } = await supabase
+      .from("users")
+      .select("id")
+      .eq("email", "fmarcosdev@gmail.com")
+      .maybeSingle();
 
-    console.log("[1] Catalogo de cultivos");
+    if (checkError) {
+      console.error(
+        "\n⛔ Seed bloqueado: no se pudo verificar el estado de la BD.\n  ",
+        checkError.message,
+        "\n   Revisa la conexión y las variables de entorno antes de continuar.\n",
+      );
+      process.exit(1);
+    }
+
+    if (freddyExists) {
+      console.log(
+        "\n⛔ Seed bloqueado: la BD ya fue inicializada (usuario fmarcosdev@gmail.com existe).\n   Ejecuta el seed solo en una BD nueva.\n",
+      );
+      process.exit(0);
+    }
+
+    console.log("\n[1] BD nueva detectada. Iniciando Seed Base\n");
+
+    console.log("[2] Catalogo de cultivos");
     await seedCatalogoBase(supabase);
 
     console.log("\n[2] Variedades");
@@ -326,7 +496,15 @@ async function seedPlanes(sb: SupabaseClient): Promise<void> {
     console.log("\n[10] Plan de suscripcion");
     await seedPlanes(supabase);
 
-    console.log("\n✅ Seed base completado. Nuevos usuarios recibiran estos datos al crear su primer proyecto.\n");
+    console.log("\n[11] Usuario Freddy Huaylla (suscripcion activa)");
+    await addFreddyWithSubscription(supabase);
+
+    console.log("\n[12] Usuario de prueba (trial 6 meses)");
+    await addUsuarioPrueba(supabase);
+
+    console.log(
+      "\n✅ Seed base completado. Nuevos usuarios recibiran estos datos al crear su primer proyecto.\n",
+    );
   } catch (error) {
     console.error("\n❌ Seed base fallido:", (error as Error).message);
     process.exit(1);

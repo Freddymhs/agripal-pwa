@@ -1,0 +1,25 @@
+{
+  "nota": "ETo mensual promedio para Valle de Azapa (~520m, 18°31'S 70°11'W). Fuente: Open-Meteo Archive 2025.",
+  "eto_referencia_mm_dia": 4.5,
+  "mensual": {
+    "1": { "eto_mm_dia": 5.4, "label": "Enero" },
+    "2": { "eto_mm_dia": 5.1, "label": "Febrero" },
+    "3": { "eto_mm_dia": 4.8, "label": "Marzo" },
+    "4": { "eto_mm_dia": 4.1, "label": "Abril" },
+    "5": { "eto_mm_dia": 3.4, "label": "Mayo" },
+    "6": { "eto_mm_dia": 2.9, "label": "Junio" },
+    "7": { "eto_mm_dia": 3.2, "label": "Julio" },
+    "8": { "eto_mm_dia": 3.6, "label": "Agosto" },
+    "9": { "eto_mm_dia": 4.4, "label": "Septiembre" },
+    "10": { "eto_mm_dia": 5.0, "label": "Octubre" },
+    "11": { "eto_mm_dia": 5.4, "label": "Noviembre" },
+    "12": { "eto_mm_dia": 5.7, "label": "Diciembre" }
+  },
+  "camanchaca": {
+    "nota": "Valle Azapa con camanchaca moderada desde la costa. Reduce evaporación en madrugadas.",
+    "meses_presencia": [5, 6, 7, 8, 9],
+    "aporte_estimado_mm_dia": 0.8,
+    "reduccion_eto_pct": 12,
+    "info": "Potencial de atrapanieblas en laderas del valle: 5-10 L/m²/día."
+  }
+}

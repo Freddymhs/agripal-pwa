@@ -1,0 +1,25 @@
+{
+  "nota": "ETo mensual promedio para Tacna ciudad (~562m, 18°00'S 70°15'W). Fuente: Open-Meteo Archive 2025 + SENAMHI Perú.",
+  "eto_referencia_mm_dia": 4.8,
+  "mensual": {
+    "1": { "eto_mm_dia": 5.6, "label": "Enero" },
+    "2": { "eto_mm_dia": 5.3, "label": "Febrero" },
+    "3": { "eto_mm_dia": 5.0, "label": "Marzo" },
+    "4": { "eto_mm_dia": 4.4, "label": "Abril" },
+    "5": { "eto_mm_dia": 3.8, "label": "Mayo" },
+    "6": { "eto_mm_dia": 3.3, "label": "Junio" },
+    "7": { "eto_mm_dia": 3.6, "label": "Julio" },
+    "8": { "eto_mm_dia": 4.0, "label": "Agosto" },
+    "9": { "eto_mm_dia": 4.8, "label": "Septiembre" },
+    "10": { "eto_mm_dia": 5.4, "label": "Octubre" },
+    "11": { "eto_mm_dia": 5.7, "label": "Noviembre" },
+    "12": { "eto_mm_dia": 5.9, "label": "Diciembre" }
+  },
+  "camanchaca": {
+    "nota": "Tacna no tiene camanchaca costera. Humedad proviene de lluvias altiplánicas en verano.",
+    "meses_presencia": [],
+    "aporte_estimado_mm_dia": 0,
+    "reduccion_eto_pct": 0,
+    "info": "Sin neblina costera. Riego 100% artificial."
+  }
+}

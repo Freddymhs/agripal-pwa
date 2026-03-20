@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { SesionRiego, Zona, UUID } from "@/types";
 import { LITROS_POR_M3 } from "@/lib/constants/conversiones";
+import { getCurrentTimestamp } from "@/lib/utils";
 
 interface RegistrarSesionRiegoModalProps {
   zona: Zona;
@@ -27,7 +28,7 @@ export function RegistrarSesionRiegoModal({
   onCerrar,
 }: RegistrarSesionRiegoModalProps) {
   const [duracionHoras, setDuracionHoras] = useState(2);
-  const [fecha, setFecha] = useState(new Date().toISOString().split("T")[0]);
+  const [fecha, setFecha] = useState(getCurrentTimestamp().split("T")[0]);
   const [notas, setNotas] = useState("");
   const [guardando, setGuardando] = useState(false);
 

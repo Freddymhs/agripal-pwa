@@ -1,0 +1,82 @@
+{
+  "region": "Tacna",
+  "zona": "ciudad_tacna",
+  "elevacion_m": 562,
+  "coordenadas": {
+    "lat": -18.0147,
+    "lon": -70.2536
+  },
+  "lluvia": {
+    "anual_mm": 0,
+    "max_24h_mm": 15,
+    "meses_lluviosos": ["ene", "feb", "mar"],
+    "meses_secos": [
+      "abr",
+      "may",
+      "jun",
+      "jul",
+      "ago",
+      "sep",
+      "oct",
+      "nov",
+      "dic"
+    ]
+  },
+  "temperatura": {
+    "minima_historica_c": 16.9,
+    "maxima_verano_c": 28.9,
+    "promedio_anual_c": 22.9,
+    "horas_frio_aprox": 100,
+    "horas_frio_nota": "~100h <10°C/año. Mayor altitud que Arica costa. Apto para frutales de mayor requerimiento de frío (vid, durazno)."
+  },
+  "heladas": {
+    "anuales": 0,
+    "meses_riesgo": ["jul", "ago"],
+    "plantas_sensibles": ["papaya", "mango"]
+  },
+  "viento": {
+    "max_kmh": 40,
+    "meses_fuerte": ["oct", "nov", "dic"],
+    "direccion_predominante": "SW",
+    "nota": "Viento moderado. Ciudad más interior que Arica, menor influencia marina directa."
+  },
+  "humedad_radiacion": {
+    "humedad_relativa_pct": 55,
+    "radiacion_mj_m2_dia": 19
+  },
+  "evapotranspiracion": {
+    "et0_mm_dia": 4.62,
+    "nota": "ET0 mayor que Arica costa por menor humedad relativa y mayor radiación solar."
+  },
+  "estacionalidad": {
+    "verano": {
+      "meses": ["dic", "ene", "feb"],
+      "factor_agua": 1.4,
+      "caracteristica": "Cálido, temporada de lluvias altiplánicas"
+    },
+    "otoño": {
+      "meses": ["mar", "abr", "may"],
+      "factor_agua": 1.05,
+      "caracteristica": "Templado, fin de lluvias"
+    },
+    "invierno": {
+      "meses": ["jun", "jul", "ago"],
+      "factor_agua": 0.65,
+      "caracteristica": "Fresco y seco, riesgo helada nocturna"
+    },
+    "primavera": {
+      "meses": ["sep", "oct", "nov"],
+      "factor_agua": 1.2,
+      "caracteristica": "Seco y ventoso, preparación cultivos"
+    }
+  },
+  "camanchaca": {
+    "nota": "Tacna no tiene camanchaca costera. Humedad proviene de lluvias altiplánicas en verano.",
+    "meses_presencia": [],
+    "aporte_estimado_mm_dia": 0,
+    "reduccion_eto_pct": 0,
+    "info": "Sin neblina costera. Riego 100% artificial."
+  },
+  "fuentes": ["Open-Meteo Archive", "SENAMHI Perú", "NASA POWER"],
+  "eto_referencia_mm_dia": 4.8
+}

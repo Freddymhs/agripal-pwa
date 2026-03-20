@@ -1,0 +1,25 @@
+{
+  "nota": "ETo mensual promedio para Valle de Lluta (~812m, 18°24'S 69°59'W). Fuente: Open-Meteo Archive 2025.",
+  "eto_referencia_mm_dia": 4.2,
+  "mensual": {
+    "1": { "eto_mm_dia": 5.2, "label": "Enero" },
+    "2": { "eto_mm_dia": 4.9, "label": "Febrero" },
+    "3": { "eto_mm_dia": 4.6, "label": "Marzo" },
+    "4": { "eto_mm_dia": 3.9, "label": "Abril" },
+    "5": { "eto_mm_dia": 3.2, "label": "Mayo" },
+    "6": { "eto_mm_dia": 2.7, "label": "Junio" },
+    "7": { "eto_mm_dia": 3.0, "label": "Julio" },
+    "8": { "eto_mm_dia": 3.4, "label": "Agosto" },
+    "9": { "eto_mm_dia": 4.1, "label": "Septiembre" },
+    "10": { "eto_mm_dia": 4.8, "label": "Octubre" },
+    "11": { "eto_mm_dia": 5.2, "label": "Noviembre" },
+    "12": { "eto_mm_dia": 5.5, "label": "Diciembre" }
+  },
+  "camanchaca": {
+    "nota": "Valle Lluta con menor influencia de camanchaca. Más interior y árido.",
+    "meses_presencia": [6, 7, 8, 9],
+    "aporte_estimado_mm_dia": 0.3,
+    "reduccion_eto_pct": 6,
+    "info": "Potencial bajo de atrapanieblas comparado con valles costeros."
+  }
+}

@@ -1,0 +1,177 @@
+[
+  {
+    "precio_mayorista_id": "arica-tuna",
+    "demanda_local": "alta",
+    "competencia_local": "media",
+    "mercado_exportacion": false,
+    "notas": "Venta directa en feria y a intermediarios. Temporada dic-mar. Demanda constante en zona norte."
+  },
+  {
+    "precio_mayorista_id": "arica-olivo",
+    "demanda_local": "alta",
+    "competencia_local": "baja",
+    "mercado_exportacion": true,
+    "notas": "Aceite de oliva chileno con demanda creciente. Arica tiene potencial por bajo costo y clima. Aceitunas de mesa también."
+  },
+  {
+    "precio_mayorista_id": "arica-higuera",
+    "demanda_local": "media",
+    "competencia_local": "baja",
+    "mercado_exportacion": true,
+    "notas": "Higo seco tiene mercado gourmet. Fresco se vende bien en ferias. Doble cosecha anual."
+  },
+  {
+    "precio_mayorista_id": "arica-granada",
+    "demanda_local": "media",
+    "competencia_local": "baja",
+    "mercado_exportacion": true,
+    "notas": "Mercado gourmet y salud. Jugo de granada con alta demanda. Poca competencia nacional."
+  },
+  {
+    "precio_mayorista_id": "arica-algarrobo",
+    "demanda_local": "baja",
+    "competencia_local": "baja",
+    "mercado_exportacion": false,
+    "notas": "Nicho: harina de algarroba para repostería y alimento animal. Árbol rústico, bajo mantenimiento."
+  },
+  {
+    "precio_mayorista_id": "arica-pitahaya",
+    "demanda_local": "media",
+    "competencia_local": "muy_baja",
+    "mercado_exportacion": true,
+    "notas": "Fruta gourmet con demanda creciente en Santiago y exportación a Asia. Escasa oferta local. Precio premium en temporada ene-abr."
+  },
+  {
+    "precio_mayorista_id": "arica-guayaba",
+    "demanda_local": "media",
+    "competencia_local": "baja",
+    "mercado_exportacion": false,
+    "notas": "Consumo local y regional. Mercado pequeño pero sin competencia. Nicho jugos y mermeladas artesanales."
+  },
+  {
+    "precio_mayorista_id": "arica-datil-medjool",
+    "demanda_local": "media",
+    "competencia_local": "muy_baja",
+    "mercado_exportacion": true,
+    "notas": "Producto de alto valor con demanda en mercados gourmet y dietéticos. Importado principalmente desde Israel/Perú. Potencial de sustitución local."
+  },
+  {
+    "precio_mayorista_id": "arica-maracuya",
+    "demanda_local": "alta",
+    "competencia_local": "media",
+    "mercado_exportacion": false,
+    "notas": "Alta demanda de juguerías y coctelería. Producción local limitada. Temporada feb-jun con buenos precios. Competencia de importado peruano."
+  },
+  {
+    "precio_mayorista_id": "arica-uva-mesa-primor",
+    "demanda_local": "alta",
+    "competencia_local": "media",
+    "mercado_exportacion": true,
+    "notas": "Ventana de primor nov-ene con precios 30-50% superiores a temporada normal. Mercado Santiago y exportación. Requiere calibre y presentación de exportación."
+  },
+  {
+    "precio_mayorista_id": "arica-limon",
+    "demanda_local": "alta",
+    "competencia_local": "alta",
+    "mercado_exportacion": false,
+    "notas": "Precio bajo por alta oferta nacional. Ventaja competitiva de Arica solo si produce fuera de temporada central (abr-jun). Mercado local asegurado."
+  },
+  {
+    "precio_mayorista_id": "arica-mandarina-w-murcott",
+    "demanda_local": "alta",
+    "competencia_local": "media",
+    "mercado_exportacion": true,
+    "notas": "Variedad premium tardía con buenos precios en jun-sep cuando hay menor oferta. Exportación a Perú y Bolivia posible desde Arica."
+  },
+  {
+    "precio_mayorista_id": "arica-arandano-maceta",
+    "demanda_local": "alta",
+    "competencia_local": "muy_baja",
+    "mercado_exportacion": true,
+    "notas": "Precio premium. Demanda sostenida en supermercados y exportación. Producción contraestación ago-nov de Arica tiene ventaja. Poca oferta local."
+  },
+  {
+    "precio_mayorista_id": "arica-lucuma",
+    "demanda_local": "baja",
+    "competencia_local": "muy_baja",
+    "mercado_exportacion": true,
+    "notas": "Fruta superalimento con demanda internacional creciente. Polvo deshidratado tiene mejor valor agregado. Mercado local muy pequeño en Arica."
+  },
+  {
+    "precio_mayorista_id": "arica-zapote-blanco",
+    "demanda_local": "baja",
+    "competencia_local": "muy_baja",
+    "mercado_exportacion": false,
+    "notas": "Fruta poco conocida fuera de México y Perú. Mercado muy nicho. Precio compensatorio por escasez. Requiere trabajo de posicionamiento local."
+  },
+  {
+    "precio_mayorista_id": "arica-tomate-cherry",
+    "demanda_local": "alta",
+    "competencia_local": "media",
+    "mercado_exportacion": false,
+    "notas": "Alta demanda en supermercados y restaurantes. Temporada extendida en Arica (casi todo el año). Competencia de importado peruano en invierno."
+  },
+  {
+    "precio_mayorista_id": "arica-aji",
+    "demanda_local": "alta",
+    "competencia_local": "media",
+    "mercado_exportacion": false,
+    "notas": "Demanda constante en cocina local y nacional. Variedad morrón y ají rocoto con precios diferenciados. Temporada larga en clima cálido de Arica."
+  },
+  {
+    "precio_mayorista_id": "arica-choclo",
+    "demanda_local": "alta",
+    "competencia_local": "alta",
+    "mercado_exportacion": false,
+    "notas": "Consumo masivo. Precio bajo por alta competencia nacional. Ventaja de Arica: producción anticipada dic-feb antes del peak nacional. Mercado local asegurado."
+  },
+  {
+    "precio_mayorista_id": "arica-oregano",
+    "demanda_local": "media",
+    "competencia_local": "baja",
+    "mercado_exportacion": false,
+    "notas": "Orégano seco con precio premium. Demanda estable de restaurantes y distribuidores. Poca competencia local en Arica. Alto valor por kg y bajo consumo de agua."
+  },
+  {
+    "precio_mayorista_id": "arica-ajo",
+    "demanda_local": "alta",
+    "competencia_local": "media",
+    "mercado_exportacion": false,
+    "notas": "Demanda constante todo el año. Competencia de ajo importado de China y Argentina. Ajo nacional tiene mejor precio. Almacena bien post-cosecha."
+  },
+  {
+    "precio_mayorista_id": "arica-cebolla",
+    "demanda_local": "alta",
+    "competencia_local": "alta",
+    "mercado_exportacion": false,
+    "notas": "Consumo masivo con precio bajo. Alta competencia nacional. Solo viable en Arica si se produce en ventana oct-dic antes del peak. Mercado local asegurado."
+  },
+  {
+    "precio_mayorista_id": "arica-zapallo",
+    "demanda_local": "alta",
+    "competencia_local": "media",
+    "mercado_exportacion": false,
+    "notas": "Consumo popular. Precio estable. Clima seco de Arica reduce enfermedades fungosas. Buen almacenamiento post-cosecha. Variedad italiana más rentable."
+  },
+  {
+    "precio_mayorista_id": "arica-camote",
+    "demanda_local": "media",
+    "competencia_local": "baja",
+    "mercado_exportacion": false,
+    "notas": "Demanda creciente por tendencia saludable. Poca competencia local. Clima cálido de Arica ideal. Buen precio por nicho premium (orgánico). Fácil almacenamiento."
+  },
+  {
+    "precio_mayorista_id": "arica-romero",
+    "demanda_local": "media",
+    "competencia_local": "muy_baja",
+    "mercado_exportacion": false,
+    "notas": "Hierba aromática con precio alto por kg. Demanda de restaurantes y distribuidoras gourmet. Cultivo perenne de bajo mantenimiento. Muy poca oferta local."
+  },
+  {
+    "precio_mayorista_id": "arica-quinoa",
+    "demanda_local": "media",
+    "competencia_local": "baja",
+    "mercado_exportacion": true,
+    "notas": "Superalimento con demanda nacional e internacional creciente. Precio alto y estable. Altiplano de Arica tiene condiciones ideales. Mercado exportación disponible. Competencia de Bolivia/Perú."
+  }
+]

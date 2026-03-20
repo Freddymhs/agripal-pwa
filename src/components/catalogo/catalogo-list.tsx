@@ -6,22 +6,12 @@ import type { PrecioMayorista, MercadoDetalle } from "@/lib/data/tipos-mercado";
 import { useProjectContext } from "@/contexts/project-context";
 import type { CatalogoCultivo, UUID } from "@/types";
 import { formatCLP } from "@/lib/utils";
+import { esCultivoCompleto } from "@/lib/utils/helpers-cultivo";
 
 interface CatalogoListProps {
   cultivos: CatalogoCultivo[];
   onEditar: (cultivo: CatalogoCultivo) => void;
   onEliminar: (id: UUID) => void;
-}
-
-function esCultivoCompleto(
-  cultivo: CatalogoCultivo,
-  precios: PrecioMayorista[],
-  mercadoDetalle: MercadoDetalle[],
-): boolean {
-  if (!cultivo.cultivo_base_id) return false;
-  const precio = precios.find((p) => p.cultivo_id === cultivo.cultivo_base_id);
-  if (!precio) return false;
-  return mercadoDetalle.some((m) => m.precio_mayorista_id === precio.id);
 }
 
 export function CatalogoList({

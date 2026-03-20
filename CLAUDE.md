@@ -1,153 +1,47 @@
-# CLAUDE.md - AgriPlan PWA Context & Conventions
+# CLAUDE.md - AgriPlan PWA
 
-## Tech Stack
+## Arquitectura
 
-- **Framework**: Next.js 16 (App Router)
-- **Language**: TypeScript (Strict)
-- **Styling**: TailwindCSS 4
-- **State**: React Hooks (useState, useEffect, useCallback, useMemo)
-- **Persistence**: Supabase (PostgreSQL) + Supabase Auth
-- **PWA**: @ducanh2912/next-pwa
-- **Nota**: No hay capa de cache (TanStack Query, SWR, etc). Datos se cargan directo desde Supabase via hooks.
+- Flujo de datos: Componente → Hook → DAL → Supabase. Sin intermediarios ni cache layer.
+- Componentes renderizan. Hooks manejan lógica y estado. DAL accede a datos. No mezclar capas.
+- Un DAL por dominio. Devuelve tipos, nunca objetos crudos.
+- Serialización via funciones centralizadas del schema — columnas explícitas + bucket JSONB para el resto.
+- Toda columna SQL nueva → 4 pasos obligatorios: migración, schema, tipos TS, DAL.
 
-## Architecture
+## Convenciones elegidas
 
-- **Supabase-direct**: UI ↔ Supabase via DAL. Sin capa de cache intermedia.
-- **Data Model**: Defined in `src/types/index.ts`.
-- **Components**: Functional, composed, strictly typed props.
-- **Logic**: Custom hooks (`src/hooks/`) for logic separation.
+- **Sin librería de cache/fetching** (TanStack Query, SWR, etc). Fetching manual: `useState` + `useEffect` + `useCallback` → DAL.
+- **Mutaciones centralizadas**: toda escritura a BD pasa por un wrapper único que logea, refresca y maneja errores. Sin excepciones.
+- **Wrappers obligatorios**: timestamps y UUIDs siempre via funciones centralizadas. Prohibido `new Date().toISOString()` o `crypto.randomUUID()` inline.
+- **`eslint --fix` elimina disable comments** antes de evaluar. No usar `eslint-disable` como workaround — refactorizar.
+- **Prohibido `setState` dentro de `useEffect`**. Usar "adjusting state during render": comparar valor actual vs previo en body del componente.
+- **Prohibido mutar refs durante render**. Solo en effects o event handlers.
+- **Validar estado tras cambio de contexto**: si el usuario cambia de proyecto/entidad padre, verificar que IDs en estado local siguen existiendo en los nuevos datos. No asumir que un ID guardado sigue siendo válido tras refetch.
+- **Estabilizar refs en dependencias**: usar `useMemo(() => valor ?? default, [valor])` en lugar de `valor ?? default` inline en deps de otros hooks. Expresiones con fallback crean refs nuevas cada render.
 
-## Code Style Guidelines
+## Patrones de este proyecto
 
-- **Nombres**: `PascalCase` componentes, `camelCase` funciones/vars, `kebab-case` archivos.
-- **Tipos**: Interfaces explícitas, evitar `any`.
-- **Imports**: Absolutos con `@/` (e.g. `@/components/ui/button`).
-- **Comentarios**: Solo para lógica compleja ("Por qué", no "Qué").
-- **Exports**: Named exports preferidos para componentes.
+- **Datos globales vs per-proyecto**: las tablas `*_base` son globales (seed). Al crear un proyecto, triggers copian datos a tablas per-proyecto. La PWA lee ambas.
+- **Puente entre IDs**: las tablas per-proyecto tienen UUID propio + campo TEXT que preserva el ID global original. Para joins con tablas globales (precios, variedades, mercado) → usar el campo TEXT puente, nunca el UUID.
+- **Completitud de entidad**: una entidad necesita datos en múltiples tablas globales para estar "disponible". Existe un helper centralizado para validar esto — usarlo, no reimplementar inline.
+- **Seed data como cadena**: agregar una entidad nueva al seed requiere entradas en todos los archivos relacionados. Si falta uno, la entidad queda incompleta y no disponible.
 
-## Commands
+## Migraciones SQL
 
-- `pnpm dev` - Start dev server
-- `pnpm build` - Build for production
-- `pnpm lint` - Run linter
-- `pnpm type-check` - Run TypeScript compiler check
-- `pnpm db:reset` - Vacía todas las tablas + usuarios auth (solo dev)
-- `pnpm db:migrate` - Aplica migraciones SQL pendientes
-- `pnpm seed:base` - Puebla tablas globales (\_base, precios, mercado_detalle, config)
-- `pnpm seed` - (opcional) Crea proyecto piloto con datos de ejemplo
+- `IF NOT EXISTS` / `IF EXISTS` en todo DDL. Idempotencia obligatoria.
+- FK nueva → index. Trigger que copia base → proyecto → actualizar para incluir columna nueva.
+- Backfill de datos existentes → migración separada.
 
-## Reglas React / Next.js
+## Decisiones de UI
 
-### Componentes
+- Navegación primaria: solo acciones de uso diario. Todo lo demás en menú secundario.
+- Features nuevas: valor concreto al usuario, no satura interfaz, v1 mínima.
+- Componentes máx 400 líneas. Si supera → subcomponentes o hooks.
 
-- Máximo 400 líneas. Si supera, dividir en subcomponentes y/o hooks.
-- Hooks > HOC. HOC solo para librerías legacy o integraciones raras.
-- Prohibido usar `fetch`, `query` o `mutate` directamente en componentes UI.
+## Ubicación de datos
 
-### Reglas de Hooks estrictas (eslint react-hooks plugin)
-
-- **Prohibido `setState` dentro de `useEffect`** (`react-hooks/set-state-in-effect`). Usar el patrón React de "adjusting state during render": comparar prop actual vs estado previo en el body del componente y llamar `setState` condicionalmente. Ver: https://react.dev/reference/react/useState#storing-information-from-previous-renders
-- **Prohibido mutar refs durante render** (`react-hooks/refs`). Actualizar refs solo dentro de `useEffect` o event handlers.
-- **`eslint --fix` elimina disable comments**: lint-staged ejecuta `eslint --fix` que remueve `eslint-disable-next-line` antes de evaluar. No usar disable comments como workaround — refactorizar el código.
-
-### Data Layer (DAL)
-
-- APIs en `src/lib/dal/` por dominio (ej: `terrenosDAL`, `plantasDAL`).
-- Los DALs devuelven tipos/DTOs, nunca `any` ni objetos sueltos.
-- Base de datos: patrón Singleton (`supabase` client en `src/lib/supabase/client.ts`).
-- Serialización: usar `serializarParaSupabase()` / `deserializarDesdeSupabase()` de `src/lib/supabase/schema.ts` en todos los DAL.
-
-### Patrón único de data fetching y mutaciones
-
-- **Prohibido TanStack Query** y cualquier librería de cache/fetching externa.
-- **Fetching en hooks**: `useState` + `useEffect` + `useCallback` → DAL.
-- **Mutaciones siempre via `ejecutarMutacion()`** de `src/lib/helpers/dal-mutation.ts`. Wraps DAL call + refetch + logging. Sin excepciones.
-- **Error handling en mutaciones**: validación → retornar `{ error: string }`. Errores de DAL → `ejecutarMutacion` logea y hace throw.
-- **Timestamps**: siempre usar `getCurrentTimestamp()` de `@/lib/utils`. Prohibido `new Date().toISOString()` inline en hooks/componentes.
-- **UUIDs**: siempre usar `generateUUID()` de `@/lib/utils`.
-
-### Centralización obligatoria
-
-- **Constantes**: centralizar en `src/lib/constants/`. No hardcodear valores repetidos.
-- **Logger**: usar logger centralizado. Prohibido `console.log/warn/error` directo en código de producción.
-- **Funciones utilitarias**: antes de crear una función, verificar si ya existe en `src/lib/utils/`.
-
-### Migraciones SQL — Checklist obligatorio
-
-Cada vez que se agrega una columna nueva a Supabase, los 4 pasos son **todos obligatorios**:
-
-1. `supabase/migrations/` → nueva migración SQL con `ADD COLUMN IF NOT EXISTS`
-2. `src/lib/supabase/schema.ts` → agregar la columna en `COLUMNAS_EXPLICITAS[tabla]`
-3. `src/types/index.ts` → agregar el campo en la interfaz TypeScript correspondiente
-4. DAL correspondiente → actualizar queries si es necesario
-
-Reglas adicionales:
-
-- Toda columna FK nueva → **siempre** crear index (`CREATE INDEX IF NOT EXISTS`).
-- Usar `IF NOT EXISTS` / `IF EXISTS` en todos los DDL para idempotencia.
-- Si se dropea una columna con RLS policies, dropear la policy primero.
-
-### Regla crítica: cultivo_base_id
-
-- `catalogo_cultivos.id` es UUID (per-proyecto). `precios_mayoristas.cultivo_id` es TEXT (referencia `catalogo_base.id`).
-- Para vincular un cultivo del usuario con precios/mercado/variedades, SIEMPRE usar `cultivo.cultivo_base_id` (TEXT), NUNCA `cultivo.id` (UUID).
-- Ejemplo correcto: `precios.find((p) => p.cultivo_id === cultivo.cultivo_base_id)`
-- Lo mismo aplica para `variedades_base.cultivo_id` → match contra `cultivo_base_id`.
-
-### Error Handling
-
-- Todas las rutas deben tener su `error.tsx` con UX coherente.
-- Toda llamada a API pasa por `ejecutarMutacion` con manejo de errores y logging.
-
-### Testing (cuando esté implementado)
-
-- Unit (Vitest): obligatorio para lógica compleja.
-- E2E (Cypress): al menos un test por flujo crítico.
-- Bug fixes críticos: acompañar con test que falle antes del cambio.
-
-## Navegación
-
-- `NAV_ITEMS` (barra principal) solo para acciones de uso diario: Mapa, Agua, Economía, Alertas.
-- Todo lo demás va a `ADVANCED_ITEMS` (dropdown "Avanzado"). No saturar el nav primario.
-
-## Features nuevas
-
-- Antes de implementar un módulo nuevo: (a) analizar qué valor concreto le da al usuario, (b) verificar que no sature la interfaz existente (nav, páginas), (c) scopear v1 mínima — funcionalidad core primero, gráficos y avanzado en fase siguiente.
-
-## Dónde va cada dato
-
-- **Nunca cambia** (leyes físicas, fórmulas, umbrales científicos) → constante en código.
-- **Puede crecer o actualizarse** (catálogos, listas, entidades con nombre) → base de datos.
-- **Cada usuario lo personaliza** → tabla per-project, copiada automáticamente desde la base global.
-- **Aún no tiene tabla** → `data/pendiente/`, nunca importar en código de producción.
-
-Componentes nunca importan datos de catálogo desde archivos locales. Siempre desde la BD via hooks.
-
-## Sistema de Agua
-
-### Páginas principales
-
-- `/agua` - Gestión diaria del agua (cyan). Monitoreo real, entradas, consumo.
-- `/agua/planificador` - Planificador 12 meses (blue). Proyecciones, simulación.
-- `/economia` - Economía del cultivo. ROI, inversión, ingresos proyectados.
-
-### Kc (Coeficiente de Cultivo)
-
-- Multiplicador de consumo de agua según etapa de crecimiento.
-- Datos en `src/lib/data/kc-cultivos.ts` (25+ cultivos región Arica).
-- Etapas: plántula (Kc 0.4-0.5), joven (0.7-0.8), adulta (1.0-1.2), madura (0.8-0.9).
-
-### Duración Etapas
-
-- Datos en `src/lib/data/duracion-etapas.ts`.
-- Funciones: `calcularEtapaActual()`, `getDiasRestantesEtapa()`, `getDiasTotalesCultivo()`.
-
-### Alertas Automáticas
-
-- `src/lib/utils/alertas.ts` - Sistema de alertas críticas.
-- Tipos: agua_critica (<7 días), replanta_pendiente, lavado_salino (30 días), riesgo_encharcamiento.
-
-### Proyección Anual
-
-- `src/lib/utils/agua-proyeccion-anual.ts` - Proyección 12 meses.
-- Genera eventos: recargas, replantas, lavado, cosechas.
+- Inmutable (fórmulas, umbrales físicos) → constante en código.
+- Crece o se actualiza (catálogos, entidades) → base de datos.
+- Personalizable por usuario → tabla per-proyecto, copiada desde base global.
+- Sin tabla aún → carpeta pendiente, nunca importar en producción.
+- Componentes nunca importan datos de catálogo desde archivos locales.
