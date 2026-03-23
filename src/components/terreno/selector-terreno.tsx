@@ -14,6 +14,7 @@ interface SelectorTerrenoProps {
   onCrearTerreno: () => void;
   onGestionarTerrenos: () => void;
   readonly?: boolean;
+  readonlyProyecto?: boolean;
 }
 
 export function SelectorTerreno({
@@ -27,6 +28,7 @@ export function SelectorTerreno({
   onCrearTerreno,
   onGestionarTerrenos,
   readonly = false,
+  readonlyProyecto = false,
 }: SelectorTerrenoProps) {
   const [showProyectos, setShowProyectos] = useState(false);
   const [showTerrenos, setShowTerrenos] = useState(false);
@@ -36,16 +38,16 @@ export function SelectorTerreno({
       <div className="relative">
         <button
           onClick={
-            readonly
+            readonly || readonlyProyecto
               ? undefined
               : () => {
                   setShowProyectos(!showProyectos);
                   setShowTerrenos(false);
                 }
           }
-          disabled={readonly}
+          disabled={readonly || readonlyProyecto}
           className={`flex items-center gap-2 px-3 py-1.5 rounded text-sm transition-colors ${
-            readonly
+            readonly || readonlyProyecto
               ? "bg-green-700 cursor-default"
               : "bg-green-700 hover:bg-green-800"
           }`}
@@ -54,7 +56,7 @@ export function SelectorTerreno({
           <span className="font-medium">
             {proyectoActual?.nombre || "Seleccionar"}
           </span>
-          {!readonly && (
+          {!readonly && !readonlyProyecto && (
             <svg
               className="w-4 h-4"
               fill="none"
@@ -169,36 +171,42 @@ export function SelectorTerreno({
                   Terrenos de {proyectoActual.nombre}
                 </span>
               </div>
-              <div className="max-h-60 overflow-y-auto">
+              <div className="max-h-[70vh] overflow-y-auto">
                 {terrenos.length === 0 ? (
                   <div className="p-4 text-center text-gray-500 text-sm">
                     No hay terrenos en este proyecto
                   </div>
                 ) : (
-                  terrenos.map((t) => (
-                    <button
-                      key={t.id}
-                      onClick={() => {
-                        onSelectTerreno(t);
-                        setShowTerrenos(false);
-                      }}
-                      className={`w-full text-left px-4 py-2 hover:bg-gray-50 transition-colors ${
-                        terrenoActual?.id === t.id ? "bg-green-50" : ""
-                      }`}
-                    >
-                      <div className="flex justify-between items-start">
-                        <div className="font-medium text-gray-900">
-                          {t.nombre}
+                  [...terrenos]
+                    .sort(
+                      (a, b) =>
+                        new Date(b.created_at).getTime() -
+                        new Date(a.created_at).getTime(),
+                    )
+                    .map((t) => (
+                      <button
+                        key={t.id}
+                        onClick={() => {
+                          onSelectTerreno(t);
+                          setShowTerrenos(false);
+                        }}
+                        className={`w-full text-left px-4 py-2 hover:bg-gray-50 transition-colors ${
+                          terrenoActual?.id === t.id ? "bg-green-50" : ""
+                        }`}
+                      >
+                        <div className="flex justify-between items-start">
+                          <div className="font-medium text-gray-900">
+                            {t.nombre}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {t.area_m2} m²
+                          </div>
                         </div>
                         <div className="text-xs text-gray-500">
-                          {t.area_m2} m²
+                          {t.ancho_m}m × {t.alto_m}m
                         </div>
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        {t.ancho_m}m × {t.alto_m}m
-                      </div>
-                    </button>
-                  ))
+                      </button>
+                    ))
                 )}
               </div>
               <div className="p-2 border-t space-y-1">

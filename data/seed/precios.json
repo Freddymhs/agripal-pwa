@@ -9,7 +9,9 @@
     "tendencia": "estable",
     "precio_min_clp": 1111,
     "precio_max_clp": 1222,
-    "fuente": "odepa"
+    "fuente": "odepa",
+    "factor_precio_feria": 2.1,
+    "factor_precio_retail": 2.6
   },
   {
     "id": "arica-olivo",
@@ -21,7 +23,9 @@
     "precio_min_clp": 2500,
     "precio_max_clp": 3500,
     "tendencia": "estable",
-    "fuente": "estimado"
+    "fuente": "estimado",
+    "factor_precio_feria": 1.5,
+    "factor_precio_retail": 2.2
   },
   {
     "id": "arica-higuera",
@@ -33,7 +37,9 @@
     "tendencia": "estable",
     "precio_min_clp": 2200,
     "precio_max_clp": 2200,
-    "fuente": "odepa"
+    "fuente": "odepa",
+    "factor_precio_feria": 1.4,
+    "factor_precio_retail": 3.4
   },
   {
     "id": "arica-granada",
@@ -45,7 +51,9 @@
     "tendencia": "baja",
     "precio_min_clp": 2200,
     "precio_max_clp": 2200,
-    "fuente": "odepa"
+    "fuente": "odepa",
+    "factor_precio_feria": 1.6,
+    "factor_precio_retail": 2.5
   },
   {
     "id": "arica-algarrobo",
@@ -55,7 +63,9 @@
     "nombre_odepa": null,
     "precio_actual_clp": 1500,
     "tendencia": "estable",
-    "fuente": "investigacion"
+    "fuente": "investigacion",
+    "factor_precio_feria": 1.5,
+    "factor_precio_retail": 2.0
   },
   {
     "id": "arica-pitahaya",
@@ -67,7 +77,9 @@
     "precio_min_clp": 3800,
     "precio_max_clp": 4500,
     "tendencia": "alza",
-    "fuente": "estimado"
+    "fuente": "estimado",
+    "factor_precio_feria": 1.8,
+    "factor_precio_retail": 2.7
   },
   {
     "id": "arica-guayaba",
@@ -79,7 +91,9 @@
     "tendencia": "estable",
     "precio_min_clp": 1800,
     "precio_max_clp": 2000,
-    "fuente": "odepa"
+    "fuente": "odepa",
+    "factor_precio_feria": 1.6,
+    "factor_precio_retail": 2.1
   },
   {
     "id": "arica-datil-medjool",
@@ -89,7 +103,9 @@
     "nombre_odepa": null,
     "precio_actual_clp": 4500,
     "tendencia": "alza",
-    "fuente": "investigacion"
+    "fuente": "investigacion",
+    "factor_precio_feria": 1.1,
+    "factor_precio_retail": 1.2
   },
   {
     "id": "arica-maracuya",
@@ -101,7 +117,9 @@
     "tendencia": "estable",
     "precio_min_clp": 1900,
     "precio_max_clp": 2000,
-    "fuente": "odepa"
+    "fuente": "odepa",
+    "factor_precio_feria": 1.6,
+    "factor_precio_retail": 2.5
   },
   {
     "id": "arica-uva-mesa-primor",
@@ -113,7 +131,9 @@
     "tendencia": "estable",
     "precio_min_clp": 1167,
     "precio_max_clp": 1278,
-    "fuente": "odepa"
+    "fuente": "odepa",
+    "factor_precio_feria": 2.3,
+    "factor_precio_retail": 3.7
   },
   {
     "id": "arica-limon",
@@ -125,7 +145,9 @@
     "tendencia": "estable",
     "precio_min_clp": 1000,
     "precio_max_clp": 1042,
-    "fuente": "odepa"
+    "fuente": "odepa",
+    "factor_precio_feria": 1.3,
+    "factor_precio_retail": 2.0
   },
   {
     "id": "arica-mandarina-w-murcott",
@@ -137,7 +159,9 @@
     "tendencia": "estable",
     "precio_min_clp": 950,
     "precio_max_clp": 1000,
-    "fuente": "odepa"
+    "fuente": "odepa",
+    "factor_precio_feria": 1.8,
+    "factor_precio_retail": 2.8
   },
   {
     "id": "arica-arandano-maceta",
@@ -149,7 +173,9 @@
     "tendencia": "estable",
     "precio_min_clp": 3750,
     "precio_max_clp": 4000,
-    "fuente": "odepa"
+    "fuente": "odepa",
+    "factor_precio_feria": 3.0,
+    "factor_precio_retail": 4.9
   },
   {
     "id": "arica-lucuma",
@@ -161,7 +187,9 @@
     "precio_min_clp": 1600,
     "precio_max_clp": 2000,
     "tendencia": "alza",
-    "fuente": "estimado"
+    "fuente": "estimado",
+    "factor_precio_feria": 1.7,
+    "factor_precio_retail": 2.5
   },
   {
     "id": "arica-zapote-blanco",
@@ -171,7 +199,9 @@
     "nombre_odepa": null,
     "precio_actual_clp": 2000,
     "tendencia": "estable",
-    "fuente": "investigacion"
+    "fuente": "investigacion",
+    "factor_precio_feria": 1.5,
+    "factor_precio_retail": 2.0
   },
   {
     "id": "arica-tomate-cherry",
@@ -183,7 +213,9 @@
     "precio_min_clp": 800,
     "precio_max_clp": 1800,
     "tendencia": "estable",
-    "fuente": "odepa"
+    "fuente": "odepa",
+    "factor_precio_feria": 1.5,
+    "factor_precio_retail": 2.3
   },
   {
     "id": "arica-aji",
@@ -191,11 +223,13 @@
     "nombre": "Ají / Pimiento",
     "region": "arica",
     "nombre_odepa": "Ají",
-    "precio_actual_clp": 2200,
+    "precio_actual_clp": 1166,
     "precio_min_clp": 800,
     "precio_max_clp": 2500,
-    "tendencia": "alza",
-    "fuente": "odepa"
+    "tendencia": "estable",
+    "fuente": "odepa",
+    "factor_precio_feria": 1.7,
+    "factor_precio_retail": 2.6
   },
   {
     "id": "arica-choclo",
@@ -207,7 +241,9 @@
     "precio_min_clp": 500,
     "precio_max_clp": 1200,
     "tendencia": "estable",
-    "fuente": "odepa"
+    "fuente": "odepa",
+    "factor_precio_feria": 1.5,
+    "factor_precio_retail": 2.4
   },
   {
     "id": "arica-oregano",
@@ -219,7 +255,9 @@
     "precio_min_clp": 8000,
     "precio_max_clp": 12000,
     "tendencia": "estable",
-    "fuente": "investigacion"
+    "fuente": "investigacion",
+    "factor_precio_feria": 1.5,
+    "factor_precio_retail": 2.5
   },
   {
     "id": "arica-ajo",
@@ -227,11 +265,13 @@
     "nombre": "Ajo",
     "region": "arica",
     "nombre_odepa": "Ajo",
-    "precio_actual_clp": 3500,
-    "precio_min_clp": 3000,
-    "precio_max_clp": 5000,
+    "precio_actual_clp": 1850,
+    "precio_min_clp": 1500,
+    "precio_max_clp": 3500,
     "tendencia": "estable",
-    "fuente": "odepa"
+    "fuente": "odepa",
+    "factor_precio_feria": 2.2,
+    "factor_precio_retail": 3.2
   },
   {
     "id": "arica-cebolla",
@@ -239,11 +279,13 @@
     "nombre": "Cebolla",
     "region": "arica",
     "nombre_odepa": "Cebolla",
-    "precio_actual_clp": 700,
-    "precio_min_clp": 500,
-    "precio_max_clp": 1000,
+    "precio_actual_clp": 235,
+    "precio_min_clp": 200,
+    "precio_max_clp": 700,
     "tendencia": "estable",
-    "fuente": "odepa"
+    "fuente": "odepa",
+    "factor_precio_feria": 2.6,
+    "factor_precio_retail": 4.3
   },
   {
     "id": "arica-zapallo",
@@ -251,11 +293,13 @@
     "nombre": "Zapallo",
     "region": "arica",
     "nombre_odepa": "Zapallo",
-    "precio_actual_clp": 650,
+    "precio_actual_clp": 942,
     "precio_min_clp": 500,
-    "precio_max_clp": 900,
+    "precio_max_clp": 1200,
     "tendencia": "estable",
-    "fuente": "odepa"
+    "fuente": "odepa",
+    "factor_precio_feria": 1.3,
+    "factor_precio_retail": 2.1
   },
   {
     "id": "arica-camote",
@@ -263,11 +307,13 @@
     "nombre": "Camote / Batata",
     "region": "arica",
     "nombre_odepa": "Camote",
-    "precio_actual_clp": 900,
+    "precio_actual_clp": 1083,
     "precio_min_clp": 700,
     "precio_max_clp": 1300,
     "tendencia": "alza",
-    "fuente": "odepa"
+    "fuente": "odepa",
+    "factor_precio_feria": 1.4,
+    "factor_precio_retail": 2.3
   },
   {
     "id": "arica-romero",
@@ -279,7 +325,23 @@
     "precio_min_clp": 6000,
     "precio_max_clp": 10000,
     "tendencia": "estable",
-    "fuente": "investigacion"
+    "fuente": "investigacion",
+    "factor_precio_feria": 1.5,
+    "factor_precio_retail": 2.3
+  },
+  {
+    "id": "arica-mango",
+    "cultivo_id": "cultivo-mango",
+    "nombre": "Mango",
+    "region": "arica",
+    "nombre_odepa": "Mango",
+    "precio_actual_clp": 2062,
+    "precio_min_clp": 1900,
+    "precio_max_clp": 2200,
+    "tendencia": "estable",
+    "fuente": "odepa",
+    "factor_precio_feria": 1.1,
+    "factor_precio_retail": 1.4
   },
   {
     "id": "arica-quinoa",
@@ -291,6 +353,36 @@
     "precio_min_clp": 4000,
     "precio_max_clp": 8000,
     "tendencia": "alza",
-    "fuente": "odepa"
+    "fuente": "odepa",
+    "factor_precio_feria": 1.3,
+    "factor_precio_retail": 1.8
+  },
+  {
+    "id": "arica-melon-primor",
+    "cultivo_id": "verdura-melon-primor",
+    "nombre": "Melón Primor",
+    "region": "arica",
+    "nombre_odepa": "Melón",
+    "precio_actual_clp": 750,
+    "precio_min_clp": 600,
+    "precio_max_clp": 900,
+    "tendencia": "estable",
+    "fuente": "seed",
+    "factor_precio_feria": 1.4,
+    "factor_precio_retail": 1.8
+  },
+  {
+    "id": "arica-sandia-primor",
+    "cultivo_id": "verdura-sandia-primor",
+    "nombre": "Sandía Primor",
+    "region": "arica",
+    "nombre_odepa": "Sandía",
+    "precio_actual_clp": 600,
+    "precio_min_clp": 400,
+    "precio_max_clp": 800,
+    "tendencia": "estable",
+    "fuente": "seed",
+    "factor_precio_feria": 1.3,
+    "factor_precio_retail": 1.6
   }
 ]

@@ -367,11 +367,8 @@ async function seedPlanes(sb: SupabaseClient): Promise<void> {
 async function addFreddyWithSubscription(sb: SupabaseClient): Promise<void> {
   const email = "fmarcosdev@gmail.com";
 
-  const { data: existing } = await sb
-    .from("users")
-    .select("id")
-    .eq("email", email)
-    .maybeSingle();
+  const { data: usersData } = await sb.auth.admin.listUsers();
+  const existing = usersData?.users.some((u) => u.email === email);
 
   if (existing) {
     console.log(`  ✓ Freddy ya existe (skip)`);
@@ -411,15 +408,13 @@ async function addFreddyWithSubscription(sb: SupabaseClient): Promise<void> {
 /**
  * Usuario de prueba — trial de 6 meses activo, sin suscripción pagada.
  * El trigger ya crea el estado 'trialing' con 180 días. No se modifica.
+ * Se crea un proyecto de ejemplo con terreno y zonas genéricas.
  */
 async function addUsuarioPrueba(sb: SupabaseClient): Promise<void> {
   const email = "prueba@agriplan.cl";
 
-  const { data: existing } = await sb
-    .from("users")
-    .select("id")
-    .eq("email", email)
-    .maybeSingle();
+  const { data: usersData } = await sb.auth.admin.listUsers();
+  const existing = usersData?.users.some((u) => u.email === email);
 
   if (existing) {
     console.log(`  ✓ Usuario prueba ya existe (skip)`);
@@ -430,7 +425,7 @@ async function addUsuarioPrueba(sb: SupabaseClient): Promise<void> {
     email,
     password: "agriplan",
     email_confirm: true,
-    user_metadata: { full_name: "Usuario Prueba Compartido" },
+    user_metadata: { full_name: "Usuario Prueba" },
   });
   if (error) throw new Error(`addUsuarioPrueba: ${error.message}`);
 
@@ -442,11 +437,7 @@ async function addUsuarioPrueba(sb: SupabaseClient): Promise<void> {
 (async () => {
   try {
     console.log("\n[0] Verificando estado de la BD...");
-    const { data: freddyExists, error: checkError } = await supabase
-      .from("users")
-      .select("id")
-      .eq("email", "fmarcosdev@gmail.com")
-      .maybeSingle();
+    const { data: usersData, error: checkError } = await supabase.auth.admin.listUsers();
 
     if (checkError) {
       console.error(
@@ -456,6 +447,10 @@ async function addUsuarioPrueba(sb: SupabaseClient): Promise<void> {
       );
       process.exit(1);
     }
+
+    const freddyExists = usersData.users.some(
+      (u) => u.email === "fmarcosdev@gmail.com",
+    );
 
     if (freddyExists) {
       console.log(
@@ -469,37 +464,37 @@ async function addUsuarioPrueba(sb: SupabaseClient): Promise<void> {
     console.log("[2] Catalogo de cultivos");
     await seedCatalogoBase(supabase);
 
-    console.log("\n[2] Variedades");
+    console.log("\n[3] Variedades");
     await seedVariedades(supabase);
 
-    console.log("\n[3] Insumos");
+    console.log("\n[4] Insumos");
     await seedInsumos(supabase);
 
-    console.log("\n[4] Enmiendas de suelo");
+    console.log("\n[5] Enmiendas de suelo");
     await seedEnmiendas(supabase);
 
-    console.log("\n[5] Tecnicas de mejora");
+    console.log("\n[6] Tecnicas de mejora");
     await seedTecnicas(supabase);
 
-    console.log("\n[6] Clima");
+    console.log("\n[7] Clima");
     await seedClima(supabase);
 
-    console.log("\n[7] Fuentes de agua");
+    console.log("\n[8] Fuentes de agua");
     await seedFuentesAgua(supabase);
 
-    console.log("\n[8] Precios mayoristas");
+    console.log("\n[9] Precios mayoristas");
     await seedPrecios(supabase);
 
-    console.log("\n[9] Precios contexto (inteligencia de mercado)");
+    console.log("\n[10] Precios contexto (inteligencia de mercado)");
     await seedMercadoDetalle(supabase);
 
-    console.log("\n[10] Plan de suscripcion");
+    console.log("\n[11] Plan de suscripcion");
     await seedPlanes(supabase);
 
-    console.log("\n[11] Usuario Freddy Huaylla (suscripcion activa)");
+    console.log("\n[12] Usuario Freddy Huaylla (suscripcion activa)");
     await addFreddyWithSubscription(supabase);
 
-    console.log("\n[12] Usuario de prueba (trial 6 meses)");
+    console.log("\n[13] Usuario de prueba (trial 6 meses)");
     await addUsuarioPrueba(supabase);
 
     console.log(

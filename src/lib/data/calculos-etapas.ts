@@ -227,6 +227,30 @@ export const DURACION_ETAPAS: Record<
     adulta: 1095,
     madura: 2920,
   },
+  granada: {
+    plántula: 365,
+    joven: 730,
+    adulta: 730,
+    madura: 2190,
+  },
+  algarrobo: {
+    plántula: 365,
+    joven: 730,
+    adulta: 1825,
+    madura: 7300,
+  },
+  romero: {
+    plántula: 30,
+    joven: 60,
+    adulta: 365,
+    madura: 730,
+  },
+  camote: {
+    plántula: 20,
+    joven: 35,
+    adulta: 60,
+    madura: 25,
+  },
 };
 
 const DURACION_DEFAULT: Record<EtapaCrecimiento, number> = {

@@ -51,15 +51,16 @@ export const GUIA_SECCIONES: GuiaSeccionData[] = [
         scope: "Terreno",
       },
       {
-        id: "agua",
-        titulo: "Fuente de agua",
+        id: "clima",
+        titulo: "Clima de tu región",
         valor:
-          "El sistema calculará cuánta agua necesitas y te avisará si falta.",
+          "Los cálculos de agua usarán datos climáticos reales de tu zona.",
         comoFunciona:
-          "Configura de dónde viene tu agua (pozo, camión, canal), la calidad (boro, salinidad) y el tipo de riego (goteo, aspersión).",
-        ejemplo: "Pozo artesiano — boro 2.5 ppm — riego por goteo",
-        ruta: ROUTES.AGUA_CONFIGURACION,
-        rutaLabel: "Crear mi fuente de agua",
+          "Selecciona la región climática más cercana a tu terreno. Esto ajusta la evapotranspiración (ET0) y los factores estacionales de consumo de agua. Hazlo antes de configurar agua o plantar.",
+        ejemplo:
+          "Pampa Arica → ET0 alto, lluvias casi nulas, temporada seca todo el año.",
+        ruta: ROUTES.DATOS_CLIMA,
+        rutaLabel: "Elegir clima para mi proyecto",
         scope: "Proyecto",
       },
       {
@@ -76,25 +77,25 @@ export const GUIA_SECCIONES: GuiaSeccionData[] = [
         scope: "Terreno",
       },
       {
-        id: "clima",
-        titulo: "Clima de tu región",
+        id: "agua",
+        titulo: "Crear fuente de agua y proveedor",
         valor:
-          "Los cálculos de agua usarán datos climáticos reales de tu zona.",
+          "Tendrás registrada tu fuente de agua con su calidad, y un proveedor con el precio por m³ que te cobra.",
         comoFunciona:
-          "Selecciona la región climática más cercana a tu terreno. Esto ajusta la evapotranspiración (ET0) y los factores estacionales de consumo de agua.",
+          "Son dos cosas separadas: (1) Fuente de agua = de dónde viene (río, pozo, aljibe) y su calidad (boro, salinidad). La fuente NO tiene precio. (2) Proveedor = quién te vende el agua y a cuánto el m³. Pregúntale a tu proveedor cuánto cuesta el metro cúbico — ese dato es clave para que la economía sea precisa. Todavía no los asignas a nada — eso se hace después al configurar el estanque y la recarga.",
         ejemplo:
-          "Cada región tiene distinto ET0, temperatura y estacionalidad. Elige la más parecida a donde está tu terreno.",
-        ruta: ROUTES.DATOS_CLIMA,
-        rutaLabel: "Elegir clima para mi proyecto",
+          "Fuente: Río Azapa (subterránea, boro 2.1 ppm) — Proveedor: $2.000/m³",
+        ruta: ROUTES.AGUA_CONFIGURACION,
+        rutaLabel: "Configurar agua",
         scope: "Proyecto",
       },
       {
         id: "catalogo",
         titulo: "Catálogo de cultivos",
         valor:
-          "Tendrás fichas técnicas de 25+ cultivos calibrados para tu región.",
+          "Tendrás fichas técnicas de 26+ cultivos calibrados para tu región con precios ODEPA reales.",
         comoFunciona:
-          "Revisa las fichas con días a cosecha, consumo de agua, precio de mercado. Puedes editar o agregar cultivos propios.",
+          "Revisa las fichas con días a cosecha, consumo de agua (Kc por etapa), precio de mercado ODEPA y producción calibrada. Cada cultivo tiene coeficiente Kc específico, etapas de crecimiento y datos de plagas. Los precios se actualizan automáticamente desde ODEPA con protección contra valores anómalos. Puedes editar o agregar cultivos propios.",
         ejemplo: "Tuna → 90 días, Kc 0.5, $1.200/kg mayorista",
         ruta: ROUTES.DATOS_CATALOGO,
         rutaLabel: "Gestionar mi catálogo",
@@ -110,25 +111,156 @@ export const GUIA_SECCIONES: GuiaSeccionData[] = [
     pasos: [
       {
         id: "mapa",
-        titulo: "Diseñar en el mapa",
-        valor: "Verás tu finca completa con zonas, estanques y plantas.",
+        titulo: "Crear zonas, estanques y plantar",
+        valor:
+          "Organizarás tu terreno con áreas de cultivo, estanques de agua y plantas distribuidas.",
         comoFunciona:
-          "Dibuja zonas (cultivo, estanque, bodega) y planta en grilla automática. El sistema calcula espaciado según el cultivo. Si solo tienes un estanque, tus zonas de cultivo se vinculan automáticamente. Con varios estanques, abre el panel de cada zona y elige cuál la riega.",
-        ejemplo: "Zona A (tomate) — 45 plantas a 40 cm — regada por Estanque 1",
+          "Necesitas al menos una zona de cultivo, un estanque y plantas para continuar. Dibuja las zonas sobre el terreno, luego selecciona un cultivo del catálogo y planta — el sistema distribuye las plantas en grilla con el espaciado correcto.",
+        ejemplo: "Zona A (tuna) — 30 plantas a 3m — Estanque 30 m³",
         ruta: ROUTES.HOME,
         rutaLabel: "Abrir mapa",
         scope: "Terreno",
       },
       {
-        id: "riego",
-        titulo: "Controlar riego",
+        id: "fuente-estanque",
+        titulo: "Asignar fuente de agua al estanque",
         valor:
-          "Sabrás cuánta agua usaste y si estás regando de más o de menos.",
+          "El sistema verificará si tu agua es compatible con los cultivos que plantaste.",
         comoFunciona:
-          "Registra cada entrada de agua al estanque. El sistema descuenta el consumo diario automáticamente según tus cultivos.",
-        ejemplo: "Hoy regué 2 m³ → quedan 8 m³ (5 días)",
+          "Abre el panel del estanque en el mapa y selecciona la fuente de agua que lo abastece. El sistema evaluará boro, salinidad y pH contra los cultivos de tu terreno y te dirá si son compatibles.",
+        ejemplo:
+          "Estanque 1 → Fuente: Río Azapa (subterránea) — Compatible con Tuna, Pitahaya",
+        ruta: ROUTES.HOME,
+        rutaLabel: "Abrir mapa",
+        scope: "Terreno",
+      },
+      {
+        id: "recarga",
+        titulo: "Configurar recarga del estanque",
+        valor:
+          "El sistema proyectará tu consumo y te avisará antes de quedarte sin agua.",
+        comoFunciona:
+          "En la página de agua, configura la recarga de tu estanque: cada cuántos días llega agua y cuántos m³ por viaje. Aquí eliges el proveedor que creaste antes (su precio/m³ es el costo base del agua). Opcionalmente, agrega el costo de transporte/delivery por viaje — el sistema lo divide entre los m³ entregados. El costo total del agua = precio del proveedor + transporte amortizado. Si compartes el camión aljibe con otros, ingresa solo tu porción del flete.",
+        ejemplo:
+          "Cada 7 días — 1.5 m³ — Proveedor: Río Azapa ($2.000/m³) + transporte $6.438",
+        ruta: ROUTES.AGUA,
+        rutaLabel: "Configurar recarga",
+        scope: "Terreno",
+      },
+      {
+        id: "riego",
+        titulo: "Configurar riego por zona",
+        valor:
+          "Con este paso el sistema ya puede calcular la rentabilidad real de tus cultivos.",
+        comoFunciona:
+          "Selecciona tu zona de cultivo en el mapa y elige Configurar Riego. El sistema te muestra cuántos litros necesita cada planta según el cultivo. Define el tipo de riego (balde, goteo) y la frecuencia. Este es el último paso obligatorio — después de esto ya puedes ir a Economía y ver resultados reales.",
+        ejemplo:
+          "Pitahaya — 2 L/planta cada 7 días — 59 plantas = 118 L por sesión",
+        ruta: ROUTES.HOME,
+        rutaLabel: "Ir al mapa",
+        scope: "Zona",
+      },
+      {
+        id: "control-agua",
+        titulo: "Controlar agua día a día",
+        valor:
+          "Mantendrás tu estanque digital sincronizado con el real para anticipar cuándo pedir agua.",
+        comoFunciona:
+          "Opcional pero útil. Registra cada entrada de agua al estanque para que el sistema refleje tu nivel real. No afecta el cálculo de economía — solo te ayuda a saber cuántos días de agua te quedan y cuándo programar la próxima recarga.",
+        ejemplo: "Hoy cargué 1.5 m³ → quedan 3.7 m³ → alcanza 5 días",
         ruta: ROUTES.AGUA,
         rutaLabel: "Ver agua",
+        scope: "Proyecto",
+      },
+    ],
+  },
+  {
+    id: "analizar",
+    titulo: "Analizar",
+    subtitulo: "Tus resultados",
+    resultado:
+      "Sabes si tu terreno es rentable y tienes documentos para demostrarlo",
+    pasos: [
+      {
+        id: "economia",
+        titulo: "Ver economía",
+        valor:
+          "Sabrás si cada cultivo te deja ganancia o pérdida, con números claros.",
+        comoFunciona:
+          "El sistema cruza inversión (plantas + agua) con producción esperada y precio de mercado. Calcula ROI a 10 años, punto de equilibrio, costo efectivo del agua, precio break-even del agua y meses hasta primera cosecha. Usa coeficientes Kc calibrados por cultivo, factores de suelo (pH, salinidad, boro) y eficiencia de riego para proyecciones realistas.",
+        ejemplo: "Olivo → ROI 120%, recuperas inversión en 28 meses",
+        ruta: ROUTES.ECONOMIA,
+        rutaLabel: "Ver economía",
+        scope: "Proyecto",
+      },
+      {
+        id: "alertas",
+        titulo: "Recibir alertas",
+        valor: "No se te olvidará regar ni actuar ante problemas.",
+        comoFunciona:
+          "El sistema detecta problemas automáticamente: agua baja, salinidad, replantas, riesgo de plagas, alelopatía entre cultivos, vecería y fertilización por etapa. También verifica integridad de datos: detecta cultivos sin producción, sin precio, sin coeficiente Kc, costo de agua en $0 y precios anómalos por errores de conversión ODEPA. Si hay un dato faltante que hace mentir a los cálculos, te avisa.",
+        ejemplo:
+          "Agua para 5 días — Lavado salino pendiente — Choclo precio anómalo ($28.959/kg) — Cultivo sin Kc",
+        ruta: ROUTES.ALERTAS,
+        rutaLabel: "Ver alertas",
+        scope: "Proyecto",
+      },
+      {
+        id: "reportes",
+        titulo: "Descargar reportes PDF",
+        valor:
+          "Tendrás documentos listos para llevar al banco, INDAP o un asesor técnico.",
+        comoFunciona:
+          "Genera 3 informes descargables: financiero (inversión, ROI, proyección 5 años), hídrico (consumo, estanques, proyección 12 meses) y producción (cosechas reales vs proyectadas, calidad, ingresos).",
+        ejemplo:
+          "Reporte financiero → inversión $2.5M, ROI 340%, payback 18 meses",
+        ruta: ROUTES.REPORTES,
+        rutaLabel: "Ir a reportes",
+        scope: "Proyecto",
+      },
+    ],
+  },
+  {
+    id: "extras",
+    titulo: "Más herramientas",
+    subtitulo: "Cuando las necesites",
+    resultado: "Herramientas adicionales para optimizar tu operación",
+    pasos: [
+      {
+        id: "economia-avanzada",
+        titulo: "Economía avanzada",
+        valor:
+          "Conocerás el costo real por kilo, el margen de ganancia y cuánto necesitas vender para cubrir costos.",
+        comoFunciona:
+          "Analiza cada zona con métricas detalladas: costo de producción por kg, punto de equilibrio en kilos, margen de contribución y tiempo de recuperación de la inversión en meses.",
+        ejemplo: "Olivo → costo $350/kg, margen 65%, equilibrio con 120 kg/año",
+        ruta: ROUTES.ECONOMIA_AVANZADO,
+        rutaLabel: "Ver avanzado",
+        scope: "Proyecto",
+      },
+      {
+        id: "escenarios",
+        titulo: "Comparar cultivos",
+        valor:
+          "Evaluarás hasta 3 cultivos lado a lado antes de decidir qué sembrar.",
+        comoFunciona:
+          "Selecciona 2 o 3 cultivos y compara ROI, consumo de agua, días a cosecha, compatibilidad con tu suelo y riesgo de plagas. El sistema te recomienda la mejor opción para tu terreno.",
+        ejemplo:
+          "¿Tuna, olivo o higuera? → Olivo gana en ROI, tuna en velocidad",
+        ruta: ROUTES.ECONOMIA_ESCENARIOS,
+        rutaLabel: "Comparar cultivos",
+        scope: "Proyecto",
+      },
+      {
+        id: "planificador",
+        titulo: "Planificar temporada",
+        valor:
+          "Tendrás un plan claro de agua y eventos para los próximos 12 meses.",
+        comoFunciona:
+          "Proyección a 12 meses con nivel de agua esperado, eventos clave (recargas, cosechas, lavados) y costos acumulados.",
+        ejemplo: "Marzo déficit → programar recarga extra",
+        ruta: ROUTES.AGUA_PLANIFICADOR,
+        rutaLabel: "Abrir planificador",
         scope: "Proyecto",
       },
       {
@@ -165,101 +297,6 @@ export const GUIA_SECCIONES: GuiaSeccionData[] = [
           "Tomate en verano → Riesgo alto de mosca blanca — aplicar trampas amarillas",
         ruta: ROUTES.DATOS_PLAGAS,
         rutaLabel: "Ver plagas",
-        scope: "Proyecto",
-      },
-    ],
-  },
-  {
-    id: "analizar",
-    titulo: "Analizar",
-    subtitulo: "Revisa resultados",
-    resultado:
-      "Sabes si tu terreno es rentable y tienes documentos para demostrarlo",
-    pasos: [
-      {
-        id: "economia",
-        titulo: "Ver economía",
-        valor:
-          "Sabrás si cada cultivo te deja ganancia o pérdida, con números claros.",
-        comoFunciona:
-          "El sistema cruza inversión (plantas + agua) con producción esperada y precio de mercado. Calcula ROI a 4 años, punto de equilibrio y viabilidad por zona.",
-        ejemplo: "Olivo → ROI 340%, costo $350/kg, equilibrio en 18 meses",
-        ruta: ROUTES.ECONOMIA,
-        rutaLabel: "Ver economía",
-        scope: "Proyecto",
-      },
-      {
-        id: "economia-avanzada",
-        titulo: "Economía avanzada",
-        valor:
-          "Conocerás el costo real por kilo, el margen de ganancia y cuánto necesitas vender para cubrir costos.",
-        comoFunciona:
-          "Analiza cada zona con métricas detalladas: costo de producción por kg, punto de equilibrio en kilos, margen de contribución y tiempo de recuperación de la inversión en meses.",
-        ejemplo: "Olivo → costo $350/kg, margen 65%, equilibrio con 120 kg/año",
-        ruta: ROUTES.ECONOMIA_AVANZADO,
-        rutaLabel: "Ver avanzado",
-        scope: "Proyecto",
-      },
-      {
-        id: "escenarios",
-        titulo: "Comparar cultivos",
-        valor:
-          "Evaluarás hasta 3 cultivos lado a lado antes de decidir qué sembrar.",
-        comoFunciona:
-          "Selecciona 2 o 3 cultivos y compara ROI, consumo de agua, días a cosecha, compatibilidad con tu suelo y riesgo de plagas. El sistema te recomienda la mejor opción para tu terreno.",
-        ejemplo:
-          "¿Tuna, olivo o higuera? → Olivo gana en ROI, tuna en velocidad",
-        ruta: ROUTES.ECONOMIA_ESCENARIOS,
-        rutaLabel: "Comparar cultivos",
-        scope: "Proyecto",
-      },
-      {
-        id: "alertas",
-        titulo: "Recibir alertas",
-        valor: "No se te olvidará regar, fumigar ni cosechar a tiempo.",
-        comoFunciona:
-          "El sistema detecta problemas automáticamente: agua baja, salinidad acumulada, riesgo de plagas y replantas pendientes. Revisa las alertas activas y actúa según la prioridad.",
-        ejemplo:
-          "Agua para 5 días — Lavado salino pendiente — Replante en 2 semanas",
-        ruta: ROUTES.ALERTAS,
-        rutaLabel: "Ver alertas",
-        scope: "Proyecto",
-      },
-      {
-        id: "planificador",
-        titulo: "Planificar temporada",
-        valor:
-          "Tendrás un plan claro de qué sembrar, cuándo y dónde la próxima temporada.",
-        comoFunciona:
-          "Proyección a 12 meses con nivel de agua esperado, eventos clave (recargas, cosechas, lavados) y costos acumulados.",
-        ejemplo: "Marzo déficit → programar recarga extra",
-        ruta: ROUTES.AGUA_PLANIFICADOR,
-        rutaLabel: "Abrir planificador",
-        scope: "Proyecto",
-      },
-      {
-        id: "reportes",
-        titulo: "Descargar reportes PDF",
-        valor:
-          "Tendrás documentos listos para llevar al banco, INDAP o un asesor técnico.",
-        comoFunciona:
-          "Genera 3 informes descargables: financiero (inversión, ROI, proyección 4 años), hídrico (consumo, estanques, proyección 12 meses) y producción (cosechas reales vs proyectadas, calidad, ingresos).",
-        ejemplo:
-          "Reporte financiero → inversión $2.5M, ROI 340%, payback 18 meses",
-        ruta: ROUTES.REPORTES,
-        rutaLabel: "Ir a reportes",
-        scope: "Proyecto",
-      },
-      {
-        id: "configuracion",
-        titulo: "Configuración",
-        valor:
-          "Ajustarás preferencias generales y revisarás el estado de sincronización.",
-        comoFunciona:
-          "Gestiona tu cuenta, preferencias de la aplicación y verifica que tus datos estén sincronizados con la nube.",
-        ejemplo: "Última sincronización: hace 2 minutos — todo al día",
-        ruta: ROUTES.CONFIGURACION,
-        rutaLabel: "Ir a configuración",
         scope: "Proyecto",
       },
     ],

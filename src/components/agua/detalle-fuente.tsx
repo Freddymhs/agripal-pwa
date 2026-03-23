@@ -86,22 +86,10 @@ export function DetalleFuente({ fuente }: DetalleFuenteProps) {
         })}
       </div>
 
-      {(fuente.costo_m3_clp !== undefined || fuente.notas) && (
-        <div className="flex gap-4 pt-1 border-t border-gray-200">
-          {fuente.costo_m3_clp !== undefined && (
-            <div>
-              <p className="text-xs text-gray-500">Costo</p>
-              <p className="text-sm font-semibold text-gray-900">
-                ${fuente.costo_m3_clp.toLocaleString("es-CL")} /m³
-              </p>
-            </div>
-          )}
-          {fuente.notas && (
-            <div className="flex-1">
-              <p className="text-xs text-gray-500">Notas</p>
-              <p className="text-sm text-gray-700">{fuente.notas}</p>
-            </div>
-          )}
+      {fuente.notas && (
+        <div className="pt-1 border-t border-gray-200">
+          <p className="text-xs text-gray-500">Notas</p>
+          <p className="text-sm text-gray-700">{fuente.notas}</p>
         </div>
       )}
     </div>

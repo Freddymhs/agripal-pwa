@@ -4,7 +4,7 @@ import {
   serializarParaSupabase,
 } from "@/lib/supabase/schema";
 import { logger } from "@/lib/logger";
-import type { FuenteAgua, UUID } from "@/types";
+import type { FuenteAgua, UUID, ResumenPrecioHistorico } from "@/types";
 import type { Enmienda } from "@/lib/data/enmiendas-suelo";
 import type { TecnicaMejora } from "@/lib/data/tecnicas-mejora";
 import type { VariedadCultivo } from "@/lib/data/tipos-variedades";
@@ -255,6 +255,21 @@ export const baseDataDAL = {
     } catch (error) {
       logger.error("Error en deleteFuenteAgua", { error });
       throw error;
+    }
+  },
+
+  async getResumenPreciosHistoricos(
+    region: string,
+  ): Promise<ResumenPrecioHistorico[]> {
+    try {
+      const { data, error } = await supabase.rpc("resumen_precios_historicos", {
+        p_region: region,
+      });
+      if (error) throw error;
+      return (data ?? []) as ResumenPrecioHistorico[];
+    } catch (error) {
+      logger.error("Error en getResumenPreciosHistoricos", { error });
+      return [];
     }
   },
 };

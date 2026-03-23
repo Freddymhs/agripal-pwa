@@ -6,7 +6,7 @@ import { useMapContext } from "@/contexts/map-context";
 import { sesionesRiegoDAL, zonasDAL } from "@/lib/dal";
 import { ejecutarMutacion } from "@/lib/helpers/dal-mutation";
 import { useSesionesRiego } from "@/hooks/use-sesiones-riego";
-import { TIPO_RIEGO } from "@/lib/constants/entities";
+import { esRiegoManual } from "@/lib/constants/entities";
 import { LITROS_POR_M3 } from "@/lib/constants/conversiones";
 import {
   ScoreCalidadPanel,
@@ -76,8 +76,9 @@ export function ZonaCultivoPanel() {
     setShowGridModal,
   } = useMapContext();
 
-  const isManualRiego =
-    zonaSeleccionada?.configuracion_riego?.tipo === TIPO_RIEGO.MANUAL;
+  const isManualRiego = esRiegoManual(
+    zonaSeleccionada?.configuracion_riego?.tipo,
+  );
   const { sesiones: sesionesZona, refetch: refetchSesiones } = useSesionesRiego(
     zonaSeleccionada?.id,
     isManualRiego,
@@ -270,7 +271,6 @@ export function ZonaCultivoPanel() {
           const costoAguaM3 = obtenerCostoAguaPromedio(
             estanquesHook.estanques,
             terrenoActual,
-            fuentesAgua,
           );
           const roi = calcularROI(
             cultivoZona,

@@ -6,31 +6,51 @@ import {
 import type { Planta } from "@/types";
 
 const TABLA = "plantas";
+const PAGE_SIZE = 1000;
+
+/** Pagina automáticamente queries que pueden exceder el límite de 1000 filas de Supabase */
+async function fetchPaginado(
+  buildQuery: (
+    from: number,
+    to: number,
+  ) => PromiseLike<{
+    data: Record<string, unknown>[] | null;
+    error: { message: string } | null;
+  }>,
+): Promise<Planta[]> {
+  const all: Planta[] = [];
+  let offset = 0;
+  for (;;) {
+    const { data, error } = await buildQuery(offset, offset + PAGE_SIZE - 1);
+    if (error) throw error;
+    const rows = data ?? [];
+    for (const row of rows) {
+      all.push(deserializarDesdeSupabase<Planta>(row));
+    }
+    if (rows.length < PAGE_SIZE) break;
+    offset += PAGE_SIZE;
+  }
+  return all;
+}
 
 export const plantasDAL = {
   getAll: async (): Promise<Planta[]> => {
-    const { data, error } = await supabase.from(TABLA).select("*");
-    if (error) throw error;
-    return (data ?? []).map((row) => deserializarDesdeSupabase<Planta>(row));
+    return fetchPaginado((from, to) =>
+      supabase.from(TABLA).select("*").range(from, to),
+    );
   },
 
   getByZonaId: async (zonaId: string): Promise<Planta[]> => {
-    const { data, error } = await supabase
-      .from(TABLA)
-      .select("*")
-      .eq("zona_id", zonaId);
-    if (error) throw error;
-    return (data ?? []).map((row) => deserializarDesdeSupabase<Planta>(row));
+    return fetchPaginado((from, to) =>
+      supabase.from(TABLA).select("*").eq("zona_id", zonaId).range(from, to),
+    );
   },
 
   getByZonaIds: async (zonaIds: string[]): Promise<Planta[]> => {
     if (zonaIds.length === 0) return [];
-    const { data, error } = await supabase
-      .from(TABLA)
-      .select("*")
-      .in("zona_id", zonaIds);
-    if (error) throw error;
-    return (data ?? []).map((row) => deserializarDesdeSupabase<Planta>(row));
+    return fetchPaginado((from, to) =>
+      supabase.from(TABLA).select("*").in("zona_id", zonaIds).range(from, to),
+    );
   },
 
   countByZonaIds: async (zonaIds: string[]): Promise<number> => {

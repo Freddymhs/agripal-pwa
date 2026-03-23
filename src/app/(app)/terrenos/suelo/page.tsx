@@ -18,6 +18,8 @@ import { logger } from "@/lib/logger";
 import type { SueloTerreno } from "@/types";
 import { ESTADO_PLANTA } from "@/lib/constants/entities";
 
+const SUELO_VACIO: SueloTerreno = { fisico: {}, quimico: {} };
+
 const COLORES_COMPAT = {
   compatible: "text-green-700 bg-green-50",
   limitado: "text-yellow-700 bg-yellow-50",
@@ -57,6 +59,7 @@ export default function SueloPage() {
   );
   const [guardando, setGuardando] = useState(false);
   const [guardado, setGuardado] = useState(false);
+  const [confirmandoLimpiar, setConfirmandoLimpiar] = useState(false);
   const guardadoTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -86,6 +89,19 @@ export default function SueloPage() {
     },
     [proyectoActual, actualizarSueloProyecto],
   );
+
+  const handleLimpiar = useCallback(async () => {
+    if (!proyectoActual) return;
+    setGuardando(true);
+    setGuardado(false);
+    setSueloOverride(SUELO_VACIO);
+    await actualizarSueloProyecto(SUELO_VACIO);
+    setGuardando(false);
+    setGuardado(true);
+    setConfirmandoLimpiar(false);
+    if (guardadoTimer.current) clearTimeout(guardadoTimer.current);
+    guardadoTimer.current = setTimeout(() => setGuardado(false), 2500);
+  }, [proyectoActual, actualizarSueloProyecto]);
 
   const cultivosActivos = useMemo(() => {
     const ids = new Set<string>();
@@ -203,6 +219,34 @@ export default function SueloPage() {
                 <span className="text-sm text-green-700 font-medium">
                   ✓ Guardado
                 </span>
+              )}
+              {confirmandoLimpiar ? (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-red-700">
+                    Borrar todos los datos de suelo?
+                  </span>
+                  <button
+                    onClick={handleLimpiar}
+                    disabled={guardando}
+                    className="px-3 py-1.5 bg-red-600 text-white rounded text-sm font-medium hover:bg-red-700 disabled:opacity-50 transition-colors"
+                  >
+                    Confirmar
+                  </button>
+                  <button
+                    onClick={() => setConfirmandoLimpiar(false)}
+                    className="px-3 py-1.5 bg-gray-200 text-gray-700 rounded text-sm font-medium hover:bg-gray-300 transition-colors"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setConfirmandoLimpiar(true)}
+                  disabled={guardando || !terreno}
+                  className="px-4 py-2 bg-white text-red-600 border border-red-300 rounded font-medium hover:bg-red-50 disabled:opacity-50 transition-colors"
+                >
+                  Limpiar
+                </button>
               )}
               <button
                 onClick={() => suelo && handleChange(suelo)}

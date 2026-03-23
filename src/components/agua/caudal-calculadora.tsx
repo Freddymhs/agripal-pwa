@@ -21,11 +21,20 @@ export function CaudalCalculadora({
     caudalPorGoteroInicial ?? GOTEROS_DEFAULT.caudal_lh_por_gotero,
   );
 
+  const caudalEstimado =
+    goterosPorPlanta * caudalPorGotero * (numPlantasZona || 0);
+
   return (
-    <div className="mt-2 border rounded-md p-2 bg-gray-50 space-y-2">
-      <div className="grid grid-cols-3 gap-2 items-end">
-        <div>
-          <label className="block text-[11px] text-gray-600 mb-1">
+    <div className="mt-3 border border-gray-200 rounded-lg bg-gray-50 overflow-hidden">
+      <div className="px-3 py-2 bg-gray-100 border-b border-gray-200">
+        <p className="text-xs font-semibold text-gray-700">
+          Calculadora de caudal
+        </p>
+      </div>
+      <div className="p-3 space-y-3">
+        {/* Fila 1: Goteros por planta */}
+        <div className="flex items-center justify-between gap-3">
+          <label className="text-xs text-gray-600 shrink-0">
             Goteros por planta
           </label>
           <input
@@ -35,67 +44,78 @@ export function CaudalCalculadora({
             onChange={(e) =>
               setGoterosPorPlanta(Math.max(1, Number(e.target.value)))
             }
-            className="w-full px-2 py-1 border rounded text-xs"
+            className="w-20 px-2 py-1.5 border rounded text-sm text-center"
           />
         </div>
-        <div>
-          <label className="block text-[11px] text-gray-600 mb-1">
+
+        {/* Fila 2: L/h por gotero + quick select */}
+        <div className="flex items-center justify-between gap-3">
+          <label className="text-xs text-gray-600 shrink-0">
             L/h por gotero
           </label>
-          <input
-            type="number"
-            min={0.1}
-            step={0.1}
-            value={caudalPorGotero}
-            onChange={(e) =>
-              setCaudalPorGotero(Math.max(0.1, Number(e.target.value)))
-            }
-            className="w-full px-2 py-1 border rounded text-xs"
-          />
-          <div className="flex gap-1 mt-1">
-            {[2, 4, 8].map((v) => (
-              <button
-                key={v}
-                type="button"
-                onClick={() => setCaudalPorGotero(v)}
-                className={`px-1.5 py-0.5 text-[10px] rounded ${caudalPorGotero === v ? "bg-blue-500 text-white" : "bg-gray-100 hover:bg-gray-200 text-gray-600"}`}
-              >
-                {v} L/h
-              </button>
-            ))}
+          <div className="flex items-center gap-2">
+            <div className="flex gap-1">
+              {[2, 4, 8].map((v) => (
+                <button
+                  key={v}
+                  type="button"
+                  onClick={() => setCaudalPorGotero(v)}
+                  className={`w-9 py-1 text-xs rounded-md font-medium transition-colors ${caudalPorGotero === v ? "bg-blue-500 text-white shadow-sm" : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-100"}`}
+                >
+                  {v}
+                </button>
+              ))}
+            </div>
+            <input
+              type="number"
+              min={0.1}
+              step={0.1}
+              value={caudalPorGotero}
+              onChange={(e) =>
+                setCaudalPorGotero(Math.max(0.1, Number(e.target.value)))
+              }
+              className="w-20 px-2 py-1.5 border rounded text-sm text-center"
+            />
           </div>
         </div>
-        <div>
-          <label className="block text-[11px] text-gray-600 mb-1">
-            Nº plantas
+
+        {/* Fila 3: Nº plantas (solo lectura) */}
+        <div className="flex items-center justify-between gap-3">
+          <label className="text-xs text-gray-600 shrink-0">
+            Plantas en zona
           </label>
-          <div className="px-2 py-1 border rounded text-xs bg-white">
+          <div className="w-20 px-2 py-1.5 border rounded text-sm text-center bg-white text-gray-500">
             {numPlantasZona ?? 0}
           </div>
         </div>
+
+        {/* Resultado + botón */}
+        <div className="border-t border-gray-200 pt-3">
+          {!numPlantasZona || numPlantasZona <= 0 ? (
+            <p className="text-xs text-amber-600">
+              Agrega plantas a esta zona para calcular el caudal.
+            </p>
+          ) : (
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-lg font-bold text-gray-800">
+                  {caudalEstimado.toLocaleString()} L/h
+                </div>
+                <p className="text-[11px] text-gray-400">
+                  {goterosPorPlanta} × {caudalPorGotero} × {numPlantasZona}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => onUsarCaudal(caudalEstimado)}
+                className="px-4 py-2 text-xs rounded-lg bg-blue-500 text-white font-medium hover:bg-blue-600 transition-colors"
+              >
+                Usar este caudal
+              </button>
+            </div>
+          )}
+        </div>
       </div>
-      <div className="flex justify-between items-center">
-        <p className="text-[11px] text-gray-500">
-          Caudal estimado = goteros × L/h × plantas.
-        </p>
-        <button
-          type="button"
-          disabled={!numPlantasZona || numPlantasZona <= 0}
-          onClick={() =>
-            onUsarCaudal(
-              goterosPorPlanta * caudalPorGotero * (numPlantasZona || 0),
-            )
-          }
-          className="px-2 py-1 text-[11px] rounded bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-40 disabled:cursor-not-allowed"
-        >
-          Usar este caudal
-        </button>
-      </div>
-      {(!numPlantasZona || numPlantasZona <= 0) && (
-        <p className="text-[11px] text-amber-600">
-          Agrega plantas a esta zona primero para poder calcular el caudal.
-        </p>
-      )}
     </div>
   );
 }

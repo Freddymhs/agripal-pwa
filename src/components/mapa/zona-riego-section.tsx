@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { Zona, Planta, CatalogoCultivo, SesionRiego, UUID } from "@/types";
-import { TIPO_RIEGO } from "@/lib/constants/entities";
+import { TIPO_RIEGO, esRiegoManual } from "@/lib/constants/entities";
 import { DIAS_POR_SEMANA } from "@/lib/constants/conversiones";
 import {
   calcularConsumoZona,
@@ -128,17 +128,40 @@ export function ZonaRiegoSection({
                 <span className="font-medium">
                   {zona.configuracion_riego.tipo === TIPO_RIEGO.MANUAL
                     ? "🚿 Válvula manual"
-                    : zona.configuracion_riego.tipo === TIPO_RIEGO.PROGRAMADO
-                      ? "⏰ Programado"
-                      : "💧 Continuo 24/7"}
+                    : zona.configuracion_riego.tipo === TIPO_RIEGO.BALDE
+                      ? "🪣 Riego por balde"
+                      : zona.configuracion_riego.tipo === TIPO_RIEGO.PROGRAMADO
+                        ? "⏰ Programado"
+                        : "💧 Continuo 24/7"}
                 </span>
               </div>
-              <div className="flex justify-between">
-                <span>Caudal:</span>
-                <span className="font-medium">
-                  {zona.configuracion_riego.caudal_total_lh} L/h
-                </span>
-              </div>
+              {zona.configuracion_riego.tipo === TIPO_RIEGO.BALDE ? (
+                zona.configuracion_riego.litros_por_planta != null && (
+                  <div className="flex justify-between">
+                    <span>Litros/planta:</span>
+                    <span className="font-medium">
+                      {zona.configuracion_riego.litros_por_planta} L
+                    </span>
+                  </div>
+                )
+              ) : (
+                <div className="flex justify-between">
+                  <span>Caudal:</span>
+                  <span className="font-medium">
+                    {zona.configuracion_riego.caudal_total_lh} L/h
+                  </span>
+                </div>
+              )}
+              {esRiegoManual(zona.configuracion_riego.tipo) &&
+                zona.configuracion_riego.frecuencia_dias != null &&
+                zona.configuracion_riego.frecuencia_dias > 1 && (
+                  <div className="flex justify-between">
+                    <span>Frecuencia:</span>
+                    <span className="font-medium">
+                      Cada {zona.configuracion_riego.frecuencia_dias} días
+                    </span>
+                  </div>
+                )}
               {zona.configuracion_riego.tipo === TIPO_RIEGO.PROGRAMADO && (
                 <div className="flex justify-between">
                   <span>Horario:</span>
@@ -158,7 +181,7 @@ export function ZonaRiegoSection({
                 </div>
               )}
             </div>
-            {zona.configuracion_riego.tipo === TIPO_RIEGO.MANUAL &&
+            {esRiegoManual(zona.configuracion_riego.tipo) &&
               onRegistrarSesion &&
               estanqueZona &&
               terrenoId && (
@@ -232,6 +255,8 @@ export function ZonaRiegoSection({
           zona={zona}
           estanque={estanqueZona}
           terrenoId={terrenoId}
+          consumoRecomendadoLDia={consumoRecLDia}
+          numPlantas={plantasVivas.length}
           onGuardar={onRegistrarSesion}
           onCerrar={() => setShowSesionModal(false)}
         />

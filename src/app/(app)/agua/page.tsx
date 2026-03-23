@@ -303,6 +303,7 @@ export default function AguaPage() {
         <ConfigurarAguaModal
           estanque={estanqueActual}
           consumoSemanal={consumoEstanqueActual}
+          proveedores={terreno?.agua_avanzada?.proveedores ?? []}
           onGuardar={async (config) => {
             if (!estanqueActual?.estanque_config) return;
 
@@ -341,12 +342,14 @@ export default function AguaPage() {
                 zonasDAL.update(estanqueActual.id, {
                   estanque_config: {
                     ...configFresca,
+                    proveedor_id:
+                      config.proveedor_id ?? configFresca.proveedor_id,
                     recarga: {
                       frecuencia_dias: config.frecuencia_dias,
                       cantidad_litros: config.cantidad_litros,
                       ultima_recarga: now,
                       proxima_recarga: proximaRecarga,
-                      costo_recarga_clp: config.costo_recarga_clp,
+                      costo_transporte_clp: config.costo_transporte_clp,
                     },
                   },
                   updated_at: now,

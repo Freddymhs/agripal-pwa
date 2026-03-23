@@ -12,12 +12,22 @@ export const catalogoDAL = {
   getByProyectoId: async (proyectoId: string): Promise<CatalogoCultivo[]> => {
     const { data, error } = await supabase
       .from(TABLA)
-      .select("*")
+      .select("*, catalogo_cultivos_config(tipo, origen)")
       .eq("proyecto_id", proyectoId);
     if (error) throw error;
-    return (data ?? []).map((row) =>
-      deserializarDesdeSupabase<CatalogoCultivo>(row),
-    );
+    return (data ?? []).map((row) => {
+      const configRaw = row.catalogo_cultivos_config;
+      const config = Array.isArray(configRaw) ? configRaw[0] : configRaw;
+      const rowSinConfig = Object.fromEntries(
+        Object.entries(row as Record<string, unknown>).filter(
+          ([k]) => k !== "catalogo_cultivos_config",
+        ),
+      );
+      return deserializarDesdeSupabase<CatalogoCultivo>({
+        ...rowSinConfig,
+        tipo: (config as { tipo?: string } | null)?.tipo ?? undefined,
+      });
+    });
   },
 
   countByProyectoId: async (proyectoId: string): Promise<number> => {

@@ -78,7 +78,7 @@ const estanqueFixture: Zona = {
       cantidad_litros: 5000,
       ultima_recarga: "2025-01-01T00:00:00Z",
       proxima_recarga: "2025-01-08T00:00:00Z",
-      costo_recarga_clp: 2500,
+      costo_transporte_clp: 2500,
     },
   },
   created_at: "2025-01-01T00:00:00Z",
@@ -143,7 +143,6 @@ describe("generarProyeccionAnual", () => {
       [zonaFixture],
       [plantaFixture],
       [cultivoFixture],
-      [],
     );
     expect(result.meses).toHaveLength(12);
   });
@@ -154,7 +153,6 @@ describe("generarProyeccionAnual", () => {
       [zonaFixture],
       [plantaFixture],
       [cultivoFixture],
-      [],
     );
     expect(result.resumen).toBeDefined();
     expect(typeof result.resumen.consumoTotalAnual).toBe("number");
@@ -169,7 +167,6 @@ describe("generarProyeccionAnual", () => {
       [zonaFixture],
       [plantaFixture],
       [cultivoFixture],
-      [],
     );
     const primerMes = result.meses[0];
     expect(primerMes.mes).toBe(0);
@@ -183,7 +180,7 @@ describe("generarProyeccionAnual", () => {
   });
 
   it("maneja terreno sin zonas ni plantas", () => {
-    const result = generarProyeccionAnual(terrenoFixture, [], [], [], []);
+    const result = generarProyeccionAnual(terrenoFixture, [], [], []);
     expect(result.meses).toHaveLength(12);
     expect(result.resumen.consumoTotalAnual).toBeGreaterThanOrEqual(0);
     expect(result.eventos).toHaveLength(0);
@@ -195,7 +192,6 @@ describe("generarProyeccionAnual", () => {
       [zonaFixture, estanqueFixture],
       [plantaFixture],
       [cultivoFixture],
-      [],
     );
     const tieneRecargaPositiva = result.meses.some((m) => m.recargas > 0);
     expect(tieneRecargaPositiva).toBe(true);
@@ -207,7 +203,6 @@ describe("generarProyeccionAnual", () => {
       [zonaFixture, estanqueFixture],
       [plantaFixture],
       [cultivoFixture],
-      [],
     );
     const eventosRecarga = result.eventos.filter((e) => e.tipo === "recarga");
     expect(eventosRecarga.length).toBeGreaterThan(0);
@@ -224,7 +219,6 @@ describe("generarProyeccionAnual", () => {
       [zonaFixture],
       [plantaReciente],
       [cultivoFixture],
-      [],
     );
     const eventosCosecha = result.eventos.filter((e) => e.tipo === "cosecha");
     expect(eventosCosecha.length).toBeGreaterThan(0);
@@ -241,7 +235,6 @@ describe("generarProyeccionAnual", () => {
       [zonaFixture],
       [plantaMuerta],
       [cultivoFixture],
-      [],
     );
     const eventosReplanta = result.eventos.filter((e) => e.tipo === "replanta");
     const eventosCosecha = result.eventos.filter((e) => e.tipo === "cosecha");
@@ -255,7 +248,6 @@ describe("generarProyeccionAnual", () => {
       [zonaFixture, estanqueFixture],
       [plantaFixture],
       [cultivoFixture],
-      [],
     );
 
     for (let i = 1; i < result.eventos.length; i++) {
@@ -271,7 +263,6 @@ describe("generarProyeccionAnual", () => {
       [zonaFixture],
       [plantaFixture],
       [cultivoFixture],
-      [],
     );
 
     for (const mes of result.meses) {
@@ -285,7 +276,6 @@ describe("generarProyeccionAnual", () => {
       [zonaFixture, estanqueFixture],
       [plantaFixture],
       [cultivoFixture],
-      [],
     );
     const eventosLavado = result.eventos.filter((e) => e.tipo === "lavado");
     expect(eventosLavado.length).toBeGreaterThan(0);
@@ -297,7 +287,6 @@ describe("generarProyeccionAnual", () => {
       [zonaFixture],
       [plantaFixture],
       [cultivoFixture],
-      [],
     );
     expect(result.meses[0].nivelInicio).toBe(20);
   });

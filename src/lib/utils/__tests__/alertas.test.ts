@@ -132,7 +132,7 @@ const estanqueFixture: Zona = {
       cantidad_litros: 5000,
       ultima_recarga: "2024-11-01T00:00:00Z",
       proxima_recarga: "2025-01-15T00:00:00Z",
-      costo_recarga_clp: 2500,
+      costo_transporte_clp: 2500,
     },
   },
   created_at: "2025-01-01T00:00:00Z",

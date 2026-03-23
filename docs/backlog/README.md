@@ -134,24 +134,26 @@ Cada archivo FASE_X.md incluye esta tarea de integración al final.
 | 16         | ✅     | 100%     | Registro de Cosechas (UI)                    | 🟡 MEDIA      |
 | **17**     | ✅     | 100%     | Reportes y Exportación PDF                   | 🟡 MEDIA      |
 | ~~18~~     | ❌     | —        | ~~Calendario de Eventos (duplicado UX)~~     | 🟢 DESCARTADO |
-| 19         | 🔄     | 70%      | Integraciones API Externas (Clima + Precios) | 🔴 CRÍTICA    |
+| 19         | ✅     | 100%     | Integraciones API Externas (Clima + Precios) | 🔴 CRÍTICA    |
+| **22**     | ❌     | —        | Offline-First PowerSync                      | 🟢 DESCARTADO |
+| **23**     | ⏳     | 30%      | Feedback Loop: El Agricultor Sabe Si Va Bien | 🔴 ALTA       |
 | **FINAL**  | ⏳     | 0%       | Historial de Cambios (UI)                    | 🟢 BAJA       |
 | **LAUNCH** | ⏳     | 0%       | Checklist de Lanzamiento (dominio, GSC, SEO) | 🟢 BAJA       |
 
-**Total fases**: 41 (38 completadas, 1 en progreso, 2 pendientes)
+**Total fases**: 43 (39 completadas, 1 parcial, 2 pendientes, 2 descartadas)
 
 ---
 
 ## 📍 Actual
 
-**Fase actual:** FASE_19 en progreso (~70%) — API NestJS funcional (clima + precios ODEPA + plaguicidas + recomendaciones INIA + directorio). Integración API→Supabase→PWA conectada para clima_base y precios_mayoristas. Pendiente: desplegar API en producción + actualizar precios_mayoristas_config desde cron.
+**Fase actual:** FASE_23 en progreso (30%) — base implementada: `precio_agua_break_even`, dual pricing feria/mayorista, ROI 10 años. Pendiente: ROI inline en zona (Mejora A), calculadora inversa proveedor (B), semáforo explicativo /economia (C), wizard creación terreno (D).
 
-**Completadas (38)**: Estructura, Tipos, Mapa, Zonas, Plantas, Selección Múltiple, Gestión Proyectos/Terrenos, Terreno Avanzado, Panel Clima, Panel Suelo, Agua Avanzada, Motor Recomendación, Catálogo Cultivos, Estanques (8A), Control Agua, Multi-Estanque (8B), Alertas y Dashboard, PWA y Sync Offline, Performance PixiJS, Mejoras UX/Agua/Datos, Autenticación JWT Mock, Segmentación UX Agua, Dashboard + Planificador, Economía/Escenarios/Plagas/Datos/Fixes (11D), Datos Agronómicos (20), Insumos (21), Bugs UX (15B), Auth Supabase (12), Landing SEO (12B), Contenido SEO (12C), TanStack Audit (12D), Backend Supabase (13), Bugs Testing Retroactivos (15C), Billing MercadoPago (14), Homepage SSG (15), Cosechas (16), PDF (17)
+**Completadas (39)**: Estructura, Tipos, Mapa, Zonas, Plantas, Selección Múltiple, Gestión Proyectos/Terrenos, Terreno Avanzado, Panel Clima, Panel Suelo, Agua Avanzada, Motor Recomendación, Catálogo Cultivos, Estanques (8A), Control Agua, Multi-Estanque (8B), Alertas y Dashboard, PWA y Sync Offline, Performance PixiJS, Mejoras UX/Agua/Datos, Autenticación JWT Mock, Segmentación UX Agua, Dashboard + Planificador, Economía/Escenarios/Plagas/Datos/Fixes (11D), Datos Agronómicos (20), Insumos (21), Bugs UX (15B), Auth Supabase (12), Landing SEO (12B), Contenido SEO (12C), TanStack Audit (12D), Backend Supabase (13), Bugs Testing Retroactivos (15C), Billing MercadoPago (14), Homepage SSG (15), Cosechas (16), PDF (17), **Integraciones API (19)**
 
-**En progreso (1)**: APIs externas (19) ~70%
+**En progreso (1)**: Feedback Loop (23) ~30%
 **Pendientes (2)**: Historial → Launch Checklist
 
-**Descartada (1)**: Calendario (18) — duplicado UX respecto a /agua/planificador
+**Descartadas (2)**: Calendario (18) — duplicado UX. Offline PowerSync (22) — validar necesidad real primero.
 
 **Objetivo:** Transformar AgriPlan en un SaaS con backend real y sistema de suscripciones.
 
@@ -366,7 +368,8 @@ pnpm type-check   # TypeScript check
 4. ✅ **COMPLETADA (100%)**: Billing MercadoPago (FASE_14) — checkout, webhook, middleware guard, UI, SubscriptionBadge
 5. ✅ **COMPLETADA (100%)**: Homepage SSG (FASE_15) — tests arquitectónicos + docs/architecture.md
 6. ✅ **COMPLETADA (100%)**: Cosechas (FASE_16) — DAL, hook, página, formulario, historial
-7. 🔄 **EN PROGRESO**: APIs externas (FASE_19) ~70% — API NestJS funcional, integración Supabase conectada. Pendiente: deploy + config sync.
-8. ⏳ **SIGUIENTE**: Historial → Launch
+7. ✅ **COMPLETADA (100%)**: APIs externas (FASE_19) — tabla `precios_mayoristas`, cron ODEPA 6h, ROI refactorizado con `cultivo_base_id` como puente. Deploy pendiente pero integración funcional.
+8. 🔄 **EN PROGRESO**: Feedback Loop (FASE_23) ~30% — `precio_agua_break_even`, dual pricing feria/mayorista implementados. Pendiente: Mejoras A, B, C, D.
+9. ⏳ **SIGUIENTE**: Historial → Launch
 
 **Objetivo:** Convertir AgriPlan en un SaaS funcional con suscripciones mensuales de 9,990 CLP.

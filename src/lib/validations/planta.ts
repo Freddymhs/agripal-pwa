@@ -10,6 +10,7 @@ import {
   ETAPAS_LIST,
   TIPO_ZONA,
 } from "@/lib/constants/entities";
+import { MARGEN_BORDE_MINIMO_M } from "@/lib/constants/conversiones";
 import { distancia, clamp } from "@/lib/utils/math";
 import type { ValidationResult } from "./types";
 
@@ -36,7 +37,7 @@ export function validarNuevaPlanta(
   }
 
   const espaciado = cultivo.espaciado_recomendado_m;
-  const margenBorde = espaciado / 2;
+  const margenBorde = MARGEN_BORDE_MINIMO_M;
 
   const distIzquierda = posicion.x;
   const distDerecha = zona.ancho - posicion.x;
@@ -89,7 +90,7 @@ export function calcularGridParams(
   zona: Zona,
   espaciado: number,
 ): GridParams | null {
-  const margenBorde = espaciado / 2;
+  const margenBorde = MARGEN_BORDE_MINIMO_M;
 
   const anchoDisponible = zona.ancho - margenBorde * 2;
   const altoDisponible = zona.alto - margenBorde * 2;

@@ -109,6 +109,12 @@ const NAV_GROUPS: DropdownGroup[] = [
         description: "¿Tuna, olivo o higuera? Compara ROI",
       },
       {
+        href: ROUTES.GANTT,
+        label: "Calendario Gantt",
+        icon: "📅",
+        description: "Cosechas e ingresos mes a mes",
+      },
+      {
         href: ROUTES.ALERTAS,
         label: "Alertas",
         icon: "🔔",

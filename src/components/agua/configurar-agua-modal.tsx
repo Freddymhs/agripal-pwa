@@ -1,17 +1,19 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import type { Zona } from "@/types";
+import type { Zona, ProveedorAgua } from "@/types";
 import { calcularPreviewRecarga } from "@/lib/utils/agua";
 import { LITROS_POR_M3 } from "@/lib/constants/conversiones";
 
 interface ConfigurarAguaModalProps {
   estanque: Zona;
   consumoSemanal: number;
+  proveedores?: ProveedorAgua[];
   onGuardar: (config: {
     frecuencia_dias: number;
     cantidad_litros: number;
-    costo_recarga_clp?: number;
+    costo_transporte_clp?: number;
+    proveedor_id?: string;
   }) => Promise<void>;
   onQuitar?: () => Promise<void>;
   onCerrar: () => void;
@@ -20,6 +22,7 @@ interface ConfigurarAguaModalProps {
 export function ConfigurarAguaModal({
   estanque,
   consumoSemanal,
+  proveedores = [],
   onGuardar,
   onQuitar,
   onCerrar,
@@ -36,8 +39,11 @@ export function ConfigurarAguaModal({
       ? config.recarga.cantidad_litros / LITROS_POR_M3
       : Math.min(15, capacidadM3),
   );
-  const [costoRecarga, setCostoRecarga] = useState<number | "">(
-    config?.recarga?.costo_recarga_clp || "",
+  const [costoTransporte, setCostoTransporte] = useState<number | "">(
+    config?.recarga?.costo_transporte_clp || "",
+  );
+  const [proveedorId, setProveedorId] = useState<string>(
+    config?.proveedor_id || "",
   );
   const [guardando, setGuardando] = useState(false);
   const tieneRecargaExistente = !!config?.recarga;
@@ -60,7 +66,8 @@ export function ConfigurarAguaModal({
       await onGuardar({
         frecuencia_dias: frecuenciaDias,
         cantidad_litros: cantidadM3 * 1000,
-        costo_recarga_clp: costoRecarga || undefined,
+        costo_transporte_clp: costoTransporte || undefined,
+        proveedor_id: proveedorId || undefined,
       });
       onCerrar();
     } finally {
@@ -160,9 +167,32 @@ export function ConfigurarAguaModal({
               )}
             </div>
 
+            {proveedores.length > 0 && (
+              <div>
+                <label className="block text-sm font-medium mb-1.5 text-gray-700">
+                  Proveedor de agua
+                </label>
+                <select
+                  value={proveedorId}
+                  onChange={(e) => setProveedorId(e.target.value)}
+                  className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-cyan-500 text-gray-900"
+                >
+                  <option value="">Sin proveedor asignado</option>
+                  {proveedores.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.nombre}
+                      {p.precio_m3_clp
+                        ? ` ($${p.precio_m3_clp.toLocaleString()}/m³)`
+                        : ""}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
             <div>
               <label className="block text-sm font-medium mb-1.5 text-gray-700">
-                Costo por recarga (opcional)
+                Costo de transporte/delivery (opcional)
               </label>
               <div className="flex gap-2">
                 <span className="px-3 py-2 bg-gray-100 rounded text-gray-600">
@@ -170,21 +200,25 @@ export function ConfigurarAguaModal({
                 </span>
                 <input
                   type="number"
-                  value={costoRecarga}
+                  value={costoTransporte}
                   onChange={(e) =>
-                    setCostoRecarga(
+                    setCostoTransporte(
                       e.target.value ? Number(e.target.value) : "",
                     )
                   }
                   min={0}
                   step={1000}
-                  placeholder="Ej: 7500"
+                  placeholder="Ej: 3500"
                   className="flex-1 px-3 py-2 border rounded focus:ring-2 focus:ring-cyan-500 text-gray-900"
                 />
                 <span className="px-3 py-2 bg-gray-100 rounded text-gray-600">
                   CLP
                 </span>
               </div>
+              <p className="text-[11px] text-gray-400 mt-1">
+                Gasolina o costo de flete por este viaje. Se divide por los m³
+                entregados.
+              </p>
             </div>
           </div>
 

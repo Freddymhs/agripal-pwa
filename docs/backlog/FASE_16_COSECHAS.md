@@ -1,6 +1,6 @@
 # FASE 16: Registro de Cosechas (UI)
 
-**Status**: ⏳ PENDIENTE
+**Status**: ✅ COMPLETADA — 2026-03-21
 **Prioridad**: 🟡 MEDIA
 **Dependencias**: FASE_12 (Supabase DB — tabla `cosechas` en PostgreSQL)
 **Estimación**: 3-4 horas

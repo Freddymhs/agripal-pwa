@@ -20,7 +20,6 @@ const ESTADO_INICIAL = {
   boro_ppm: undefined as number | undefined,
   arsenico_mg_l: undefined as number | undefined,
   ph: undefined as number | undefined,
-  costo_m3_clp: undefined as number | undefined,
   notas: "",
 };
 
@@ -44,7 +43,6 @@ export function CrearFuenteForm({ onCrear, onCancelar }: CrearFuenteFormProps) {
         boro_ppm: fuente.boro_ppm,
         arsenico_mg_l: fuente.arsenico_mg_l,
         ph: fuente.ph,
-        costo_m3_clp: fuente.costo_m3_clp,
         notas: fuente.notas.trim() || undefined,
       });
     } finally {
@@ -56,8 +54,6 @@ export function CrearFuenteForm({ onCrear, onCancelar }: CrearFuenteFormProps) {
     setFuente({ ...fuente, ...patch });
 
   const parseNum = (val: string) => (val === "" ? undefined : parseFloat(val));
-
-  const parseInt_ = (val: string) => (val === "" ? undefined : parseInt(val));
 
   const tieneAnalisis =
     fuente.salinidad_dS_m !== undefined ||
@@ -202,31 +198,15 @@ export function CrearFuenteForm({ onCrear, onCancelar }: CrearFuenteFormProps) {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-2">
-        <div>
-          <label className="block text-xs text-gray-500 mb-0.5">
-            Costo (CLP/m³)
-          </label>
-          <input
-            type="number"
-            value={fuente.costo_m3_clp ?? ""}
-            onChange={(e) =>
-              updateField({ costo_m3_clp: parseInt_(e.target.value) })
-            }
-            placeholder="0 si es gratis"
-            className="w-full px-2 py-1.5 border rounded text-sm text-gray-900"
-          />
-        </div>
-        <div>
-          <label className="block text-xs text-gray-500 mb-0.5">Notas</label>
-          <input
-            type="text"
-            value={fuente.notas}
-            onChange={(e) => updateField({ notas: e.target.value })}
-            placeholder="Observaciones..."
-            className="w-full px-2 py-1.5 border rounded text-sm text-gray-900"
-          />
-        </div>
+      <div>
+        <label className="block text-xs text-gray-500 mb-0.5">Notas</label>
+        <input
+          type="text"
+          value={fuente.notas}
+          onChange={(e) => updateField({ notas: e.target.value })}
+          placeholder="Observaciones..."
+          className="w-full px-2 py-1.5 border rounded text-sm text-gray-900"
+        />
       </div>
 
       <button

@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { baseDataDAL } from "@/lib/dal";
 import { logger } from "@/lib/logger";
-import type { FuenteAgua, UUID } from "@/types";
+import type { FuenteAgua, ResumenPrecioHistorico, UUID } from "@/types";
 import type { Enmienda } from "@/lib/data/enmiendas-suelo";
 import type { TecnicaMejora } from "@/lib/data/tecnicas-mejora";
 import type { VariedadCultivo } from "@/lib/data/tipos-variedades";
@@ -18,6 +18,7 @@ export interface DatosBase {
   variedades: VariedadCultivo[];
   precios: PrecioMayorista[];
   mercadoDetalle: MercadoDetalle[];
+  resumenHistoricos: ResumenPrecioHistorico[];
 }
 
 const DATOS_BASE_VACIOS: DatosBase = {
@@ -28,6 +29,7 @@ const DATOS_BASE_VACIOS: DatosBase = {
   variedades: [],
   precios: [],
   mercadoDetalle: [],
+  resumenHistoricos: [],
 };
 
 export function useDatosBase(proyectoId: UUID | null) {
@@ -57,7 +59,10 @@ export function useDatosBase(proyectoId: UUID | null) {
         ]);
 
       const preciosIds = precios.map((p) => p.id);
-      const mercadoDetalle = await baseDataDAL.getMercadoDetalle(preciosIds);
+      const [mercadoDetalle, resumenHistoricos] = await Promise.all([
+        baseDataDAL.getMercadoDetalle(preciosIds),
+        baseDataDAL.getResumenPreciosHistoricos("Región de Arica y Parinacota"),
+      ]);
 
       setDatosBase({
         enmiendas,
@@ -67,6 +72,7 @@ export function useDatosBase(proyectoId: UUID | null) {
         variedades,
         precios,
         mercadoDetalle,
+        resumenHistoricos,
       });
     } catch (err) {
       const e =

@@ -57,20 +57,20 @@ export function PageLayout({
   const tieneEstanque =
     projectCtx?.zonas?.some((z) => z.tipo === TIPO_ZONA.ESTANQUE) ?? null;
 
-  // Selector readonly automático cuando la página no lo pasa como headerContext
+  // Selector con terreno interactivo (permite cambiar terreno desde cualquier página)
   const selectorReadonly =
     !headerContext && projectCtx?.proyectoActual ? (
       <SelectorTerreno
-        readonly
         proyectos={projectCtx.proyectos}
         terrenos={projectCtx.terrenos}
         proyectoActual={projectCtx.proyectoActual}
         terrenoActual={projectCtx.terrenoActual}
         onSelectProyecto={() => {}}
-        onSelectTerreno={() => {}}
+        onSelectTerreno={projectCtx.handleSelectTerreno}
         onCrearProyecto={() => {}}
         onCrearTerreno={() => {}}
         onGestionarTerrenos={() => {}}
+        readonlyProyecto
       />
     ) : null;
 

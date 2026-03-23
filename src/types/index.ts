@@ -261,13 +261,14 @@ export interface ConfiguracionRecarga {
   cantidad_litros: number;
   ultima_recarga: Timestamp;
   proxima_recarga: Timestamp;
-  costo_recarga_clp?: number;
+  costo_transporte_clp?: number;
 }
 
 export interface EstanqueConfig {
   capacidad_m3: MetrosCubicos;
   nivel_actual_m3: MetrosCubicos;
   fuente_id?: string;
+  proveedor_id?: string;
   costo_por_m3?: number;
   material?: MaterialEstanque;
   tiene_tapa?: boolean;
@@ -304,7 +305,8 @@ export type EtapaCrecimiento = "plántula" | "joven" | "adulta" | "madura";
 export type TipoSistemaRiego =
   | "continuo_24_7"
   | "programado"
-  | "manual_sesiones";
+  | "manual_sesiones"
+  | "manual_balde";
 
 export interface ConfiguracionRiego {
   tipo: TipoSistemaRiego;
@@ -312,6 +314,10 @@ export interface ConfiguracionRiego {
   horas_dia?: number;
   horario_inicio?: string;
   horario_fin?: string;
+  /** Cada cuántos días riega (1 = diario, 7 = semanal). Solo aplica a manual/balde. */
+  frecuencia_dias?: number;
+  /** Litros por planta por sesión. Solo aplica a manual_balde. */
+  litros_por_planta?: number;
 }
 
 export interface SesionRiego {
@@ -380,10 +386,19 @@ export interface PlantProduction {
   produccion_kg_ha_año2: number;
   produccion_kg_ha_año3: number;
   produccion_kg_ha_año4: number;
+  produccion_kg_ha_año5?: number;
   vida_util_dias: number;
 }
 
 export type ToleranciaHeladas = "alta" | "media" | "baja" | "nula";
+
+export type PerfilCalidad = "basico" | "estandar" | "premium";
+
+export interface CalidadPrecios {
+  primera: number;
+  segunda: number;
+  tercera: number;
+}
 export type ViabilidadProyecto =
   | "mejor_opcion"
   | "recomendado"
@@ -444,6 +459,33 @@ export interface CatalogoCultivo {
   kc_adulta?: number;
   kc_madura?: number;
 
+  /** Kc mensual — array 12 elementos [ENE..DIC]. Almacenado en datos JSONB. */
+  kc_mensual?: number[];
+
+  /** Etapas fenológicas del cultivo (del seed). Almacenado en datos JSONB. */
+  etapas_fenologicas?: Array<{
+    nombre: string;
+    meses: number[];
+    descripcion: string;
+  }>;
+
+  /** Podas programadas. Almacenado en datos JSONB. */
+  poda?: Array<{
+    tipo: string;
+    epoca: string;
+    descripcion: string;
+  }>;
+
+  /** Nutrición anual del cultivo. Almacenado en datos JSONB. */
+  nutricion?: {
+    n_kg_ha_año?: number;
+    p_kg_ha_año?: number;
+    k_kg_ha_año?: number;
+    aplicaciones_año?: number;
+    timing?: string;
+    notas?: string;
+  };
+
   temperatura_base_C?: number;
   grados_dia_etapas?: {
     plantula: number;
@@ -456,6 +498,14 @@ export interface CatalogoCultivo {
   notas_arica?: string;
 
   recomendacion?: 1 | 2 | 3;
+
+  /** Tipo del cultivo: fruta | verdura | aromatica | grano. Viene de catalogo_cultivos_config via JOIN. */
+  tipo?: string;
+
+  /** Si el cultivo admite estratificación por calidad (1ª/2ª/3ª). Aromáticas secas no aplican. */
+  aplica_calidad?: boolean;
+  /** Multiplicadores de precio por categoría, override del default en conversiones.ts */
+  calidad_precios?: CalidadPrecios;
 
   created_at: Timestamp;
   updated_at: Timestamp;
@@ -494,6 +544,16 @@ export interface Cosecha {
   lastModified?: Timestamp;
 }
 
+export interface ResumenPrecioHistorico {
+  nombre_odepa: string;
+  meses_con_datos: number;
+  precio_kg_promedio: number;
+  precio_kg_min: number;
+  precio_kg_max: number;
+  ultimo_precio_kg: number;
+  fecha_mas_reciente: string;
+}
+
 export type TipoAlerta =
   | "deficit_agua"
   | "agua_critica"
@@ -516,7 +576,13 @@ export type TipoAlerta =
   | "suelo_sin_analisis"
   | "clima_no_configurado"
   | "sin_proveedor_agua"
-  | "sin_sesiones_recientes";
+  | "sin_sesiones_recientes"
+  | "costo_agua_cero"
+  | "cultivo_sin_produccion"
+  | "cultivo_sin_precio"
+  | "cultivo_sin_kc"
+  | "precio_anomalo"
+  | "proveedor_sin_precio";
 
 export interface NutricionEtapa {
   etapa: string;
@@ -651,7 +717,6 @@ export interface FuenteAgua {
   boro_ppm?: number;
   arsenico_mg_l?: number;
   ph?: number;
-  costo_m3_clp?: number;
   notas?: string;
 }
 

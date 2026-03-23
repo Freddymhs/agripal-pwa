@@ -70,7 +70,7 @@ function calcularROIsPorZona(
   consumoSemanal: number;
 }> {
   const estanques = filtrarEstanques(zonas);
-  const costoAguaM3 = obtenerCostoAguaPromedio(estanques, terreno, fuentesAgua);
+  const costoAguaM3 = obtenerCostoAguaPromedio(estanques, terreno);
   const zonasConCultivo = zonas.filter((z) => z.tipo === TIPO_ZONA.CULTIVO);
   const resultados: Array<{
     zona: Zona;
@@ -265,14 +265,13 @@ export function useReportes(params: UseReportesParams): UseReportes {
         };
       });
 
-      const costoM3 = obtenerCostoAguaPromedio(estanques, terreno, fuentesAgua);
+      const costoM3 = obtenerCostoAguaPromedio(estanques, terreno);
 
       const proyeccion = generarProyeccionAnual(
         terreno,
         zonas,
         plantas,
         catalogoCultivos,
-        fuentesAgua,
       );
 
       generarReporteAgua({
@@ -299,7 +298,6 @@ export function useReportes(params: UseReportesParams): UseReportes {
     zonas,
     plantas,
     catalogoCultivos,
-    fuentesAgua,
     opcionesConsumoAgua,
     generando,
   ]);

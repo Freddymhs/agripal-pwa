@@ -3,6 +3,7 @@ import type { ProyeccionROI } from "./roi";
 import {
   COSTO_VARIABLE_FACTOR,
   COSTO_VARIABLE_FALLBACK_FACTOR,
+  AÑOS_AMORTIZACION_PLANTAS,
 } from "@/lib/constants/conversiones";
 import { calcularPrecioKgPromedio } from "@/lib/utils/helpers-cultivo";
 
@@ -14,6 +15,9 @@ export interface MetricasEconomicas {
   precioVentaKg: number;
   costoVariableKg: number;
   kgProducidosAño: number;
+  costoAguaAnual: number;
+  costoPlantasAmortizado: number;
+  costoTotalAnual: number;
 }
 
 export function calcularMetricasEconomicas(
@@ -21,7 +25,8 @@ export function calcularMetricasEconomicas(
   cultivo: CatalogoCultivo,
   kgProducidosAño: number,
 ): MetricasEconomicas {
-  const costoTotalAnual = roi.costo_agua_anual;
+  const costoPlantasAmortizado = roi.costo_plantas / AÑOS_AMORTIZACION_PLANTAS;
+  const costoTotalAnual = roi.costo_agua_anual + costoPlantasAmortizado;
   const precioVenta = calcularPrecioKgPromedio(cultivo);
   const costoVariable =
     cultivo.costo_variable_kg ??
@@ -40,7 +45,7 @@ export function calcularMetricasEconomicas(
     precioVenta > 0 ? (margenUnitario / precioVenta) * 100 : 0;
 
   const ingresoNetoMensual =
-    roi.ingreso_año2 > 0 ? (roi.ingreso_año2 - roi.costo_agua_anual) / 12 : 0;
+    roi.ingreso_año2 > 0 ? (roi.ingreso_año2 - costoTotalAnual) / 12 : 0;
   const tiempoRecuperacionMeses =
     ingresoNetoMensual > 0 && roi.inversion_total > 0
       ? Math.ceil(roi.inversion_total / ingresoNetoMensual)
@@ -55,5 +60,8 @@ export function calcularMetricasEconomicas(
     precioVentaKg: precioVenta,
     costoVariableKg: costoVariable,
     kgProducidosAño,
+    costoAguaAnual: roi.costo_agua_anual,
+    costoPlantasAmortizado,
+    costoTotalAnual,
   };
 }

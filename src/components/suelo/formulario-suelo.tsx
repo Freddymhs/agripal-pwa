@@ -34,10 +34,19 @@ const DRENAJES: { value: DrenajeSuelo; label: string }[] = [
 ];
 
 export function FormularioSuelo({ suelo, onChange }: FormularioSueloProps) {
-  const [fisico, setFisico] = useState(suelo?.fisico || {});
-  const [quimico, setQuimico] = useState(suelo?.quimico || {});
+  const [fisico, setFisicoRaw] = useState(suelo?.fisico || {});
+  const [quimico, setQuimicoRaw] = useState(suelo?.quimico || {});
   const [prevSuelo, setPrevSuelo] = useState(suelo);
-  const isInitialMount = useRef(true);
+  const userHasEdited = useRef(false);
+
+  const setFisico: typeof setFisicoRaw = (v) => {
+    userHasEdited.current = true;
+    setFisicoRaw(v);
+  };
+  const setQuimico: typeof setQuimicoRaw = (v) => {
+    userHasEdited.current = true;
+    setQuimicoRaw(v);
+  };
   const onChangeRef = useRef(onChange);
   useEffect(() => {
     onChangeRef.current = onChange;
@@ -47,15 +56,12 @@ export function FormularioSuelo({ suelo, onChange }: FormularioSueloProps) {
   // https://react.dev/reference/react/useState#storing-information-from-previous-renders
   if (suelo && !deepEqual(suelo, prevSuelo)) {
     setPrevSuelo(suelo);
-    if (suelo.fisico) setFisico(suelo.fisico);
-    if (suelo.quimico) setQuimico(suelo.quimico);
+    if (suelo.fisico) setFisicoRaw(suelo.fisico);
+    if (suelo.quimico) setQuimicoRaw(suelo.quimico);
   }
 
   useEffect(() => {
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      return;
-    }
+    if (!userHasEdited.current) return;
     onChangeRef.current({ fisico, quimico });
   }, [fisico, quimico]);
 

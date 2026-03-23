@@ -226,6 +226,30 @@ export const KC_POR_CULTIVO: Record<
     adulta: 0.85,
     madura: 0.75,
   },
+  granada: {
+    plántula: 0.45,
+    joven: 0.65,
+    adulta: 0.8,
+    madura: 0.7,
+  },
+  algarrobo: {
+    plántula: 0.3,
+    joven: 0.5,
+    adulta: 0.65,
+    madura: 0.55,
+  },
+  romero: {
+    plántula: 0.3,
+    joven: 0.5,
+    adulta: 0.7,
+    madura: 0.6,
+  },
+  camote: {
+    plántula: 0.4,
+    joven: 0.7,
+    adulta: 1.1,
+    madura: 0.75,
+  },
 };
 
 const KC_DEFAULT: Record<EtapaCrecimiento, number> = {

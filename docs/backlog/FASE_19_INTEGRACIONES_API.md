@@ -1,9 +1,13 @@
 # FASE 19: Integraciones API Externas (Clima + Precios)
 
-**Status**: ⏳ PENDIENTE
+**Status**: ✅ COMPLETADA — 2026-03-21
 **Prioridad**: 🔴 CRÍTICA
 **Dependencias**: `agriplan-api-nestjs` FASE_0 + FASE_2 + FASE_3
-**Última revisión**: 2026-03-17
+**Última revisión**: 2026-03-21
+
+> **Nota de implementación**: La tabla se llama `precios_mayoristas` (no `precios_mercado`).
+> El ROI refactor fue completado en commit `1fa7e6d` — usa `cultivo_base_id` como puente
+> hacia `precios_mayoristas.cultivo_id`. La API actualiza ambas tablas via cron cada 6h.
 
 ---
 

@@ -1,6 +1,10 @@
-import type { CatalogoCultivo, Zona } from "@/types";
+import type { CatalogoCultivo, Zona, PerfilCalidad } from "@/types";
 import type { PrecioMayorista, MercadoDetalle } from "@/lib/data/tipos-mercado";
-import { M2_POR_HECTAREA } from "@/lib/constants/conversiones";
+import {
+  M2_POR_HECTAREA,
+  PERFILES_CALIDAD,
+  CALIDAD_PRECIO_DEFAULT,
+} from "@/lib/constants/conversiones";
 import { TIPO_ZONA } from "@/lib/constants/entities";
 
 export function calcularPrecioKgPromedio(cultivo: CatalogoCultivo): number {
@@ -48,6 +52,24 @@ export function obtenerStockAgua(
   aguaTotalEstanques: number,
 ): number {
   return estanques.length > 0 ? aguaTotalEstanques : aguaTerrenoM3;
+}
+
+/**
+ * Factor ponderado de calidad: multiplica el ingreso según perfil de manejo.
+ * Si el cultivo no aplica calidad, retorna 1.0 (sin efecto).
+ */
+export function calcularFactorCalidad(
+  cultivo: CatalogoCultivo,
+  perfil: PerfilCalidad | null,
+): number {
+  if (!perfil || cultivo.aplica_calidad === false) return 1.0;
+  const dist = PERFILES_CALIDAD[perfil];
+  const precios = cultivo.calidad_precios ?? CALIDAD_PRECIO_DEFAULT;
+  return (
+    dist.primera * precios.primera +
+    dist.segunda * precios.segunda +
+    dist.tercera * precios.tercera
+  );
 }
 
 /** Cultivo "completo" = tiene precio + mercado_detalle. Sin ambos, no es plantable. */

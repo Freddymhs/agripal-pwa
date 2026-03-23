@@ -173,5 +173,19 @@
     "competencia_local": "baja",
     "mercado_exportacion": true,
     "notas": "Superalimento con demanda nacional e internacional creciente. Precio alto y estable. Altiplano de Arica tiene condiciones ideales. Mercado exportación disponible. Competencia de Bolivia/Perú."
+  },
+  {
+    "precio_mayorista_id": "arica-melon-primor",
+    "demanda_local": "alta",
+    "competencia_local": "baja",
+    "mercado_exportacion": false,
+    "notas": "Contra-estación: cosecha ago-nov cuando Santiago no tiene oferta local. Venta directa en Lo Valledor a precio premium. Modelo validado por INIA Arica (Programa Integrado Territorial). Requiere invernadero/malla."
+  },
+  {
+    "precio_mayorista_id": "arica-sandia-primor",
+    "demanda_local": "alta",
+    "competencia_local": "baja",
+    "mercado_exportacion": false,
+    "notas": "Precio máximo en ago-sep en zona central. Ciclo corto permite rápida recuperación. Requiere invernadero + sustrato + polinización por abejorros. Rendimiento INIA afectado por plagas en ensayos."
   }
 ]

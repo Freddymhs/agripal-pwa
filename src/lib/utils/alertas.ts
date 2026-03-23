@@ -29,20 +29,53 @@ import {
   PORCENTAJE_CICLO_REPLANTA,
   MAX_PLANTAS_OVERLAP_CHECK,
 } from "@/lib/constants/conversiones";
-import { DIAS_AGUA_UMBRAL_CRITICO } from "@/lib/constants/umbrales";
+import {
+  DIAS_AGUA_UMBRAL_CRITICO,
+  PRECIO_KG_TECHO_CLP,
+} from "@/lib/constants/umbrales";
 import {
   ESTADO_PLANTA,
   ETAPA,
   TIPO_ZONA,
   TIPO_RIEGO,
+  esRiegoManual,
   SEVERIDAD_ALERTA,
   ESTADO_ALERTA,
   TEXTURA_SUELO,
 } from "@/lib/constants/entities";
 import { distancia } from "@/lib/utils/math";
-import { filtrarEstanques } from "@/lib/utils/helpers-cultivo";
+import {
+  filtrarEstanques,
+  calcularPrecioKgPromedio,
+} from "@/lib/utils/helpers-cultivo";
+import { obtenerCostoAguaPromedio } from "@/lib/utils/roi";
+import { KC_POR_CULTIVO } from "@/lib/data/coeficientes-kc";
 
 const DIAS_SIN_RIEGO_UMBRAL = 7;
+
+function quitarAcentosAlerta(str: string): string {
+  return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
+/** Verifica si un cultivo tiene Kc explícito (BD o archivo), no default genérico */
+function tieneKcExplicito(cultivo: CatalogoCultivo): boolean {
+  // Tiene kc en BD
+  if (
+    cultivo.kc_plantula != null ||
+    cultivo.kc_joven != null ||
+    cultivo.kc_adulta != null ||
+    cultivo.kc_madura != null
+  )
+    return true;
+  // Tiene kc en archivo por nombre
+  const nombreNorm = quitarAcentosAlerta(cultivo.nombre.toLowerCase().trim());
+  for (const key of Object.keys(KC_POR_CULTIVO)) {
+    const keyNorm = quitarAcentosAlerta(key);
+    if (nombreNorm.includes(keyNorm) || keyNorm.includes(nombreNorm))
+      return true;
+  }
+  return false;
+}
 
 function generarAlertas(
   terreno: Terreno,
@@ -279,7 +312,7 @@ function generarAlertas(
 
     if (
       zona.tipo === TIPO_ZONA.CULTIVO &&
-      zona.configuracion_riego?.tipo === TIPO_RIEGO.MANUAL &&
+      esRiegoManual(zona.configuracion_riego?.tipo) &&
       plantasZona.length > 0 &&
       sesionesRecientes
     ) {
@@ -597,6 +630,124 @@ function generarAlertas(
         titulo: `Vecería — ${cultivo.nombre} susceptible a alternancia productiva`,
         descripcion: `${cultivo.nombre} tiene susceptibilidad ${veceria.susceptibilidad} a vecería. Los árboles alternan años de alta y baja producción.`,
         sugerencia: veceria.manejo,
+      });
+    }
+  }
+
+  // ── INTEGRIDAD DE DATOS ────────────────────────────────────────────
+  // Alertas que detectan datos faltantes que hacen que los cálculos
+  // produzcan resultados silenciosamente incorrectos.
+
+  // Costo de agua efectivo = 0 → ROI sobreestima rentabilidad
+  const costoAguaM3 =
+    estanques.length > 0 ? obtenerCostoAguaPromedio(estanques, terreno) : 0;
+  const tieneZonasConPlantas = zonas.some(
+    (z) =>
+      z.tipo === TIPO_ZONA.CULTIVO &&
+      plantas.some(
+        (p) => p.zona_id === z.id && p.estado !== ESTADO_PLANTA.MUERTA,
+      ),
+  );
+  if (tieneZonasConPlantas && costoAguaM3 === 0 && estanques.length > 0) {
+    alertas.push({
+      terreno_id: terreno.id,
+      tipo: "costo_agua_cero",
+      severidad: SEVERIDAD_ALERTA.CRITICAL,
+      estado: ESTADO_ALERTA.ACTIVA,
+      titulo: "Costo de agua = $0 — la economía muestra resultados incorrectos",
+      descripcion:
+        "Ningún estanque tiene un proveedor con precio por m³ configurado. El sistema calcula el costo del agua como $0, lo que hace que el ROI y los costos de operación sean artificialmente positivos.",
+      sugerencia:
+        "Ve a Agua > Configurar recarga de cada estanque y asigna un proveedor con precio por m³. Si el agua es gratuita, ingresa $1/m³ como referencia.",
+    });
+  }
+
+  // Proveedor asignado a estanque pero sin precio → agua parece gratis
+  const proveedoresTerreno = terreno.agua_avanzada?.proveedores ?? [];
+  for (const est of estanques) {
+    const provId = est.estanque_config?.proveedor_id;
+    if (!provId) continue;
+    const prov = proveedoresTerreno.find((p) => p.id === provId);
+    if (prov && !prov.precio_m3_clp) {
+      alertas.push({
+        terreno_id: terreno.id,
+        zona_id: est.id,
+        tipo: "proveedor_sin_precio",
+        severidad: SEVERIDAD_ALERTA.WARNING,
+        estado: ESTADO_ALERTA.ACTIVA,
+        titulo: `Proveedor "${prov.nombre}" sin precio por m³`,
+        descripcion: `El estanque "${est.nombre}" tiene asignado el proveedor "${prov.nombre}" pero no tiene precio por m³. El costo del agua se calcula como $0.`,
+        sugerencia:
+          "Ve a Agua > Proveedores y edita el precio por m³ que te cobra. Pregúntale a tu proveedor cuánto cuesta el metro cúbico.",
+      });
+    }
+  }
+
+  // Cultivo sin datos de producción → ROI muestra $0 de ingreso
+  const cultivosEnUso = new Set(
+    plantas
+      .filter((p) => p.estado !== ESTADO_PLANTA.MUERTA)
+      .map((p) => p.tipo_cultivo_id),
+  );
+  for (const cultivoId of cultivosEnUso) {
+    const cultivo = catalogoCultivos.find((c) => c.id === cultivoId);
+    if (!cultivo) continue;
+
+    const prod = cultivo.produccion;
+    const sinProduccion =
+      !prod ||
+      ((prod.produccion_kg_ha_año2 ?? 0) === 0 &&
+        (prod.produccion_kg_ha_año3 ?? 0) === 0 &&
+        (prod.produccion_kg_ha_año4 ?? 0) === 0);
+    if (sinProduccion) {
+      alertas.push({
+        terreno_id: terreno.id,
+        tipo: "cultivo_sin_produccion",
+        severidad: SEVERIDAD_ALERTA.CRITICAL,
+        estado: ESTADO_ALERTA.ACTIVA,
+        titulo: `"${cultivo.nombre}" sin datos de producción — economía no puede calcular ingresos`,
+        descripcion: `El cultivo ${cultivo.nombre} no tiene kg/ha definidos para los años 2-4. El sistema muestra $0 de ingreso y ROI de -100%.`,
+        sugerencia: `Edita "${cultivo.nombre}" en el catálogo y agrega producción estimada (kg/ha/año) para años 2, 3 y 4.`,
+      });
+    }
+
+    // Cultivo sin precio de venta → ingreso = 0
+    const precioKg = calcularPrecioKgPromedio(cultivo);
+    if (precioKg === 0) {
+      alertas.push({
+        terreno_id: terreno.id,
+        tipo: "cultivo_sin_precio",
+        severidad: SEVERIDAD_ALERTA.CRITICAL,
+        estado: ESTADO_ALERTA.ACTIVA,
+        titulo: `"${cultivo.nombre}" sin precio de venta — economía muestra $0 de ingreso`,
+        descripcion: `El cultivo ${cultivo.nombre} no tiene precio mínimo ni máximo (CLP/kg). Sin precio, toda la producción tiene valor $0.`,
+        sugerencia: `Edita "${cultivo.nombre}" en el catálogo y agrega precio_kg_min y precio_kg_max en CLP.`,
+      });
+    }
+
+    // Cultivo sin Kc explícito → consumo de agua usa coeficiente genérico (puede errar 30-50%)
+    if (!tieneKcExplicito(cultivo)) {
+      alertas.push({
+        terreno_id: terreno.id,
+        tipo: "cultivo_sin_kc",
+        severidad: SEVERIDAD_ALERTA.WARNING,
+        estado: ESTADO_ALERTA.ACTIVA,
+        titulo: `"${cultivo.nombre}" usa coeficiente de agua genérico (Kc) — consumo puede ser impreciso`,
+        descripcion: `El cultivo ${cultivo.nombre} no tiene coeficiente Kc calibrado. Usa un valor genérico (adulta = 1.0) que puede sobreestimar o subestimar el consumo de agua entre 30-50%.`,
+        sugerencia: `Contacta un técnico agrícola para obtener el Kc correcto de ${cultivo.nombre}, o busca en la ficha técnica FAO 56. Puedes editarlo en el catálogo de cultivos.`,
+      });
+    }
+
+    // Precio anómalo → posible bug de conversión ODEPA (caja/saco → kg)
+    if (precioKg > PRECIO_KG_TECHO_CLP) {
+      alertas.push({
+        terreno_id: terreno.id,
+        tipo: "precio_anomalo",
+        severidad: SEVERIDAD_ALERTA.CRITICAL,
+        estado: ESTADO_ALERTA.ACTIVA,
+        titulo: `"${cultivo.nombre}" tiene precio anómalo ($${Math.round(precioKg).toLocaleString("es-CL")}/kg)`,
+        descripcion: `El precio promedio de ${cultivo.nombre} ($${Math.round(precioKg).toLocaleString("es-CL")}/kg) supera el máximo razonable ($${PRECIO_KG_TECHO_CLP.toLocaleString("es-CL")}/kg). Puede ser un error de conversión de datos ODEPA.`,
+        sugerencia: `Verifica el precio en el catálogo. Si es incorrecto, edita precio_kg_min y precio_kg_max con valores reales de mercado.`,
       });
     }
   }

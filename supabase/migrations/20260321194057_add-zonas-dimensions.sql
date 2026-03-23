@@ -1,0 +1,7 @@
+-- Expose the geometric columns the seed script and UI expect on zonas.
+ALTER TABLE zonas
+  ADD COLUMN IF NOT EXISTS x NUMERIC,
+  ADD COLUMN IF NOT EXISTS y NUMERIC,
+  ADD COLUMN IF NOT EXISTS ancho NUMERIC,
+  ADD COLUMN IF NOT EXISTS alto NUMERIC,
+  ADD COLUMN IF NOT EXISTS area_m2 NUMERIC;

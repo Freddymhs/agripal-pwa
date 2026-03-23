@@ -14,6 +14,10 @@ export interface PrecioMayorista {
   tendencia: Tendencia | null;
   actualizado_en: string | null;
   fuente: string | null;
+  /** Multiplicador sobre precio_actual_clp → precio venta feria directa */
+  factor_precio_feria: number | null;
+  /** Multiplicador sobre precio_actual_clp → precio supermercado (referencia) */
+  factor_precio_retail: number | null;
 }
 
 /** Contexto de mercado por (cultivo x region) — llenado por investigacion */

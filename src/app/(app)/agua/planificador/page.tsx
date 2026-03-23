@@ -80,12 +80,9 @@ export default function PlanificadorAguaPage() {
     loading,
     cargarDatosTerreno: refetch,
     estanquesHook: { estanques },
-    datosBaseHook,
     opcionesConsumoAgua,
   } = useProjectContext();
   const [tabActiva, setTabActiva] = useState<TabActiva>("viabilidad");
-
-  const fuentesAgua = datosBaseHook.datosBase.fuentesAgua;
 
   const { entradas } = useAgua(
     terreno,
@@ -98,23 +95,13 @@ export default function PlanificadorAguaPage() {
 
   const proyeccion = useMemo<ProyeccionAnual | null>(() => {
     if (!terreno) return null;
-    return generarProyeccionAnual(
-      terreno,
-      zonas,
-      plantas,
-      catalogoCultivos,
-      fuentesAgua,
-    );
-  }, [terreno, zonas, plantas, catalogoCultivos, fuentesAgua]);
+    return generarProyeccionAnual(terreno, zonas, plantas, catalogoCultivos);
+  }, [terreno, zonas, plantas, catalogoCultivos]);
 
   const economiaAnual = useMemo(() => {
     if (!terreno) return null;
 
-    const costoAguaM3 = obtenerCostoAguaPromedio(
-      estanques,
-      terreno,
-      fuentesAgua,
-    );
+    const costoAguaM3 = obtenerCostoAguaPromedio(estanques, terreno);
     const totals = zonas
       .filter((z) => z.tipo === TIPO_ZONA.CULTIVO)
       .reduce(
@@ -182,7 +169,6 @@ export default function PlanificadorAguaPage() {
     catalogoCultivos,
     estanques,
     proyeccion,
-    fuentesAgua,
     proyectoActual?.suelo,
     opcionesConsumoAgua,
   ]);
@@ -192,9 +178,10 @@ export default function PlanificadorAguaPage() {
   const tienePlantas = plantas.some((p) => p.estado !== ESTADO_PLANTA.MUERTA);
   const tieneZonasCultivo = zonas.some((z) => z.tipo === TIPO_ZONA.CULTIVO);
   const tieneSuelo = !!proyectoActual?.suelo;
+  const proveedores = terreno?.agua_avanzada?.proveedores ?? [];
   const tieneCostoAgua =
-    !!terreno?.agua_costo_clp_por_m3 ||
-    fuentesAgua.some((f) => !!f.costo_m3_clp);
+    proveedores.some((p) => !!p.precio_m3_clp) ||
+    estanques.some((e) => !!e.estanque_config?.recarga?.costo_transporte_clp);
 
   const prerequisitosViabilidad: Prerequisito[] = [
     {

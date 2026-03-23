@@ -7,56 +7,51 @@
     "nombre_cientifico": "Opuntia ficus-indica",
     "tipo": "fruta",
     "origen": "seed",
-    "agua_m3_ha_año_min": 1500,
-    "agua_m3_ha_año_max": 4000,
+    "agua_m3_ha_año_min": 2000,
+    "agua_m3_ha_año_max": 3000,
     "espaciado_min_m": 2.5,
     "espaciado_recomendado_m": 3,
     "ph_min": 6,
     "ph_max": 8.5,
-    "salinidad_tolerancia_dS_m": 6,
-    "boro_tolerancia_ppm": 3,
-    "tolerancia_boro": "media",
+    "salinidad_tolerancia_dS_m": 7,
+    "boro_tolerancia_ppm": 1.75,
+    "tolerancia_boro": "alta",
     "tolerancia_salinidad": "alta",
     "clima": {
-      "temp_min_c": -5,
+      "temp_min_c": 5,
       "temp_max_c": 40,
-      "tolerancia_heladas": "alta"
+      "tolerancia_heladas": "media"
     },
     "kc_mensual": [
-      0.3, 0.3, 0.28, 0.28, 0.25, 0.25, 0.25, 0.25, 0.27, 0.28, 0.3, 0.3
+      0.5, 0.5, 0.5, 0.4, 0.35, 0.25, 0.25, 0.25, 0.35, 0.4, 0.45, 0.5
     ],
     "nutricion": {
-      "n_kg_ha_año": 40,
-      "p_kg_ha_año": 20,
-      "k_kg_ha_año": 30,
+      "n_kg_ha_año": 100,
+      "p_kg_ha_año": 40,
+      "k_kg_ha_año": 80,
       "aplicaciones_año": 2,
       "timing": "Post-cosecha (abr) + brotación nueva (sep)",
       "notas": "Planta CAM muy eficiente; evitar exceso N que promueve cladodios en detrimento de fruto"
     },
     "etapas_fenologicas": [
       {
-        "nombre": "Dormancia relativa",
-        "meses": [6, 7, 8],
-        "descripcion": "Mínimo crecimiento; riego reducido 50%"
+        "nombre": "Agoste invernal",
+        "meses": [7, 8],
+        "descripcion": "Estrés hídrico controlado; riego reducido 50%"
       },
       {
-        "nombre": "Brotación cladodios",
-        "meses": [9, 10],
-        "descripcion": "Inicio de nuevos cladodios; fertilizar N"
+        "nombre": "Emisión brotes florales",
+        "meses": [9, 10, 11],
+        "descripcion": "Inicio de nuevos cladodios y brotes florales; fertilizar N"
       },
       {
-        "nombre": "Floración",
-        "meses": [10, 11],
-        "descripcion": "Flores amarillas; monitorear cochinilla"
-      },
-      {
-        "nombre": "Cuaje y desarrollo fruto",
-        "meses": [11, 12],
-        "descripcion": "Riego regular; ajustar Kc a 0.35"
+        "nombre": "Crecimiento fruto",
+        "meses": [12, 1, 2],
+        "descripcion": "Riego regular; monitorear cochinilla"
       },
       {
         "nombre": "Cosecha",
-        "meses": [12, 1, 2, 3],
+        "meses": [2, 3, 4],
         "descripcion": "Fruto maduro; cosechar con guantes y pinzas"
       }
     ],
@@ -67,9 +62,10 @@
       "meses_descanso": [5, 6, 7, 8, 11]
     },
     "produccion": {
-      "produccion_kg_ha_año2": 200,
-      "produccion_kg_ha_año3": 750,
-      "produccion_kg_ha_año4": 2000,
+      "produccion_kg_ha_año2": 3000,
+      "produccion_kg_ha_año3": 6900,
+      "produccion_kg_ha_año4": 12500,
+      "produccion_kg_ha_año5": 20000,
       "vida_util_dias": 10
     },
     "precio_kg_min_clp": 800,
@@ -147,7 +143,8 @@
     "kc_joven": 0.6,
     "kc_adulta": 0.75,
     "kc_madura": 0.65,
-    "recomendacion": 3
+    "recomendacion": 3,
+    "aplica_calidad": true
   },
   {
     "id": "cultivo-higuera",
@@ -157,57 +154,52 @@
     "nombre_cientifico": "Ficus carica",
     "tipo": "fruta",
     "origen": "seed",
-    "agua_m3_ha_año_min": 2000,
-    "agua_m3_ha_año_max": 3500,
+    "agua_m3_ha_año_min": 4000,
+    "agua_m3_ha_año_max": 6500,
     "espaciado_min_m": 5,
     "espaciado_recomendado_m": 6,
     "ph_min": 6,
     "ph_max": 8,
-    "salinidad_tolerancia_dS_m": 4,
-    "boro_tolerancia_ppm": 2,
-    "tolerancia_boro": "baja",
-    "tolerancia_salinidad": "media",
+    "salinidad_tolerancia_dS_m": 5,
+    "boro_tolerancia_ppm": 1.25,
+    "tolerancia_boro": "media",
+    "tolerancia_salinidad": "alta",
     "clima": {
-      "temp_min_c": -10,
-      "temp_max_c": 40,
+      "temp_min_c": 4,
+      "temp_max_c": 38,
       "tolerancia_heladas": "alta",
       "horas_frio_requeridas": 0
     },
     "kc_mensual": [
-      0.9, 0.9, 0.85, 0.7, 0.5, 0.4, 0.35, 0.4, 0.6, 0.75, 0.85, 0.9
+      0.85, 0.85, 0.6, 0.45, 0.3, 0.2, 0.2, 0.2, 0.4, 0.6, 0.75, 0.85
     ],
     "nutricion": {
       "n_kg_ha_año": 100,
-      "p_kg_ha_año": 50,
-      "k_kg_ha_año": 80,
+      "p_kg_ha_año": 40,
+      "k_kg_ha_año": 120,
       "aplicaciones_año": 3,
       "timing": "Brotación (sep): 40% N; cuaje breva (oct-nov): 30% NK; post-cosecha breva (dic): 30% PK",
-      "notas": "Sensible a boro; usar agua <1 ppm B. Dos cosechas anuales requieren fraccionamiento cuidadoso"
+      "notas": "Caducifolia; entra en receso invernal. Dos cosechas anuales (brevas + higos)"
     },
     "etapas_fenologicas": [
       {
-        "nombre": "Dormancia",
+        "nombre": "Latencia y caída de hojas",
         "meses": [6, 7, 8],
         "descripcion": "Árbol sin hojas; poda de formación; riego mínimo"
       },
       {
         "nombre": "Brotación",
-        "meses": [9, 10],
+        "meses": [9],
         "descripcion": "Emisión de hojas y brevas; fertilizar N"
       },
       {
-        "nombre": "Cosecha breva",
-        "meses": [11, 12],
+        "nombre": "Cosecha brevas",
+        "meses": [12],
         "descripcion": "Primera cosecha (fruto del año anterior); precio premium"
       },
       {
-        "nombre": "Floración e higo",
-        "meses": [12, 1],
-        "descripcion": "Desarrollo del higo nuevo; riego crítico"
-      },
-      {
-        "nombre": "Cosecha higo",
-        "meses": [1, 2, 3, 4, 5],
+        "nombre": "Cosecha higos",
+        "meses": [2, 3],
         "descripcion": "Segunda cosecha; mayor volumen; vida poscosecha 3 días"
       }
     ],
@@ -218,9 +210,10 @@
       "meses_descanso": [9, 10]
     },
     "produccion": {
-      "produccion_kg_ha_año2": 75,
-      "produccion_kg_ha_año3": 500,
-      "produccion_kg_ha_año4": 6000,
+      "produccion_kg_ha_año2": 0,
+      "produccion_kg_ha_año3": 4000,
+      "produccion_kg_ha_año4": 12000,
+      "produccion_kg_ha_año5": 18000,
       "vida_util_dias": 3
     },
     "precio_kg_min_clp": 800,
@@ -236,7 +229,7 @@
         "control_recomendado": "Aplicar en primavera antes de cuaje"
       }
     ],
-    "tiempo_produccion_meses": 24,
+    "tiempo_produccion_meses": 36,
     "vida_util_años": 30,
     "tier": 1,
     "riesgo": "bajo",
@@ -306,7 +299,8 @@
     "alelopatia": {
       "negativa": ["arandano", "pitahaya"],
       "distancia_minima_m": 6
-    }
+    },
+    "aplica_calidad": true
   },
   {
     "id": "cultivo-pitahaya",
@@ -321,23 +315,23 @@
     "espaciado_min_m": 1.5,
     "espaciado_recomendado_m": 2,
     "ph_min": 5.5,
-    "ph_max": 7.5,
-    "salinidad_tolerancia_dS_m": 3,
-    "boro_tolerancia_ppm": 2.5,
+    "ph_max": 6.5,
+    "salinidad_tolerancia_dS_m": 2.5,
+    "boro_tolerancia_ppm": 0.75,
     "tolerancia_boro": "media",
     "tolerancia_salinidad": "media",
     "clima": {
-      "temp_min_c": 5,
-      "temp_max_c": 35,
+      "temp_min_c": 16,
+      "temp_max_c": 38,
       "tolerancia_heladas": "baja"
     },
     "kc_mensual": [
-      0.5, 0.5, 0.45, 0.4, 0.35, 0.3, 0.3, 0.35, 0.4, 0.45, 0.5, 0.5
+      0.75, 0.75, 0.75, 0.6, 0.5, 0.4, 0.4, 0.4, 0.5, 0.6, 0.7, 0.75
     ],
     "nutricion": {
-      "n_kg_ha_año": 120,
-      "p_kg_ha_año": 60,
-      "k_kg_ha_año": 100,
+      "n_kg_ha_año": 187,
+      "p_kg_ha_año": 66,
+      "k_kg_ha_año": 198,
       "aplicaciones_año": 4,
       "timing": "Vegetativo (oct-nov): N alto; floración (dic-ene): PK; fructificación (ene-feb): K; post-cosecha (may): N+P",
       "notas": "Cactus trepador; alta demanda K para calidad del fruto. Evitar exceso N que inhibe floración"
@@ -381,9 +375,10 @@
       "meses_descanso": [6, 7, 12]
     },
     "produccion": {
-      "produccion_kg_ha_año2": 500,
-      "produccion_kg_ha_año3": 8000,
-      "produccion_kg_ha_año4": 15000,
+      "produccion_kg_ha_año2": 2000,
+      "produccion_kg_ha_año3": 6000,
+      "produccion_kg_ha_año4": 10000,
+      "produccion_kg_ha_año5": 15000,
       "vida_util_dias": 14
     },
     "precio_kg_min_clp": 4000,
@@ -399,8 +394,8 @@
         "control_recomendado": "Aceite mineral + insecticida sistémico"
       }
     ],
-    "tiempo_produccion_meses": 18,
-    "vida_util_años": 20,
+    "tiempo_produccion_meses": 24,
+    "vida_util_años": 15,
     "tier": 2,
     "riesgo": "medio",
     "notas": "Cultivo gourmet, alto precio. Produce en contra-estación.",
@@ -411,7 +406,8 @@
     "kc_joven": 0.65,
     "kc_adulta": 0.9,
     "kc_madura": 0.7,
-    "recomendacion": 3
+    "recomendacion": 3,
+    "aplica_calidad": true
   },
   {
     "id": "cultivo-guayaba",
@@ -422,7 +418,7 @@
     "tipo": "fruta",
     "origen": "seed",
     "agua_m3_ha_año_min": 2000,
-    "agua_m3_ha_año_max": 3000,
+    "agua_m3_ha_año_max": 3500,
     "espaciado_min_m": 4,
     "espaciado_recomendado_m": 5,
     "ph_min": 5.5,
@@ -432,17 +428,17 @@
     "tolerancia_boro": "media",
     "tolerancia_salinidad": "media",
     "clima": {
-      "temp_min_c": 5,
+      "temp_min_c": 15,
       "temp_max_c": 35,
       "tolerancia_heladas": "baja"
     },
     "kc_mensual": [
-      0.85, 0.85, 0.8, 0.75, 0.7, 0.65, 0.65, 0.7, 0.75, 0.8, 0.85, 0.85
+      0.8, 0.8, 0.8, 0.65, 0.65, 0.65, 0.65, 0.65, 0.65, 0.75, 0.8, 0.8
     ],
     "nutricion": {
-      "n_kg_ha_año": 80,
-      "p_kg_ha_año": 40,
-      "k_kg_ha_año": 60,
+      "n_kg_ha_año": 150,
+      "p_kg_ha_año": 50,
+      "k_kg_ha_año": 150,
       "aplicaciones_año": 3,
       "timing": "Pre-floración (oct): N+P; cuaje (nov-dic): K; post-cosecha (abr): N+PK completo",
       "notas": "Árbol muy rústico; responde bien a materia orgánica. Fraccionamiento evita exceso salino"
@@ -548,7 +544,8 @@
     "kc_joven": 0.8,
     "kc_adulta": 1,
     "kc_madura": 0.85,
-    "recomendacion": 1
+    "recomendacion": 1,
+    "aplica_calidad": true
   },
   {
     "id": "cultivo-datil-medjool",
@@ -564,22 +561,20 @@
     "espaciado_recomendado_m": 8,
     "ph_min": 7,
     "ph_max": 8.5,
-    "salinidad_tolerancia_dS_m": 6,
-    "boro_tolerancia_ppm": 4,
-    "tolerancia_boro": "media",
+    "salinidad_tolerancia_dS_m": 9,
+    "boro_tolerancia_ppm": 2.5,
+    "tolerancia_boro": "alta",
     "tolerancia_salinidad": "alta",
     "clima": {
-      "temp_min_c": -3,
-      "temp_max_c": 45,
-      "tolerancia_heladas": "baja"
+      "temp_min_c": 10,
+      "temp_max_c": 50,
+      "tolerancia_heladas": "alta"
     },
-    "kc_mensual": [
-      0.9, 0.9, 0.9, 0.85, 0.85, 0.8, 0.8, 0.85, 0.9, 0.95, 0.95, 0.9
-    ],
+    "kc_mensual": [0.95, 0.95, 0.95, 0.9, 0.9, 0.85, 0.85, 0.9, 0.95, 1, 1, 1],
     "nutricion": {
-      "n_kg_ha_año": 150,
-      "p_kg_ha_año": 60,
-      "k_kg_ha_año": 100,
+      "n_kg_ha_año": 200,
+      "p_kg_ha_año": 80,
+      "k_kg_ha_año": 200,
       "aplicaciones_año": 3,
       "timing": "Polinización (feb-mar): N; engrosamiento fruto (may-jun): K alto; post-cosecha (nov): N+P",
       "notas": "Alta demanda nutricional por producción elevada. Aplicación foliar de Zn y B recomendada para cuaje"
@@ -619,8 +614,9 @@
     },
     "produccion": {
       "produccion_kg_ha_año2": 0,
-      "produccion_kg_ha_año3": 2000,
-      "produccion_kg_ha_año4": 8000,
+      "produccion_kg_ha_año3": 0,
+      "produccion_kg_ha_año4": 0,
+      "produccion_kg_ha_año5": 1000,
       "vida_util_dias": 180
     },
     "precio_kg_min_clp": 3000,
@@ -636,7 +632,7 @@
         "control_recomendado": "Aceite mineral + insecticida sistémico en brotación"
       }
     ],
-    "tiempo_produccion_meses": 48,
+    "tiempo_produccion_meses": 60,
     "vida_util_años": 60,
     "tier": 2,
     "riesgo": "medio",
@@ -648,7 +644,8 @@
     "kc_joven": 0.75,
     "kc_adulta": 1,
     "kc_madura": 0.9,
-    "recomendacion": 1
+    "recomendacion": 1,
+    "aplica_calidad": true
   },
   {
     "id": "cultivo-maracuya",
@@ -658,7 +655,7 @@
     "nombre_cientifico": "Passiflora edulis",
     "tipo": "fruta",
     "origen": "seed",
-    "agua_m3_ha_año_min": 3500,
+    "agua_m3_ha_año_min": 4500,
     "agua_m3_ha_año_max": 5500,
     "espaciado_min_m": 2,
     "espaciado_recomendado_m": 3,
@@ -669,15 +666,17 @@
     "tolerancia_boro": "baja",
     "tolerancia_salinidad": "baja",
     "clima": {
-      "temp_min_c": 8,
+      "temp_min_c": 15,
       "temp_max_c": 32,
       "tolerancia_heladas": "nula"
     },
-    "kc_mensual": [1.05, 1.05, 1, 0.9, 0.7, 0.6, 0.55, 0.6, 0.75, 0.9, 1, 1.05],
+    "kc_mensual": [
+      1.15, 1.15, 1.15, 0.8, 0.8, 0.6, 0.6, 0.6, 0.8, 1, 1.1, 1.15
+    ],
     "nutricion": {
-      "n_kg_ha_año": 180,
-      "p_kg_ha_año": 80,
-      "k_kg_ha_año": 120,
+      "n_kg_ha_año": 150,
+      "p_kg_ha_año": 50,
+      "k_kg_ha_año": 200,
       "aplicaciones_año": 4,
       "timing": "Trasplante (sep): N+P raíz; floración (nov-dic): K+Ca; fructificación (ene-mar): N+K; post-cosecha (jun): P+K",
       "notas": "Alta demanda nutricional. Sensible a salinidad; EC agua <1.5 dS/m obligatorio. Ca importante para evitar drupe drop"
@@ -716,8 +715,8 @@
       "meses_descanso": [7, 11, 12, 1]
     },
     "produccion": {
-      "produccion_kg_ha_año2": 5000,
-      "produccion_kg_ha_año3": 12000,
+      "produccion_kg_ha_año2": 10000,
+      "produccion_kg_ha_año3": 15000,
       "produccion_kg_ha_año4": 15000,
       "vida_util_dias": 14
     },
@@ -734,7 +733,7 @@
         "control_recomendado": "Monitoreo trampas + aplicación en ventana ovicida"
       }
     ],
-    "tiempo_produccion_meses": 10,
+    "tiempo_produccion_meses": 12,
     "vida_util_años": 8,
     "tier": 1,
     "riesgo": "medio",
@@ -750,7 +749,8 @@
     "alelopatia": {
       "negativa": ["limon", "mandarina", "guayaba"],
       "distancia_minima_m": 6
-    }
+    },
+    "aplica_calidad": true
   },
   {
     "id": "cultivo-uva-mesa-primor",
@@ -760,8 +760,8 @@
     "nombre_cientifico": "Vitis vinifera",
     "tipo": "fruta",
     "origen": "seed",
-    "agua_m3_ha_año_min": 4500,
-    "agua_m3_ha_año_max": 6500,
+    "agua_m3_ha_año_min": 5000,
+    "agua_m3_ha_año_max": 8000,
     "espaciado_min_m": 2.5,
     "espaciado_recomendado_m": 3,
     "ph_min": 6,
@@ -771,18 +771,16 @@
     "tolerancia_boro": "media",
     "tolerancia_salinidad": "media",
     "clima": {
-      "temp_min_c": -2,
+      "temp_min_c": 7,
       "temp_max_c": 38,
-      "tolerancia_heladas": "media",
+      "tolerancia_heladas": "alta",
       "horas_frio_requeridas": 100
     },
-    "kc_mensual": [
-      0.85, 0.85, 0.75, 0.5, 0.4, 0.35, 0.3, 0.35, 0.55, 0.7, 0.8, 0.85
-    ],
+    "kc_mensual": [1, 0.9, 0.9, 0.9, 0.7, 0.2, 0.2, 0.2, 0.3, 0.7, 0.9, 0.9],
     "nutricion": {
       "n_kg_ha_año": 100,
       "p_kg_ha_año": 40,
-      "k_kg_ha_año": 150,
+      "k_kg_ha_año": 180,
       "aplicaciones_año": 4,
       "timing": "Brotación (ago-sep): N; floración (sep-oct): P+K; envero (oct-nov): K alto; post-cosecha (ene-feb): N+P",
       "notas": "Alta demanda K para calidad de baya. Mg y Zn foliares en brotación. Evitar N tardío que reduce color"
@@ -844,7 +842,7 @@
         "control_recomendado": "Confusión sexual + larvicida en 1ª generación"
       }
     ],
-    "tiempo_produccion_meses": 24,
+    "tiempo_produccion_meses": 36,
     "vida_util_años": 20,
     "tier": 2,
     "riesgo": "medio",
@@ -860,7 +858,8 @@
     "alelopatia": {
       "negativa": ["tomate", "aji"],
       "distancia_minima_m": 4
-    }
+    },
+    "aplica_calidad": true
   },
   {
     "id": "cultivo-limon",
@@ -881,17 +880,17 @@
     "tolerancia_boro": "media",
     "tolerancia_salinidad": "media",
     "clima": {
-      "temp_min_c": -2,
-      "temp_max_c": 40,
+      "temp_min_c": 10,
+      "temp_max_c": 36,
       "tolerancia_heladas": "baja"
     },
     "kc_mensual": [
-      0.7, 0.7, 0.7, 0.7, 0.65, 0.65, 0.65, 0.65, 0.65, 0.7, 0.7, 0.7
+      0.75, 0.75, 0.8, 0.8, 0.8, 0.85, 0.85, 0.85, 0.85, 0.85, 0.8, 0.8
     ],
     "nutricion": {
-      "n_kg_ha_año": 120,
-      "p_kg_ha_año": 50,
-      "k_kg_ha_año": 100,
+      "n_kg_ha_año": 200,
+      "p_kg_ha_año": 60,
+      "k_kg_ha_año": 150,
       "aplicaciones_año": 4,
       "timing": "Pre-floración (ago-sep): N+P; cuaje (oct-nov): Ca+K; engrosamiento (dic-feb): K; post-cosecha (abr-may): N+P",
       "notas": "Cítrico sensible a sales; Cl y Na tóxicos. Mg y Mn foliares anuales. Acidificar riego si pH agua > 7.5"
@@ -948,7 +947,7 @@
         "control_recomendado": "Aceite mineral + Bt en brotes tiernos"
       }
     ],
-    "tiempo_produccion_meses": 24,
+    "tiempo_produccion_meses": 36,
     "vida_util_años": 35,
     "tier": 2,
     "riesgo": "medio",
@@ -964,7 +963,8 @@
     "alelopatia": {
       "negativa": ["mandarina", "naranja"],
       "distancia_minima_m": 5
-    }
+    },
+    "aplica_calidad": true
   },
   {
     "id": "cultivo-mandarina-w-murcott",
@@ -975,7 +975,7 @@
     "tipo": "fruta",
     "origen": "seed",
     "agua_m3_ha_año_min": 5000,
-    "agua_m3_ha_año_max": 7500,
+    "agua_m3_ha_año_max": 8000,
     "espaciado_min_m": 4,
     "espaciado_recomendado_m": 5,
     "ph_min": 6,
@@ -985,17 +985,17 @@
     "tolerancia_boro": "media",
     "tolerancia_salinidad": "media",
     "clima": {
-      "temp_min_c": -2,
-      "temp_max_c": 38,
+      "temp_min_c": 10,
+      "temp_max_c": 36,
       "tolerancia_heladas": "baja"
     },
     "kc_mensual": [
-      0.7, 0.7, 0.7, 0.7, 0.65, 0.65, 0.65, 0.65, 0.65, 0.7, 0.7, 0.7
+      0.75, 0.75, 0.8, 0.8, 0.8, 0.85, 0.85, 0.85, 0.85, 0.85, 0.8, 0.8
     ],
     "nutricion": {
-      "n_kg_ha_año": 120,
-      "p_kg_ha_año": 50,
-      "k_kg_ha_año": 100,
+      "n_kg_ha_año": 200,
+      "p_kg_ha_año": 60,
+      "k_kg_ha_año": 150,
       "aplicaciones_año": 4,
       "timing": "Floración (sep-oct): N+B foliar; cuaje (oct-nov): Ca; engrosamiento (dic-mar): K; pre-cosecha (may-jun): P+Mg",
       "notas": "Variedad tardía; necesita diferenciar con temperatura nocturna. Mg y Zn foliares para color y calidad"
@@ -1052,7 +1052,7 @@
         "control_recomendado": "Monitoreo + cosecha limpia y aplicaciones dirigidas"
       }
     ],
-    "tiempo_produccion_meses": 30,
+    "tiempo_produccion_meses": 36,
     "vida_util_años": 30,
     "tier": 2,
     "riesgo": "medio",
@@ -1068,7 +1068,8 @@
     "alelopatia": {
       "negativa": ["limon", "naranja"],
       "distancia_minima_m": 5
-    }
+    },
+    "aplica_calidad": true
   },
   {
     "id": "cultivo-arandano-maceta",
@@ -1078,29 +1079,29 @@
     "nombre_cientifico": "Vaccinium corymbosum",
     "tipo": "fruta",
     "origen": "seed",
-    "agua_m3_ha_año_min": 3000,
-    "agua_m3_ha_año_max": 4000,
+    "agua_m3_ha_año_min": 2500,
+    "agua_m3_ha_año_max": 3600,
     "espaciado_min_m": 0.8,
     "espaciado_recomendado_m": 1,
     "ph_min": 4.5,
     "ph_max": 5.5,
-    "salinidad_tolerancia_dS_m": 0.8,
+    "salinidad_tolerancia_dS_m": 1.5,
     "boro_tolerancia_ppm": 0.2,
     "tolerancia_boro": "muy_baja",
     "tolerancia_salinidad": "baja",
     "clima": {
-      "temp_min_c": 4,
+      "temp_min_c": 7,
       "temp_max_c": 30,
-      "tolerancia_heladas": "media",
+      "tolerancia_heladas": "alta",
       "horas_frio_requeridas": 200
     },
     "kc_mensual": [
-      0.7, 0.7, 0.65, 0.6, 0.5, 0.45, 0.4, 0.45, 0.55, 0.65, 0.7, 0.7
+      0.9, 0.85, 0.7, 0.5, 0.4, 0.3, 0.3, 0.4, 0.6, 0.75, 0.85, 0.95
     ],
     "nutricion": {
-      "n_kg_ha_año": 80,
-      "p_kg_ha_año": 30,
-      "k_kg_ha_año": 60,
+      "n_kg_ha_año": 110,
+      "p_kg_ha_año": 40,
+      "k_kg_ha_año": 100,
       "aplicaciones_año": 4,
       "timing": "Pre-brotación (jun-jul): N sulfato amonio; floración (ago): Ca+B; fructificación (sep-oct): K; post-cosecha (nov-dic): N+P",
       "notas": "CRÍTICO: usar solo sulfato de amonio (acidifica). Jamás urea ni nitrato que suben pH. EC sustrato <0.5 dS/m. Riego con agua desalada obligatorio"
@@ -1139,9 +1140,10 @@
       "meses_descanso": [12, 1, 2, 3, 4, 5]
     },
     "produccion": {
-      "produccion_kg_ha_año2": 2000,
-      "produccion_kg_ha_año3": 8000,
-      "produccion_kg_ha_año4": 12000,
+      "produccion_kg_ha_año2": 4000,
+      "produccion_kg_ha_año3": 10000,
+      "produccion_kg_ha_año4": 15000,
+      "produccion_kg_ha_año5": 19500,
       "vida_util_dias": 21
     },
     "precio_kg_min_clp": 4000,
@@ -1157,7 +1159,7 @@
         "control_recomendado": "Cosecha limpia + atrayentes proteicos"
       }
     ],
-    "tiempo_produccion_meses": 12,
+    "tiempo_produccion_meses": 24,
     "vida_util_años": 12,
     "tier": 2,
     "riesgo": "medio",
@@ -1169,7 +1171,8 @@
     "kc_joven": 0.75,
     "kc_adulta": 0.95,
     "kc_madura": 0.85,
-    "recomendacion": 1
+    "recomendacion": 1,
+    "aplica_calidad": true
   },
   {
     "id": "cultivo-lucuma",
@@ -1182,25 +1185,25 @@
     "agua_m3_ha_año_min": 3500,
     "agua_m3_ha_año_max": 5500,
     "espaciado_min_m": 7,
-    "espaciado_recomendado_m": 8,
+    "espaciado_recomendado_m": 7,
     "ph_min": 6,
-    "ph_max": 8,
-    "salinidad_tolerancia_dS_m": 4,
-    "boro_tolerancia_ppm": 1.5,
+    "ph_max": 7.5,
+    "salinidad_tolerancia_dS_m": 2.5,
+    "boro_tolerancia_ppm": 1,
     "tolerancia_boro": "media",
-    "tolerancia_salinidad": "moderada",
+    "tolerancia_salinidad": "media",
     "clima": {
-      "temp_min_c": 5,
+      "temp_min_c": 10,
       "temp_max_c": 32,
-      "tolerancia_heladas": "baja"
+      "tolerancia_heladas": "media"
     },
     "kc_mensual": [
-      0.8, 0.8, 0.75, 0.7, 0.65, 0.6, 0.6, 0.65, 0.7, 0.75, 0.8, 0.8
+      0.7, 0.7, 0.7, 0.65, 0.6, 0.55, 0.55, 0.6, 0.65, 0.7, 0.75, 0.75
     ],
     "nutricion": {
-      "n_kg_ha_año": 80,
-      "p_kg_ha_año": 40,
-      "k_kg_ha_año": 60,
+      "n_kg_ha_año": 120,
+      "p_kg_ha_año": 60,
+      "k_kg_ha_año": 100,
       "aplicaciones_año": 3,
       "timing": "Pre-floración (oct-nov): N+P; cuaje (dic-ene): K+Ca; post-cosecha (jun-jul): N+P completo",
       "notas": "Árbol lento; demanda moderada. Materia orgánica mejora establecimiento. Sensible a encharcamiento"
@@ -1257,7 +1260,7 @@
         "control_recomendado": "Monitoreo + barreras físicas en fruto"
       }
     ],
-    "tiempo_produccion_meses": 36,
+    "tiempo_produccion_meses": 60,
     "vida_util_años": 40,
     "tier": 2,
     "riesgo": "medio",
@@ -1269,7 +1272,8 @@
     "kc_joven": 0.7,
     "kc_adulta": 0.85,
     "kc_madura": 0.75,
-    "recomendacion": 1
+    "recomendacion": 1,
+    "aplica_calidad": true
   },
   {
     "id": "cultivo-granada",
@@ -1282,25 +1286,25 @@
     "agua_m3_ha_año_min": 2500,
     "agua_m3_ha_año_max": 4000,
     "espaciado_min_m": 4,
-    "espaciado_recomendado_m": 5,
-    "ph_min": 5.5,
+    "espaciado_recomendado_m": 4,
+    "ph_min": 6,
     "ph_max": 8.5,
     "salinidad_tolerancia_dS_m": 5,
-    "boro_tolerancia_ppm": 3,
+    "boro_tolerancia_ppm": 1.5,
     "tolerancia_boro": "media",
     "tolerancia_salinidad": "alta",
     "clima": {
-      "temp_min_c": -5,
-      "temp_max_c": 42,
+      "temp_min_c": 5,
+      "temp_max_c": 40,
       "tolerancia_heladas": "alta"
     },
     "kc_mensual": [
-      0.75, 0.75, 0.7, 0.6, 0.5, 0.4, 0.35, 0.4, 0.55, 0.65, 0.7, 0.75
+      0.84, 0.84, 0.6, 0.4, 0.24, 0.24, 0.24, 0.24, 0.5, 0.71, 0.8, 0.84
     ],
     "nutricion": {
-      "n_kg_ha_año": 80,
-      "p_kg_ha_año": 40,
-      "k_kg_ha_año": 80,
+      "n_kg_ha_año": 150,
+      "p_kg_ha_año": 60,
+      "k_kg_ha_año": 150,
       "aplicaciones_año": 3,
       "timing": "Brotación (ago-sep): N+P; floración-cuaje (oct-nov): K+Ca+B foliar; post-cosecha (abr-may): N+PK completo",
       "notas": "B foliar en floración reduce caída de flores. Ca mejora grosor de piel. Árbol rústico; tolera fertilización moderada"
@@ -1339,9 +1343,10 @@
       "meses_descanso": [6, 10, 11, 12, 1, 2]
     },
     "produccion": {
-      "produccion_kg_ha_año2": 2000,
-      "produccion_kg_ha_año3": 8000,
-      "produccion_kg_ha_año4": 15000,
+      "produccion_kg_ha_año2": 0,
+      "produccion_kg_ha_año3": 3000,
+      "produccion_kg_ha_año4": 8000,
+      "produccion_kg_ha_año5": 15000,
       "vida_util_dias": 60
     },
     "precio_kg_min_clp": 1500,
@@ -1357,7 +1362,7 @@
         "control_recomendado": "Monitoreo en flor + spinosad o aceite mineral"
       }
     ],
-    "tiempo_produccion_meses": 24,
+    "tiempo_produccion_meses": 36,
     "vida_util_años": 30,
     "tier": 1,
     "riesgo": "bajo",
@@ -1373,7 +1378,8 @@
     "alelopatia": {
       "negativa": ["limon", "mandarina"],
       "distancia_minima_m": 5
-    }
+    },
+    "aplica_calidad": true
   },
   {
     "id": "cultivo-zapote-blanco",
@@ -1387,24 +1393,24 @@
     "agua_m3_ha_año_max": 5500,
     "espaciado_min_m": 6,
     "espaciado_recomendado_m": 7,
-    "ph_min": 6,
-    "ph_max": 8,
-    "salinidad_tolerancia_dS_m": 2,
-    "boro_tolerancia_ppm": 1.5,
-    "tolerancia_boro": "media",
+    "ph_min": 5.5,
+    "ph_max": 7.5,
+    "salinidad_tolerancia_dS_m": 2.5,
+    "boro_tolerancia_ppm": 1,
+    "tolerancia_boro": "baja",
     "tolerancia_salinidad": "media",
     "clima": {
-      "temp_min_c": 4,
-      "temp_max_c": 32,
+      "temp_min_c": 10,
+      "temp_max_c": 35,
       "tolerancia_heladas": "media"
     },
     "kc_mensual": [
-      0.75, 0.75, 0.7, 0.65, 0.6, 0.55, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75
+      0.75, 0.75, 0.75, 0.65, 0.6, 0.55, 0.55, 0.6, 0.7, 0.75, 0.75, 0.75
     ],
     "nutricion": {
-      "n_kg_ha_año": 80,
-      "p_kg_ha_año": 40,
-      "k_kg_ha_año": 60,
+      "n_kg_ha_año": 150,
+      "p_kg_ha_año": 50,
+      "k_kg_ha_año": 120,
       "aplicaciones_año": 3,
       "timing": "Pre-floración (nov): N+P; cuaje (dic-ene): K+Ca; post-cosecha (may-jun): N+PK completo",
       "notas": "Árbol de porte grande; responde bien a materia orgánica. Fruta muy perecedera requiere manejo poscosecha cuidadoso"
@@ -1461,7 +1467,7 @@
         "control_recomendado": "Cebo proteico + manejo de piso"
       }
     ],
-    "tiempo_produccion_meses": 36,
+    "tiempo_produccion_meses": 48,
     "vida_util_años": 35,
     "tier": 2,
     "riesgo": "medio",
@@ -1473,7 +1479,8 @@
     "kc_joven": 0.7,
     "kc_adulta": 0.85,
     "kc_madura": 0.75,
-    "recomendacion": 1
+    "recomendacion": 1,
+    "aplica_calidad": true
   },
   {
     "id": "cultivo-olivo",
@@ -1483,30 +1490,30 @@
     "nombre_cientifico": "Olea europaea",
     "tipo": "fruta",
     "origen": "seed",
-    "agua_m3_ha_año_min": 2500,
-    "agua_m3_ha_año_max": 5000,
+    "agua_m3_ha_año_min": 10439,
+    "agua_m3_ha_año_max": 12504,
     "espaciado_min_m": 5,
-    "espaciado_recomendado_m": 6,
-    "ph_min": 5.5,
+    "espaciado_recomendado_m": 7,
+    "ph_min": 6.5,
     "ph_max": 8.5,
     "salinidad_tolerancia_dS_m": 4,
-    "boro_tolerancia_ppm": 2,
-    "tolerancia_boro": "media",
+    "boro_tolerancia_ppm": 2.5,
+    "tolerancia_boro": "alta",
     "tolerancia_salinidad": "alta",
     "clima": {
-      "temp_min_c": -8,
-      "temp_max_c": 40,
+      "temp_min_c": 5,
+      "temp_max_c": 35,
       "tolerancia_heladas": "alta",
       "horas_frio_requeridas": 70,
       "horas_frio_umbral_c": 10
     },
     "kc_mensual": [
-      0.65, 0.65, 0.6, 0.55, 0.5, 0.45, 0.45, 0.5, 0.55, 0.6, 0.65, 0.65
+      0.6, 0.62, 0.63, 0.58, 0.46, 0.36, 0.31, 0.41, 0.56, 0.69, 0.69, 0.65
     ],
     "nutricion": {
-      "n_kg_ha_año": 60,
-      "p_kg_ha_año": 25,
-      "k_kg_ha_año": 50,
+      "n_kg_ha_año": 121,
+      "p_kg_ha_año": 60,
+      "k_kg_ha_año": 141,
       "aplicaciones_año": 2,
       "timing": "Pre-floración (sep-oct): 60% N+P+K; post-cosecha (abr-may): 40% N+P+K",
       "notas": "Baja demanda nutricional; exceso N reduce floración. B foliar en brotación mejora cuaje. Árbol longevo que responde bien a mantenimiento con compost"
@@ -1551,8 +1558,9 @@
     },
     "produccion": {
       "produccion_kg_ha_año2": 0,
-      "produccion_kg_ha_año3": 2000,
-      "produccion_kg_ha_año4": 6000,
+      "produccion_kg_ha_año3": 0,
+      "produccion_kg_ha_año4": 1500,
+      "produccion_kg_ha_año5": 3500,
       "vida_util_dias": 180
     },
     "precio_kg_min_clp": 800,
@@ -1568,7 +1576,7 @@
         "control_recomendado": "Trampas Mcphail + GF-120 (spinosad cebo); monitorear desde envero"
       }
     ],
-    "tiempo_produccion_meses": 36,
+    "tiempo_produccion_meses": 60,
     "vida_util_años": 50,
     "tier": 1,
     "riesgo": "bajo",
@@ -1643,7 +1651,8 @@
     "kc_joven": 0.65,
     "kc_adulta": 0.75,
     "kc_madura": 0.65,
-    "recomendacion": 3
+    "recomendacion": 3,
+    "aplica_calidad": true
   },
   {
     "id": "cultivo-algarrobo",
@@ -1676,8 +1685,8 @@
     },
     "produccion": {
       "produccion_kg_ha_año2": 0,
-      "produccion_kg_ha_año3": 500,
-      "produccion_kg_ha_año4": 2000,
+      "produccion_kg_ha_año3": 1000,
+      "produccion_kg_ha_año4": 3500,
       "vida_util_dias": 365
     },
     "precio_kg_min_clp": 1200,
@@ -1713,6 +1722,180 @@
     "alelopatia": {
       "negativa": ["olivo", "higuera"],
       "distancia_minima_m": 10
-    }
+    },
+    "aplica_calidad": false
+  },
+  {
+    "id": "cultivo-mango",
+    "proyecto_id": "proyecto-arica-piloto",
+    "categoria": "produccion",
+    "nombre": "Mango",
+    "nombre_cientifico": "Mangifera indica",
+    "tipo": "fruta",
+    "origen": "seed",
+    "agua_m3_ha_año_min": 5000,
+    "agua_m3_ha_año_max": 8000,
+    "espaciado_min_m": 5,
+    "espaciado_recomendado_m": 6,
+    "ph_min": 5.5,
+    "ph_max": 7.5,
+    "salinidad_tolerancia_dS_m": 2.5,
+    "boro_tolerancia_ppm": 0.75,
+    "tolerancia_boro": "baja",
+    "tolerancia_salinidad": "media",
+    "clima": {
+      "temp_min_c": 8,
+      "temp_max_c": 48,
+      "tolerancia_heladas": "nula"
+    },
+    "kc_mensual": [
+      0.8, 0.8, 0.8, 0.6, 0.4, 0.4, 0.35, 0.35, 0.75, 0.75, 0.8, 0.8
+    ],
+    "nutricion": {
+      "n_kg_ha_año": 150,
+      "p_kg_ha_año": 50,
+      "k_kg_ha_año": 150,
+      "aplicaciones_año": 4,
+      "timing": "Brotación (sep), cuaje (oct-nov), llenado fruto (dic-ene), post-cosecha (mar)",
+      "notas": "Alta demanda de K para calidad de fruto. Evitar exceso N post-cuaje (caída frutos). Aplicar Zn foliar en brotación."
+    },
+    "etapas_fenologicas": [
+      {
+        "nombre": "Reposo / inducción floral",
+        "meses": [5, 6, 7, 8],
+        "descripcion": "Riego reducido deliberadamente para estresar la planta e inducir floración. Es la etapa crítica del mango."
+      },
+      {
+        "nombre": "Brotación floral",
+        "meses": [9, 10],
+        "descripcion": "Aparición de panículas. Reanudar riego normal. Monitorear trips en flores."
+      },
+      {
+        "nombre": "Cuaje y desarrollo inicial",
+        "meses": [10, 11],
+        "descripcion": "Frutos cuajados del tamaño de un garbanzo. Evitar déficit hídrico. Fertilizar K."
+      },
+      {
+        "nombre": "Desarrollo de fruto",
+        "meses": [11, 12, 1],
+        "descripcion": "Crecimiento activo del fruto. Riego regular. Control mosca de la fruta."
+      },
+      {
+        "nombre": "Maduración y cosecha",
+        "meses": [1, 2, 3],
+        "descripcion": "Color y aroma indican madurez. Cosechar con pedúnculo 10 cm para evitar quemadura por látex."
+      }
+    ],
+    "viabilidad_proyecto": "buena_opcion",
+    "calendario": {
+      "meses_siembra": [9, 10],
+      "meses_cosecha": [1, 2, 3],
+      "meses_descanso": [5, 6, 7, 8]
+    },
+    "produccion": {
+      "produccion_kg_ha_año2": 0,
+      "produccion_kg_ha_año3": 0,
+      "produccion_kg_ha_año4": 2000,
+      "produccion_kg_ha_año5": 6000,
+      "vida_util_dias": 18
+    },
+    "precio_kg_min_clp": 1900,
+    "precio_kg_max_clp": 2200,
+    "precio_planta_clp": 4500,
+    "plagas": [
+      {
+        "nombre": "Mosca de la fruta",
+        "nombre_cientifico": "Ceratitis capitata",
+        "grados_dia_base": 10,
+        "grados_dia_ciclo": 350,
+        "grados_dia_ovicida_ventana": 120,
+        "control_recomendado": "Trampas McPhail + cebo GF-120. Cosecha oportuna. SAG exige control para traslado."
+      },
+      {
+        "nombre": "Trips del mango",
+        "nombre_cientifico": "Scirtothrips mangiferae",
+        "grados_dia_base": 8,
+        "grados_dia_ciclo": 280,
+        "grados_dia_ovicida_ventana": 90,
+        "control_recomendado": "Monitorear en brotación y floración. Spinosad o abamectina en pico poblacional."
+      },
+      {
+        "nombre": "Cochinilla harinosa",
+        "nombre_cientifico": "Planococcus citri",
+        "grados_dia_base": 10,
+        "grados_dia_ciclo": 400,
+        "grados_dia_ovicida_ventana": 130,
+        "control_recomendado": "Aceite mineral. Control de hormigas (vectores). Liberación de Cryptolaemus."
+      }
+    ],
+    "tiempo_produccion_meses": 48,
+    "vida_util_años": 40,
+    "tier": 2,
+    "riesgo": "medio",
+    "notas": "Cultivo emblemático del Valle de Azapa. Requiere inducción floral por estrés hídrico. Alta rentabilidad una vez en producción plena.",
+    "notas_arica": "Azapa es el principal polo manguero de Chile. Variedad Tommy Atkins domina. Cosecha ene-mar con ventana de primor. Mosca de la fruta es el principal riesgo sanitario.",
+    "nutricion_por_etapa": [
+      {
+        "etapa": "plántula",
+        "nitrogeno_kg_ha": 30,
+        "fosforo_kg_ha": 20,
+        "potasio_kg_ha": 20,
+        "frecuencia_dias": 30,
+        "timing": "Establecimiento del sistema radicular. Riego frecuente pero moderado."
+      },
+      {
+        "etapa": "joven",
+        "nitrogeno_kg_ha": 60,
+        "fosforo_kg_ha": 30,
+        "potasio_kg_ha": 60,
+        "frecuencia_dias": 45,
+        "timing": "Formación de copa. Poda de formación. Sin forzar producción temprana."
+      },
+      {
+        "etapa": "adulta",
+        "nitrogeno_kg_ha": 120,
+        "fosforo_kg_ha": 60,
+        "potasio_kg_ha": 180,
+        "frecuencia_dias": 30,
+        "timing": "Brotación floral (sep): N+P. Cuaje: K. Llenado: K+Ca foliar."
+      },
+      {
+        "etapa": "madura",
+        "nitrogeno_kg_ha": 80,
+        "fosforo_kg_ha": 40,
+        "potasio_kg_ha": 120,
+        "frecuencia_dias": 45,
+        "timing": "Reducir N para no retrasar inducción. Post-cosecha: recuperación con N."
+      }
+    ],
+    "poda": [
+      {
+        "tipo": "formación",
+        "epoca": "Ago-Sep (año 1-3)",
+        "descripcion": "Despuntar a 80 cm de altura para bifurcar. Mantener 3-4 ramas principales a 60-80 cm. Eliminar chupones verticales."
+      },
+      {
+        "tipo": "producción",
+        "epoca": "Mar-Abr (post-cosecha)",
+        "descripcion": "Eliminar ramas cruzadas, enfermas o débiles. No superar 20% de la copa. Dejar luz al interior."
+      },
+      {
+        "tipo": "fitosanitaria",
+        "epoca": "Todo el año",
+        "descripcion": "Remover y quemar material con antracnosis o con alta carga de cochinilla."
+      }
+    ],
+    "propagacion": {
+      "metodo_principal": "injerto",
+      "descripcion": "Injerto de enchape lateral o escudete sobre portainjerto criollo. Plantar a raíz desnuda o bolsa. Regar post-plantación hasta establecimiento (30-45 días)."
+    },
+    "created_at": "2026-03-21T00:00:00Z",
+    "updated_at": "2026-03-21T00:00:00Z",
+    "kc_plantula": 0.35,
+    "kc_joven": 0.6,
+    "kc_adulta": 0.85,
+    "kc_madura": 0.75,
+    "recomendacion": 3,
+    "aplica_calidad": true
   }
 ]

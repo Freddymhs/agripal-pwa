@@ -95,7 +95,19 @@ export const TIPO_RIEGO = {
   PROGRAMADO: "programado",
   CONTINUO: "continuo_24_7",
   MANUAL: "manual_sesiones",
+  BALDE: "manual_balde",
 } as const satisfies Record<string, TipoSistemaRiego>;
+
+export function esRiegoManual(tipo?: TipoSistemaRiego): boolean {
+  return tipo === TIPO_RIEGO.MANUAL || tipo === TIPO_RIEGO.BALDE;
+}
+
+export const FRECUENCIA_RIEGO = {
+  DIARIO: 1,
+  CADA_2_DIAS: 2,
+  CADA_3_DIAS: 3,
+  SEMANAL: 7,
+} as const;
 
 export const ESTADO_ALERTA = {
   ACTIVA: "activa",

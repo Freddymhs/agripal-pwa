@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useProjectContext } from "@/contexts/project-context";
 import { PageLayout } from "@/components/layout/page-layout";
 import { ESTADO_PLANTA, TIPO_ZONA } from "@/lib/constants/entities";
@@ -11,16 +11,27 @@ import {
   type MetricasEconomicas,
 } from "@/lib/utils/economia-avanzada";
 import { calcularConsumoZona } from "@/lib/utils/agua";
+import { formatCLP } from "@/lib/utils";
 import { MetricasGlobales } from "@/components/economia/metricas-globales";
 import { TarjetaCultivoAvanzado } from "@/components/economia/tarjeta-cultivo-avanzado";
+import { ConfianzaPrecioBadge } from "@/components/economia/confianza-precio-badge";
+import type { ResumenPrecioHistorico } from "@/types";
+import type { PrecioMayorista } from "@/lib/data/tipos-mercado";
 
 interface ResumenAvanzado {
+  cultivoId: string;
+  cultivoBaseId: string | undefined;
   cultivoNombre: string;
   zonaNombre: string;
   metricas: MetricasEconomicas;
 }
 
 export default function EconomiaAvanzadaPage() {
+  const [simuladorOpen, setSimuladorOpen] = useState(false);
+  const [precioAguaSimulado, setPrecioAguaSimulado] = useState<number | null>(
+    null,
+  );
+
   const {
     terrenoActual: terreno,
     proyectoActual,
@@ -28,21 +39,38 @@ export default function EconomiaAvanzadaPage() {
     plantas,
     catalogoCultivos,
     loading,
-    datosBaseHook,
     opcionesConsumoAgua,
+    datosBaseHook,
   } = useProjectContext();
 
-  const fuentesAgua = datosBaseHook.datosBase.fuentesAgua;
+  const costoAguaM3Real = useMemo(() => {
+    if (!terreno || zonas.length === 0) return 0;
+    const estanques = filtrarEstanques(zonas);
+    return obtenerCostoAguaPromedio(estanques, terreno);
+  }, [terreno, zonas]);
+
+  const costoAguaM3Efectivo = precioAguaSimulado ?? costoAguaM3Real;
+  const usandoSimulador = precioAguaSimulado !== null;
+
+  const preciosMap = useMemo(() => {
+    const map = new Map<string, PrecioMayorista>();
+    for (const p of datosBaseHook.datosBase.precios) {
+      map.set(p.cultivo_id, p);
+    }
+    return map;
+  }, [datosBaseHook.datosBase.precios]);
+
+  const resumenHistMap = useMemo(() => {
+    const map = new Map<string, ResumenPrecioHistorico>();
+    for (const r of datosBaseHook.datosBase.resumenHistoricos) {
+      map.set(r.nombre_odepa, r);
+    }
+    return map;
+  }, [datosBaseHook.datosBase.resumenHistoricos]);
 
   const resumen = useMemo<ResumenAvanzado[]>(() => {
     if (!terreno || zonas.length === 0) return [];
 
-    const estanques = filtrarEstanques(zonas);
-    const costoAguaM3 = obtenerCostoAguaPromedio(
-      estanques,
-      terreno,
-      fuentesAgua,
-    );
     const suelo = proyectoActual?.suelo ?? null;
     const items: ResumenAvanzado[] = [];
 
@@ -78,13 +106,15 @@ export default function EconomiaAvanzadaPage() {
           cultivo,
           zona,
           count,
-          costoAguaM3,
+          costoAguaM3Efectivo,
           consumoCultivo,
           suelo,
         );
         const metricas = calcularMetricasEconomicas(roi, cultivo, roi.kg_año3);
 
         items.push({
+          cultivoId,
+          cultivoBaseId: cultivo.cultivo_base_id,
           cultivoNombre: cultivo.nombre,
           zonaNombre: zona.nombre,
           metricas,
@@ -98,9 +128,9 @@ export default function EconomiaAvanzadaPage() {
     zonas,
     plantas,
     catalogoCultivos,
-    fuentesAgua,
     proyectoActual?.suelo,
     opcionesConsumoAgua,
+    costoAguaM3Efectivo,
   ]);
 
   const global = useMemo(() => {
@@ -137,6 +167,86 @@ export default function EconomiaAvanzadaPage() {
   return (
     <PageLayout headerColor="emerald" title="Economia Avanzada">
       <main className="p-4 space-y-4 max-w-4xl mx-auto">
+        {costoAguaM3Efectivo === 0 && resumen.length > 0 && (
+          <div className="p-3 rounded-lg text-sm bg-orange-50 text-orange-800 border border-orange-200">
+            <strong>Costo del agua no configurado.</strong> Las metricas de
+            costo/kg solo reflejan plantas amortizadas.{" "}
+            <a href="/agua" className="underline font-medium">
+              Configurar agua
+            </a>{" "}
+            o usa el simulador abajo.
+          </div>
+        )}
+
+        {/* Simulador precio agua */}
+        {resumen.length > 0 && (
+          <div className="border border-gray-200 rounded-lg overflow-hidden">
+            <button
+              onClick={() => setSimuladorOpen(!simuladorOpen)}
+              className="w-full flex items-center justify-between px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 transition-colors"
+            >
+              <span className="flex items-center gap-2">
+                <span>Simular precio del agua</span>
+                {usandoSimulador && (
+                  <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-medium">
+                    {formatCLP(precioAguaSimulado ?? 0)}/m3 activo
+                  </span>
+                )}
+                {!usandoSimulador && costoAguaM3Real > 0 && (
+                  <span className="text-xs text-gray-400">
+                    Real: {formatCLP(costoAguaM3Real)}/m3
+                  </span>
+                )}
+              </span>
+              <svg
+                className={`w-4 h-4 text-gray-400 transition-transform ${simuladorOpen ? "rotate-180" : ""}`}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </button>
+            {simuladorOpen && (
+              <div className="px-3 pb-3 pt-1 bg-gray-50 border-t border-gray-200">
+                <p className="text-xs text-gray-500 mb-2">
+                  Ajusta el precio (incluye transporte) para comparar
+                  escenarios. No modifica tu configuracion real.
+                </p>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-600 shrink-0">
+                    CLP/m3:
+                  </span>
+                  <input
+                    type="number"
+                    min={0}
+                    step={100}
+                    value={precioAguaSimulado ?? costoAguaM3Real}
+                    onChange={(e) => {
+                      const v = parseFloat(e.target.value);
+                      setPrecioAguaSimulado(isNaN(v) || v < 0 ? 0 : v);
+                    }}
+                    className="w-28 border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
+                  />
+                  {usandoSimulador && (
+                    <button
+                      onClick={() => setPrecioAguaSimulado(null)}
+                      className="text-xs text-gray-500 underline hover:text-gray-700"
+                    >
+                      Restaurar real
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {global && <MetricasGlobales {...global} />}
 
         {resumen.length === 0 ? (
@@ -148,9 +258,26 @@ export default function EconomiaAvanzadaPage() {
           </div>
         ) : (
           <div className="space-y-3">
-            {resumen.map((r, i) => (
-              <TarjetaCultivoAvanzado key={i} {...r} />
-            ))}
+            {resumen.map((r, i) => {
+              const pm = preciosMap.get(r.cultivoBaseId ?? "");
+              const hist = pm?.nombre_odepa
+                ? resumenHistMap.get(pm.nombre_odepa)
+                : undefined;
+              return (
+                <TarjetaCultivoAvanzado
+                  key={i}
+                  cultivoNombre={r.cultivoNombre}
+                  zonaNombre={r.zonaNombre}
+                  metricas={r.metricas}
+                  confianzaBadge={
+                    <ConfianzaPrecioBadge
+                      nombreOdepa={pm?.nombre_odepa}
+                      resumen={hist}
+                    />
+                  }
+                />
+              );
+            })}
           </div>
         )}
 
@@ -158,8 +285,8 @@ export default function EconomiaAvanzadaPage() {
           <h3 className="font-bold text-blue-900 mb-2">Como se calcula</h3>
           <ul className="text-blue-800 space-y-1 text-xs">
             <li>
-              <strong>Costo/kg:</strong> Costos operacion anuales / kg
-              producidos ano 3
+              <strong>Costo/kg:</strong> (Agua anual + Plantas amortizadas a 5
+              años) / kg producidos año 3
             </li>
             <li>
               <strong>Punto equilibrio:</strong> Costos / (Precio venta - Costo

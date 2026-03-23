@@ -32,6 +32,9 @@ export const ROUTES = {
   ECONOMIA_AVANZADO: "/economia/avanzado",
   ECONOMIA_ESCENARIOS: "/economia/escenarios",
 
+  // Calendario Gantt
+  GANTT: "/gantt",
+
   // Datos de referencia
   DATOS_CATALOGO: "/datos/catalogo",
   DATOS_CLIMA: "/datos/clima",

@@ -18,6 +18,7 @@ import {
   TIPO_ZONA,
   TIPO_RIEGO,
   ESTADO_AGUA,
+  esRiegoManual,
 } from "@/lib/constants/entities";
 import {
   SEMANAS_POR_AÑO,
@@ -99,16 +100,39 @@ export function calcularConsumoZona(
     return 0;
   }
 
-  const consumoBruto = plantas.reduce((total, planta) => {
-    if (planta.estado === ESTADO_PLANTA.MUERTA) return total;
+  // Si la zona tiene riego manual con litros_por_planta configurado,
+  // usar el consumo real en vez del teórico (Kc × ET0)
+  const config = zona.configuracion_riego;
+  const usarConsumoManual =
+    config &&
+    esRiegoManual(config.tipo) &&
+    config.litros_por_planta != null &&
+    config.litros_por_planta > 0 &&
+    config.frecuencia_dias != null &&
+    config.frecuencia_dias > 0;
 
-    const cultivo = catalogoCultivos.find(
-      (c) => c.id === planta.tipo_cultivo_id,
-    );
-    if (!cultivo) return total;
+  const consumoBruto = usarConsumoManual
+    ? (() => {
+        const plantasVivas = plantas.filter(
+          (p) => p.estado !== ESTADO_PLANTA.MUERTA,
+        ).length;
+        const litrosPorPlantaSemana =
+          config.litros_por_planta! *
+          (DIAS_POR_SEMANA / config.frecuencia_dias!);
+        return (plantasVivas * litrosPorPlantaSemana) / LITROS_POR_M3;
+      })()
+    : plantas.reduce((total, planta) => {
+        if (planta.estado === ESTADO_PLANTA.MUERTA) return total;
 
-    return total + calcularConsumoPlanta(planta, cultivo, temporada, opciones);
-  }, 0);
+        const cultivo = catalogoCultivos.find(
+          (c) => c.id === planta.tipo_cultivo_id,
+        );
+        if (!cultivo) return total;
+
+        return (
+          total + calcularConsumoPlanta(planta, cultivo, temporada, opciones)
+        );
+      }, 0);
 
   // Restar aporte de lluvia: mm sobre m² → m³, dividido en semanas
   const lluviaAnualMm = opciones?.climaDatos?.lluvia?.anual_mm;
@@ -147,7 +171,7 @@ export function calcularConsumoRiegoZona(zona: Zona): number {
   const config = zona.configuracion_riego;
   if (!config || !config.caudal_total_lh) return 0;
   // Riego manual: el consumo se registra por sesión, no fluye continuamente
-  if (config.tipo === TIPO_RIEGO.MANUAL) return 0;
+  if (esRiegoManual(config.tipo)) return 0;
 
   const horasDia = (() => {
     if (config.tipo === TIPO_RIEGO.CONTINUO) return HORAS_POR_DIA;
@@ -354,7 +378,7 @@ export function calcularDescuentoAutomatico(
 
   for (const zona of zonasCultivo) {
     // Zonas con riego manual no descuentan automáticamente — solo al registrar sesión
-    if (zona.configuracion_riego?.tipo === TIPO_RIEGO.MANUAL) continue;
+    if (esRiegoManual(zona.configuracion_riego?.tipo)) continue;
     if (zona.estanque_id) {
       const grupo = zonasAsignadas.get(zona.estanque_id) ?? [];
       grupo.push(zona);

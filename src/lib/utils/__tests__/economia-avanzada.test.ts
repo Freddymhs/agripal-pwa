@@ -10,6 +10,7 @@ const roiFixture: ProyeccionROI = {
   zona_nombre: "Zona Test",
   num_plantas: 277,
   area_ha: 1,
+  factor_riego: 1.0,
   costo_plantas: 2216000,
   costo_agua_anual: 1200000,
   inversion_total: 3416000,
@@ -28,6 +29,8 @@ const roiFixture: ProyeccionROI = {
   roi_5_años_pct: 1551,
   punto_equilibrio_meses: 8,
   viable: true,
+  agua_anual_m3: 6000,
+  precio_agua_break_even: 15400,
 };
 
 const cultivoFixture: CatalogoCultivo = {
@@ -87,7 +90,9 @@ describe("calcularMetricasEconomicas", () => {
 
   it("calcula costo de produccion por kg correctamente", () => {
     const result = calcularMetricasEconomicas(roiFixture, cultivoFixture, 5000);
-    const expected = roiFixture.costo_agua_anual / 5000;
+    const costoTotalAnual =
+      roiFixture.costo_agua_anual + roiFixture.costo_plantas / 5;
+    const expected = costoTotalAnual / 5000;
     expect(result.costoProduccionKg).toBe(expected);
   });
 
@@ -158,5 +163,24 @@ describe("calcularMetricasEconomicas", () => {
   it("mantiene kgProducidosAño en la respuesta", () => {
     const result = calcularMetricasEconomicas(roiFixture, cultivoFixture, 3000);
     expect(result.kgProducidosAño).toBe(3000);
+  });
+
+  it("expone desglose de costos (agua, plantas amortizadas, total)", () => {
+    const result = calcularMetricasEconomicas(roiFixture, cultivoFixture, 5000);
+    expect(result.costoAguaAnual).toBe(roiFixture.costo_agua_anual);
+    expect(result.costoPlantasAmortizado).toBe(roiFixture.costo_plantas / 5);
+    expect(result.costoTotalAnual).toBe(
+      roiFixture.costo_agua_anual + roiFixture.costo_plantas / 5,
+    );
+  });
+
+  it("costoTotalAnual > 0 incluso cuando agua = $0 si hay plantas", () => {
+    const roiSinAgua: ProyeccionROI = {
+      ...roiFixture,
+      costo_agua_anual: 0,
+    };
+    const result = calcularMetricasEconomicas(roiSinAgua, cultivoFixture, 5000);
+    expect(result.costoTotalAnual).toBeGreaterThan(0);
+    expect(result.costoProduccionKg).toBeGreaterThan(0);
   });
 });

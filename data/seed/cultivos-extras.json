@@ -67,7 +67,8 @@
     "alelopatia": {
       "negativa": ["lechuga", "acelga"],
       "distancia_minima_m": 1.5
-    }
+    },
+    "aplica_calidad": false
   },
   {
     "id": "verdura-ajo",
@@ -137,7 +138,8 @@
     "alelopatia": {
       "negativa": ["quinoa", "poroto"],
       "distancia_minima_m": 2
-    }
+    },
+    "aplica_calidad": true
   },
   {
     "id": "verdura-cebolla",
@@ -207,7 +209,8 @@
     "alelopatia": {
       "negativa": ["quinoa", "poroto"],
       "distancia_minima_m": 2
-    }
+    },
+    "aplica_calidad": true
   },
   {
     "id": "verdura-zapallo",
@@ -273,7 +276,8 @@
     "kc_joven": 0.7,
     "kc_adulta": 1,
     "kc_madura": 0.8,
-    "recomendacion": 3
+    "recomendacion": 3,
+    "aplica_calidad": true
   },
   {
     "id": "verdura-camote",
@@ -339,7 +343,8 @@
     "kc_joven": 0.7,
     "kc_adulta": 1,
     "kc_madura": 0.75,
-    "recomendacion": 3
+    "recomendacion": 3,
+    "aplica_calidad": true
   },
   {
     "id": "verdura-romero",
@@ -409,7 +414,8 @@
     "alelopatia": {
       "negativa": ["lechuga", "acelga", "zanahoria"],
       "distancia_minima_m": 1.5
-    }
+    },
+    "aplica_calidad": false
   },
   {
     "id": "verdura-quinoa",
@@ -475,7 +481,8 @@
     "kc_joven": 0.7,
     "kc_adulta": 1,
     "kc_madura": 0.4,
-    "recomendacion": 3
+    "recomendacion": 3,
+    "aplica_calidad": false
   },
   {
     "id": "huerto-tomate-cherry",
@@ -540,7 +547,8 @@
     "alelopatia": {
       "negativa": ["aji"],
       "distancia_minima_m": 2
-    }
+    },
+    "aplica_calidad": true
   },
   {
     "id": "huerto-aji",
@@ -605,7 +613,8 @@
     "alelopatia": {
       "negativa": ["tomate"],
       "distancia_minima_m": 2
-    }
+    },
+    "aplica_calidad": true
   },
   {
     "id": "huerto-choclo",
@@ -678,6 +687,199 @@
     "alelopatia": {
       "negativa": ["tomate", "oregano"],
       "distancia_minima_m": 3
-    }
+    },
+    "aplica_calidad": true
+  },
+  {
+    "id": "verdura-melon-primor",
+    "proyecto_id": "proyecto-arica-piloto",
+    "categoria": "produccion",
+    "nombre": "Melón Primor",
+    "nombre_cientifico": "Cucumis melo (Galia/Calameño)",
+    "tipo": "verdura",
+    "origen": "seed",
+    "agua_m3_ha_año_min": 1800,
+    "agua_m3_ha_año_max": 2200,
+    "espaciado_min_m": 0.5,
+    "espaciado_recomendado_m": 0.63,
+    "ph_min": 6.2,
+    "ph_max": 7.1,
+    "salinidad_tolerancia_dS_m": 2.25,
+    "boro_tolerancia_ppm": 1,
+    "tolerancia_boro": "baja",
+    "tolerancia_salinidad": "media",
+    "clima": {
+      "temp_min_c": 15,
+      "temp_max_c": 35,
+      "tolerancia_heladas": "nula"
+    },
+    "kc_mensual": [0, 0, 0, 0.45, 0.75, 0.75, 1, 1, 0.75, 0.75, 0, 0],
+    "nutricion": {
+      "n_kg_ha_año": 641,
+      "p_kg_ha_año": 407,
+      "k_kg_ha_año": 608,
+      "aplicaciones_año": 1,
+      "timing": "Fertirrigación continua durante ciclo abr-oct",
+      "notas": "Ciclo corto (4 meses). Cultivo bajo invernadero/malla obligatorio. Contra-estación: cosecha ago-nov = precio premium en Santiago."
+    },
+    "etapas_fenologicas": [
+      {
+        "nombre": "Siembra y emergencia",
+        "meses": [4, 5],
+        "descripcion": "Trasplante bajo invernadero; Kc inicial 0.45"
+      },
+      {
+        "nombre": "Desarrollo vegetativo",
+        "meses": [5, 6, 7],
+        "descripcion": "Entutorado en espaldera; Kc 0.75-1.00; cuaja requiere 20°C"
+      },
+      {
+        "nombre": "Cosecha",
+        "meses": [8, 9, 10, 11],
+        "descripcion": "Cosechas escalonadas; venta en Lo Valledor contra-estación"
+      }
+    ],
+    "viabilidad_proyecto": "mejor_opcion",
+    "calendario": {
+      "meses_siembra": [4, 5],
+      "meses_cosecha": [8, 9, 10, 11],
+      "meses_descanso": [12, 1, 2, 3]
+    },
+    "produccion": {
+      "produccion_kg_ha_año2": 52000,
+      "produccion_kg_ha_año3": 52000,
+      "produccion_kg_ha_año4": 52000,
+      "vida_util_dias": 14
+    },
+    "precio_kg_min_clp": 600,
+    "precio_kg_max_clp": 900,
+    "precio_planta_clp": 150,
+    "plagas": [
+      {
+        "nombre": "Oídio",
+        "nombre_cientifico": "Podosphaera xanthii",
+        "grados_dia_base": 10,
+        "grados_dia_ciclo": 200,
+        "grados_dia_ovicida_ventana": 80,
+        "control_recomendado": "Azufre + fungicida preventivo en desarrollo vegetativo"
+      },
+      {
+        "nombre": "Mosca del melón",
+        "nombre_cientifico": "Bactrocera cucurbitae",
+        "grados_dia_base": 10,
+        "grados_dia_ciclo": 350,
+        "grados_dia_ovicida_ventana": 100,
+        "control_recomendado": "Trampas + spinosad; cosecha oportuna"
+      }
+    ],
+    "tiempo_produccion_meses": 4,
+    "vida_util_años": 1,
+    "tier": 1,
+    "riesgo": "medio",
+    "notas": "Ciclo corto (4 meses). Modelo contra-estación INIA Arica. Requiere invernadero/malla. 2.5 plantas/m² en espaldera. OPEX ~$3.588.000/ha. Rendimiento validado INIA: ~52 t/ha (Galia entutorada).",
+    "notas_arica": "Siembra abr-may para cosecha ago-nov. Ventana de precios premium en Santiago (invierno). Solo paga agua durante el ciclo activo → reduce OPEX vs frutales perennes. Polinización natural o manual.",
+    "kc_plantula": 0.45,
+    "kc_joven": 0.75,
+    "kc_adulta": 1,
+    "kc_madura": 0.75,
+    "recomendacion": 5,
+    "requiere_infraestructura": "invernadero_malla",
+    "aplica_calidad": true
+  },
+  {
+    "id": "verdura-sandia-primor",
+    "proyecto_id": "proyecto-arica-piloto",
+    "categoria": "produccion",
+    "nombre": "Sandía Primor",
+    "nombre_cientifico": "Citrullus lanatus (Sugar Baby)",
+    "tipo": "verdura",
+    "origen": "seed",
+    "agua_m3_ha_año_min": 1800,
+    "agua_m3_ha_año_max": 2200,
+    "espaciado_min_m": 1,
+    "espaciado_recomendado_m": 1.5,
+    "ph_min": 6.5,
+    "ph_max": 7.5,
+    "salinidad_tolerancia_dS_m": 2.5,
+    "boro_tolerancia_ppm": 1,
+    "tolerancia_boro": "baja",
+    "tolerancia_salinidad": "baja",
+    "clima": {
+      "temp_min_c": 9,
+      "temp_max_c": 40,
+      "tolerancia_heladas": "nula"
+    },
+    "kc_mensual": [0, 0, 0, 0.45, 0.75, 0.75, 1, 1, 0.7, 0, 0, 0],
+    "nutricion": {
+      "n_kg_ha_año": 200,
+      "p_kg_ha_año": 100,
+      "k_kg_ha_año": 250,
+      "aplicaciones_año": 1,
+      "timing": "Fertirrigación continua durante ciclo abr-sep",
+      "notas": "Ciclo corto (4 meses). Cultivo en sustrato/contenedor bajo invernadero. Requiere polinización por abejorros (Bombus terrestris)."
+    },
+    "etapas_fenologicas": [
+      {
+        "nombre": "Siembra y emergencia",
+        "meses": [4, 5],
+        "descripcion": "Trasplante en sustrato bajo invernadero; Kc inicial 0.45"
+      },
+      {
+        "nombre": "Desarrollo y cuaja",
+        "meses": [6, 7],
+        "descripcion": "Kc 1.00; polinización por abejorros; cuaja requiere 20°C"
+      },
+      {
+        "nombre": "Cosecha",
+        "meses": [8, 9],
+        "descripcion": "Precio máximo ago-sep en zona central. Cosecha oportuna."
+      }
+    ],
+    "viabilidad_proyecto": "recomendado",
+    "calendario": {
+      "meses_siembra": [4, 5],
+      "meses_cosecha": [8, 9],
+      "meses_descanso": [10, 11, 12, 1, 2, 3]
+    },
+    "produccion": {
+      "produccion_kg_ha_año2": 7100,
+      "produccion_kg_ha_año3": 7100,
+      "produccion_kg_ha_año4": 7100,
+      "vida_util_dias": 21
+    },
+    "precio_kg_min_clp": 400,
+    "precio_kg_max_clp": 800,
+    "precio_planta_clp": 100,
+    "plagas": [
+      {
+        "nombre": "Oídio cucurbitáceas",
+        "nombre_cientifico": "Podosphaera xanthii",
+        "grados_dia_base": 10,
+        "grados_dia_ciclo": 200,
+        "grados_dia_ovicida_ventana": 80,
+        "control_recomendado": "Azufre + fungicida preventivo; mantener ventilación en invernadero"
+      },
+      {
+        "nombre": "Arañita roja",
+        "nombre_cientifico": "Tetranychus urticae",
+        "grados_dia_base": 12,
+        "grados_dia_ciclo": 150,
+        "grados_dia_ovicida_ventana": 50,
+        "control_recomendado": "Acaricida + control biológico con Phytoseiulus; mantener humedad"
+      }
+    ],
+    "tiempo_produccion_meses": 4,
+    "vida_util_años": 1,
+    "tier": 1,
+    "riesgo": "alto",
+    "notas": "Ciclo corto (4 meses). Modelo contra-estación INIA Arica. Requiere invernadero + sustrato. Rendimiento INIA: 7.1 t/ha en sustrato (bajo por oídio/arañita en ensayos). Potencial mayor con manejo sanitario.",
+    "notas_arica": "Cosecha óptima ago-sep = precios máximos en zona central. Polinización obligatoria por abejorros. Rendimientos INIA fueron afectados por plagas; con buen manejo sanitario podrían mejorar significativamente.",
+    "kc_plantula": 0.45,
+    "kc_joven": 0.75,
+    "kc_adulta": 1,
+    "kc_madura": 0.7,
+    "recomendacion": 3,
+    "requiere_infraestructura": "invernadero_malla",
+    "aplica_calidad": true
   }
 ]

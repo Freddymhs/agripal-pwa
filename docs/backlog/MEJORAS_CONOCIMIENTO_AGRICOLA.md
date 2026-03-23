@@ -4,6 +4,17 @@
 **Fecha**: 2026-03-08
 **Tipo**: Mejoras incrementales al producto existente — NO son fases nuevas.
 
+> **Estado al 2026-03-21:**
+>
+> - ✅ **1. NPK por Etapa** — `nutricion_por_etapa[]` en tipos + alerta `fertilizacion_etapa` (FASE_20)
+> - ✅ **2. Compatibilidad Química** — matriz insumos, alerta `incompatibilidad_quimica` (FASE_21)
+> - ⏳ **3. Poda por Especie** — tipos `PodaCultivo` existen, falta UI en ficha del cultivo
+> - ✅ **4. Vecería** — `VeceriaCultivo` en tipos + alerta `veceria_riesgo` (FASE_20)
+> - ✅ **5. Alelopatía** — `AlelopatiaCultivo` en tipos + alerta `alelopatia_riesgo` (FASE_20)
+> - ⏳ **6. Vida Útil Poscosecha** — campo `vida_util_dias` existe en seed, falta integración con /cosechas
+> - ✅ **7. Micronutrientes Suelo Alcalino** — quelatos Fe/Zn/Mn en enmiendas.json + alerta `deficiencia_micronutrientes` (FASE_20)
+> - ⏳ **8. Propagación** — pendiente (va al Portal, no a la PWA)
+
 ---
 
 ## 1. NPK por Etapa Fenológica

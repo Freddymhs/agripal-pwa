@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { formatCLP } from "@/lib/utils";
 import { clamp } from "@/lib/utils/math";
 import type { MetricasEconomicas } from "@/lib/utils/economia-avanzada";
@@ -7,17 +8,22 @@ interface TarjetaCultivoAvanzadoProps {
   cultivoNombre: string;
   zonaNombre: string;
   metricas: MetricasEconomicas;
+  confianzaBadge?: ReactNode;
 }
 
 export function TarjetaCultivoAvanzado({
   cultivoNombre,
   zonaNombre,
   metricas,
+  confianzaBadge,
 }: TarjetaCultivoAvanzadoProps) {
   return (
     <div className="bg-white rounded-lg shadow p-4">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="font-bold text-gray-900">{cultivoNombre}</h3>
+        <h3 className="font-bold text-gray-900">
+          {cultivoNombre}
+          {confianzaBadge && <span className="ml-2">{confianzaBadge}</span>}
+        </h3>
         <span className="text-sm text-gray-500">{zonaNombre}</span>
       </div>
 
@@ -29,6 +35,22 @@ export function TarjetaCultivoAvanzado({
           </div>
           <div className="text-xs text-blue-500">
             vs venta {formatCLP(metricas.precioVentaKg)}
+          </div>
+          <div className="text-xs mt-1 text-blue-400">
+            {metricas.costoAguaAnual > 0 ? (
+              `Agua: ${formatCLP(metricas.costoAguaAnual > 0 && metricas.kgProducidosAño > 0 ? metricas.costoAguaAnual / metricas.kgProducidosAño : 0)}/kg`
+            ) : (
+              <span className="text-orange-500">Agua: sin configurar</span>
+            )}
+            {" · "}
+            Plantas:{" "}
+            {formatCLP(
+              metricas.costoPlantasAmortizado > 0 &&
+                metricas.kgProducidosAño > 0
+                ? metricas.costoPlantasAmortizado / metricas.kgProducidosAño
+                : 0,
+            )}
+            /kg
           </div>
         </div>
         <div className="bg-purple-50 p-3 rounded">

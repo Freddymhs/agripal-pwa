@@ -9,7 +9,7 @@ import {
   getEstadoDiasAgua,
 } from "@/lib/utils/agua";
 import { clamp } from "@/lib/utils/math";
-import { formatCLP } from "@/lib/utils";
+
 import { evaluarCompatibilidadMultiple } from "@/lib/validations/agua";
 import type { Zona, Planta, CatalogoCultivo, UUID, FuenteAgua } from "@/types";
 import { DIAS_POR_SEMANA } from "@/lib/constants/conversiones";
@@ -331,12 +331,6 @@ export function EstanquePanel({
                 </div>
               )}
             </div>
-            {fuenteActual.costo_m3_clp != null &&
-              fuenteActual.costo_m3_clp > 0 && (
-                <div className="text-xs text-gray-500">
-                  Costo: {formatCLP(fuenteActual.costo_m3_clp)}/m³
-                </div>
-              )}
             {fuenteActual.notas && (
               <p className="text-xs text-gray-500 italic">
                 {fuenteActual.notas}

@@ -4,7 +4,6 @@ import type {
   Planta,
   CatalogoCultivo,
   Temporada,
-  FuenteAgua,
 } from "@/types";
 import { ESTADO_PLANTA, TEMPORADA } from "@/lib/constants/entities";
 import {
@@ -66,7 +65,6 @@ export function generarProyeccionAnual(
   zonas: Zona[],
   plantas: Planta[],
   catalogoCultivos: CatalogoCultivo[],
-  fuentesAgua: FuenteAgua[],
   opcionesConsumoAgua?: OpcionesConsumoAgua,
 ): ProyeccionAnual {
   const hoy = new Date();
@@ -226,8 +224,7 @@ export function generarProyeccionAnual(
 
   eventos.sort((a, b) => a.fecha.getTime() - b.fecha.getTime());
 
-  const costoAguaM3 =
-    obtenerCostoAguaPromedio(estanques, terreno, fuentesAgua) || 0;
+  const costoAguaM3 = obtenerCostoAguaPromedio(estanques, terreno) || 0;
   const costosAgua = consumoTotalAnual * costoAguaM3;
 
   return {

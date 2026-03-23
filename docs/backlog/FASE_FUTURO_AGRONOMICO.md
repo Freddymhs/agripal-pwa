@@ -1,9 +1,18 @@
 # FASE FUTURO: Módulos Agronómicos Pendientes
 
-**Status**: ⏳ PENDIENTE — implementar después de FASE_LAUNCH
+**Status**: ⏳ PARCIALMENTE COMPLETADA — puntos 1, 4 y 5 implementados en FASE_20
 **Prioridad**: 🟡 MEDIA
 **Dependencias**: catálogo de cultivos estable en Supabase
 **Fuente de datos**: Notion "PROYECTO ARICA — Índice de Conocimiento Agrícola" (investigación 2026-03-08)
+
+> **Progreso al 2026-03-08** (FASE_20):
+>
+> - ✅ **Punto 1 — NPK por etapa**: `nutricion_por_etapa` implementado en tipos + alertas (`fertilizacion_etapa`)
+> - ✅ **Punto 4 — Alelopatía**: `alelopatia_riesgo` en alertas, `AlelopatiaCultivo` en tipos
+> - ✅ **Punto 5 — Vecería**: `veceria_riesgo` en alertas, `VeceriaCultivo` en tipos
+> - ⏳ **Punto 2 — Poda y raleo**: pendiente (datos investigados, falta UI + alertas)
+> - ⏳ **Punto 3 — Vida útil poscosecha**: pendiente
+> - ⏳ **Punto 6 — Propagación**: pendiente (va al Portal, no a la PWA)
 
 ---
 

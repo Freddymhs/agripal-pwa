@@ -1,14 +1,17 @@
-import type { CatalogoCultivo, Zona, SueloTerreno } from "@/types";
+import type {
+  CatalogoCultivo,
+  Zona,
+  SueloTerreno,
+  PerfilCalidad,
+} from "@/types";
 import { calcularROI, type ProyeccionROI } from "./roi";
 import {
   calcularMetricasEconomicas,
   type MetricasEconomicas,
 } from "./economia-avanzada";
 import { calcularFactorSuelo } from "./calidad";
-import { M2_POR_HECTAREA } from "@/lib/constants/conversiones";
 import {
   calcularDensidadPlantas,
-  calcularAguaPromedioHaAño,
   resolverAreaZona,
 } from "@/lib/utils/helpers-cultivo";
 
@@ -25,6 +28,7 @@ export function compararCultivos(
   zona: Zona,
   suelo: SueloTerreno | null,
   costoAguaM3: number,
+  perfilCalidad?: PerfilCalidad | null,
 ): EscenarioCultivo[] {
   return cultivos.map((cultivo) => {
     const areaM2 = resolverAreaZona(zona);
@@ -32,7 +36,6 @@ export function compararCultivos(
       cultivo.espaciado_recomendado_m,
       areaM2,
     );
-    const areaHa = areaM2 / M2_POR_HECTAREA;
 
     const roi = calcularROI(
       cultivo,
@@ -41,11 +44,13 @@ export function compararCultivos(
       costoAguaM3,
       undefined,
       suelo,
+      undefined,
+      perfilCalidad,
     );
     const kgAño = roi.kg_año3;
     const metricas = calcularMetricasEconomicas(roi, cultivo, kgAño);
 
-    const consumoAguaAnualM3 = calcularAguaPromedioHaAño(cultivo) * areaHa;
+    const consumoAguaAnualM3 = roi.agua_anual_m3;
 
     const factorSueloVal = suelo ? calcularFactorSuelo(suelo, cultivo) : 1.0;
 

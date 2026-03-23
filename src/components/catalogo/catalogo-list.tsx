@@ -8,6 +8,13 @@ import type { CatalogoCultivo, UUID } from "@/types";
 import { formatCLP } from "@/lib/utils";
 import { esCultivoCompleto } from "@/lib/utils/helpers-cultivo";
 
+const TIPO_LABELS: Record<string, string> = {
+  fruta: "Frutas",
+  verdura: "Verduras",
+  aromatica: "Aromáticas",
+  grano: "Granos",
+};
+
 interface CatalogoListProps {
   cultivos: CatalogoCultivo[];
   onEditar: (cultivo: CatalogoCultivo) => void;
@@ -22,6 +29,7 @@ export function CatalogoList({
   const { datosBaseHook } = useProjectContext();
   const precios = datosBaseHook.datosBase.precios ?? [];
   const mercadoDetalle = datosBaseHook.datosBase.mercadoDetalle ?? [];
+  const [filtroTipo, setFiltroTipo] = useState<string | null>(null);
 
   if (cultivos.length === 0) {
     return (
@@ -31,15 +39,53 @@ export function CatalogoList({
     );
   }
 
-  const completos = cultivos.filter((c) =>
+  const tiposDisponibles = [
+    ...new Set(cultivos.map((c) => c.tipo).filter(Boolean)),
+  ] as string[];
+
+  const cultivosFiltrados = filtroTipo
+    ? cultivos.filter((c) => c.tipo === filtroTipo)
+    : cultivos;
+
+  const completos = cultivosFiltrados.filter((c) =>
     esCultivoCompleto(c, precios, mercadoDetalle),
   );
-  const incompletos = cultivos.filter(
+  const incompletos = cultivosFiltrados.filter(
     (c) => !esCultivoCompleto(c, precios, mercadoDetalle),
   );
 
   return (
     <div className="space-y-6">
+      {tiposDisponibles.length > 1 && (
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => setFiltroTipo(null)}
+            className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+              filtroTipo === null
+                ? "bg-green-600 text-white"
+                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+            }`}
+          >
+            Todos ({cultivos.length})
+          </button>
+          {tiposDisponibles.map((tipo) => {
+            const count = cultivos.filter((c) => c.tipo === tipo).length;
+            return (
+              <button
+                key={tipo}
+                onClick={() => setFiltroTipo(filtroTipo === tipo ? null : tipo)}
+                className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                  filtroTipo === tipo
+                    ? "bg-green-600 text-white"
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                }`}
+              >
+                {TIPO_LABELS[tipo] ?? tipo} ({count})
+              </button>
+            );
+          })}
+        </div>
+      )}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {completos.map((cultivo) => (
           <CultivoCard

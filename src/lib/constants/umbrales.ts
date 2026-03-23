@@ -17,3 +17,7 @@ export const PESO_SCORE_RIEGO = 0.25;
 
 export const FACTOR_EXCESO_GRAVE_BORO = 2;
 export const FACTOR_EXCESO_GRAVE_SALINIDAD = 1.5;
+
+/** Precio máximo razonable CLP/kg para wholesale agrícola en Chile.
+ *  Cubre aromáticas premium (orégano ~10k, romero ~8k) con margen. */
+export const PRECIO_KG_TECHO_CLP = 15000;

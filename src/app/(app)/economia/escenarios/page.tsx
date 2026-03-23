@@ -35,7 +35,6 @@ export default function EscenariosPage() {
   const [zonaId, setZonaId] = useState<string>("");
   const [seleccion, setSeleccion] = useState<string[]>([]);
 
-  const fuentesAgua = datosBaseHook.datosBase.fuentesAgua;
   const rawPrecios = datosBaseHook.datosBase.precios;
   const rawMercadoDetalle = datosBaseHook.datosBase.mercadoDetalle;
 
@@ -87,11 +86,7 @@ export default function EscenariosPage() {
       .filter((c): c is CatalogoCultivo => c != null);
 
     const estanques = filtrarEstanques(zonas);
-    const costoAguaM3 = obtenerCostoAguaPromedio(
-      estanques,
-      terreno,
-      fuentesAgua,
-    );
+    const costoAguaM3 = obtenerCostoAguaPromedio(estanques, terreno);
 
     return compararCultivos(
       cultivosSelec,
@@ -105,7 +100,6 @@ export default function EscenariosPage() {
     seleccion,
     catalogoCultivos,
     zonas,
-    fuentesAgua,
     proyectoActual?.suelo,
   ]);
 
