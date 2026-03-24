@@ -96,7 +96,7 @@ export function ClimaImpactoRiego({
             </div>
           </div>
 
-          {camanchacaActiva && (
+          {camanchacaActiva && etoData.camanchaca && (
             <div className="bg-cyan-50 border border-cyan-200 p-3 rounded">
               <div className="font-medium text-cyan-800 text-sm">
                 Camanchaca activa
@@ -117,7 +117,7 @@ export function ClimaImpactoRiego({
           {etoMensual.map(({ mes, label, eto_mm_dia, actual }) => {
             const pct = (eto_mm_dia / ETO_MAX_ESCALA_MM_DIA) * 100;
             const esCamanchaca =
-              etoData.camanchaca.meses_presencia.includes(mes);
+              etoData.camanchaca?.meses_presencia?.includes(mes) ?? false;
             return (
               <div
                 key={mes}

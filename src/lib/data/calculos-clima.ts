@@ -80,7 +80,7 @@ export interface DatosCamanchaca {
 export interface DatosETo {
   eto_referencia_mm_dia: number;
   mensual: Record<string, EtoMensual>;
-  camanchaca: DatosCamanchaca;
+  camanchaca?: DatosCamanchaca;
 }
 
 export function getEtoMesActual(etoData: DatosETo): number {
@@ -90,16 +90,17 @@ export function getEtoMesActual(etoData: DatosETo): number {
 
 export function hayCamanchaca(etoData: DatosETo): boolean {
   const mes = new Date().getMonth() + 1;
-  return etoData.camanchaca.meses_presencia.includes(mes);
+  return etoData.camanchaca?.meses_presencia?.includes(mes) ?? false;
 }
 
 export function getFactorClimatico(etoData: DatosETo): number {
   const etoActual = getEtoMesActual(etoData);
   const etoRef = etoData.eto_referencia_mm_dia;
   const baseFactor = etoActual / etoRef;
-  const factor = hayCamanchaca(etoData)
-    ? baseFactor * (1 - etoData.camanchaca.reduccion_eto_pct / 100)
-    : baseFactor;
+  const factor =
+    hayCamanchaca(etoData) && etoData.camanchaca
+      ? baseFactor * (1 - etoData.camanchaca.reduccion_eto_pct / 100)
+      : baseFactor;
 
   return Math.round(factor * 100) / 100;
 }
