@@ -26,7 +26,7 @@ const seedPrecios = JSON.parse(
 // Read from Supabase
 const { data: dbCultivos } = await supabase.from("catalogo_base").select("*");
 const { data: dbPrecios } = await supabase
-  .from("precios_mayoristas")
+  .from("precios_actual")
   .select("*");
 
 if (!dbCultivos || !dbPrecios) {

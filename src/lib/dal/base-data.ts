@@ -83,7 +83,7 @@ export const baseDataDAL = {
 
   async getClimasDisponibles(): Promise<ClimaBase[]> {
     try {
-      const { data, error } = await supabase.from("clima_base").select("*");
+      const { data, error } = await supabase.from("clima_actual").select("*");
       if (error) throw error;
       return (data ?? []).map((row) =>
         deserializarDesdeSupabase<ClimaBase>(row),
@@ -112,9 +112,7 @@ export const baseDataDAL = {
 
   async getPreciosMayoristas(): Promise<PrecioMayorista[]> {
     try {
-      const { data, error } = await supabase
-        .from("precios_mayoristas")
-        .select("*");
+      const { data, error } = await supabase.from("precios_actual").select("*");
       if (error) throw error;
       return (data ?? []).map((row) =>
         deserializarDesdeSupabase<PrecioMayorista>(row),
@@ -166,7 +164,7 @@ export const baseDataDAL = {
     try {
       const { error } = await supabase
         .from("proyectos")
-        .update({ clima_base_id: climaBaseId })
+        .update({ clima_actual_id: climaBaseId })
         .eq("id", proyectoId);
       if (error) throw error;
       logger.info("Clima activo actualizado", { proyectoId, climaBaseId });
@@ -210,7 +208,7 @@ export const baseDataDAL = {
     try {
       if (precioIds.length === 0) return [];
       const { data, error } = await supabase
-        .from("precios_mayoristas_config")
+        .from("precios_actual_config")
         .select("*")
         .in("precio_id", precioIds);
       if (error) throw error;

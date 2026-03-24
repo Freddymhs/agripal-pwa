@@ -1,6 +1,6 @@
 /** Columnas explícitas por tabla — todo lo demás va a `datos` JSONB */
 export const COLUMNAS_EXPLICITAS: Record<string, string[]> = {
-  proyectos: ["id", "usuario_id", "nombre", "descripcion", "clima_base_id"],
+  proyectos: ["id", "usuario_id", "nombre", "descripcion", "clima_actual_id"],
   terrenos: ["id", "proyecto_id", "nombre", "ancho_m", "alto_m"],
   zonas: [
     "id",
@@ -55,7 +55,7 @@ export const COLUMNAS_EXPLICITAS: Record<string, string[]> = {
     "created_at",
     "updated_at",
   ],
-  precios_mayoristas: [
+  precios_actual: [
     "id",
     "cultivo_id",
     "region",
@@ -80,7 +80,7 @@ export const COLUMNAS_EXPLICITAS: Record<string, string[]> = {
     "actualizado_en",
   ],
   variedades_base: ["id", "cultivo_id", "nombre"],
-  precios_mayoristas_config: ["id", "precio_id", "updated_by", "origen"],
+  precios_actual_config: ["id", "precio_id", "updated_by", "origen"],
   catalogo_cultivos_config: ["id", "cultivo_id", "tipo", "origen"],
 };
 

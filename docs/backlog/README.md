@@ -368,7 +368,7 @@ pnpm type-check   # TypeScript check
 4. ✅ **COMPLETADA (100%)**: Billing MercadoPago (FASE_14) — checkout, webhook, middleware guard, UI, SubscriptionBadge
 5. ✅ **COMPLETADA (100%)**: Homepage SSG (FASE_15) — tests arquitectónicos + docs/architecture.md
 6. ✅ **COMPLETADA (100%)**: Cosechas (FASE_16) — DAL, hook, página, formulario, historial
-7. ✅ **COMPLETADA (100%)**: APIs externas (FASE_19) — tabla `precios_mayoristas`, cron ODEPA 6h, ROI refactorizado con `cultivo_base_id` como puente. Deploy pendiente pero integración funcional.
+7. ✅ **COMPLETADA (100%)**: APIs externas (FASE_19) — tabla `precios_actual`, cron ODEPA 6h, ROI refactorizado con `cultivo_base_id` como puente. Deploy pendiente pero integración funcional.
 8. 🔄 **EN PROGRESO**: Feedback Loop (FASE_23) ~30% — `precio_agua_break_even`, dual pricing feria/mayorista implementados. Pendiente: Mejoras A, B, C, D.
 9. ⏳ **SIGUIENTE**: Historial → Launch
 

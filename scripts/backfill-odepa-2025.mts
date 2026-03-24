@@ -237,7 +237,7 @@ async function main() {
     process.exit(0);
   }
 
-  // 3. Get precios_mayoristas map para vincular
+  // 3. Get precios_actual map para vincular
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseKey =
     process.env.SUPABASE_SERVICE_ROLE_KEY ??
@@ -250,9 +250,9 @@ async function main() {
 
   const supabase = createClient(supabaseUrl, supabaseKey);
 
-  // Map nombre_odepa → precios_mayoristas.id
+  // Map nombre_odepa → precios_actual.id
   const { data: preciosMayoristas } = await supabase
-    .from("precios_mayoristas")
+    .from("precios_actual")
     .select("id, nombre_odepa")
     .not("nombre_odepa", "is", null);
 
@@ -277,7 +277,7 @@ async function main() {
   console.log(`  Registros: ${rows.length}`);
   console.log(`  Productos únicos: ${productos.size}`);
   console.log(`  Con precio_kg_clp: ${conKg} | Sin: ${sinKg}`);
-  console.log(`  Con match precios_mayoristas: ${conMatch}`);
+  console.log(`  Con match precios_actual: ${conMatch}`);
 
   if (DRY_RUN) {
     const outPath = `scripts/data/odepa-${YEAR}-backfill.json`;

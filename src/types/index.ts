@@ -21,7 +21,7 @@ export interface Proyecto {
   usuario_id: UUID;
   nombre: string;
   ubicacion_referencia: string;
-  clima_base_id?: UUID;
+  clima_actual_id?: UUID;
   proveedores_agua?: ProveedorAgua[];
   suelo?: SueloTerreno;
   created_at: Timestamp;

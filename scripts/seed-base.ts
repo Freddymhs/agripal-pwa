@@ -227,9 +227,9 @@ async function seedClima(sb: SupabaseClient): Promise<void> {
   });
 
   const { error } = await sb
-    .from("clima_base")
+    .from("clima_actual")
     .upsert(payload, { onConflict: "id" });
-  if (error) throw new Error(`clima_base: ${error.message}`);
+  if (error) throw new Error(`clima_actual: ${error.message}`);
   console.log(
     `  ✓ ${payload.length} registros de clima (${regiones.map((r) => r.label).join(", ")})`,
   );
@@ -288,9 +288,9 @@ async function seedPrecios(sb: SupabaseClient): Promise<void> {
   });
 
   const { error } = await sb
-    .from("precios_mayoristas")
+    .from("precios_actual")
     .upsert(payload, { onConflict: "id" });
-  if (error) throw new Error(`precios_mayoristas: ${error.message}`);
+  if (error) throw new Error(`precios_actual: ${error.message}`);
   console.log(`  ✓ ${payload.length} precios mayoristas`);
 
   // Config: trazabilidad de quién estableció cada precio
@@ -307,10 +307,10 @@ async function seedPrecios(sb: SupabaseClient): Promise<void> {
   }));
 
   const { error: configError } = await sb
-    .from("precios_mayoristas_config")
+    .from("precios_actual_config")
     .upsert(configPayload, { onConflict: "precio_id" });
   if (configError)
-    throw new Error(`precios_mayoristas_config: ${configError.message}`);
+    throw new Error(`precios_actual_config: ${configError.message}`);
   console.log(`  ✓ ${configPayload.length} precios config (trazabilidad)`);
 }
 

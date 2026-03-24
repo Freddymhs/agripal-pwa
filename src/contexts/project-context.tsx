@@ -86,7 +86,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
   const datosBaseHook = useDatosBase(proyectoActual?.id || null);
 
   const opcionesConsumoAgua = useMemo<OpcionesConsumoAgua>(() => {
-    const climaId = proyectoActual?.clima_base_id;
+    const climaId = proyectoActual?.clima_actual_id;
     const climas = datosBaseHook.datosBase.clima;
     const climaDatos = climaId
       ? climas.find((c) => c.id === climaId)
@@ -94,7 +94,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
     const texturaSuelo = proyectoActual?.suelo?.fisico?.textura;
     return { climaDatos, texturaSuelo };
   }, [
-    proyectoActual?.clima_base_id,
+    proyectoActual?.clima_actual_id,
     proyectoActual?.suelo?.fisico?.textura,
     datosBaseHook.datosBase.clima,
   ]);
@@ -106,7 +106,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
     catalogoCultivos,
     proyectoActual?.suelo,
     datosListos,
-    proyectoActual?.clima_base_id ?? null,
+    proyectoActual?.clima_actual_id ?? null,
     proveedoresAgua,
     proyectoActual?.id,
     opcionesConsumoAgua,

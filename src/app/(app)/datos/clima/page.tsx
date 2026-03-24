@@ -25,13 +25,13 @@ export default function ClimaPage() {
   } = useProjectContext();
   const [cambiandoClima, setCambiandoClima] = useState(false);
   const [climaActivoId, setClimaActivoId] = useState<string | undefined>(
-    proyectoActual?.clima_base_id ?? undefined,
+    proyectoActual?.clima_actual_id ?? undefined,
   );
 
   // Sincronizar si el proyecto cambia
   useEffect(() => {
-    setClimaActivoId(proyectoActual?.clima_base_id ?? undefined);
-  }, [proyectoActual?.clima_base_id]);
+    setClimaActivoId(proyectoActual?.clima_actual_id ?? undefined);
+  }, [proyectoActual?.clima_actual_id]);
 
   const climas = datosBaseHook.datosBase.clima ?? [];
   const climaActivo = climas.find((c) => c.id === climaActivoId) ?? null;
@@ -64,7 +64,7 @@ export default function ClimaPage() {
         "cambiar clima activo",
       );
     } catch {
-      setClimaActivoId(proyectoActual.clima_base_id ?? undefined); // revertir
+      setClimaActivoId(proyectoActual.clima_actual_id ?? undefined); // revertir
     } finally {
       setCambiandoClima(false);
     }

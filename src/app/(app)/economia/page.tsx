@@ -217,7 +217,7 @@ export default function EconomiaPage() {
         );
         const precioOverride = preciosVentaSimulados[cultivoId];
 
-        // Derivar precio feria y mayorista desde precios_mayoristas
+        // Derivar precio feria y mayorista desde precios_actual
         const pm = preciosMap.get(cultivo.cultivo_base_id ?? "");
         const precioFeria =
           precioOverride ??

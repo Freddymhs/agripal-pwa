@@ -5,9 +5,9 @@
 **Dependencias**: `agriplan-api-nestjs` FASE_0 + FASE_2 + FASE_3
 **Última revisión**: 2026-03-21
 
-> **Nota de implementación**: La tabla se llama `precios_mayoristas` (no `precios_mercado`).
+> **Nota de implementación**: La tabla se llama `precios_actual` (no `precios_mercado`).
 > El ROI refactor fue completado en commit `1fa7e6d` — usa `cultivo_base_id` como puente
-> hacia `precios_mayoristas.cultivo_id`. La API actualiza ambas tablas via cron cada 6h.
+> hacia `precios_actual.cultivo_id`. La API actualiza ambas tablas via cron cada 6h.
 
 ---
 
@@ -15,11 +15,11 @@
 
 ```
 API NestJS (cron)
-  → Open-Meteo     → UPDATE clima_base    en Supabase
+  → Open-Meteo     → UPDATE clima_actual    en Supabase
   → ODEPA          → UPDATE precios_mercado en Supabase
 
 PWA (sin cambios en DAL/hooks)
-  → lee clima_base        (ya lo hace hoy)
+  → lee clima_actual        (ya lo hace hoy)
   → lee precios_mercado   (tabla nueva — ver abajo)
 ```
 
@@ -30,10 +30,10 @@ La API NestJS es el único motor que consume fuentes externas y mantiene Supabas
 
 ## PARTE A: Clima
 
-### Tabla existente: `clima_base`
+### Tabla existente: `clima_actual`
 
 Cada fila = una región (Arica Pampa 1086m, Iquique, Antofagasta, etc.).
-El usuario elige su región desde la UI → `proyectos.clima_base_id`.
+El usuario elige su región desde la UI → `proyectos.clima_actual_id`.
 La API actualiza cada fila leyendo las coordenadas `datos.coordenadas.lat/lon` que ya están en el JSONB.
 **Agnóstico por diseño**: funciona para todas las regiones sin hardcodear nada.
 
@@ -71,12 +71,12 @@ GET https://api.open-meteo.com/v1/forecast
 ### Cron en API NestJS:
 
 - Frecuencia: cada 1 hora
-- Lee todas las filas de `clima_base` con coordenadas definidas
+- Lee todas las filas de `clima_actual` con coordenadas definidas
 - Para cada fila → fetch Open-Meteo → UPDATE JSONB
 
 ### Cambios en PWA: ninguno
 
-`useDatosBase` ya carga `clima_base` completo. Los campos nuevos (`actualizado_en`, etc.) aparecen automáticamente en el objeto deserializado.
+`useDatosBase` ya carga `clima_actual` completo. Los campos nuevos (`actualizado_en`, etc.) aparecen automáticamente en el objeto deserializado.
 
 Opcional de bajo costo: mostrar `datos.actualizado_en` en la UI de `/datos/clima`.
 
@@ -170,7 +170,7 @@ El hook que llama al ROI debe:
 ## Orden de implementación recomendado
 
 1. **API NestJS FASE_0** — setup base (ScheduleModule, SupabaseAdminModule)
-2. **API NestJS FASE_2** — módulo clima (cron → Open-Meteo → UPDATE `clima_base`)
+2. **API NestJS FASE_2** — módulo clima (cron → Open-Meteo → UPDATE `clima_actual`)
 3. **Refactor PWA precios** — crear `precios_mercado`, refactorizar ROI (puede ser FASE independiente)
 4. **API NestJS FASE_3** — módulo precios (cron → ODEPA → UPDATE `precios_mercado`)
 
@@ -183,7 +183,7 @@ El clima se puede implementar y desplegar sin esperar el refactor de precios.
 ### Clima:
 
 1. `GET /api/v1/clima?lat=-18.3660&lon=-70.0450` → responde con datos Open-Meteo
-2. Supabase: `SELECT datos->>'actualizado_en' FROM clima_base WHERE region LIKE '%arica%'`
+2. Supabase: `SELECT datos->>'actualizado_en' FROM clima_actual WHERE region LIKE '%arica%'`
 3. PWA `/datos/clima` → muestra `actualizado_en` en la UI
 
 ### Precios:
@@ -198,7 +198,7 @@ El clima se puede implementar y desplegar sin esperar el refactor de precios.
 
 | Tabla                       | Hoy             | Post-FASE_19                                    |
 | --------------------------- | --------------- | ----------------------------------------------- |
-| `clima_base`                | ✅ Existe, seed | ✅ Existe, actualizada por API                  |
+| `clima_actual`              | ✅ Existe, seed | ✅ Existe, actualizada por API                  |
 | `precios_base`              | ✅ Existe, seed | ❌ Reemplazada por `precios_mercado`            |
 | `precios_mercado`           | ❌ No existe    | ✅ Tabla nueva, fuente única de precios         |
 | `catalogo_base.precio_kg_*` | ✅ Existe       | ❌ Eliminado (precio sale de `precios_mercado`) |
