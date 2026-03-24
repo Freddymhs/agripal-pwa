@@ -281,6 +281,17 @@ describe("generarProyeccionAnual", () => {
     expect(eventosLavado.length).toBeGreaterThan(0);
   });
 
+  it("suma de meses.consumo es igual a resumen.consumoTotalAnual", () => {
+    const result = generarProyeccionAnual(
+      terrenoFixture,
+      [zonaFixture],
+      [plantaFixture],
+      [cultivoFixture],
+    );
+    const sumaConsumos = result.meses.reduce((acc, m) => acc + m.consumo, 0);
+    expect(sumaConsumos).toBeCloseTo(result.resumen.consumoTotalAnual, 1);
+  });
+
   it("usa agua_actual_m3 del terreno cuando no hay estanques", () => {
     const result = generarProyeccionAnual(
       terrenoFixture,

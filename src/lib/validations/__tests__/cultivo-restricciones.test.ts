@@ -292,6 +292,23 @@ describe("calcularAguaPorCultivo", () => {
     expect(result.detalle).toHaveLength(2);
   });
 
+  it("2 cultivos requieren mas agua que 1 solo cultivo", () => {
+    const cultivoB = {
+      ...cultivoFixture,
+      id: "cultivo-b",
+      agua_m3_ha_año_min: 3000,
+      agua_m3_ha_año_max: 4000,
+    } as CatalogoCultivo;
+    const resultUno = calcularAguaPorCultivo([
+      { cultivo: cultivoFixture, area_ha: 1 },
+    ]);
+    const resultDos = calcularAguaPorCultivo([
+      { cultivo: cultivoFixture, area_ha: 1 },
+      { cultivo: cultivoB, area_ha: 1 },
+    ]);
+    expect(resultDos.agua_anual_m3).toBeGreaterThan(resultUno.agua_anual_m3);
+  });
+
   it("retorna 0 para lista vacia", () => {
     const result = calcularAguaPorCultivo([]);
     expect(result.agua_anual_m3).toBe(0);
@@ -341,5 +358,15 @@ describe("simularConsumoEstacional", () => {
   it("retorna 12 meses aun para lista vacia", () => {
     const result = simularConsumoEstacional([]);
     expect(result).toHaveLength(12);
+  });
+
+  it("ratio verano/invierno es mayor a 1.5x para zonas aridas", () => {
+    const result = simularConsumoEstacional([
+      { cultivo: cultivoFixture, area_ha: 1 },
+    ]);
+    const enero = result.find((m) => m.mes === 1)!; // verano Chile
+    const julio = result.find((m) => m.mes === 7)!; // invierno Chile
+    // En zona árida el consumo de verano debe ser significativamente mayor
+    expect(enero.agua_m3 / julio.agua_m3).toBeGreaterThan(1.5);
   });
 });

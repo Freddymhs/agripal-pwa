@@ -406,6 +406,53 @@ describe("calcularScoreCalidad", () => {
     expect(result.score_total).toBe(expected);
   });
 
+  it("score_clima se penaliza cuando temperatura del clima supera temp_max del cultivo", () => {
+    // climaFixture.temperatura.maxima_verano_c = 26
+    // Si el cultivo tiene temp_max_c = 20, el clima (26) excede el límite → penalización
+    const cultivoSensibleCalor: CatalogoCultivo = {
+      ...cultivoFixture,
+      clima: { temp_max_c: 20 },
+    } as unknown as CatalogoCultivo;
+    const result = calcularScoreCalidad(
+      cultivoSensibleCalor,
+      null,
+      null,
+      100,
+      5,
+      climaFixture,
+    );
+    // score_clima < 100 porque maxima_verano_c=26 > temp_max_c=20
+    expect(result.score_clima).toBeLessThan(100);
+  });
+
+  it("penaliza mas con pH fuera de rango Y salinidad alta simultáneamente en suelo", () => {
+    const soloPhMalo: SueloTerreno = {
+      fisico: { ph: 4.0 },
+    };
+    const phYSalinidad: SueloTerreno = {
+      fisico: { ph: 4.0 },
+      quimico: { salinidad_dS_m: 8.0 },
+    };
+
+    const resultSoloPh = calcularScoreCalidad(
+      cultivoFixture,
+      null,
+      soloPhMalo,
+      100,
+      5,
+      climaFixture,
+    );
+    const resultAmbos = calcularScoreCalidad(
+      cultivoFixture,
+      null,
+      phYSalinidad,
+      100,
+      5,
+      climaFixture,
+    );
+    expect(resultAmbos.score_suelo).toBeLessThan(resultSoloPh.score_suelo);
+  });
+
   it("incluye cultivo_id y cultivo_nombre en el resultado", () => {
     const result = calcularScoreCalidad(
       cultivoFixture,

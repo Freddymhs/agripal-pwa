@@ -190,6 +190,66 @@ describe("evaluarRiesgoPlagas", () => {
     expect(result[0].scoreRiesgo).toBeGreaterThan(0);
   });
 
+  it("alertaNivel es critico cuando score >= 80 (temp + etapa + alta)", () => {
+    // 50 (temp_favorable) + 30 (etapa_vulnerable) + 15 (alta) = 95 → critico
+    // plagaFixture: temperatura_min=15, temperatura_max=35; etapas_vulnerables=["joven","adulta"]
+    // TEMP_DEFAULT_C=19 → dentro del rango → temp favorable
+    const result = evaluarRiesgoPlagas(cultivoFixture, "adulta", mockClima);
+    expect(result[0].scoreRiesgo).toBe(95);
+    expect(result[0].alertaNivel).toBe("critico");
+  });
+
+  it("alertaNivel es bajo cuando score < 40 (sin temp, sin etapa, severidad baja)", () => {
+    const plagaFria: PlantPlague = {
+      ...plagaFixture,
+      temperatura_min: 30,
+      temperatura_max: 40, // rango fuera de TEMP_DEFAULT_C=19
+      etapas_vulnerables: [],
+      severidad: "baja",
+    };
+    const cultivoTest = {
+      ...cultivoFixture,
+      plagas: [plagaFria],
+    } as CatalogoCultivo;
+    const result = evaluarRiesgoPlagas(cultivoTest, "adulta", mockClima);
+    // 0 + 0 + 5 = 5 → bajo
+    expect(result[0].scoreRiesgo).toBe(5);
+    expect(result[0].alertaNivel).toBe("bajo");
+  });
+
+  it("alertaNivel es alto cuando score es exactamente 60", () => {
+    // 50 (temp) + 0 (sin etapa) + 10 (media) = 60 → alto
+    const plagaMedia: PlantPlague = {
+      ...plagaFixture,
+      etapas_vulnerables: [],
+      severidad: "media",
+    };
+    const cultivoTest = {
+      ...cultivoFixture,
+      plagas: [plagaMedia],
+    } as CatalogoCultivo;
+    const result = evaluarRiesgoPlagas(cultivoTest, "adulta", mockClima);
+    expect(result[0].scoreRiesgo).toBe(60);
+    expect(result[0].alertaNivel).toBe("alto");
+  });
+
+  it("usa temperatura real cuando clima tiene temperatura definida", () => {
+    const climaConTemp: DatosClimaticos = {
+      ...({} as DatosClimaticos),
+      temperatura: {
+        maxima_verano_c: 26,
+        minima_historica_c: 8,
+        promedio_anual_c: 18,
+        horas_frio_aprox: 50,
+      },
+    };
+    const result = evaluarRiesgoPlagas(cultivoFixture, "adulta", climaConTemp);
+    // Temperatura real calculada es distinta de TEMP_DEFAULT_C (19)
+    // pero sigue siendo favorable para plagaFixture (min=15, max=35)
+    expect(result[0].condicionesActuales.temperaturaFavorable).toBe(true);
+    expect(result[0].condicionesActuales.tempActual).not.toBeNaN();
+  });
+
   it("maneja plaga sin temperatura definida, usa rango default 15-35", () => {
     const plagaSinTemp: PlantPlague = {
       ...plagaFixture,

@@ -159,6 +159,25 @@ describe("validarNuevaZona", () => {
     );
     expect(result.valida).toBe(true);
   });
+
+  it("acepta zona exactamente en el borde del terreno (x+ancho == terreno.ancho_m)", () => {
+    // terreno.ancho_m = 100; zona x=90, ancho=10 → x+ancho = 100 (límite exacto)
+    const result = validarNuevaZona(
+      { x: 90, y: 0, ancho: 10, alto: 10 },
+      [],
+      terrenoFixture,
+    );
+    expect(result.valida).toBe(true);
+  });
+
+  it("acepta zona exactamente en el borde inferior del terreno (y+alto == terreno.alto_m)", () => {
+    const result = validarNuevaZona(
+      { x: 0, y: 90, ancho: 10, alto: 10 },
+      [],
+      terrenoFixture,
+    );
+    expect(result.valida).toBe(true);
+  });
 });
 
 describe("validarRedimensionarZona", () => {

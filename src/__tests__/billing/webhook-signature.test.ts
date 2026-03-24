@@ -124,4 +124,16 @@ describe("Webhook Signature Verification", () => {
       true,
     );
   });
+
+  it("replay attack: timestamp muy antiguo aun es aceptado (sin validacion de freshness)", () => {
+    // VULNERABILITY NOTE: verifySignature no valida que el timestamp sea reciente.
+    // Un atacante puede reusar una firma válida capturada anteriormente.
+    // Mitigación pendiente: rechazar ts con diferencia > 5 minutos respecto a Date.now().
+    const oldTs = "1000000000"; // 2001-09-08 — claramente obsoleto
+    const signatureOld = createValidSignature(validBody, requestId, oldTs);
+    // El comportamiento actual acepta el replay — este test documenta la vulnerabilidad
+    expect(
+      verifySignature(signatureOld, requestId, validBody, TEST_SECRET),
+    ).toBe(true);
+  });
 });
