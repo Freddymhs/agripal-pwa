@@ -17,7 +17,12 @@ const estanqueFixture = (capacidad_m3: number): Zona =>
     area_m2: 25,
     color: "#3b82f6",
     notas: "",
-    estanque_config: { capacidad_m3, material: "plastico", costo_por_m3: 100 },
+    estanque_config: {
+      capacidad_m3,
+      nivel_actual_m3: 0,
+      material: "plastico",
+      costo_por_m3: 100,
+    },
     created_at: "2025-01-01T00:00:00Z",
     updated_at: "2025-01-01T00:00:00Z",
   }) as Zona;
@@ -29,6 +34,7 @@ const entradaAgua = (fecha: string): EntradaAgua =>
     fecha,
     cantidad_m3: 10,
     tipo: "recarga",
+    notas: "",
     created_at: fecha,
     updated_at: fecha,
   }) as EntradaAgua;

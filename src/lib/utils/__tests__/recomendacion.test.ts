@@ -8,8 +8,15 @@ const terrenoBase: Terreno = {
   proyecto_id: "p-1",
   nombre: "Terreno Test",
   area_m2: 10000,
-  ancho: 100,
-  alto: 100,
+  ancho_m: 100,
+  alto_m: 100,
+  agua_disponible_m3: 500,
+  agua_actual_m3: 200,
+  sistema_riego: {
+    litros_hora: 4,
+    descuento_auto: false,
+    ultima_actualizacion: "2025-01-01T00:00:00Z",
+  },
   created_at: "2025-01-01T00:00:00Z",
   updated_at: "2025-01-01T00:00:00Z",
 } as Terreno;
@@ -36,6 +43,7 @@ const estanqueZona: Zona = {
   notas: "",
   estanque_config: {
     capacidad_m3: 20,
+    nivel_actual_m3: 0,
     material: "plastico",
     costo_por_m3: 100,
   },
@@ -218,6 +226,7 @@ const estanque520: Zona = {
   notas: "",
   estanque_config: {
     capacidad_m3: 20,
+    nivel_actual_m3: 0,
     material: "plastico",
     costo_por_m3: 100,
   },

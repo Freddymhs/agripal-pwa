@@ -133,6 +133,7 @@ describe("filtrarEstanques", () => {
       tipo: TIPO_ZONA.ESTANQUE,
       estanque_config: {
         capacidad_m3: 10,
+        nivel_actual_m3: 0,
         material: "plastico",
         costo_por_m3: 100,
       },
@@ -155,6 +156,7 @@ describe("obtenerStockAgua", () => {
       tipo: TIPO_ZONA.ESTANQUE,
       estanque_config: {
         capacidad_m3: 50,
+        nivel_actual_m3: 0,
         material: "plastico",
         costo_por_m3: 100,
       },
@@ -209,17 +211,27 @@ describe("esCultivoCompleto", () => {
   const precio: PrecioMayorista = {
     id: "precio-1",
     cultivo_id: "cultivo-base-olivo",
-    nombre: "Olivo",
-    precio_actual_clp: 3000,
     region: "Arica",
-    updated_at: "2025-01-01T00:00:00Z",
-  } as PrecioMayorista;
+    nombre: "Olivo",
+    nombre_odepa: null,
+    precio_min_clp: 2000,
+    precio_max_clp: 4000,
+    precio_actual_clp: 3000,
+    tendencia: "estable",
+    actualizado_en: "2025-01-01T00:00:00Z",
+    fuente: "seed",
+    factor_precio_feria: null,
+    factor_precio_retail: null,
+  };
 
   const mercado: MercadoDetalle = {
     id: "m-1",
     precio_mayorista_id: "precio-1",
-    cultivo_id: "cultivo-base-olivo",
-  } as MercadoDetalle;
+    demanda_local: null,
+    competencia_local: null,
+    mercado_exportacion: false,
+    notas: null,
+  };
 
   const cultivoConBase = {
     ...cultivoBase,
