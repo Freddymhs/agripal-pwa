@@ -20,6 +20,8 @@
     "audit": "npm audit --audit-level=moderate",
     "test": "vitest",
     "test:run": "vitest run",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
     "seed:marcos": "tsx scripts/seed.ts",
     "seed:base": "tsx scripts/seed-base.ts",
     "seed:portero": "npx tsx scripts/seed-proyecto-portero.mts",
@@ -50,6 +52,7 @@
     "sonner": "^2.0.7"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
