@@ -1,3 +1,48 @@
-rules: []
-# Use registry rulesets via CLI:
-#   semgrep scan --config p/ci --config p/nextjs --config p/typescript
+# Semgrep configuration for AgriPlan PWA (Next.js + TypeScript)
+# Run: semgrep scan --config p/ci --config p/nextjs --config p/typescript
+
+rules:
+  - id: no-console-in-production
+    pattern-either:
+      - patterns:
+          - pattern: console.log(...)
+          - pattern-not: console.log("debug: ...")
+      - pattern: console.error(...)
+      - pattern: console.warn(...)
+    message: Remove console logs before production. Use logger centralizado.
+    languages: [typescript, javascript]
+    severity: WARNING
+
+  - id: no-hardcoded-secrets
+    patterns:
+      - pattern-either:
+          - pattern: |
+              NEXT_PUBLIC_... = "..."
+          - pattern: |
+              const ... = "sk_live_..."
+          - pattern: |
+              const ... = "stripe_..."
+    message: Hardcoded secrets detected. Use environment variables.
+    languages: [typescript, javascript]
+    severity: ERROR
+
+  - id: no-any-type
+    pattern: |
+      : any
+    message: "Avoid 'any' type in TypeScript. Use explicit types."
+    languages: [typescript]
+    severity: WARNING
+
+  - id: next-no-img-element
+    pattern: |
+      <img ... />
+    message: "Use Next.js <Image> component instead of <img> for optimization."
+    languages: [tsx, jsx]
+    severity: INFO
+
+# Uncomment to enable more rule sets:
+# - registry: semgrep rules:
+#   - p/ci
+#   - p/nextjs
+#   - p/typescript
+#   - p/security-audit
