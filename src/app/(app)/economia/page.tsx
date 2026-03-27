@@ -418,7 +418,7 @@ export default function EconomiaPage() {
               </div>
               <div className="text-xs text-blue-600">Inversion Inicial</div>
               <div className="text-xs text-blue-400 mt-1">
-                Plantas: {formatCLP(totalCostoPlantas)} | Agua (año 1):{" "}
+                Plantas: {formatCLP(totalCostoPlantas)} | Agua/año:{" "}
                 {formatCLP(totalCostoAgua)}
               </div>
             </div>

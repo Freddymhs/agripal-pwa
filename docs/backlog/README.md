@@ -119,13 +119,15 @@ Cada archivo FASE_X.md incluye esta tarea de integración al final.
 
 ### Completadas adicionales ✅
 
-| Fase   | Status | Progreso | Nombre                                                                          | Prioridad  |
-| ------ | ------ | -------- | ------------------------------------------------------------------------------- | ---------- |
-| 13     | ✅     | 100%     | Supabase Backend (schema, RLS, sync opt-in, Dexie hooks, /configuracion)        | 🔴 CRÍTICA |
-| 14     | ✅     | 100%     | Sistema de Billing con MercadoPago                                              | 🔴 Alta    |
-| **15** | ✅     | 100%     | Homepage SSG (6/6 stories: SSG, partición, datos estáticos, PWA, tests, docs)   | 🟢 Baja    |
-| **20** | ✅     | 100%     | Datos Agronómicos Enriquecidos (NPK etapa, poda, vecería, alelopatía, quelatos) | 🔴 Alta    |
-| **21** | ✅     | 100%     | Módulo Insumos y Compatibilidad Química                                         | 🔴 Alta    |
+| Fase    | Status | Progreso | Nombre                                                                          | Prioridad  |
+| ------- | ------ | -------- | ------------------------------------------------------------------------------- | ---------- |
+| 13      | ✅     | 100%     | Supabase Backend (schema, RLS, sync opt-in, Dexie hooks, /configuracion)        | 🔴 CRÍTICA |
+| 14      | ✅     | 100%     | Sistema de Billing con MercadoPago                                              | 🔴 Alta    |
+| **15**  | ✅     | 100%     | Homepage SSG (6/6 stories: SSG, partición, datos estáticos, PWA, tests, docs)   | 🟢 Baja    |
+| **18B** | ✅     | 100%     | Calendario Gantt Agrícola + Tareas Manuales (`tareas_gantt`)                    | 🔴 Alta    |
+| **20**  | ✅     | 100%     | Datos Agronómicos Enriquecidos (NPK etapa, poda, vecería, alelopatía, quelatos) | 🔴 Alta    |
+| **21**  | ✅     | 100%     | Módulo Insumos y Compatibilidad Química                                         | 🔴 Alta    |
+| **25**  | ✅     | 100%     | QA Fixes: Gantt insert, Auth PKCE callback, Economía overflow/highlight/label   | 🔴 CRÍTICA |
 
 ### Pendientes ⏳
 
@@ -140,7 +142,7 @@ Cada archivo FASE_X.md incluye esta tarea de integración al final.
 | **FINAL**  | ⏳     | 0%       | Historial de Cambios (UI)                    | 🟢 BAJA       |
 | **LAUNCH** | ⏳     | 0%       | Checklist de Lanzamiento (dominio, GSC, SEO) | 🟢 BAJA       |
 
-**Total fases**: 43 (39 completadas, 1 parcial, 2 pendientes, 2 descartadas)
+**Total fases**: 45 (41 completadas, 1 parcial, 2 pendientes, 2 descartadas)
 
 ---
 
@@ -148,7 +150,7 @@ Cada archivo FASE_X.md incluye esta tarea de integración al final.
 
 **Fase actual:** FASE_23 en progreso (30%) — base implementada: `precio_agua_break_even`, dual pricing feria/mayorista, ROI 10 años. Pendiente: ROI inline en zona (Mejora A), calculadora inversa proveedor (B), semáforo explicativo /economia (C), wizard creación terreno (D).
 
-**Completadas (39)**: Estructura, Tipos, Mapa, Zonas, Plantas, Selección Múltiple, Gestión Proyectos/Terrenos, Terreno Avanzado, Panel Clima, Panel Suelo, Agua Avanzada, Motor Recomendación, Catálogo Cultivos, Estanques (8A), Control Agua, Multi-Estanque (8B), Alertas y Dashboard, PWA y Sync Offline, Performance PixiJS, Mejoras UX/Agua/Datos, Autenticación JWT Mock, Segmentación UX Agua, Dashboard + Planificador, Economía/Escenarios/Plagas/Datos/Fixes (11D), Datos Agronómicos (20), Insumos (21), Bugs UX (15B), Auth Supabase (12), Landing SEO (12B), Contenido SEO (12C), TanStack Audit (12D), Backend Supabase (13), Bugs Testing Retroactivos (15C), Billing MercadoPago (14), Homepage SSG (15), Cosechas (16), PDF (17), **Integraciones API (19)**
+**Completadas (41)**: Estructura, Tipos, Mapa, Zonas, Plantas, Selección Múltiple, Gestión Proyectos/Terrenos, Terreno Avanzado, Panel Clima, Panel Suelo, Agua Avanzada, Motor Recomendación, Catálogo Cultivos, Estanques (8A), Control Agua, Multi-Estanque (8B), Alertas y Dashboard, PWA y Sync Offline, Performance PixiJS, Mejoras UX/Agua/Datos, Autenticación JWT Mock, Segmentación UX Agua, Dashboard + Planificador, Economía/Escenarios/Plagas/Datos/Fixes (11D), Datos Agronómicos (20), Insumos (21), Bugs UX (15B), Auth Supabase (12), Landing SEO (12B), Contenido SEO (12C), TanStack Audit (12D), Backend Supabase (13), Bugs Testing Retroactivos (15C), Billing MercadoPago (14), Homepage SSG (15), Cosechas (16), PDF (17), Integraciones API (19), **Gantt + Tareas Manuales (18B)**, **QA Fixes Gantt/Auth/Economía (25)**
 
 **En progreso (1)**: Feedback Loop (23) ~30%
 **Pendientes (2)**: Historial → Launch Checklist
@@ -277,6 +279,14 @@ Cada archivo FASE_X.md incluye esta tarea de integración al final.
 
 - `FASE_16_COSECHAS.md` - Registro de Cosechas (UI) ✅
 - `FASE_17_REPORTES_PDF.md` - Reportes y Exportación PDF ✅
+
+### Completada (18B) ✅
+
+- `FASE_18B_CALENDARIO_GANTT.md` - Calendario Gantt Agrícola 12 meses + Tareas Manuales (`tareas_gantt`) ✅
+
+### Completada (25) ✅
+
+- `FASE_25_QA_FIXES_2026_03.md` - QA Fixes: Gantt insert (tabla faltante), Auth PKCE callback, Economía overflow/highlight/label ✅
 
 ### Descartadas ❌
 

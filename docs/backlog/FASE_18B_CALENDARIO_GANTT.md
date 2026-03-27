@@ -1,6 +1,6 @@
 # FASE 18B — Calendario Gantt Agrícola (Vista 12 Meses)
 
-**Estado:** IMPLEMENTADA (núcleo funcional) / Refinamiento visual pendiente
+**Estado:** ✅ IMPLEMENTADA — núcleo funcional + Tareas Manuales (2026-03-27)
 **Prioridad:** Media-Alta — transforma datos existentes en inteligencia operativa real
 **Dependencias:** FASE_16 (Cosechas), FASE_18 (Calendario base), ROI funcional
 **Ruta:** `/gantt`
@@ -172,13 +172,15 @@ Mostrado como chip `◆×N` junto al nombre del cultivo.
 
 ## Componentes Implementados
 
-| Componente                                    | Descripción                                               |
-| --------------------------------------------- | --------------------------------------------------------- |
-| `src/app/(app)/gantt/page.tsx`                | Página — carga cosechas, nav año, toggle feria/mayorista  |
-| `src/components/calendario/gantt-fila.tsx`    | Fila: nombre + chips propagacion/cosechas + barra + total |
-| `src/components/calendario/gantt-barra.tsx`   | Barra segmentada + chips de eventos + tooltips            |
-| `src/components/calendario/gantt-totales.tsx` | Totales por mes con mini-barras + total anual             |
-| `src/lib/utils/calendario-gantt.ts`           | Toda la lógica de construcción y derivación               |
+| Componente                                        | Descripción                                                      |
+| ------------------------------------------------- | ---------------------------------------------------------------- |
+| `src/app/(app)/gantt/page.tsx`                    | Página — carga cosechas, tareas, nav año, toggle feria/mayorista |
+| `src/components/calendario/gantt-fila.tsx`        | Fila: nombre + chips propagacion/cosechas + barra + total        |
+| `src/components/calendario/gantt-barra.tsx`       | Barra segmentada + chips de eventos + tooltips                   |
+| `src/components/calendario/gantt-totales.tsx`     | Totales por mes con mini-barras + total anual                    |
+| `src/components/calendario/gantt-tarea-fila.tsx`  | Fila de tarea manual: nombre + barra proporcional                |
+| `src/components/calendario/gantt-tarea-modal.tsx` | Modal crear/editar tarea: título, fechas, color                  |
+| `src/lib/utils/calendario-gantt.ts`               | Toda la lógica de construcción y derivación                      |
 
 ---
 
@@ -260,9 +262,63 @@ Todo funciona con los campos actuales de la BD:
 
 ---
 
+## Tareas Manuales del Gantt (2026-03-27)
+
+Feature adicional implementado sobre el núcleo de FASE_18B: el usuario puede crear eventos manuales (tareas) que se sobreimprimen en el Gantt como barras de color libre.
+
+**Motivación**: el agricultor necesita anotar eventos no relacionados con cultivos (visita técnica, preparación suelo, tratamiento fitosanitario, etc.) en la misma vista anual.
+
+### Tabla BD
+
+```sql
+-- supabase/migrations/20260327000000_create_tareas_gantt.sql
+CREATE TABLE tareas_gantt (
+  id           UUID PRIMARY KEY,
+  usuario_id   UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  proyecto_id  UUID NOT NULL REFERENCES proyectos(id)  ON DELETE CASCADE,
+  terreno_id   UUID NOT NULL REFERENCES terrenos(id)   ON DELETE CASCADE,
+  titulo       TEXT NOT NULL,
+  fecha_inicio TIMESTAMPTZ NOT NULL,
+  fecha_fin    TIMESTAMPTZ NOT NULL,
+  color        TEXT NOT NULL DEFAULT 'emerald',
+  datos        JSONB NOT NULL DEFAULT '{}',
+  created_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at   TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+```
+
+RLS: solo el propietario lee/escribe sus propias tareas.
+
+### Nuevos archivos implementados
+
+| Archivo                                           | Descripción                                                            |
+| ------------------------------------------------- | ---------------------------------------------------------------------- |
+| `src/lib/dal/tareas-gantt.ts`                     | DAL: `getByTerrenoId`, `add`, `update`, `delete`                       |
+| `src/hooks/use-tareas-gantt.ts`                   | Hook: estado, `crearTarea`, `actualizarTarea` — usa `ejecutarMutacion` |
+| `src/components/calendario/gantt-tarea-fila.tsx`  | Fila: nombre + barra proporcional al año + click para editar           |
+| `src/components/calendario/gantt-tarea-modal.tsx` | Modal crear/editar: título, fechas, selector de color                  |
+| `src/lib/supabase/schema.ts`                      | Agrega `tareas_gantt` a `COLUMNAS_EXPLICITAS`                          |
+| `src/types/index.ts`                              | Tipos `TareaGantt` + `TareaGanttColor`                                 |
+
+### Colores disponibles
+
+`emerald` (verde) · `sky` (azul) · `amber` (ámbar) · `violet` (violeta) · `rose` (rosado)
+
+### Criterios de aceptación
+
+- [x] Botón "+ Nueva tarea" en cabecera del Gantt abre modal de creación
+- [x] La tarea se guarda en Supabase con RLS activa
+- [x] Al navegar entre años, solo se muestran tareas que solapan ese año
+- [x] Click sobre una tarea abre modal de edición con datos precargados
+- [x] La barra muestra la proporción correcta del año que ocupa la tarea
+- [x] Si no hay tareas ni cultivos: mensaje "No hay zonas con cultivos..."
+- [x] Lint + type-check limpios (patrón "adjusting state during render" en modal)
+
+---
+
 ## Lo que Esta Fase NO Hace
 
-- No permite editar fechas desde el Gantt — solo lectura
+- No permite editar fechas desde el Gantt — solo lectura (cultivos automáticos)
 - No muestra días exactos dentro del mes — granularidad mensual
 - No reemplaza FASE_18 (ese calendario es para alertas y agua día a día)
 - No reemplaza `/economia` (ese muestra ROI acumulado, el Gantt muestra el cuándo)

@@ -29,19 +29,19 @@ CREATE INDEX IF NOT EXISTS idx_tareas_gantt_fechas      ON tareas_gantt(fecha_in
 ALTER TABLE tareas_gantt ENABLE ROW LEVEL SECURITY;
 
 -- Solo el propietario puede leer/escribir sus propias tareas
-CREATE POLICY IF NOT EXISTS "tareas_gantt_owner_select"
+CREATE POLICY "tareas_gantt_owner_select"
   ON tareas_gantt FOR SELECT
   USING (auth.uid() = usuario_id);
 
-CREATE POLICY IF NOT EXISTS "tareas_gantt_owner_insert"
+CREATE POLICY "tareas_gantt_owner_insert"
   ON tareas_gantt FOR INSERT
   WITH CHECK (auth.uid() = usuario_id);
 
-CREATE POLICY IF NOT EXISTS "tareas_gantt_owner_update"
+CREATE POLICY "tareas_gantt_owner_update"
   ON tareas_gantt FOR UPDATE
   USING (auth.uid() = usuario_id)
   WITH CHECK (auth.uid() = usuario_id);
 
-CREATE POLICY IF NOT EXISTS "tareas_gantt_owner_delete"
+CREATE POLICY "tareas_gantt_owner_delete"
   ON tareas_gantt FOR DELETE
   USING (auth.uid() = usuario_id);
