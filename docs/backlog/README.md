@@ -138,7 +138,7 @@ Cada archivo FASE_X.md incluye esta tarea de integración al final.
 | ~~18~~     | ❌     | —        | ~~Calendario de Eventos (duplicado UX)~~     | 🟢 DESCARTADO |
 | 19         | ✅     | 100%     | Integraciones API Externas (Clima + Precios) | 🔴 CRÍTICA    |
 | **22**     | ❌     | —        | Offline-First PowerSync                      | 🟢 DESCARTADO |
-| **23**     | ⏳     | 30%      | Feedback Loop: El Agricultor Sabe Si Va Bien | 🔴 ALTA       |
+| **23**     | ✅     | 100%     | Feedback Loop: El Agricultor Sabe Si Va Bien | 🔴 ALTA       |
 | **FINAL**  | ⏳     | 0%       | Historial de Cambios (UI)                    | 🟢 BAJA       |
 | **LAUNCH** | ⏳     | 0%       | Checklist de Lanzamiento (dominio, GSC, SEO) | 🟢 BAJA       |
 
@@ -148,11 +148,11 @@ Cada archivo FASE_X.md incluye esta tarea de integración al final.
 
 ## 📍 Actual
 
-**Fase actual:** FASE_23 en progreso (30%) — base implementada: `precio_agua_break_even`, dual pricing feria/mayorista, ROI 10 años. Pendiente: ROI inline en zona (Mejora A), calculadora inversa proveedor (B), semáforo explicativo /economia (C), wizard creación terreno (D).
+**Fase actual:** FASE_FINAL o FASE_LAUNCH — FASE_23 completada.
 
-**Completadas (41)**: Estructura, Tipos, Mapa, Zonas, Plantas, Selección Múltiple, Gestión Proyectos/Terrenos, Terreno Avanzado, Panel Clima, Panel Suelo, Agua Avanzada, Motor Recomendación, Catálogo Cultivos, Estanques (8A), Control Agua, Multi-Estanque (8B), Alertas y Dashboard, PWA y Sync Offline, Performance PixiJS, Mejoras UX/Agua/Datos, Autenticación JWT Mock, Segmentación UX Agua, Dashboard + Planificador, Economía/Escenarios/Plagas/Datos/Fixes (11D), Datos Agronómicos (20), Insumos (21), Bugs UX (15B), Auth Supabase (12), Landing SEO (12B), Contenido SEO (12C), TanStack Audit (12D), Backend Supabase (13), Bugs Testing Retroactivos (15C), Billing MercadoPago (14), Homepage SSG (15), Cosechas (16), PDF (17), Integraciones API (19), **Gantt + Tareas Manuales (18B)**, **QA Fixes Gantt/Auth/Economía (25)**
+**Completadas (42)**: Estructura, Tipos, Mapa, Zonas, Plantas, Selección Múltiple, Gestión Proyectos/Terrenos, Terreno Avanzado, Panel Clima, Panel Suelo, Agua Avanzada, Motor Recomendación, Catálogo Cultivos, Estanques (8A), Control Agua, Multi-Estanque (8B), Alertas y Dashboard, PWA y Sync Offline, Performance PixiJS, Mejoras UX/Agua/Datos, Autenticación JWT Mock, Segmentación UX Agua, Dashboard + Planificador, Economía/Escenarios/Plagas/Datos/Fixes (11D), Datos Agronómicos (20), Insumos (21), Bugs UX (15B), Auth Supabase (12), Landing SEO (12B), Contenido SEO (12C), TanStack Audit (12D), Backend Supabase (13), Bugs Testing Retroactivos (15C), Billing MercadoPago (14), Homepage SSG (15), Cosechas (16), PDF (17), Integraciones API (19), **Gantt + Tareas Manuales (18B)**, **QA Fixes Gantt/Auth/Economía (25)**, **Feedback Loop (23)**
 
-**En progreso (1)**: Feedback Loop (23) ~30%
+**En progreso (0)**: —
 **Pendientes (2)**: Historial → Launch Checklist
 
 **Descartadas (2)**: Calendario (18) — duplicado UX. Offline PowerSync (22) — validar necesidad real primero.

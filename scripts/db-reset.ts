@@ -31,6 +31,15 @@ const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
 });
 
 // Orden: hijos primero, padres después (respetar foreign keys)
+// Tablas históricas protegidas: nunca se borran con este script
+const TABLAS_PROTEGIDAS = new Set([
+  "precios_historico",
+  "clima_historico",
+  "publicaciones_inia",
+  "precios_actual",
+  "precios_actual_config",
+]);
+
 const TABLAS_EN_ORDEN = [
   // Datos de usuario (hijos más profundos)
   "alertas",
@@ -72,6 +81,10 @@ const TABLAS_EN_ORDEN = [
 async function resetTablas(): Promise<void> {
   console.log("[1] Vaciando tablas...\n");
   for (const tabla of TABLAS_EN_ORDEN) {
+    if (TABLAS_PROTEGIDAS.has(tabla)) {
+      console.log(`  → ${tabla} (protegida, no se borra)`);
+      continue;
+    }
     const { error } = await supabase.from(tabla).delete().not("id", "is", null);
     if (error) {
       console.error(`  ✗ ${tabla}: ${error.message}`);

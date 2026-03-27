@@ -88,9 +88,11 @@ function BreakEvenAgua({ precio }: { precio: number | null }) {
 function ViabilidadBadge({
   breakEvenAgua,
   costoAgua,
+  numPlantas,
 }: {
   breakEvenAgua: number | null;
   costoAgua: number;
+  numPlantas?: number;
 }) {
   if (costoAgua <= 2000) return null;
   if (!breakEvenAgua)
@@ -106,14 +108,37 @@ function ViabilidadBadge({
         Viable
       </span>
     );
+
+  const aguaCaraEnPct = Math.round((1 - margen) * 100);
+  const causaAgua = costoAgua > breakEvenAgua;
+
   if (margen >= 1.0)
     return (
-      <span className="ml-1 text-[10px] bg-yellow-100 text-yellow-700 px-1 py-0.5 rounded font-medium">
+      <span
+        className="ml-1 text-[10px] bg-yellow-100 text-yellow-700 px-1 py-0.5 rounded font-medium cursor-help"
+        title={
+          causaAgua
+            ? `Agua ${aguaCaraEnPct}% sobre el límite tolerable (${formatCLP(breakEvenAgua)}/m3 max)`
+            : numPlantas != null
+              ? `Con ${numPlantas} plantas el margen es ajustado — más plantas mejoran el ROI`
+              : "Margen ajustado"
+        }
+      >
         Riesgo
       </span>
     );
+
   return (
-    <span className="ml-1 text-[10px] bg-red-100 text-red-700 px-1 py-0.5 rounded font-medium">
+    <span
+      className="ml-1 text-[10px] bg-red-100 text-red-700 px-1 py-0.5 rounded font-medium cursor-help"
+      title={
+        causaAgua
+          ? `Agua ${aguaCaraEnPct}% sobre el límite — máximo tolerable ${formatCLP(breakEvenAgua)}/m3`
+          : numPlantas != null
+            ? `Pocas plantas para cubrir costos fijos — aumenta la cantidad`
+            : "No rentable con configuración actual"
+      }
+    >
       Inviable
     </span>
   );
@@ -1066,6 +1091,7 @@ export default function EconomiaPage() {
                                 <ViabilidadBadge
                                   breakEvenAgua={r.roi.precio_agua_break_even}
                                   costoAgua={costoAguaM3Efectivo}
+                                  numPlantas={r.numPlantas}
                                 />
                                 {isActiveScenario && (
                                   <span className="ml-1 text-[10px] bg-blue-600 text-white px-1.5 py-0.5 rounded">

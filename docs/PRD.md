@@ -87,3 +87,5 @@ Componente → Hook → DAL → Supabase
 - **33 migraciones SQL**
 - **763 líneas de tipos TypeScript** (fuente de verdad)
 - **25 tipos de alerta** agronómicas + operacionales + de integridad de datos
+
+# DESCRIPCION DESDE EL Desarrollador
