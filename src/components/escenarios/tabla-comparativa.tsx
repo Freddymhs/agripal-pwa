@@ -305,7 +305,31 @@ export function RecomendacionEscenario({ escenarios }: TablaComparativaProps) {
     (a, b) => b.roi.roi_5_años_pct - a.roi.roi_5_años_pct,
   )[0];
 
+  const todosNegativos = escenarios.every((e) => e.roi.roi_5_años_pct < 0);
   const sinSuelo = mejor.factorSuelo === 1.0;
+
+  if (todosNegativos) {
+    return (
+      <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+        <div className="text-xs font-semibold text-red-600 uppercase tracking-wide mb-1">
+          Advertencia
+        </div>
+        <p className="text-sm text-red-900 font-semibold mb-1">
+          Ninguno de los cultivos seleccionados es rentable en esta zona
+        </p>
+        <ul className="text-sm text-red-800 space-y-0.5 mt-2">
+          <li>
+            • El menos negativo es <strong>{mejor.cultivo.nombre}</strong> con
+            ROI <strong>{mejor.roi.roi_5_años_pct}%</strong>
+          </li>
+          <li>
+            • Considera reducir el costo de agua, cambiar cultivos, o vender en
+            feria para mejorar el margen
+          </li>
+        </ul>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-green-50 border border-green-200 rounded-xl p-4">

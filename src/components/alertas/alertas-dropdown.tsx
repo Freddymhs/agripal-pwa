@@ -1,10 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import Link from "next/link";
 import type { Alerta } from "@/types";
 import { SEVERIDAD_CONFIG } from "@/lib/constants/alertas";
-import { ROUTES } from "@/lib/constants/routes";
 
 interface AlertasDropdownProps {
   alertas: Alerta[];
@@ -93,18 +91,6 @@ export function AlertasDropdown({
               </div>
             )}
           </div>
-
-          {alertas.length > 0 && (
-            <div className="p-2 border-t border-gray-100">
-              <Link
-                href={ROUTES.ALERTAS}
-                onClick={() => setIsOpen(false)}
-                className="block w-full text-center text-sm text-green-600 hover:text-green-700 font-medium py-2 hover:bg-green-50 rounded"
-              >
-                Ver todas las alertas →
-              </Link>
-            </div>
-          )}
         </div>
       )}
     </div>

@@ -1,20 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
-import type { Zona, UUID, ProveedorAgua } from "@/types";
-import { ROUTES } from "@/lib/constants/routes";
+import type { Zona, UUID } from "@/types";
 
 interface EntradaAguaFormProps {
   estanques: Zona[];
   estanqueIdPrecargado?: UUID;
-  proveedores?: ProveedorAgua[];
   onRegistrar: (data: {
     estanque_id: UUID;
     cantidad_m3: number;
     costo_clp?: number;
-    proveedor: string;
-    notas?: string;
+    proveedor?: string;
   }) => Promise<void>;
   onCancelar: () => void;
 }
@@ -22,7 +18,6 @@ interface EntradaAguaFormProps {
 export function EntradaAguaForm({
   estanques,
   estanqueIdPrecargado,
-  proveedores = [],
   onRegistrar,
   onCancelar,
 }: EntradaAguaFormProps) {
@@ -30,11 +25,6 @@ export function EntradaAguaForm({
     estanqueIdPrecargado || estanques[0]?.id || "",
   );
   const [cantidad, setCantidad] = useState(20);
-  const [costo, setCosto] = useState<number | "">("");
-  const [proveedorSeleccionado, setProveedorSeleccionado] = useState(
-    proveedores.length > 0 ? proveedores[0].nombre : "",
-  );
-  const [notas, setNotas] = useState("");
   const [loading, setLoading] = useState(false);
 
   const estanqueSeleccionado = estanques.find((e) => e.id === estanqueId);
@@ -46,26 +36,23 @@ export function EntradaAguaForm({
   const cantidadFinal = Math.min(cantidad, espacioDisponible);
   const excede = cantidad > espacioDisponible;
 
-  const handleProveedorChange = (nombre: string) => {
-    setProveedorSeleccionado(nombre);
-    const prov = proveedores.find((p) => p.nombre === nombre);
-    if (prov?.precio_m3_clp && costo === "") {
-      setCosto(Math.round(prov.precio_m3_clp * cantidad));
-    }
-  };
+  // Costo auto-derivado desde la config del estanque
+  const costoPorM3 = config?.costo_por_m3;
+  const costoCalculado =
+    costoPorM3 && costoPorM3 > 0
+      ? Math.round(costoPorM3 * cantidadFinal)
+      : undefined;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!estanqueId || cantidadFinal <= 0 || !proveedorSeleccionado) return;
+    if (!estanqueId || cantidadFinal <= 0) return;
 
     setLoading(true);
     try {
       await onRegistrar({
         estanque_id: estanqueId,
         cantidad_m3: cantidadFinal,
-        costo_clp: costo || undefined,
-        proveedor: proveedorSeleccionado,
-        notas,
+        costo_clp: costoCalculado,
       });
     } finally {
       setLoading(false);
@@ -160,94 +147,27 @@ export function EntradaAguaForm({
         )}
       </div>
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Costo (CLP)
-        </label>
-        <input
-          type="number"
-          value={costo}
-          onChange={(e) =>
-            setCosto(e.target.value ? Number(e.target.value) : "")
-          }
-          min={0}
-          className="w-full px-3 py-2 border rounded text-gray-900"
-          placeholder="Opcional"
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Proveedor *
-        </label>
-        {proveedores.length > 0 ? (
-          <select
-            value={proveedorSeleccionado}
-            onChange={(e) => handleProveedorChange(e.target.value)}
-            className="w-full px-3 py-2 border rounded text-gray-900"
-            required
-          >
-            {proveedores.map((prov) => (
-              <option key={prov.id} value={prov.nombre}>
-                {prov.nombre}
-                {prov.precio_m3_clp
-                  ? ` ($${prov.precio_m3_clp.toLocaleString()}/m³)`
-                  : ""}
-              </option>
-            ))}
-          </select>
-        ) : (
-          <div className="space-y-2">
-            <div className="bg-amber-50 border border-amber-200 p-3 rounded">
-              <p className="text-sm text-amber-800">
-                Sin proveedores de agua registrados — el costo no se calculará
-                automáticamente.{" "}
-                <Link
-                  href={ROUTES.AGUA_CONFIGURACION}
-                  className="text-cyan-600 underline font-medium"
-                >
-                  Configura proveedores
-                </Link>{" "}
-                para un seguimiento completo.
-              </p>
-            </div>
-            <input
-              type="text"
-              value={proveedorSeleccionado}
-              onChange={(e) => setProveedorSeleccionado(e.target.value)}
-              className="w-full px-3 py-2 border rounded text-gray-900"
-              placeholder="Ej: camión cisterna, pozo propio..."
-              required
-            />
-          </div>
-        )}
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Notas
-        </label>
-        <textarea
-          value={notas}
-          onChange={(e) => setNotas(e.target.value)}
-          className="w-full px-3 py-2 border rounded text-gray-900"
-          rows={2}
-        />
-      </div>
-
       {config && cantidadFinal > 0 && (
-        <div className="bg-green-50 p-3 rounded text-center">
+        <div className="bg-green-50 p-3 rounded text-center space-y-1">
           <div className="text-sm text-green-700">Agua después de entrada:</div>
           <div className="text-2xl font-bold text-green-800">
             {(aguaActual + cantidadFinal).toFixed(1)} m³
           </div>
+          {costoCalculado != null && (
+            <div className="text-sm text-green-700">
+              Costo estimado: ${costoCalculado.toLocaleString("es-CL")} CLP
+              <span className="text-xs text-green-600 ml-1">
+                ({costoPorM3?.toLocaleString("es-CL")}/m³)
+              </span>
+            </div>
+          )}
         </div>
       )}
 
       <div className="flex gap-2">
         <button
           type="submit"
-          disabled={loading || cantidadFinal <= 0 || !proveedorSeleccionado}
+          disabled={loading || cantidadFinal <= 0}
           className="flex-1 bg-cyan-600 text-white py-2 rounded hover:bg-cyan-700 disabled:opacity-50"
         >
           {loading ? "Registrando..." : "Registrar Entrada"}

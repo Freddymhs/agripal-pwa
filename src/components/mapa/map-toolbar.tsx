@@ -15,6 +15,7 @@ export function MapToolbar() {
     setZonaSeleccionada,
     cultivoSeleccionado,
     setCultivoSeleccionado,
+    setShowGridModal,
   } = useMapContext();
 
   return (
@@ -63,7 +64,7 @@ export function MapToolbar() {
             : "bg-gray-100 text-gray-700 hover:bg-gray-200"
         }`}
       >
-        🌱 Plantas
+        🌱 Editar Planta
       </button>
 
       <div className="w-px h-6 bg-gray-300 mx-1" />
@@ -122,7 +123,26 @@ export function MapToolbar() {
               : "bg-gray-100 text-gray-400 cursor-not-allowed"
         }`}
       >
-        🌾 Plantar
+        🌾 Individual
+      </button>
+
+      <button
+        onClick={() => setShowGridModal(true)}
+        disabled={
+          (modo !== MODO.ZONAS && modo !== MODO.PLANTAR) ||
+          !zonaSeleccionada ||
+          zonaSeleccionada.tipo !== TIPO_ZONA.CULTIVO ||
+          !cultivoSeleccionado
+        }
+        className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
+          (modo === MODO.ZONAS || modo === MODO.PLANTAR) &&
+          zonaSeleccionada?.tipo === TIPO_ZONA.CULTIVO &&
+          cultivoSeleccionado
+            ? "bg-gray-100 text-gray-700 hover:bg-gray-200"
+            : "bg-gray-100 text-gray-400 cursor-not-allowed"
+        }`}
+      >
+        🌾 En Grilla
       </button>
 
       {modo === MODO.CREAR_ZONA && (
@@ -131,55 +151,55 @@ export function MapToolbar() {
         </span>
       )}
 
-      {modo === MODO.PLANTAR && (
-        <div className="flex items-center gap-2 flex-wrap bg-lime-50 px-3 py-2 rounded-lg border border-lime-200">
-          <span className="text-sm font-medium text-lime-800">Plantando:</span>
-          <select
-            value={cultivoSeleccionado?.id ?? ""}
-            onChange={(e) => {
-              const cultivo = catalogoCultivos.find(
-                (c) => c.id === e.target.value,
-              );
-              if (cultivo) setCultivoSeleccionado(cultivo);
-            }}
-            className="px-2 py-1 rounded text-sm border border-lime-300 text-gray-900 bg-white"
-          >
-            {!cultivoSeleccionado && (
-              <option value="" disabled>
-                Seleccionar cultivo…
-              </option>
+      {(modo === MODO.ZONAS || modo === MODO.PLANTAR) &&
+        zonaSeleccionada?.tipo === TIPO_ZONA.CULTIVO && (
+          <div className="flex items-center gap-2 flex-wrap bg-lime-50 px-3 py-2 rounded-lg border border-lime-200">
+            <span className="text-sm font-medium text-lime-800">Cultivo:</span>
+            <select
+              value={cultivoSeleccionado?.id ?? ""}
+              onChange={(e) => {
+                const cultivo = catalogoCultivos.find(
+                  (c) => c.id === e.target.value,
+                );
+                if (cultivo) setCultivoSeleccionado(cultivo);
+              }}
+              className="px-2 py-1 rounded text-sm border border-lime-300 text-gray-900 bg-white"
+            >
+              {!cultivoSeleccionado && (
+                <option value="" disabled>
+                  Seleccionar cultivo…
+                </option>
+              )}
+              {catalogoCultivos.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.nombre}
+                </option>
+              ))}
+            </select>
+            {cultivoSeleccionado && (
+              <span className="text-xs text-lime-700 bg-lime-100 px-2 py-1 rounded">
+                Espacio: {cultivoSeleccionado.espaciado_recomendado_m}m
+              </span>
             )}
-            {catalogoCultivos.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.nombre}
-              </option>
-            ))}
-          </select>
-          {cultivoSeleccionado && (
-            <span className="text-xs text-lime-700 bg-lime-100 px-2 py-1 rounded">
-              Espacio: {cultivoSeleccionado.espaciado_recomendado_m}m
-            </span>
-          )}
-          <span className="text-lime-800">→</span>
-          {zonaSeleccionada ? (
-            zonaSeleccionada.tipo === TIPO_ZONA.CULTIVO ? (
-              <span className="text-sm text-lime-800 font-medium">
-                Haz click DENTRO de &quot;{zonaSeleccionada.nombre}&quot; para
-                colocar 1 planta
-              </span>
-            ) : (
-              <span className="text-sm text-red-700 bg-red-100 px-2 py-1 rounded font-medium">
-                &quot;{zonaSeleccionada.nombre}&quot; no es cultivo. Haz click
-                en una zona VERDE.
-              </span>
-            )
-          ) : (
-            <span className="text-sm text-lime-800 font-medium">
-              Primero haz click en una zona VERDE para seleccionarla
-            </span>
-          )}
-        </div>
-      )}
+
+            {modo === MODO.PLANTAR && (
+              <>
+                <span className="text-lime-800">→</span>
+                {zonaSeleccionada.tipo === TIPO_ZONA.CULTIVO ? (
+                  <span className="text-sm text-lime-800 font-medium">
+                    Haz click DENTRO de &quot;{zonaSeleccionada.nombre}&quot;
+                    para colocar 1 planta
+                  </span>
+                ) : (
+                  <span className="text-sm text-red-700 bg-red-100 px-2 py-1 rounded font-medium">
+                    &quot;{zonaSeleccionada.nombre}&quot; no es cultivo. Haz
+                    click en una zona VERDE.
+                  </span>
+                )}
+              </>
+            )}
+          </div>
+        )}
     </div>
   );
 }

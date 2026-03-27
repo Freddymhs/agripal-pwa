@@ -7,8 +7,8 @@
     "nombre_cientifico": "Opuntia ficus-indica",
     "tipo": "fruta",
     "origen": "seed",
-    "agua_m3_ha_año_min": 2000,
-    "agua_m3_ha_año_max": 3000,
+    "agua_m3_ha_año_min": 2500,
+    "agua_m3_ha_año_max": 4000,
     "espaciado_min_m": 2.5,
     "espaciado_recomendado_m": 3,
     "ph_min": 6,
@@ -59,7 +59,7 @@
     "calendario": {
       "meses_siembra": [3, 4, 9, 10],
       "meses_cosecha": [12, 1, 2, 3],
-      "meses_descanso": [5, 6, 7, 8, 11]
+      "meses_descanso": [5, 6, 7, 8]
     },
     "produccion": {
       "produccion_kg_ha_año2": 3000,
@@ -141,8 +141,8 @@
     "updated_at": "2026-03-08T00:00:00Z",
     "kc_plantula": 0.4,
     "kc_joven": 0.6,
-    "kc_adulta": 0.75,
-    "kc_madura": 0.65,
+    "kc_adulta": 0.5,
+    "kc_madura": 0.4,
     "recomendacion": 3,
     "aplica_calidad": true
   },
@@ -160,10 +160,10 @@
     "espaciado_recomendado_m": 6,
     "ph_min": 6,
     "ph_max": 8,
-    "salinidad_tolerancia_dS_m": 5,
+    "salinidad_tolerancia_dS_m": 3.5,
     "boro_tolerancia_ppm": 1.25,
     "tolerancia_boro": "media",
-    "tolerancia_salinidad": "alta",
+    "tolerancia_salinidad": "media",
     "clima": {
       "temp_min_c": 4,
       "temp_max_c": 38,
@@ -207,7 +207,7 @@
     "calendario": {
       "meses_siembra": [6, 7, 8],
       "meses_cosecha": [11, 12, 1, 2, 3, 4, 5],
-      "meses_descanso": [9, 10]
+      "meses_descanso": [6, 7, 8]
     },
     "produccion": {
       "produccion_kg_ha_año2": 0,
@@ -310,8 +310,8 @@
     "nombre_cientifico": "Hylocereus spp.",
     "tipo": "fruta",
     "origen": "seed",
-    "agua_m3_ha_año_min": 2000,
-    "agua_m3_ha_año_max": 3500,
+    "agua_m3_ha_año_min": 3000,
+    "agua_m3_ha_año_max": 8000,
     "espaciado_min_m": 1.5,
     "espaciado_recomendado_m": 2,
     "ph_min": 5.5,
@@ -372,7 +372,7 @@
     "calendario": {
       "meses_siembra": [8, 9, 10],
       "meses_cosecha": [1, 2, 3, 4, 5],
-      "meses_descanso": [6, 7, 12]
+      "meses_descanso": [6, 7]
     },
     "produccion": {
       "produccion_kg_ha_año2": 2000,
@@ -417,8 +417,8 @@
     "nombre_cientifico": "Psidium guajava",
     "tipo": "fruta",
     "origen": "seed",
-    "agua_m3_ha_año_min": 2000,
-    "agua_m3_ha_año_max": 3500,
+    "agua_m3_ha_año_min": 5000,
+    "agua_m3_ha_año_max": 8000,
     "espaciado_min_m": 4,
     "espaciado_recomendado_m": 5,
     "ph_min": 5.5,
@@ -469,7 +469,7 @@
     "calendario": {
       "meses_siembra": [9, 10, 11],
       "meses_cosecha": [1, 2, 3, 4],
-      "meses_descanso": [5, 6, 7, 8, 12]
+      "meses_descanso": []
     },
     "produccion": {
       "produccion_kg_ha_año2": 100,
@@ -556,7 +556,7 @@
     "tipo": "fruta",
     "origen": "seed",
     "agua_m3_ha_año_min": 12000,
-    "agua_m3_ha_año_max": 20000,
+    "agua_m3_ha_año_max": 18000,
     "espaciado_min_m": 7,
     "espaciado_recomendado_m": 8,
     "ph_min": 7,
@@ -609,8 +609,8 @@
     "viabilidad_proyecto": "limitado",
     "calendario": {
       "meses_siembra": [2, 3, 4],
-      "meses_cosecha": [9, 10, 11],
-      "meses_descanso": [1, 5, 6, 7, 8, 12]
+      "meses_cosecha": [2, 3, 4],
+      "meses_descanso": []
     },
     "produccion": {
       "produccion_kg_ha_año2": 0,
@@ -655,8 +655,8 @@
     "nombre_cientifico": "Passiflora edulis",
     "tipo": "fruta",
     "origen": "seed",
-    "agua_m3_ha_año_min": 4500,
-    "agua_m3_ha_año_max": 5500,
+    "agua_m3_ha_año_min": 8000,
+    "agua_m3_ha_año_max": 15000,
     "espaciado_min_m": 2,
     "espaciado_recomendado_m": 3,
     "ph_min": 5.5,
@@ -712,7 +712,7 @@
     "calendario": {
       "meses_siembra": [8, 9, 10],
       "meses_cosecha": [2, 3, 4, 5, 6],
-      "meses_descanso": [7, 11, 12, 1]
+      "meses_descanso": [7, 8]
     },
     "produccion": {
       "produccion_kg_ha_año2": 10000,
@@ -760,8 +760,8 @@
     "nombre_cientifico": "Vitis vinifera",
     "tipo": "fruta",
     "origen": "seed",
-    "agua_m3_ha_año_min": 5000,
-    "agua_m3_ha_año_max": 8000,
+    "agua_m3_ha_año_min": 6000,
+    "agua_m3_ha_año_max": 9000,
     "espaciado_min_m": 2.5,
     "espaciado_recomendado_m": 3,
     "ph_min": 6,
@@ -869,8 +869,8 @@
     "nombre_cientifico": "Citrus limon",
     "tipo": "fruta",
     "origen": "seed",
-    "agua_m3_ha_año_min": 5000,
-    "agua_m3_ha_año_max": 8000,
+    "agua_m3_ha_año_min": 9000,
+    "agua_m3_ha_año_max": 12000,
     "espaciado_min_m": 5,
     "espaciado_recomendado_m": 6,
     "ph_min": 5.5,
@@ -926,7 +926,7 @@
     "calendario": {
       "meses_siembra": [7, 8, 9],
       "meses_cosecha": [4, 5, 6, 7, 8, 9, 10],
-      "meses_descanso": [1, 2, 3, 11, 12]
+      "meses_descanso": []
     },
     "produccion": {
       "produccion_kg_ha_año2": 0,
@@ -957,8 +957,8 @@
     "updated_at": "2026-03-07T00:00:00Z",
     "kc_plantula": 0.5,
     "kc_joven": 0.7,
-    "kc_adulta": 0.85,
-    "kc_madura": 0.8,
+    "kc_adulta": 0.7,
+    "kc_madura": 0.65,
     "recomendacion": 1,
     "alelopatia": {
       "negativa": ["mandarina", "naranja"],
@@ -974,8 +974,8 @@
     "nombre_cientifico": "Citrus reticulata",
     "tipo": "fruta",
     "origen": "seed",
-    "agua_m3_ha_año_min": 5000,
-    "agua_m3_ha_año_max": 8000,
+    "agua_m3_ha_año_min": 9000,
+    "agua_m3_ha_año_max": 12000,
     "espaciado_min_m": 4,
     "espaciado_recomendado_m": 5,
     "ph_min": 6,
@@ -1031,7 +1031,7 @@
     "calendario": {
       "meses_siembra": [7, 8, 9],
       "meses_cosecha": [6, 7, 8, 9],
-      "meses_descanso": [10, 11, 12, 1, 2, 3, 4, 5]
+      "meses_descanso": []
     },
     "produccion": {
       "produccion_kg_ha_año2": 0,
@@ -1062,8 +1062,8 @@
     "updated_at": "2026-03-07T00:00:00Z",
     "kc_plantula": 0.5,
     "kc_joven": 0.7,
-    "kc_adulta": 0.85,
-    "kc_madura": 0.8,
+    "kc_adulta": 0.7,
+    "kc_madura": 0.65,
     "recomendacion": 1,
     "alelopatia": {
       "negativa": ["limon", "naranja"],
@@ -1079,8 +1079,8 @@
     "nombre_cientifico": "Vaccinium corymbosum",
     "tipo": "fruta",
     "origen": "seed",
-    "agua_m3_ha_año_min": 2500,
-    "agua_m3_ha_año_max": 3600,
+    "agua_m3_ha_año_min": 6000,
+    "agua_m3_ha_año_max": 10000,
     "espaciado_min_m": 0.8,
     "espaciado_recomendado_m": 1,
     "ph_min": 4.5,
@@ -1136,8 +1136,8 @@
     "viabilidad_proyecto": "viable",
     "calendario": {
       "meses_siembra": [6, 7],
-      "meses_cosecha": [8, 9, 10, 11],
-      "meses_descanso": [12, 1, 2, 3, 4, 5]
+      "meses_cosecha": [11, 12, 1],
+      "meses_descanso": [6, 7, 8]
     },
     "produccion": {
       "produccion_kg_ha_año2": 4000,
@@ -1239,7 +1239,7 @@
     "calendario": {
       "meses_siembra": [8, 9],
       "meses_cosecha": [2, 3, 4, 5, 6],
-      "meses_descanso": [7, 8, 9, 10, 11, 12, 1]
+      "meses_descanso": [7, 8]
     },
     "produccion": {
       "produccion_kg_ha_año2": 0,
@@ -1283,8 +1283,8 @@
     "nombre_cientifico": "Punica granatum",
     "tipo": "fruta",
     "origen": "seed",
-    "agua_m3_ha_año_min": 2500,
-    "agua_m3_ha_año_max": 4000,
+    "agua_m3_ha_año_min": 4000,
+    "agua_m3_ha_año_max": 6500,
     "espaciado_min_m": 4,
     "espaciado_recomendado_m": 4,
     "ph_min": 6,
@@ -1340,7 +1340,7 @@
     "calendario": {
       "meses_siembra": [7, 8, 9],
       "meses_cosecha": [3, 4, 5],
-      "meses_descanso": [6, 10, 11, 12, 1, 2]
+      "meses_descanso": [6, 7, 8]
     },
     "produccion": {
       "produccion_kg_ha_año2": 0,
@@ -1446,7 +1446,7 @@
     "calendario": {
       "meses_siembra": [9, 10],
       "meses_cosecha": [1, 2, 3, 4],
-      "meses_descanso": [5, 6, 7, 8, 9, 10, 11, 12]
+      "meses_descanso": []
     },
     "produccion": {
       "produccion_kg_ha_año2": 0,
@@ -1490,8 +1490,8 @@
     "nombre_cientifico": "Olea europaea",
     "tipo": "fruta",
     "origen": "seed",
-    "agua_m3_ha_año_min": 10439,
-    "agua_m3_ha_año_max": 12504,
+    "agua_m3_ha_año_min": 5000,
+    "agua_m3_ha_año_max": 8000,
     "espaciado_min_m": 5,
     "espaciado_recomendado_m": 7,
     "ph_min": 6.5,
@@ -1553,8 +1553,8 @@
     "viabilidad_proyecto": "mejor_opcion",
     "calendario": {
       "meses_siembra": [5, 6, 7],
-      "meses_cosecha": [3, 4],
-      "meses_descanso": [8, 9, 10, 11, 12, 1, 2]
+      "meses_cosecha": [4, 5, 6, 7],
+      "meses_descanso": []
     },
     "produccion": {
       "produccion_kg_ha_año2": 0,
@@ -1662,8 +1662,8 @@
     "nombre_cientifico": "Prosopis chilensis",
     "tipo": "fruta",
     "origen": "seed",
-    "agua_m3_ha_año_min": 800,
-    "agua_m3_ha_año_max": 2000,
+    "agua_m3_ha_año_min": 2000,
+    "agua_m3_ha_año_max": 5000,
     "espaciado_min_m": 4,
     "espaciado_recomendado_m": 6,
     "ph_min": 6,
@@ -1677,6 +1677,9 @@
       "temp_max_c": 45,
       "tolerancia_heladas": "media"
     },
+    "kc_mensual": [
+      0.7, 0.7, 0.65, 0.55, 0.4, 0.25, 0.25, 0.25, 0.4, 0.55, 0.65, 0.7
+    ],
     "viabilidad_proyecto": "viable",
     "calendario": {
       "meses_siembra": [9, 10, 11],

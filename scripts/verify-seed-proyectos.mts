@@ -15,13 +15,13 @@ import {
   PORTER_COSTO_EFECTIVO_M3,
   MARGEN_BORDE as MARGEN_PORTERO,
   MAX_PLANTAS_POR_ZONA as MAX_PORTERO,
-} from "./seed-proyecto-portero.mts";
+} from "./seed-proyecto-portero.mjs";
 
 import {
   TERRENOS as TERRENOS_EXPERTA,
   MARGEN_BORDE as MARGEN_EXPERTA,
   MAX_PLANTAS_POR_ZONA as MAX_EXPERTA,
-} from "./seed-terrenos-ia-experta.mts";
+} from "./seed-terrenos-ia-experta.mjs";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -132,7 +132,7 @@ async function verificarProyecto(config: {
     // Proveedor
     const provs = ((d["agua_avanzada"] as Record<string, unknown>)?.["proveedores"] as Record<string, unknown>[]) ?? [];
     const prov  = provs[0];
-    const aguaDef = tDef.agua as Record<string, unknown>;
+    const aguaDef = tDef.agua as unknown as Record<string, unknown>;
     const nombreProvEsperado = (aguaDef["nombre_proveedor"] as string | undefined) ?? "Porter Propia (1.5m³/viaje)";
     check("proveedor.nombre",       nombreProvEsperado,          prov?.["nombre"],          ctx);
     check("proveedor.precio_m3_clp", tDef.agua.precio_m3_clp,   prov?.["precio_m3_clp"],   ctx);
@@ -161,9 +161,9 @@ async function verificarProyecto(config: {
 
     // ── Estanques ──────────────────────────────────────────────────────────
     const estanquesDef: Record<string, unknown>[] =
-      (tDef as Record<string, unknown>)["estanques"]
-        ? ((tDef as Record<string, unknown>)["estanques"] as Record<string, unknown>[])
-        : [(tDef as Record<string, unknown>)["estanque"] as Record<string, unknown>];
+      (tDef as unknown as Record<string, unknown>)["estanques"]
+        ? ((tDef as unknown as Record<string, unknown>)["estanques"] as Record<string, unknown>[])
+        : [(tDef as unknown as Record<string, unknown>)["estanque"] as Record<string, unknown>];
 
     for (const eDef of estanquesDef) {
       const eDB = (zonasDB ?? []).find((z) => z.tipo === "estanque" && z.nombre === eDef["nombre"]);
@@ -197,7 +197,7 @@ async function verificarProyecto(config: {
     }
 
     // ── Zonas cultivo ──────────────────────────────────────────────────────
-    const zonasDef = (tDef as Record<string, unknown>)["zonas"] as Record<string, unknown>[];
+    const zonasDef = (tDef as unknown as Record<string, unknown>)["zonas"] as Record<string, unknown>[];
 
     for (const zDef of zonasDef) {
       const zDB = (zonasDB ?? []).find((z) => z.tipo === "cultivo" && z.nombre === zDef["nombre"]);
@@ -281,11 +281,11 @@ async function run() {
     busqueda: "Estanquero",
     terrenos: TERRENOS_EXPERTA as never,
     costoFn:  (tDef) => {
-      const a = (tDef as { agua: { precio_m3_clp: number; recarga: { costo_transporte_clp: number; cantidad_litros: number } } }).agua;
+      const a = (tDef as unknown as { agua: { precio_m3_clp: number; recarga: { costo_transporte_clp: number; cantidad_litros: number } } }).agua;
       return calcCostoEfectivo(a.precio_m3_clp, a.recarga.costo_transporte_clp, a.recarga.cantidad_litros);
     },
     aguaFuenteFn: (tDef) => {
-      const fuente = ((tDef as { agua: { fuente: string } }).agua.fuente);
+      const fuente = ((tDef as unknown as { agua: { fuente: string } }).agua.fuente);
       return fuente === "riego" ? "aljibe" : fuente;
     },
     margen:    MARGEN_EXPERTA,

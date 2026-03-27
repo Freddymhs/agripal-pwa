@@ -6,17 +6,21 @@ interface MapSidebarEmptyProps {
   terrenoActual: Terreno;
   zonas: Zona[];
   onConfigAvanzada: () => void;
+  children?: React.ReactNode;
 }
 
 export function MapSidebarEmpty({
   terrenoActual,
   zonas,
   onConfigAvanzada,
+  children,
 }: MapSidebarEmptyProps) {
   return (
-    <div className="p-4 space-y-4">
+    <div className="p-4 space-y-3">
       <div className="bg-white rounded-lg border shadow-sm">
-        <div className="p-4 border-b flex justify-between items-center">
+        <div
+          className={`p-4 flex justify-between items-center ${!children ? "border-b" : ""}`}
+        >
           <h3 className="font-medium text-gray-900">{terrenoActual.nombre}</h3>
           <button
             onClick={onConfigAvanzada}
@@ -45,43 +49,47 @@ export function MapSidebarEmpty({
           </button>
         </div>
 
-        <div className="p-4">
-          <p className="text-sm text-gray-600 mb-3">
-            Selecciona una zona o planta para ver detalles y opciones de
-            edición.
-          </p>
+        {!children && (
+          <div className="p-4">
+            <p className="text-sm text-gray-600 mb-3">
+              Selecciona una zona o planta para ver detalles y opciones de
+              edición.
+            </p>
 
-          {zonas.length === 0 ? (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-              <p className="text-sm text-blue-800">
-                <strong>💡 Comienza aquí:</strong> Haz clic en &quot;+ Nueva
-                Zona&quot; arriba y dibuja un rectángulo en el mapa.
-              </p>
-            </div>
-          ) : (
-            <div className="text-xs text-gray-500 space-y-1">
-              <div className="flex items-center gap-1">
-                <kbd className="px-1.5 py-0.5 bg-gray-100 rounded text-[10px] font-mono">
-                  Click
-                </kbd>
-                <span>en zona/planta para seleccionar</span>
+            {zonas.length === 0 ? (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                <p className="text-sm text-blue-800">
+                  <strong>Comienza aquí:</strong> Haz clic en &quot;+ Nueva
+                  Zona&quot; arriba y dibuja un rectángulo en el mapa.
+                </p>
               </div>
-              <div className="flex items-center gap-1">
-                <kbd className="px-1.5 py-0.5 bg-gray-100 rounded text-[10px] font-mono">
-                  Shift + arrastrar
-                </kbd>
-                <span>para selección múltiple</span>
+            ) : (
+              <div className="text-xs text-gray-500 space-y-1">
+                <div className="flex items-center gap-1">
+                  <kbd className="px-1.5 py-0.5 bg-gray-100 rounded text-[10px] font-mono">
+                    Click
+                  </kbd>
+                  <span>en zona/planta para seleccionar</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <kbd className="px-1.5 py-0.5 bg-gray-100 rounded text-[10px] font-mono">
+                    Shift + arrastrar
+                  </kbd>
+                  <span>para selección múltiple</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <kbd className="px-1.5 py-0.5 bg-gray-100 rounded text-[10px] font-mono">
+                    ESC
+                  </kbd>
+                  <span>para deseleccionar</span>
+                </div>
               </div>
-              <div className="flex items-center gap-1">
-                <kbd className="px-1.5 py-0.5 bg-gray-100 rounded text-[10px] font-mono">
-                  ESC
-                </kbd>
-                <span>para deseleccionar</span>
-              </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
       </div>
+
+      {children}
     </div>
   );
 }

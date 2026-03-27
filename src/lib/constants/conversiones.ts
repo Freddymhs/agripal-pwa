@@ -38,16 +38,47 @@ export const FACTOR_EFICIENCIA_RIEGO_DEFAULT = 1.0;
 export const KR_POR_AÑO = [0.15, 0.4, 0.7, 0.7, 1.0] as const;
 
 /**
- * Fracción de Lavado (FL) por tolerancia a salinidad del cultivo.
- * Para agua aljibe/potable (CE ~0.5 dS/m).
- * Agua_bruta = Agua_neta / (1 - FL).
- * Tolerantes: +2% | Medias: +4% | Sensibles: +7.5%
+ * Fracción de Lavado estática (FL) por tolerancia a salinidad del cultivo.
+ * Fallback cuando no se conoce la CE del agua de riego.
+ * Asume agua aljibe/potable (CE ~0.5 dS/m).
  */
 export const FRACCION_LAVADO: Record<string, number> = {
   alta: 0.02,
   media: 0.04,
   baja: 0.075,
 } as const;
+
+/**
+ * Fracción de Lavado FAO-56 dinámica:
+ *   LF = ECw / (2 × ECe_max − ECw)
+ *
+ * Donde:
+ *   ECw = conductividad del agua de riego (dS/m)
+ *   ECe_max = umbral de salinidad del cultivo (dS/m, desde catalogo_cultivo.salinidad_tolerancia_dS_m)
+ *
+ * Retorna la FL calculada si ambos datos están disponibles y el denominador es positivo.
+ * Si ECw >= 2×ECe_max (agua demasiado salina), retorna null → el cultivo no es viable con esa agua.
+ * Límite inferior: nunca menos que el fallback estático (FRACCION_LAVADO) para no subestimar.
+ */
+export function calcularFraccionLavadoFAO(
+  ecwDsM: number | undefined | null,
+  eceMaxDsM: number | undefined | null,
+  toleranciaSalinidad?: string,
+): number {
+  const fallback = toleranciaSalinidad
+    ? (FRACCION_LAVADO[toleranciaSalinidad] ?? 0)
+    : 0;
+
+  if (ecwDsM == null || eceMaxDsM == null || ecwDsM <= 0 || eceMaxDsM <= 0) {
+    return fallback;
+  }
+
+  const denominador = 2 * eceMaxDsM - ecwDsM;
+  if (denominador <= 0) return fallback;
+
+  const flFAO = ecwDsM / denominador;
+  return Math.max(flFAO, fallback);
+}
 
 /**
  * Perfiles de calidad de cosecha — distribución % por categoría (1ª/2ª/3ª).
@@ -81,6 +112,8 @@ export const MAX_PLANTAS_OVERLAP_CHECK = 80;
 
 export const DIAS_POR_MES_PROMEDIO = 30;
 export const DIAS_POR_AÑO = 365;
+/** Estimación de llenadas/año para estanques sin recarga configurada (~1 cada 2 semanas) */
+export const RECARGAS_AÑO_FALLBACK = 26;
 export const HORAS_POR_DIA = 24;
 export const LITROS_POR_M3 = 1000;
 export const LITROS_POR_BALDE = 20;

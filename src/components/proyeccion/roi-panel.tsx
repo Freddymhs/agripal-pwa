@@ -41,7 +41,7 @@ export function ROIPanel({ roi }: ROIPanelProps) {
                     <li>Consumo real de agua (Kc x etapa x temporada)</li>
                     <li>Costo del agua por m³</li>
                     <li>Costo inicial de plantas</li>
-                    <li>Horizonte de 4 años</li>
+                    <li>Horizonte de 5 años</li>
                   </ul>
                 </div>
                 <div>
@@ -109,8 +109,14 @@ export function ROIPanel({ roi }: ROIPanelProps) {
         </div>
         <div className="flex justify-between">
           <span className="text-gray-500">Año 4</span>
-          <span className="font-medium text-gray-900">
+          <span className="text-gray-900">
             {Math.round(roi.kg_año4)} kg → {formatCLP(roi.ingreso_año4)}
+          </span>
+        </div>
+        <div className="flex justify-between">
+          <span className="text-gray-500">Año 5</span>
+          <span className="font-medium text-gray-900">
+            {Math.round(roi.kg_año5)} kg → {formatCLP(roi.ingreso_año5)}
           </span>
         </div>
       </div>
@@ -120,7 +126,7 @@ export function ROIPanel({ roi }: ROIPanelProps) {
       >
         <div className="flex justify-between">
           <span className={roi.viable ? "text-green-700" : "text-red-700"}>
-            Ingreso neto 4 años
+            Ingreso neto 5 años
           </span>
           <span
             className={`font-bold ${roi.viable ? "text-green-900" : "text-red-900"}`}

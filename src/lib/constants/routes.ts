@@ -23,14 +23,10 @@ export const ROUTES = {
   TERRENOS_SUELO: "/terrenos/suelo",
 
   // Agua module
-  AGUA: "/agua",
-  AGUA_PLANIFICADOR: "/agua/planificador",
   AGUA_CONFIGURACION: "/agua/configuracion",
 
   // Economía module
   ECONOMIA: "/economia",
-  ECONOMIA_AVANZADO: "/economia/avanzado",
-  ECONOMIA_ESCENARIOS: "/economia/escenarios",
 
   // Calendario Gantt
   GANTT: "/gantt",
@@ -50,11 +46,7 @@ export const ROUTES = {
   // Cosechas
   COSECHAS: "/cosechas",
 
-  // Reportes
-  REPORTES: "/reportes",
-
   // Operaciones
-  ALERTAS: "/alertas",
   GUIA: "/guia",
   CONFIGURACION: "/configuracion",
 } as const;

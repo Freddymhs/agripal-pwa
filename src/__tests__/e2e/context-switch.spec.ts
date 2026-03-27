@@ -50,8 +50,8 @@ test.describe("Context switch — cambio de proyecto y terreno", () => {
       catalogo_cultivos: [makeCultivo({ proyecto_id: PROYECTO_A_ID })],
     });
 
-    // Navegar directamente a /agua (ruta interna) sin pasar por /app
-    await page.goto("/agua");
+    // Navegar directamente a /economia (ruta interna) sin pasar por /app
+    await page.goto("/economia");
 
     // La página debe cargar sin crash — el hook de contexto no debe quedar en estado inconsistente
     await expect(page.locator("body")).toBeVisible();
@@ -87,21 +87,6 @@ test.describe("Context switch — cambio de proyecto y terreno", () => {
     });
 
     await page.goto("/economia");
-    await expect(page.locator("body")).toBeVisible();
-    await expect(page).not.toHaveURL(/\/error/);
-  });
-
-  test("navegación directa a /alertas no crashea", async ({ page }) => {
-    await mockSupabase(page, {
-      proyectos: [proyectoA],
-      terrenos: [terrenoA],
-      zonas: [],
-      plantas: [],
-      catalogo_cultivos: [],
-      alertas: [],
-    });
-
-    await page.goto("/alertas");
     await expect(page.locator("body")).toBeVisible();
     await expect(page).not.toHaveURL(/\/error/);
   });

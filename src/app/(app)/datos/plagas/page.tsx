@@ -6,6 +6,7 @@ import { PageLayout } from "@/components/layout/page-layout";
 import {
   evaluarRiesgoPlagas,
   ALERTA_PLAGA,
+  SCORE_RIESGO_MAX,
   type RiesgoPlaga,
 } from "@/lib/utils/riesgo-plagas";
 import type { CatalogoCultivo, EtapaCrecimiento } from "@/types";
@@ -187,8 +188,8 @@ export default function PlagasPage() {
                     <span
                       className={`text-xs font-bold px-2 py-1 rounded ${ALERT_BADGE[riesgo.alertaNivel]}`}
                     >
-                      {riesgo.alertaNivel.toUpperCase()} ({riesgo.scoreRiesgo}
-                      /100)
+                      {riesgo.alertaNivel.toUpperCase()} ({riesgo.scoreRiesgo}/
+                      {SCORE_RIESGO_MAX})
                     </span>
                   </div>
                 </div>

@@ -46,6 +46,15 @@ export function useAlertas(
   // Cancela ejecuciones anteriores si llega una nueva antes de que termine
   const syncIdRef = useRef(0);
 
+  // Adjusting state during render: limpiar alertas inmediatamente al cambiar de terreno
+  // para evitar que alerts del terreno anterior contaminen la vista del nuevo terreno.
+  const [prevTerrenoId, setPrevTerrenoId] = useState(terreno?.id ?? null);
+  const currentTerrenoId = terreno?.id ?? null;
+  if (prevTerrenoId !== currentTerrenoId) {
+    setPrevTerrenoId(currentTerrenoId);
+    setAlertas([]);
+  }
+
   const refrescarAlertas = useCallback(async () => {
     if (!terreno || datosListos === false) {
       setLoading(false);

@@ -2,7 +2,7 @@
 
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import type { Zona } from "@/types";
+import type { Zona, EntradaAgua } from "@/types";
 import type { ResumenEstanque } from "@/lib/utils/agua";
 import { MS_POR_DIA, LITROS_POR_M3 } from "@/lib/constants/conversiones";
 import { getEstadoDiasAgua, calcularPreviewRecarga } from "@/lib/utils/agua";
@@ -11,12 +11,20 @@ interface EstanqueCardAguaProps {
   estanque: Zona;
   resumen: ResumenEstanque | undefined;
   onConfigurarRecarga: () => void;
+  /** Cuando es el único estanque, mostrar botón de registrar agua aquí */
+  onRegistrarAgua?: () => void;
+  /** Últimas entradas de agua (para mostrar debajo del botón registrar) */
+  entradasRecientes?: EntradaAgua[];
+  onVerHistorial?: () => void;
 }
 
 export function EstanqueCardAgua({
   estanque,
   resumen,
   onConfigurarRecarga,
+  onRegistrarAgua,
+  entradasRecientes,
+  onVerHistorial,
 }: EstanqueCardAguaProps) {
   const cfg = estanque.estanque_config;
   if (!cfg) return null;
@@ -85,6 +93,59 @@ export function EstanqueCardAgua({
         </div>
       ) : (
         <p className="text-xs text-gray-400">Sin zonas de cultivo asignadas</p>
+      )}
+
+      {/* Botón registrar agua (solo cuando es el único estanque) */}
+      {onRegistrarAgua && (
+        <button
+          onClick={onRegistrarAgua}
+          className="w-full bg-cyan-600 text-white py-3 rounded-lg hover:bg-cyan-700 font-medium flex items-center justify-center gap-2 transition-colors"
+        >
+          <svg
+            className="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 4v16m8-8H4"
+            />
+          </svg>
+          Registrar entrada de agua
+        </button>
+      )}
+
+      {/* Historial compacto (debajo del botón registrar) */}
+      {entradasRecientes && entradasRecientes.length > 0 && (
+        <div className="space-y-1">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] text-gray-500 uppercase tracking-wide">
+              Últimas entradas
+            </span>
+            {onVerHistorial && (
+              <button
+                onClick={onVerHistorial}
+                className="text-[10px] text-cyan-600 hover:text-cyan-700 font-medium"
+              >
+                Ver todo
+              </button>
+            )}
+          </div>
+          {entradasRecientes.slice(0, 3).map((e) => (
+            <div
+              key={e.id}
+              className="flex justify-between text-xs text-gray-600"
+            >
+              <span className="text-cyan-700 font-medium">
+                +{(e.cantidad_m3 ?? 0).toFixed(1)} m³
+              </span>
+              <span>{new Date(e.fecha).toLocaleDateString("es-CL")}</span>
+            </div>
+          ))}
+        </div>
       )}
 
       {/* Recarga */}

@@ -2,7 +2,7 @@
 
 import { useEffect, useCallback, useMemo, useRef, useState } from "react";
 import { logger } from "@/lib/logger";
-import { aguaDAL, transaccionesDAL } from "@/lib/dal";
+import { aguaDAL, transaccionesDAL, zonasDAL } from "@/lib/dal";
 import { ejecutarMutacion } from "@/lib/helpers/dal-mutation";
 import { generateUUID, getCurrentTimestamp } from "@/lib/utils";
 import { ESTADO_AGUA } from "@/lib/constants/entities";
@@ -26,6 +26,13 @@ import type {
   UUID,
 } from "@/types";
 
+interface RecargaConfig {
+  frecuencia_dias: number;
+  cantidad_litros: number;
+  costo_transporte_clp?: number;
+  proveedor_id?: string;
+}
+
 interface UseAgua {
   entradas: EntradaAgua[];
   consumoSemanal: number;
@@ -41,6 +48,8 @@ interface UseAgua {
     proveedor?: string;
     notas?: string;
   }) => Promise<EntradaAgua>;
+  configurarRecarga: (estanqueId: UUID, config: RecargaConfig) => Promise<void>;
+  quitarRecarga: (estanqueId: UUID) => Promise<void>;
 }
 
 export function useAgua(
@@ -217,6 +226,94 @@ export function useAgua(
     [terreno, estanques, onRefetch, fetchEntradas],
   );
 
+  const configurarRecarga = useCallback(
+    async (estanqueId: UUID, config: RecargaConfig) => {
+      const estanque = estanques.find((e) => e.id === estanqueId);
+      if (!estanque?.estanque_config) return;
+
+      if (
+        typeof config.frecuencia_dias !== "number" ||
+        config.frecuencia_dias <= 0
+      ) {
+        logger.error(
+          "Validación recarga fallida: frecuencia_dias debe ser mayor a 0",
+        );
+        return;
+      }
+      if (
+        typeof config.cantidad_litros !== "number" ||
+        config.cantidad_litros <= 0
+      ) {
+        logger.error(
+          "Validación recarga fallida: cantidad_litros debe ser mayor a 0",
+        );
+        return;
+      }
+
+      const now = getCurrentTimestamp();
+      const proximaRecarga = addDays(
+        new Date(now),
+        config.frecuencia_dias,
+      ).toISOString();
+
+      const zonaFresca = await zonasDAL.getById(estanqueId);
+      const configFresca =
+        zonaFresca?.estanque_config ?? estanque.estanque_config;
+
+      await ejecutarMutacion(
+        () =>
+          zonasDAL.update(estanqueId, {
+            estanque_config: {
+              ...configFresca,
+              proveedor_id: config.proveedor_id ?? configFresca.proveedor_id,
+              recarga: {
+                frecuencia_dias: config.frecuencia_dias,
+                cantidad_litros: config.cantidad_litros,
+                ultima_recarga: now,
+                proxima_recarga: proximaRecarga,
+                costo_transporte_clp: config.costo_transporte_clp,
+              },
+            },
+            updated_at: now,
+          }),
+        "configurar recarga estanque",
+        async () => {
+          emitZonaUpdated(estanqueId);
+          onRefetch();
+        },
+      );
+    },
+    [estanques, onRefetch],
+  );
+
+  const quitarRecarga = useCallback(
+    async (estanqueId: UUID) => {
+      const estanque = estanques.find((e) => e.id === estanqueId);
+      if (!estanque?.estanque_config) return;
+
+      const zonaFresca = await zonasDAL.getById(estanqueId);
+      const configFresca =
+        zonaFresca?.estanque_config ?? estanque.estanque_config;
+
+      await ejecutarMutacion(
+        () =>
+          zonasDAL.update(estanqueId, {
+            estanque_config: {
+              ...configFresca,
+              recarga: null,
+            },
+            updated_at: getCurrentTimestamp(),
+          }),
+        "quitar recarga estanque",
+        async () => {
+          emitZonaUpdated(estanqueId);
+          onRefetch();
+        },
+      );
+    },
+    [estanques, onRefetch],
+  );
+
   return {
     entradas,
     consumoSemanal,
@@ -225,5 +322,7 @@ export function useAgua(
     estadoAgua,
     loading: loadingEntradas,
     registrarEntrada,
+    configurarRecarga,
+    quitarRecarga,
   };
 }

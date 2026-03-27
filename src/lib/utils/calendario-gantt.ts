@@ -28,6 +28,7 @@ import {
 import { calcularConsumoZona } from "@/lib/utils/agua";
 import { KR_POR_AÑO } from "@/lib/constants/conversiones";
 import { TIPO_ZONA, ESTADO_PLANTA } from "@/lib/constants/entities";
+import { logger } from "@/lib/logger";
 
 // ─── Tipos de propagación (derivados de vida_util_años, sin campo nuevo en BD) ─
 
@@ -905,7 +906,16 @@ export function calcularAguaMensualRelativa(
   et0Mensual: number[],
 ): number[] {
   const kc = cultivo.kc_mensual;
-  if (!kc || kc.length < 12) return new Array(12).fill(0);
+  if (!kc || kc.length < 12) {
+    logger.warn(
+      "kc_mensual ausente o incompleto — usando Kc=0 para consumo mensual",
+      {
+        cultivo_id: cultivo.id,
+        nombre: cultivo.nombre,
+      },
+    );
+    return new Array(12).fill(0);
+  }
 
   const DIAS_MES = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
   const demanda = kc.map((k, i) => k * et0Mensual[i] * DIAS_MES[i]);

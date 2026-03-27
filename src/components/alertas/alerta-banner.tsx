@@ -1,8 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
-import { ROUTES } from "@/lib/constants/routes";
 
 interface AlertaBannerProps {
   alertasCriticas: number;
@@ -25,12 +23,6 @@ export function AlertaBanner({ alertasCriticas }: AlertaBannerProps) {
               ? "Tienes 1 alerta crítica que requiere atención"
               : `Tienes ${alertasCriticas} alertas críticas que requieren atención`}
           </span>
-          <Link
-            href={ROUTES.ALERTAS}
-            className="text-sm underline hover:no-underline ml-2"
-          >
-            Ver alertas
-          </Link>
         </div>
         <button
           onClick={() => setDismissed(true)}

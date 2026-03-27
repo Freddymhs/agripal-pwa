@@ -140,11 +140,11 @@ export const GUIA_SECCIONES: GuiaSeccionData[] = [
         valor:
           "El sistema proyectará tu consumo y te avisará antes de quedarte sin agua.",
         comoFunciona:
-          "En la página de agua, configura la recarga de tu estanque: cada cuántos días llega agua y cuántos m³ por viaje. Aquí eliges el proveedor que creaste antes (su precio/m³ es el costo base del agua). Opcionalmente, agrega el costo de transporte/delivery por viaje — el sistema lo divide entre los m³ entregados. El costo total del agua = precio del proveedor + transporte amortizado. Si compartes el camión aljibe con otros, ingresa solo tu porción del flete.",
+          "En el mapa, selecciona tu terreno y usa el panel de agua para configurar la recarga del estanque: cada cuántos días llega agua y cuántos m³ por viaje. Aquí eliges el proveedor que creaste antes (su precio/m³ es el costo base del agua). Opcionalmente, agrega el costo de transporte/delivery por viaje — el sistema lo divide entre los m³ entregados. El costo total del agua = precio del proveedor + transporte amortizado. Si compartes el camión aljibe con otros, ingresa solo tu porción del flete.",
         ejemplo:
           "Cada 7 días — 1.5 m³ — Proveedor: Río Azapa ($2.000/m³) + transporte $6.438",
-        ruta: ROUTES.AGUA,
-        rutaLabel: "Configurar recarga",
+        ruta: ROUTES.HOME,
+        rutaLabel: "Ir al mapa",
         scope: "Terreno",
       },
       {
@@ -168,8 +168,8 @@ export const GUIA_SECCIONES: GuiaSeccionData[] = [
         comoFunciona:
           "Opcional pero útil. Registra cada entrada de agua al estanque para que el sistema refleje tu nivel real. No afecta el cálculo de economía — solo te ayuda a saber cuántos días de agua te quedan y cuándo programar la próxima recarga.",
         ejemplo: "Hoy cargué 1.5 m³ → quedan 3.7 m³ → alcanza 5 días",
-        ruta: ROUTES.AGUA,
-        rutaLabel: "Ver agua",
+        ruta: ROUTES.HOME,
+        rutaLabel: "Ir al mapa",
         scope: "Proyecto",
       },
     ],
@@ -193,31 +193,6 @@ export const GUIA_SECCIONES: GuiaSeccionData[] = [
         rutaLabel: "Ver economía",
         scope: "Proyecto",
       },
-      {
-        id: "alertas",
-        titulo: "Recibir alertas",
-        valor: "No se te olvidará regar ni actuar ante problemas.",
-        comoFunciona:
-          "El sistema detecta problemas automáticamente: agua baja, salinidad, replantas, riesgo de plagas, alelopatía entre cultivos, vecería y fertilización por etapa. También verifica integridad de datos: detecta cultivos sin producción, sin precio, sin coeficiente Kc, costo de agua en $0 y precios anómalos por errores de conversión ODEPA. Si hay un dato faltante que hace mentir a los cálculos, te avisa.",
-        ejemplo:
-          "Agua para 5 días — Lavado salino pendiente — Choclo precio anómalo ($28.959/kg) — Cultivo sin Kc",
-        ruta: ROUTES.ALERTAS,
-        rutaLabel: "Ver alertas",
-        scope: "Proyecto",
-      },
-      {
-        id: "reportes",
-        titulo: "Descargar reportes PDF",
-        valor:
-          "Tendrás documentos listos para llevar al banco, INDAP o un asesor técnico.",
-        comoFunciona:
-          "Genera 3 informes descargables: financiero (inversión, ROI, proyección 5 años), hídrico (consumo, estanques, proyección 12 meses) y producción (cosechas reales vs proyectadas, calidad, ingresos).",
-        ejemplo:
-          "Reporte financiero → inversión $2.5M, ROI 340%, payback 18 meses",
-        ruta: ROUTES.REPORTES,
-        rutaLabel: "Ir a reportes",
-        scope: "Proyecto",
-      },
     ],
   },
   {
@@ -227,18 +202,6 @@ export const GUIA_SECCIONES: GuiaSeccionData[] = [
     resultado: "Herramientas adicionales para optimizar tu operación",
     pasos: [
       {
-        id: "economia-avanzada",
-        titulo: "Economía avanzada",
-        valor:
-          "Conocerás el costo real por kilo, el margen de ganancia y cuánto necesitas vender para cubrir costos.",
-        comoFunciona:
-          "Analiza cada zona con métricas detalladas: costo de producción por kg, punto de equilibrio en kilos, margen de contribución y tiempo de recuperación de la inversión en meses.",
-        ejemplo: "Olivo → costo $350/kg, margen 65%, equilibrio con 120 kg/año",
-        ruta: ROUTES.ECONOMIA_AVANZADO,
-        rutaLabel: "Ver avanzado",
-        scope: "Proyecto",
-      },
-      {
         id: "escenarios",
         titulo: "Comparar cultivos",
         valor:
@@ -247,20 +210,8 @@ export const GUIA_SECCIONES: GuiaSeccionData[] = [
           "Selecciona 2 o 3 cultivos y compara ROI, consumo de agua, días a cosecha, compatibilidad con tu suelo y riesgo de plagas. El sistema te recomienda la mejor opción para tu terreno.",
         ejemplo:
           "¿Tuna, olivo o higuera? → Olivo gana en ROI, tuna en velocidad",
-        ruta: ROUTES.ECONOMIA_ESCENARIOS,
-        rutaLabel: "Comparar cultivos",
-        scope: "Proyecto",
-      },
-      {
-        id: "planificador",
-        titulo: "Planificar temporada",
-        valor:
-          "Tendrás un plan claro de agua y eventos para los próximos 12 meses.",
-        comoFunciona:
-          "Proyección a 12 meses con nivel de agua esperado, eventos clave (recargas, cosechas, lavados) y costos acumulados.",
-        ejemplo: "Marzo déficit → programar recarga extra",
-        ruta: ROUTES.AGUA_PLANIFICADOR,
-        rutaLabel: "Abrir planificador",
+        ruta: ROUTES.ECONOMIA,
+        rutaLabel: "Ver economia",
         scope: "Proyecto",
       },
       {

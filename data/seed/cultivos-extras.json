@@ -155,10 +155,10 @@
     "espaciado_recomendado_m": 0.15,
     "ph_min": 6,
     "ph_max": 7.5,
-    "salinidad_tolerancia_dS_m": 4,
+    "salinidad_tolerancia_dS_m": 1.2,
     "boro_tolerancia_ppm": 2,
     "tolerancia_boro": "media",
-    "tolerancia_salinidad": "media",
+    "tolerancia_salinidad": "baja",
     "clima": {
       "temp_min_c": 0,
       "temp_max_c": 35,

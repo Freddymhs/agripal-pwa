@@ -428,6 +428,16 @@ function generarAlertas(
       }
     }
 
+    // Agrupar por cultivo_id: una alerta por (zona + cultivo), no por planta
+    const replantePorCultivo = new Map<
+      string,
+      {
+        cultivo: (typeof catalogoCultivos)[0];
+        count: number;
+        diasDesde: number;
+        cicloTotal: number;
+      }
+    >();
     for (const planta of plantasZona) {
       if (planta.estado === ESTADO_PLANTA.MUERTA || !planta.fecha_plantacion)
         continue;
@@ -447,19 +457,37 @@ function generarAlertas(
         diasDesde >= cicloTotal * PORCENTAJE_CICLO_REPLANTA &&
         planta.etapa_actual === ETAPA.MADURA
       ) {
-        alertas.push({
-          terreno_id: terreno.id,
-          zona_id: zona.id,
-          planta_id: planta.id,
-          tipo: "replanta_pendiente",
-          severidad: SEVERIDAD_ALERTA.INFO,
-          estado: ESTADO_ALERTA.ACTIVA,
-          titulo: `🔔 ${cultivo.nombre} lista para replante`,
-          descripcion: `Plantada hace ${diasDesde} días (ciclo: ${cicloTotal} días).`,
-          sugerencia:
-            "Considera replantar en los próximos 14 días para mantener producción.",
-        });
+        const existing = replantePorCultivo.get(cultivo.id);
+        if (existing) {
+          existing.count += 1;
+        } else {
+          replantePorCultivo.set(cultivo.id, {
+            cultivo,
+            count: 1,
+            diasDesde,
+            cicloTotal,
+          });
+        }
       }
+    }
+
+    for (const {
+      cultivo,
+      count,
+      diasDesde,
+      cicloTotal,
+    } of replantePorCultivo.values()) {
+      alertas.push({
+        terreno_id: terreno.id,
+        zona_id: zona.id,
+        tipo: "replanta_pendiente",
+        severidad: SEVERIDAD_ALERTA.INFO,
+        estado: ESTADO_ALERTA.ACTIVA,
+        titulo: `🔔 ${cultivo.nombre} lista para replante`,
+        descripcion: `${count} planta${count !== 1 ? "s" : ""} listas (ciclo: ${cicloTotal} días, ${diasDesde} días plantadas).`,
+        sugerencia:
+          "Considera replantar en los próximos 14 días para mantener producción.",
+      });
     }
   }
 
@@ -816,6 +844,12 @@ export async function sincronizarAlertas(
         (a.proyecto_id ?? a.terreno_id) === (b.proyecto_id ?? b.terreno_id)
       );
     }
+    // replanta_pendiente: ahora se agrupa por (zona + cultivo), no por planta.
+    // Ignorar planta_id para que los alerts viejos per-planta sean reemplazados
+    // correctamente por el nuevo alert agrupado.
+    if (a.tipo === "replanta_pendiente") {
+      return a.terreno_id === b.terreno_id && a.zona_id === b.zona_id;
+    }
     // Alerta de terreno: matchea por tipo + terreno_id + zona_id + planta_id
     return (
       a.terreno_id === b.terreno_id &&
@@ -824,8 +858,31 @@ export async function sincronizarAlertas(
     );
   };
 
+  // Deduplicar alertas existentes antes de procesar: si un sync anterior corrió en paralelo
+  // puede haber insertado el mismo alert dos veces con IDs distintos. Resolver los extras.
+  const seenKeys = new Set<string>();
+  const alertasDedup: Alerta[] = [];
   const resolver: Array<{ id: string; cambios: Partial<Alerta> }> = [];
   for (const existente of alertasExistentes) {
+    const key = `${existente.tipo}|${existente.terreno_id ?? ""}|${existente.zona_id ?? ""}|${existente.planta_id ?? ""}|${existente.proyecto_id ?? ""}`;
+    if (seenKeys.has(key)) {
+      // Duplicado en DB — resolver este
+      resolver.push({
+        id: existente.id,
+        cambios: {
+          estado: ESTADO_ALERTA.RESUELTA,
+          fecha_resolucion: timestamp,
+          como_se_resolvio: "Automático",
+          updated_at: timestamp,
+        },
+      });
+    } else {
+      seenKeys.add(key);
+      alertasDedup.push(existente);
+    }
+  }
+
+  for (const existente of alertasDedup) {
     const sigueSiendo = nuevasAlertas.some((n) => mismaAlerta(n, existente));
     if (!sigueSiendo) {
       resolver.push({
@@ -842,7 +899,7 @@ export async function sincronizarAlertas(
 
   const nuevas: Alerta[] = [];
   for (const nueva of nuevasAlertas) {
-    const yaExiste = alertasExistentes.some((e) => mismaAlerta(nueva, e));
+    const yaExiste = alertasDedup.some((e) => mismaAlerta(nueva, e));
 
     if (!yaExiste) {
       nuevas.push({

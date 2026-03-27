@@ -17,7 +17,7 @@ import {
   FACTOR_EFICIENCIA_RIEGO,
   FACTOR_EFICIENCIA_RIEGO_DEFAULT,
   KR_POR_AÑO,
-  FRACCION_LAVADO,
+  calcularFraccionLavadoFAO,
 } from "@/lib/constants/conversiones";
 import {
   calcularPrecioKgPromedio,
@@ -112,6 +112,8 @@ export function calcularROI(
   suelo?: SueloTerreno | null,
   precioKgOverride?: number,
   perfilCalidad?: PerfilCalidad | null,
+  /** CE del agua de riego (dS/m) — si disponible, calcula FL dinámica FAO-56 */
+  ecwDsM?: number | null,
 ): ProyeccionROI {
   const areaHa = resolverAreaZona(zona) / M2_POR_HECTAREA;
   const plantasPorHa = calcularPlantasPorHa(cultivo.espaciado_recomendado_m);
@@ -128,8 +130,12 @@ export function calcularROI(
       ? consumoSemanalReal * SEMANAS_POR_AÑO
       : aguaPromedioHaAño * areaHa;
 
-  // FL — fracción de lavado según tolerancia a salinidad (FAO)
-  const fl = FRACCION_LAVADO[cultivo.tolerancia_salinidad] ?? 0;
+  // FL — FAO-56 dinámica si hay CE del agua, fallback a tabla estática
+  const fl = calcularFraccionLavadoFAO(
+    ecwDsM,
+    cultivo.salinidad_tolerancia_dS_m,
+    cultivo.tolerancia_salinidad,
+  );
   const aguaAnualBase = fl > 0 ? aguaAnualNeta / (1 - fl) : aguaAnualNeta;
 
   // Kr reduce consumo de agua en plantas jóvenes (FAO/INIA)
@@ -204,25 +210,28 @@ export function calcularROI(
   // Partimos de -costoPlantasTotal y sumamos (revenue - agua) mensual.
   // No incluimos amortización de plantas en el costo mensual porque ya está
   // en el saldo inicial.
-  let puntoEquilibrio: number | null = null;
-  if (ingresoAcumulado > 0) {
-    let acum = -costoPlantasTotal;
-    const mesesPorAño = [
-      { ingresoMensual: (ingreso1 - costoAguaPorAño[0]) / 12 },
-      { ingresoMensual: (ingreso2 - costoAguaPorAño[1]) / 12 },
-      { ingresoMensual: (ingreso3 - costoAguaPorAño[2]) / 12 },
-      { ingresoMensual: (ingreso4 - costoAguaPorAño[3]) / 12 },
-      { ingresoMensual: (ingreso5 - costoAguaPorAño[4]) / 12 },
-    ];
-    for (let mes = 1; mes <= 60; mes++) {
-      const añoIdx = Math.min(Math.floor((mes - 1) / 12), 4);
-      acum += mesesPorAño[añoIdx].ingresoMensual;
-      if (acum >= 0) {
-        puntoEquilibrio = mes;
-        break;
-      }
-    }
-  }
+  const mesesPorAño = [
+    { ingresoMensual: (ingreso1 - costoAguaPorAño[0]) / 12 },
+    { ingresoMensual: (ingreso2 - costoAguaPorAño[1]) / 12 },
+    { ingresoMensual: (ingreso3 - costoAguaPorAño[2]) / 12 },
+    { ingresoMensual: (ingreso4 - costoAguaPorAño[3]) / 12 },
+    { ingresoMensual: (ingreso5 - costoAguaPorAño[4]) / 12 },
+  ];
+  const puntoEquilibrio: number | null =
+    ingresoAcumulado <= 0
+      ? null
+      : Array.from({ length: 60 }, (_, i) => i + 1).reduce<{
+          acum: number;
+          mes: number | null;
+        }>(
+          ({ acum, mes }, i) => {
+            if (mes !== null) return { acum, mes };
+            const añoIdx = Math.min(Math.floor((i - 1) / 12), 4);
+            const newAcum = acum + mesesPorAño[añoIdx].ingresoMensual;
+            return { acum: newAcum, mes: newAcum >= 0 ? i : null };
+          },
+          { acum: -costoPlantasTotal, mes: null },
+        ).mes;
 
   return {
     cultivo_id: cultivo.id,
@@ -256,6 +265,68 @@ export function calcularROI(
   };
 }
 
+export interface PuntoFlujoCaja {
+  mes: number;
+  acumulado: number;
+  ingresoMensual: number;
+}
+
+/**
+ * Genera el flujo de caja mensual acumulado a 5 años (60 meses).
+ * Parte de -costoPlantasTotal y suma (ingreso - agua) mensual.
+ * Costo agua por año se deriva de costo_agua_anual (año 5 adulto) × Kr_i/Kr_5.
+ */
+export function generarFlujoCajaMensual(roi: ProyeccionROI): PuntoFlujoCaja[] {
+  const krAdulto = KR_POR_AÑO[4];
+  const costoAguaBase = krAdulto > 0 ? roi.costo_agua_anual / krAdulto : 0;
+
+  const datosAño = [
+    { ingreso: roi.ingreso_año1, costoAgua: costoAguaBase * KR_POR_AÑO[0] },
+    { ingreso: roi.ingreso_año2, costoAgua: costoAguaBase * KR_POR_AÑO[1] },
+    { ingreso: roi.ingreso_año3, costoAgua: costoAguaBase * KR_POR_AÑO[2] },
+    { ingreso: roi.ingreso_año4, costoAgua: costoAguaBase * KR_POR_AÑO[3] },
+    { ingreso: roi.ingreso_año5, costoAgua: roi.costo_agua_anual },
+  ];
+
+  const puntos = Array.from({ length: 60 }, (_, i) => i + 1).reduce<{
+    pts: PuntoFlujoCaja[];
+    acum: number;
+  }>(
+    ({ pts, acum }, mes) => {
+      const añoIdx = Math.min(Math.floor((mes - 1) / 12), 4);
+      const mensual =
+        (datosAño[añoIdx].ingreso - datosAño[añoIdx].costoAgua) / 12;
+      const newAcum = acum + mensual;
+      return {
+        pts: [...pts, { mes, acumulado: newAcum, ingresoMensual: mensual }],
+        acum: newAcum,
+      };
+    },
+    { pts: [], acum: -roi.costo_plantas },
+  ).pts;
+
+  return puntos;
+}
+
+/**
+ * Calcula el Valor Actual Neto (VAN) descontando flujos anuales.
+ * Tasa default: 8% anual (costo oportunidad privado Chile — depósito a plazo + riesgo agrícola).
+ */
+export function calcularVAN(roi: ProyeccionROI, tasa = 0.08): number {
+  const flujos = [
+    roi.ingreso_año1 - roi.costo_agua_anual * (KR_POR_AÑO[0] / KR_POR_AÑO[4]),
+    roi.ingreso_año2 - roi.costo_agua_anual * (KR_POR_AÑO[1] / KR_POR_AÑO[4]),
+    roi.ingreso_año3 - roi.costo_agua_anual * (KR_POR_AÑO[2] / KR_POR_AÑO[4]),
+    roi.ingreso_año4 - roi.costo_agua_anual * (KR_POR_AÑO[3] / KR_POR_AÑO[4]),
+    roi.ingreso_año5 - roi.costo_agua_anual,
+  ];
+  const van = flujos.reduce(
+    (acc, flujo, t) => acc + flujo / (1 + tasa) ** (t + 1),
+    -roi.inversion_total,
+  );
+  return van;
+}
+
 /**
  * Extiende la proyección ROI de 5 a 10 años para cultivos perennes.
  * Años 6-10 usan producción año 5 (estabilizada) y solo costo agua
@@ -267,19 +338,20 @@ export function extenderROI10Años(roi: ProyeccionROI): ProyeccionROI10 {
   const roi10 =
     roi.inversion_total > 0 ? (ingAcum10 / roi.inversion_total) * 100 : 0;
 
-  let puntoEq10: number | null = roi.punto_equilibrio_meses;
-  if (puntoEq10 === null && ingAcum10 > 0) {
-    // Continuar walk mensual desde mes 61
-    let acum = roi.ingreso_acumulado_5años;
-    const mensual = netoAnual6_10 / 12;
-    for (let mes = 61; mes <= 120; mes++) {
-      acum += mensual;
-      if (acum >= 0) {
-        puntoEq10 = mes;
-        break;
-      }
-    }
-  }
+  const puntoEq10: number | null =
+    roi.punto_equilibrio_meses !== null || ingAcum10 <= 0
+      ? roi.punto_equilibrio_meses
+      : Array.from({ length: 60 }, (_, i) => i + 61).reduce<{
+          acum: number;
+          mes: number | null;
+        }>(
+          ({ acum, mes }, i) => {
+            if (mes !== null) return { acum, mes };
+            const newAcum = acum + netoAnual6_10 / 12;
+            return { acum: newAcum, mes: newAcum >= 0 ? i : null };
+          },
+          { acum: roi.ingreso_acumulado_5años, mes: null },
+        ).mes;
 
   return {
     roi_10_años_pct: Math.round(roi10),

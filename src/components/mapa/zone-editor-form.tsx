@@ -9,7 +9,6 @@ interface ZoneEditorFormProps {
   zona: Zona;
   nombre: string;
   tipo: TipoZona;
-  color: string;
   notas: string | undefined;
   x: number;
   y: number;
@@ -23,7 +22,6 @@ interface ZoneEditorFormProps {
   advertenciaEliminacion?: string | null;
   onNombreChange: (v: string) => void;
   onTipoChange: (v: TipoZona) => void;
-  onColorChange: (v: string) => void;
   onNotasChange: (v: string | undefined) => void;
   onXChange: (v: number) => void;
   onYChange: (v: number) => void;
@@ -51,15 +49,15 @@ function ConfirmDeleteZona({
   const canDelete = inputNombre === zona.nombre && inputFecha === today;
 
   return (
-    <div className="bg-red-50 p-4 rounded space-y-3">
-      <p className="text-red-800 font-medium">Confirmar eliminación</p>
+    <div className="bg-red-50 p-3 rounded space-y-2">
+      <p className="text-red-800 font-medium text-sm">Confirmar eliminación</p>
       {advertencia && (
-        <p className="text-red-700 text-sm bg-red-100 p-2 rounded">
+        <p className="text-red-700 text-xs bg-red-100 p-2 rounded">
           {advertencia}
         </p>
       )}
       <div>
-        <label className="block text-sm mb-1 text-gray-700">
+        <label className="block text-xs mb-0.5 text-gray-700">
           Escribe:{" "}
           <code className="bg-white px-1 text-gray-900">{zona.nombre}</code>
         </label>
@@ -72,7 +70,7 @@ function ConfirmDeleteZona({
         />
       </div>
       <div>
-        <label className="block text-sm mb-1 text-gray-700">
+        <label className="block text-xs mb-0.5 text-gray-700">
           Fecha de hoy:{" "}
           <code className="bg-white px-1 text-gray-900">{today}</code>
         </label>
@@ -88,13 +86,13 @@ function ConfirmDeleteZona({
         <button
           onClick={onConfirm}
           disabled={!canDelete}
-          className={`flex-1 py-2 rounded text-sm font-medium ${canDelete ? "bg-red-500 text-white hover:bg-red-600" : "bg-gray-200 text-gray-400 cursor-not-allowed"}`}
+          className={`flex-1 py-1.5 rounded text-sm font-medium ${canDelete ? "bg-red-500 text-white hover:bg-red-600" : "bg-gray-200 text-gray-400 cursor-not-allowed"}`}
         >
           Eliminar
         </button>
         <button
           onClick={onCancel}
-          className="flex-1 bg-gray-200 text-gray-700 py-2 rounded text-sm"
+          className="flex-1 bg-gray-200 text-gray-700 py-1.5 rounded text-sm"
         >
           Cancelar
         </button>
@@ -107,7 +105,6 @@ export function ZoneEditorForm({
   zona,
   nombre,
   tipo,
-  color,
   notas,
   x,
   y,
@@ -121,7 +118,6 @@ export function ZoneEditorForm({
   advertenciaEliminacion,
   onNombreChange,
   onTipoChange,
-  onColorChange,
   onNotasChange,
   onXChange,
   onYChange,
@@ -136,181 +132,159 @@ export function ZoneEditorForm({
     hayCambiosGeometricos && !validacion.valida ? "border-red-300" : "";
 
   return (
-    <div className="p-4 space-y-4">
-      <h3 className="text-lg font-bold text-gray-900">Editar Zona</h3>
-
+    <div className="p-4 space-y-2.5">
       {error && (
-        <div className="bg-red-50 text-red-700 p-3 rounded text-sm">
+        <div className="bg-red-50 text-red-700 p-2 rounded text-xs">
           {error}
         </div>
       )}
       {hayCambiosGeometricos && !validacion.valida && (
-        <div className="bg-red-50 text-red-700 p-3 rounded text-sm">
+        <div className="bg-red-50 text-red-700 p-2 rounded text-xs">
           {validacion.error}
         </div>
       )}
       {hayCambiosGeometricos && validacion.valida && (
-        <div className="bg-green-50 text-green-700 p-3 rounded text-sm">
+        <div className="bg-green-50 text-green-700 p-2 rounded text-xs">
           Preview válido - puedes guardar
         </div>
       )}
 
-      <div>
-        <label className="block text-sm font-medium text-gray-900 mb-1">
-          Nombre
-        </label>
-        <input
-          type="text"
-          value={nombre}
-          onChange={(e) => onNombreChange(e.target.value)}
-          className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-green-500 text-gray-900"
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-900 mb-1">
-          Tipo
-        </label>
-        <select
-          value={tipo}
-          onChange={(e) => onTipoChange(e.target.value as TipoZona)}
-          disabled={cantidadPlantas > 0}
-          className={`w-full px-3 py-2 border rounded text-gray-900 ${cantidadPlantas > 0 ? "bg-gray-100 text-gray-500 cursor-not-allowed" : ""}`}
-        >
-          <option value={TIPO_ZONA.CULTIVO}>Cultivo</option>
-          <option value={TIPO_ZONA.ESTANQUE}>Estanque de Agua</option>
-          <option value={TIPO_ZONA.BODEGA}>Bodega</option>
-          <option value={TIPO_ZONA.CASA}>Casa</option>
-          <option value={TIPO_ZONA.GARAGE}>Garage</option>
-          <option value={TIPO_ZONA.COMPOSTERA}>Compostera</option>
-          <option value={TIPO_ZONA.APRON}>Apron de Carga</option>
-          <option value={TIPO_ZONA.EMPAQUE}>Empaque</option>
-          <option value={TIPO_ZONA.SANITARIO}>Sanitario</option>
-          <option value={TIPO_ZONA.CAMINO}>Camino</option>
-          <option value={TIPO_ZONA.DECORACION}>Decoración</option>
-          <option value={TIPO_ZONA.OTRO}>Otro</option>
-        </select>
-        {cantidadPlantas > 0 && (
-          <p className="text-xs text-amber-600 mt-1">
-            No se puede cambiar el tipo: hay {cantidadPlantas} planta(s) en esta
-            zona. Elimínalas primero.
-          </p>
-        )}
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-900 mb-1">
-          Color
-        </label>
-        <div className="flex gap-2 items-center">
+      <div className="grid grid-cols-[1fr_auto] gap-2">
+        <div>
+          <label className="block text-xs font-medium text-gray-700 mb-0.5">
+            Nombre
+          </label>
           <input
-            type="color"
-            value={color}
-            onChange={(e) => onColorChange(e.target.value)}
-            className="w-12 h-10 rounded cursor-pointer"
+            type="text"
+            value={nombre}
+            onChange={(e) => onNombreChange(e.target.value)}
+            className="w-full px-2 py-1.5 border rounded text-sm focus:ring-2 focus:ring-green-500 text-gray-900"
           />
-          <span className="text-sm text-gray-700">{color}</span>
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-gray-700 mb-0.5">
+            Tipo
+          </label>
+          <select
+            value={tipo}
+            onChange={(e) => onTipoChange(e.target.value as TipoZona)}
+            disabled={cantidadPlantas > 0}
+            className={`w-full px-2 py-1.5 border rounded text-sm text-gray-900 ${cantidadPlantas > 0 ? "bg-gray-100 text-gray-500 cursor-not-allowed" : ""}`}
+          >
+            <option value={TIPO_ZONA.CULTIVO}>Cultivo</option>
+            <option value={TIPO_ZONA.ESTANQUE}>Estanque</option>
+            <option value={TIPO_ZONA.BODEGA}>Bodega</option>
+            <option value={TIPO_ZONA.CASA}>Casa</option>
+            <option value={TIPO_ZONA.GARAGE}>Garage</option>
+            <option value={TIPO_ZONA.COMPOSTERA}>Compostera</option>
+            <option value={TIPO_ZONA.APRON}>Apron</option>
+            <option value={TIPO_ZONA.EMPAQUE}>Empaque</option>
+            <option value={TIPO_ZONA.SANITARIO}>Sanitario</option>
+            <option value={TIPO_ZONA.CAMINO}>Camino</option>
+            <option value={TIPO_ZONA.DECORACION}>Decoración</option>
+            <option value={TIPO_ZONA.OTRO}>Otro</option>
+          </select>
         </div>
       </div>
+      {cantidadPlantas > 0 && (
+        <p className="text-[10px] text-amber-600 -mt-1">
+          No se puede cambiar tipo: {cantidadPlantas} planta(s). Elimínalas
+          primero.
+        </p>
+      )}
 
       <div>
-        <label className="block text-sm font-medium text-gray-900 mb-1">
+        <label className="block text-xs font-medium text-gray-700 mb-0.5">
           Notas
         </label>
         <textarea
           value={notas}
           onChange={(e) => onNotasChange(e.target.value)}
-          className="w-full px-3 py-2 border rounded resize-none text-gray-900"
-          rows={2}
+          className="w-full px-2 py-1.5 border rounded resize-none text-sm text-gray-900"
+          rows={1}
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-900 mb-1">
-          Posición (metros)
+        <label className="block text-xs font-medium text-gray-700 mb-0.5">
+          Posición (m)
         </label>
-        <div className="grid grid-cols-2 gap-2">
-          <div>
-            <label className="block text-xs text-gray-700">X</label>
-            <input
-              type="number"
-              value={x}
-              onChange={(e) => onXChange(Number(e.target.value))}
-              min={0}
-              step={0.5}
-              className={`w-full px-3 py-2 border rounded text-gray-900 ${borderClass}`}
-            />
-          </div>
-          <div>
-            <label className="block text-xs text-gray-700">Y</label>
-            <input
-              type="number"
-              value={y}
-              onChange={(e) => onYChange(Number(e.target.value))}
-              min={0}
-              step={0.5}
-              className={`w-full px-3 py-2 border rounded text-gray-900 ${borderClass}`}
-            />
-          </div>
+        <div className="grid grid-cols-2 gap-1.5">
+          <input
+            type="number"
+            value={x}
+            onChange={(e) => onXChange(Number(e.target.value))}
+            min={0}
+            step={0.5}
+            className={`w-full px-2 py-1 border rounded text-sm text-gray-900 ${borderClass}`}
+            aria-label="X"
+            placeholder="X"
+          />
+          <input
+            type="number"
+            value={y}
+            onChange={(e) => onYChange(Number(e.target.value))}
+            min={0}
+            step={0.5}
+            className={`w-full px-2 py-1 border rounded text-sm text-gray-900 ${borderClass}`}
+            aria-label="Y"
+            placeholder="Y"
+          />
         </div>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-900 mb-1">
-          Dimensiones (metros)
+        <label className="block text-xs font-medium text-gray-700 mb-0.5">
+          Dimensiones (m)
         </label>
-        <div className="grid grid-cols-2 gap-2">
-          <div>
-            <label className="block text-xs text-gray-700">Ancho</label>
-            <input
-              type="number"
-              value={ancho}
-              onChange={(e) => onAnchoChange(Number(e.target.value))}
-              min={1}
-              step={0.5}
-              className={`w-full px-3 py-2 border rounded text-gray-900 ${borderClass}`}
-            />
-          </div>
-          <div>
-            <label className="block text-xs text-gray-700">Alto</label>
-            <input
-              type="number"
-              value={alto}
-              onChange={(e) => onAltoChange(Number(e.target.value))}
-              min={1}
-              step={0.5}
-              className={`w-full px-3 py-2 border rounded text-gray-900 ${borderClass}`}
-            />
-          </div>
+        <div className="grid grid-cols-[1fr_1fr_auto] gap-1.5 items-center">
+          <input
+            type="number"
+            value={ancho}
+            onChange={(e) => onAnchoChange(Number(e.target.value))}
+            min={1}
+            step={0.5}
+            className={`w-full px-2 py-1 border rounded text-sm text-gray-900 ${borderClass}`}
+            aria-label="Ancho"
+            placeholder="Ancho"
+          />
+          <input
+            type="number"
+            value={alto}
+            onChange={(e) => onAltoChange(Number(e.target.value))}
+            min={1}
+            step={0.5}
+            className={`w-full px-2 py-1 border rounded text-sm text-gray-900 ${borderClass}`}
+            aria-label="Alto"
+            placeholder="Alto"
+          />
+          <span className="text-xs text-gray-500 whitespace-nowrap">
+            = {ancho * alto} m²
+          </span>
         </div>
       </div>
 
-      <div className="bg-gray-50 p-3 rounded text-sm text-gray-900">
-        <span className="text-gray-700 font-medium">Área:</span> {ancho * alto}{" "}
-        m²
-      </div>
-
-      <div className="flex gap-2">
+      <div className="flex gap-2 pt-1">
         <button
           onClick={onSave}
           disabled={saving || (hayCambiosGeometricos && !validacion.valida)}
-          className="flex-1 bg-green-500 text-white py-2 rounded hover:bg-green-600 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex-1 bg-green-500 text-white py-1.5 rounded text-sm hover:bg-green-600 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {saving ? "Guardando..." : "Guardar"}
         </button>
         <button
           onClick={onClose}
-          className="flex-1 bg-gray-200 text-gray-700 py-2 rounded hover:bg-gray-300"
+          className="flex-1 bg-gray-200 text-gray-700 py-1.5 rounded text-sm hover:bg-gray-300"
         >
           Cancelar
         </button>
       </div>
 
-      <div className="border-t pt-4">
+      <div className="border-t pt-2">
         {!showDeleteConfirm ? (
           <button
             onClick={() => setShowDeleteConfirm(true)}
-            className="w-full text-red-600 hover:text-red-800 text-sm"
+            className="w-full text-red-600 hover:text-red-800 text-xs"
           >
             Eliminar zona
           </button>

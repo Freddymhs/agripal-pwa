@@ -29,6 +29,7 @@ export function compararCultivos(
   suelo: SueloTerreno | null,
   costoAguaM3: number,
   perfilCalidad?: PerfilCalidad | null,
+  preciosMap?: Map<string, number>,
 ): EscenarioCultivo[] {
   return cultivos.map((cultivo) => {
     const areaM2 = resolverAreaZona(zona);
@@ -37,6 +38,7 @@ export function compararCultivos(
       areaM2,
     );
 
+    const precioOverride = preciosMap?.get(cultivo.cultivo_base_id ?? "");
     const roi = calcularROI(
       cultivo,
       zona,
@@ -44,7 +46,7 @@ export function compararCultivos(
       costoAguaM3,
       undefined,
       suelo,
-      undefined,
+      precioOverride,
       perfilCalidad,
     );
     const kgAño = roi.kg_año3;

@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { calcularROI } from "@/lib/utils/roi";
 import type { CatalogoCultivo, Zona, SueloTerreno } from "@/types";
+import type { PrecioMayorista } from "@/lib/data/tipos-mercado";
 import { formatCLP } from "@/lib/utils";
 import { calcularDensidadPlantas } from "@/lib/utils/helpers-cultivo";
 
@@ -11,6 +12,7 @@ interface ComparadorProps {
   catalogoCultivos: CatalogoCultivo[];
   costoAguaM3: number;
   suelo?: SueloTerreno | null;
+  preciosMap?: Map<string, PrecioMayorista>;
 }
 
 export function Comparador({
@@ -18,6 +20,7 @@ export function Comparador({
   catalogoCultivos,
   costoAguaM3,
   suelo,
+  preciosMap,
 }: ComparadorProps) {
   const [cultivoA, setCultivoA] = useState<string>(
     catalogoCultivos[0]?.id || "",
@@ -33,8 +36,21 @@ export function Comparador({
       c.espaciado_recomendado_m,
       zona.area_m2,
     );
-    return calcularROI(c, zona, numPlantas, costoAguaM3, undefined, suelo);
-  }, [cultivoA, zona, catalogoCultivos, costoAguaM3, suelo]);
+    const pm = preciosMap?.get(c.cultivo_base_id ?? "");
+    const precioFeria =
+      pm?.precio_actual_clp && pm.factor_precio_feria
+        ? Math.round(pm.precio_actual_clp * pm.factor_precio_feria)
+        : undefined;
+    return calcularROI(
+      c,
+      zona,
+      numPlantas,
+      costoAguaM3,
+      undefined,
+      suelo,
+      precioFeria,
+    );
+  }, [cultivoA, zona, catalogoCultivos, costoAguaM3, suelo, preciosMap]);
 
   const roiB = useMemo(() => {
     const c = catalogoCultivos.find((x) => x.id === cultivoB);
@@ -43,8 +59,21 @@ export function Comparador({
       c.espaciado_recomendado_m,
       zona.area_m2,
     );
-    return calcularROI(c, zona, numPlantas, costoAguaM3, undefined, suelo);
-  }, [cultivoB, zona, catalogoCultivos, costoAguaM3, suelo]);
+    const pm = preciosMap?.get(c.cultivo_base_id ?? "");
+    const precioFeria =
+      pm?.precio_actual_clp && pm.factor_precio_feria
+        ? Math.round(pm.precio_actual_clp * pm.factor_precio_feria)
+        : undefined;
+    return calcularROI(
+      c,
+      zona,
+      numPlantas,
+      costoAguaM3,
+      undefined,
+      suelo,
+      precioFeria,
+    );
+  }, [cultivoB, zona, catalogoCultivos, costoAguaM3, suelo, preciosMap]);
 
   if (catalogoCultivos.length < 2) return null;
 
@@ -116,7 +145,7 @@ export function Comparador({
                 highlight
               />
               <CompRow
-                label="ROI 4 años"
+                label="ROI 5 años"
                 a={`${roiA.roi_5_años_pct}%`}
                 b={`${roiB.roi_5_años_pct}%`}
                 highlight

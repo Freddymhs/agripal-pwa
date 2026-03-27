@@ -42,7 +42,7 @@ export function useSubscription(): UseSubscription {
       return () => clearTimeout(t);
     }
 
-    let cancelled = false;
+    const cancel = { current: false };
 
     supabase
       .from("suscripciones")
@@ -52,7 +52,7 @@ export function useSubscription(): UseSubscription {
       .limit(1)
       .single()
       .then(({ data }) => {
-        if (!cancelled) {
+        if (!cancel.current) {
           setSubscription(data as Suscripcion | null);
           setLoading(false);
         }
@@ -75,7 +75,7 @@ export function useSubscription(): UseSubscription {
       .subscribe();
 
     return () => {
-      cancelled = true;
+      cancel.current = true;
       channel.unsubscribe();
     };
   }, [user]);

@@ -103,20 +103,20 @@ export const KC_POR_CULTIVO: Record<
   limon: {
     plántula: 0.5,
     joven: 0.7,
-    adulta: 0.85,
-    madura: 0.8,
+    adulta: 0.7,
+    madura: 0.65,
   },
   limonero: {
     plántula: 0.5,
     joven: 0.7,
-    adulta: 0.85,
-    madura: 0.8,
+    adulta: 0.7,
+    madura: 0.65,
   },
   naranjo: {
     plántula: 0.5,
     joven: 0.7,
-    adulta: 0.85,
-    madura: 0.8,
+    adulta: 0.7,
+    madura: 0.65,
   },
   palto: {
     plántula: 0.5,
@@ -169,8 +169,8 @@ export const KC_POR_CULTIVO: Record<
   tuna: {
     plántula: 0.4,
     joven: 0.6,
-    adulta: 0.75,
-    madura: 0.65,
+    adulta: 0.5,
+    madura: 0.4,
   },
   higuera: {
     plántula: 0.5,
@@ -205,8 +205,8 @@ export const KC_POR_CULTIVO: Record<
   mandarina: {
     plántula: 0.5,
     joven: 0.7,
-    adulta: 0.85,
-    madura: 0.8,
+    adulta: 0.7,
+    madura: 0.65,
   },
   arandano: {
     plántula: 0.5,

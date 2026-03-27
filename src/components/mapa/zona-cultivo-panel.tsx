@@ -8,13 +8,8 @@ import { ejecutarMutacion } from "@/lib/helpers/dal-mutation";
 import { useSesionesRiego } from "@/hooks/use-sesiones-riego";
 import { esRiegoManual } from "@/lib/constants/entities";
 import { LITROS_POR_M3 } from "@/lib/constants/conversiones";
-import {
-  ScoreCalidadPanel,
-  ROIPanel,
-  Comparador,
-} from "@/components/proyeccion";
+import { ScoreCalidadPanel } from "@/components/proyeccion";
 import { calcularScoreCalidad } from "@/lib/utils/calidad";
-import { calcularROI, obtenerCostoAguaPromedio } from "@/lib/utils/roi";
 import { obtenerFuente } from "@/lib/data/fuentes-agua";
 import type { DatosClimaticos } from "@/lib/data/calculos-clima";
 import {
@@ -28,8 +23,10 @@ import {
   ESTADO_AGUA,
   TEXTURA_SUELO,
 } from "@/lib/constants/entities";
-import { esCultivoCompleto } from "@/lib/utils/helpers-cultivo";
 import { ZonaRiegoSection } from "./zona-riego-section";
+import { PlagasZonaSection } from "./plagas-zona-section";
+import { CosechasZonaSection } from "./cosechas-zona-section";
+import { InsumosZonaSection } from "./insumos-zona-section";
 
 function InfoLabel({ label, tooltip }: { label: string; tooltip: string }) {
   const [show, setShow] = useState(false);
@@ -58,6 +55,48 @@ function InfoLabel({ label, tooltip }: { label: string; tooltip: string }) {
   );
 }
 
+function CollapsibleSection({
+  title,
+  icon,
+  color,
+  children,
+}: {
+  title: string;
+  icon: string;
+  color: string;
+  children: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className={`border rounded-lg overflow-hidden ${color}`}>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="w-full flex items-center justify-between px-3 py-2.5 text-left"
+      >
+        <span className="flex items-center gap-2 text-sm font-medium">
+          <span>{icon}</span>
+          {title}
+        </span>
+        <svg
+          className={`w-4 h-4 transition-transform ${open ? "rotate-180" : ""}`}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M19 9l-7 7-7-7"
+          />
+        </svg>
+      </button>
+      {open && <div className="px-3 pb-3">{children}</div>}
+    </div>
+  );
+}
+
 export function ZonaCultivoPanel() {
   const {
     terrenoActual,
@@ -68,13 +107,7 @@ export function ZonaCultivoPanel() {
     datosBaseHook,
     opcionesConsumoAgua,
   } = useProjectContext();
-  const {
-    zonaSeleccionada,
-    plantasZonaSeleccionada,
-    cultivoSeleccionado,
-    setCultivoSeleccionado,
-    setShowGridModal,
-  } = useMapContext();
+  const { zonaSeleccionada, plantasZonaSeleccionada } = useMapContext();
 
   const isManualRiego = esRiegoManual(
     zonaSeleccionada?.configuracion_riego?.tipo,
@@ -92,6 +125,7 @@ export function ZonaCultivoPanel() {
 
   return (
     <div className="p-4 border-t space-y-4">
+      {/* 1. Plantas en esta zona */}
       <div>
         <h4 className="text-sm font-medium text-gray-900 mb-2">
           Plantas en esta zona
@@ -153,6 +187,52 @@ export function ZonaCultivoPanel() {
           })()}
       </div>
 
+      {/* 2. Score de Calidad */}
+      {plantasZonaSeleccionada.length > 0 &&
+        (() => {
+          const consumoRiegoZona = calcularConsumoRiegoZona(zonaSeleccionada);
+          const consumoVivasRec = calcularConsumoZona(
+            zonaSeleccionada,
+            plantasVivas,
+            catalogoCultivos,
+            undefined,
+            opcionesConsumoAgua,
+          );
+          const cultivoZona = catalogoCultivos.find((c) =>
+            plantasZonaSeleccionada.some((p) => p.tipo_cultivo_id === c.id),
+          );
+          if (!cultivoZona) return null;
+          const estanquePrincipal = estanquesHook.obtenerEstanquePrincipal();
+          const fuentesAgua = datosBaseHook?.datosBase?.fuentesAgua || [];
+          const fuente = estanquePrincipal?.estanque_config?.fuente_id
+            ? (obtenerFuente(
+                fuentesAgua,
+                estanquePrincipal.estanque_config.fuente_id,
+              ) ?? null)
+            : null;
+          const suelo = proyectoActual?.suelo ?? null;
+          const consumoEfectivoZona =
+            consumoRiegoZona > 0 ? consumoRiegoZona : consumoVivasRec;
+          const climaDatos = datosBaseHook?.datosBase?.clima?.[0] as
+            | DatosClimaticos
+            | undefined;
+          if (!climaDatos) return null;
+          const score = calcularScoreCalidad(
+            cultivoZona,
+            fuente,
+            suelo,
+            estanquesHook.aguaTotalActual,
+            consumoEfectivoZona,
+            climaDatos,
+          );
+          return (
+            <div className="bg-white border rounded-lg p-3">
+              <ScoreCalidadPanel score={score} />
+            </div>
+          );
+        })()}
+
+      {/* 3. Consumo semanal estimado */}
       {plantasZonaSeleccionada.length > 0 &&
         (() => {
           const consumoRecomendado = calcularConsumoZona(
@@ -229,87 +309,7 @@ export function ZonaCultivoPanel() {
           );
         })()}
 
-      {plantasZonaSeleccionada.length > 0 &&
-        (() => {
-          const consumoRiegoZona = calcularConsumoRiegoZona(zonaSeleccionada);
-          const consumoVivasRec = calcularConsumoZona(
-            zonaSeleccionada,
-            plantasVivas,
-            catalogoCultivos,
-            undefined,
-            opcionesConsumoAgua,
-          );
-          const consumoParaRoi =
-            consumoRiegoZona > 0 ? consumoRiegoZona : consumoVivasRec;
-          const cultivoZona = catalogoCultivos.find((c) =>
-            plantasZonaSeleccionada.some((p) => p.tipo_cultivo_id === c.id),
-          );
-          if (!cultivoZona) return null;
-          const estanquePrincipal = estanquesHook.obtenerEstanquePrincipal();
-          const fuentesAgua = datosBaseHook?.datosBase?.fuentesAgua || [];
-          const fuente = estanquePrincipal?.estanque_config?.fuente_id
-            ? (obtenerFuente(
-                fuentesAgua,
-                estanquePrincipal.estanque_config.fuente_id,
-              ) ?? null)
-            : null;
-          const suelo = proyectoActual?.suelo ?? null;
-          const consumoEfectivoZona =
-            consumoRiegoZona > 0 ? consumoRiegoZona : consumoVivasRec;
-          const climaDatos = datosBaseHook?.datosBase?.clima?.[0] as
-            | DatosClimaticos
-            | undefined;
-          if (!climaDatos) return null;
-          const score = calcularScoreCalidad(
-            cultivoZona,
-            fuente,
-            suelo,
-            estanquesHook.aguaTotalActual,
-            consumoEfectivoZona,
-            climaDatos,
-          );
-          const costoAguaM3 = obtenerCostoAguaPromedio(
-            estanquesHook.estanques,
-            terrenoActual,
-          );
-          const roi = calcularROI(
-            cultivoZona,
-            zonaSeleccionada,
-            plantasVivas.length,
-            costoAguaM3,
-            consumoParaRoi,
-            suelo,
-          );
-          return (
-            <div className="space-y-3">
-              <div className="bg-white border rounded-lg p-3">
-                <ScoreCalidadPanel score={score} />
-              </div>
-              <div className="bg-white border rounded-lg p-3">
-                <div className="flex items-center gap-1 mb-1">
-                  <span className="text-xs font-bold text-gray-700">
-                    Retorno de Inversión
-                  </span>
-                  <InfoLabel
-                    label=""
-                    tooltip="ROI estimado: ingresos proyectados por cosecha × plantas vivas, menos costos de agua y producción. Varía según etapa y condiciones reales."
-                  />
-                </div>
-                <ROIPanel roi={roi} />
-              </div>
-              <div className="bg-white border rounded-lg p-3">
-                <Comparador
-                  zona={zonaSeleccionada}
-                  catalogoCultivos={catalogoCultivos}
-                  costoAguaM3={costoAguaM3}
-                  suelo={suelo}
-                />
-              </div>
-            </div>
-          );
-        })()}
-
-      {/* Selector de estanque fuente — visible con 1+ estanques */}
+      {/* 4. Estanque de riego */}
       {estanquesHook.estanques.length >= 1 && (
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 space-y-2">
           <h4 className="text-xs font-bold text-blue-800">Estanque de riego</h4>
@@ -346,6 +346,7 @@ export function ZonaCultivoPanel() {
         </div>
       )}
 
+      {/* 5. Sistema de Riego */}
       <ZonaRiegoSection
         zona={zonaSeleccionada}
         plantasVivas={plantasVivas}
@@ -394,65 +395,43 @@ export function ZonaCultivoPanel() {
         }}
       />
 
-      <div className="bg-lime-50 p-3 rounded-lg space-y-3">
-        <h4 className="text-sm font-bold text-lime-800">
-          Plantar en esta zona
-        </h4>
-        <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1">
-            ¿Qué quieres plantar?
-          </label>
-          <select
-            value={cultivoSeleccionado?.id ?? ""}
-            onChange={(e) => {
-              const cultivo = catalogoCultivos.find(
-                (c) => c.id === e.target.value,
-              );
-              if (cultivo) setCultivoSeleccionado(cultivo);
-            }}
-            className="w-full px-3 py-2 rounded border border-gray-300 text-gray-900 text-sm"
-          >
-            {!cultivoSeleccionado && (
-              <option value="" disabled>
-                Seleccionar cultivo…
-              </option>
-            )}
-            {catalogoCultivos.map((c) => {
-              const completo = esCultivoCompleto(
-                c,
-                datosBaseHook.datosBase.precios ?? [],
-                datosBaseHook.datosBase.mercadoDetalle ?? [],
-              );
-              return (
-                <option key={c.id} value={c.id} disabled={!completo}>
-                  {c.nombre}
-                  {!completo ? " ⚠ sin datos" : ""}
-                </option>
-              );
-            })}
-          </select>
+      {/* 6. Plagas */}
+      {plantasZonaSeleccionada.length > 0 && (
+        <div className="border border-amber-200 bg-amber-50/50 rounded-lg p-3 space-y-2">
+          <h4 className="text-sm font-medium flex items-center gap-2">
+            <span>🐛</span> Riesgo de Plagas
+          </h4>
+          <PlagasZonaSection
+            plantas={plantasZonaSeleccionada}
+            catalogoCultivos={catalogoCultivos}
+            climaDatos={
+              datosBaseHook?.datosBase?.clima?.[0] as
+                | DatosClimaticos
+                | undefined
+            }
+          />
         </div>
-        {cultivoSeleccionado && (
-          <div className="text-xs text-gray-600 bg-white p-2 rounded">
-            <div>
-              Espaciado:{" "}
-              <strong>{cultivoSeleccionado.espaciado_recomendado_m}m</strong>
-            </div>
-          </div>
-        )}
-        <button
-          onClick={() => setShowGridModal(true)}
-          disabled={!cultivoSeleccionado}
-          className="w-full bg-lime-600 text-white py-2 rounded hover:bg-lime-700 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {cultivoSeleccionado
-            ? `Plantar ${cultivoSeleccionado.nombre} en Grilla`
-            : "Selecciona un cultivo"}
-        </button>
-        <p className="text-xs text-gray-600 text-center">
-          O usa modo &quot;Plantar&quot; para colocar individualmente
-        </p>
-      </div>
+      )}
+
+      {/* 7. Cosechas + Insumos (colapsables) */}
+      {plantasZonaSeleccionada.length > 0 && (
+        <div className="space-y-2">
+          <CollapsibleSection
+            title="Cosechas"
+            icon="🌾"
+            color="border-amber-200 bg-amber-50/50"
+          >
+            <CosechasZonaSection zonaId={zonaSeleccionada.id} />
+          </CollapsibleSection>
+          <CollapsibleSection
+            title="Insumos"
+            icon="📦"
+            color="border-emerald-200 bg-emerald-50/50"
+          >
+            <InsumosZonaSection terrenoId={terrenoActual.id} />
+          </CollapsibleSection>
+        </div>
+      )}
     </div>
   );
 }

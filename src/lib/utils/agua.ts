@@ -9,8 +9,8 @@ import type {
   TexturaSuelo,
 } from "@/types";
 import { FACTORES_TEMPORADA } from "@/lib/constants/entities";
-import type { DatosClimaticos } from "@/lib/data/calculos-clima";
-import { getTemporadaActual } from "@/lib/data/calculos-clima";
+import type { DatosClimaticos, DatosETo } from "@/lib/data/calculos-clima";
+import { getTemporadaActual, getEtoMesActual } from "@/lib/data/calculos-clima";
 import { getKc } from "@/lib/data/coeficientes-kc";
 import {
   ESTADO_PLANTA,
@@ -23,6 +23,7 @@ import {
 import {
   SEMANAS_POR_AÑO,
   DIAS_POR_SEMANA,
+  DIAS_POR_AÑO,
   MS_POR_DIA,
   MIN_DIAS_DESCUENTO,
   HORAS_POR_DIA,
@@ -42,6 +43,8 @@ import {
 export interface OpcionesConsumoAgua {
   climaDatos?: DatosClimaticos;
   texturaSuelo?: TexturaSuelo;
+  /** Datos ETo detallados por mes (FAO Penman-Monteith). Si presente, usa ETc = ETo × Kc */
+  etoDetalle?: DatosETo;
 }
 
 /** Factor de retención de agua por textura de suelo (arena drena rápido → más riego) */
@@ -67,6 +70,14 @@ function getFactorTextura(textura?: TexturaSuelo): number {
   return textura ? (FACTOR_TEXTURA_SUELO[textura] ?? 1.0) : 1.0;
 }
 
+/**
+ * Consumo semanal por planta (m³/semana).
+ *
+ * Método FAO-56 (preferido): ETc = ETo × Kc → convertido a m³/planta/semana.
+ * Fallback: estimación proporcional desde agua_m3_ha_año × Kc × factores.
+ *
+ * El método FAO se activa cuando opciones.etoDetalle está presente.
+ */
 function calcularConsumoPlanta(
   planta: Planta,
   cultivo: CatalogoCultivo,
@@ -75,18 +86,62 @@ function calcularConsumoPlanta(
 ): number {
   if (planta.estado === ESTADO_PLANTA.MUERTA) return 0;
 
-  const factorTemporada = getFactorTemporada(temporada, opciones?.climaDatos);
-  const factorTextura = getFactorTextura(opciones?.texturaSuelo);
   const kc = getKc(cultivo, planta.etapa_actual || ETAPA.ADULTA);
-
-  if (!cultivo.agua_m3_ha_año_min || !cultivo.agua_m3_ha_año_max) return 0;
-  const aguaPromedio = calcularAguaPromedioHaAño(cultivo);
+  const factorTextura = getFactorTextura(opciones?.texturaSuelo);
   const plantasPorHa = calcularPlantasPorHa(cultivo.espaciado_recomendado_m);
   if (plantasPorHa === 0) return 0;
-  const aguaPorPlantaAño = aguaPromedio / plantasPorHa;
-  const aguaPorPlantaSemana = aguaPorPlantaAño / SEMANAS_POR_AÑO;
+
+  // FAO-56: ETc = ETo × Kc → mm/día → m³/planta/semana
+  if (opciones?.etoDetalle) {
+    const etoMmDia = getEtoMesActual(opciones.etoDetalle);
+    const etcMmDia = etoMmDia * kc;
+    // mm/día sobre 1 ha = 10 m³/ha/día; dividir entre plantas y ajustar por textura
+    const m3PorHaDia = etcMmDia * 10;
+    const m3PorPlantaDia = m3PorHaDia / plantasPorHa;
+    return m3PorPlantaDia * DIAS_POR_SEMANA * factorTextura;
+  }
+
+  // Fallback: estimación desde agua_m3_ha_año promedio
+  if (!cultivo.agua_m3_ha_año_min || !cultivo.agua_m3_ha_año_max) return 0;
+  const aguaPromedio = calcularAguaPromedioHaAño(cultivo);
+  const factorTemporada = getFactorTemporada(temporada, opciones?.climaDatos);
+  const aguaPorPlantaSemana = aguaPromedio / plantasPorHa / SEMANAS_POR_AÑO;
 
   return aguaPorPlantaSemana * factorTemporada * factorTextura * kc;
+}
+
+/**
+ * Consumo anual por planta adulta ajustado por clima y textura de suelo configurados.
+ * Usar en simuladores donde no hay plantas reales pero sí configuración de terreno.
+ *
+ * FAO-56: ETc = ETo × Kc_adulta → m³/planta/año.
+ * Fallback: estimación desde agua_m3_ha_año promedio.
+ */
+export function calcularAguaAnualPorPlantaAdulta(
+  cultivo: CatalogoCultivo,
+  opciones?: OpcionesConsumoAgua,
+): number {
+  const plantasPorHa = calcularPlantasPorHa(cultivo.espaciado_recomendado_m);
+  if (plantasPorHa === 0) return 0;
+  const factorTextura = getFactorTextura(opciones?.texturaSuelo);
+  const kcAdulta = getKc(cultivo, ETAPA.ADULTA);
+
+  // FAO-56: ETo promedio anual → ETc → m³/planta/año
+  if (opciones?.etoDetalle) {
+    const etoRefMmDia = opciones.etoDetalle.eto_referencia_mm_dia;
+    const etcMmDia = etoRefMmDia * kcAdulta;
+    const m3PorHaAño = etcMmDia * 10 * DIAS_POR_AÑO;
+    return (m3PorHaAño / plantasPorHa) * factorTextura;
+  }
+
+  // Fallback
+  if (!cultivo.agua_m3_ha_año_min || !cultivo.agua_m3_ha_año_max) return 0;
+  const aguaPromedio = calcularAguaPromedioHaAño(cultivo);
+  const temporada = getTemporadaActual();
+  const factorTemporada = getFactorTemporada(temporada, opciones?.climaDatos);
+  return (
+    (aguaPromedio / plantasPorHa) * factorTemporada * factorTextura * kcAdulta
+  );
 }
 
 export function calcularConsumoZona(

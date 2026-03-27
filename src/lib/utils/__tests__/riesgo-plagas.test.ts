@@ -82,7 +82,9 @@ describe("evaluarRiesgoPlagas", () => {
     expect(typeof evaluacion.condicionesActuales.etapaVulnerable).toBe(
       "boolean",
     );
+    expect(typeof evaluacion.condicionesActuales.humedadAlta).toBe("boolean");
     expect(typeof evaluacion.condicionesActuales.tempActual).toBe("number");
+    expect(typeof evaluacion.condicionesActuales.humedadPct).toBe("number");
     expect(["bajo", "medio", "alto", "critico"]).toContain(
       evaluacion.alertaNivel,
     );
@@ -191,11 +193,11 @@ describe("evaluarRiesgoPlagas", () => {
   });
 
   it("alertaNivel es critico cuando score >= 80 (temp + etapa + alta)", () => {
-    // 50 (temp_favorable) + 30 (etapa_vulnerable) + 15 (alta) = 95 → critico
+    // 40 (temp_favorable) + 25 (etapa_vulnerable) + 15 (alta) = 80 → critico
     // plagaFixture: temperatura_min=15, temperatura_max=35; etapas_vulnerables=["joven","adulta"]
     // TEMP_DEFAULT_C=19 → dentro del rango → temp favorable
     const result = evaluarRiesgoPlagas(cultivoFixture, "adulta", mockClima);
-    expect(result[0].scoreRiesgo).toBe(95);
+    expect(result[0].scoreRiesgo).toBe(80);
     expect(result[0].alertaNivel).toBe("critico");
   });
 
@@ -217,8 +219,8 @@ describe("evaluarRiesgoPlagas", () => {
     expect(result[0].alertaNivel).toBe("bajo");
   });
 
-  it("alertaNivel es alto cuando score es exactamente 60", () => {
-    // 50 (temp) + 0 (sin etapa) + 10 (media) = 60 → alto
+  it("alertaNivel es medio cuando score es 50 (temp + media, sin etapa/humedad)", () => {
+    // 40 (temp) + 0 (sin etapa) + 10 (media) = 50 → medio
     const plagaMedia: PlantPlague = {
       ...plagaFixture,
       etapas_vulnerables: [],
@@ -229,8 +231,29 @@ describe("evaluarRiesgoPlagas", () => {
       plagas: [plagaMedia],
     } as CatalogoCultivo;
     const result = evaluarRiesgoPlagas(cultivoTest, "adulta", mockClima);
-    expect(result[0].scoreRiesgo).toBe(60);
+    expect(result[0].scoreRiesgo).toBe(50);
+    expect(result[0].alertaNivel).toBe("medio");
+  });
+
+  it("alertaNivel sube a alto con humedad alta", () => {
+    // 40 (temp) + 0 (sin etapa) + 20 (humedad) + 10 (media) = 70 → alto
+    const climaHumedo: DatosClimaticos = {
+      ...({} as DatosClimaticos),
+      humedad_radiacion: { humedad_relativa_pct: 75 },
+    } as DatosClimaticos;
+    const plagaMedia: PlantPlague = {
+      ...plagaFixture,
+      etapas_vulnerables: [],
+      severidad: "media",
+    };
+    const cultivoTest = {
+      ...cultivoFixture,
+      plagas: [plagaMedia],
+    } as CatalogoCultivo;
+    const result = evaluarRiesgoPlagas(cultivoTest, "adulta", climaHumedo);
+    expect(result[0].scoreRiesgo).toBe(70);
     expect(result[0].alertaNivel).toBe("alto");
+    expect(result[0].condicionesActuales.humedadAlta).toBe(true);
   });
 
   it("usa temperatura real cuando clima tiene temperatura definida", () => {

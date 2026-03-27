@@ -3,6 +3,9 @@
 import { Fragment, useMemo, useState } from "react";
 import { PageLayout } from "@/components/layout";
 import { useProjectContext } from "@/contexts/project-context";
+import { SeccionEscenarios } from "@/components/economia/seccion-escenarios";
+import { SeccionCalculadorInverso } from "@/components/economia/seccion-calculador-inverso";
+import { SeccionSimuladorExpansion } from "@/components/economia/seccion-simulador-expansion";
 import { ESTADO_PLANTA, TIPO_ZONA } from "@/lib/constants/entities";
 import {
   filtrarEstanques,
@@ -12,6 +15,8 @@ import {
   calcularROI,
   obtenerCostoAguaPromedio,
   extenderROI10Años,
+  generarFlujoCajaMensual,
+  calcularVAN,
   type ProyeccionROI,
   type ProyeccionROI10,
 } from "@/lib/utils/roi";
@@ -138,7 +143,11 @@ interface ResumenCultivo {
 }
 
 export default function EconomiaPage() {
-  const [comoSeCalculaOpen, setComoSeCalculaOpen] = useState(false);
+  const [seccionAbierta, setSeccionAbierta] = useState<
+    "escenarios" | "capacidad" | "expansion" | null
+  >(null);
+  const toggleSeccion = (s: "escenarios" | "capacidad" | "expansion") =>
+    setSeccionAbierta((prev) => (prev === s ? null : s));
   const [simuladorOpen, setSimuladorOpen] = useState(false);
   const [simuladorVentaOpen, setSimuladorVentaOpen] = useState(false);
   const [precioAguaSimulado, setPrecioAguaSimulado] = useState<number | null>(
@@ -321,6 +330,26 @@ export default function EconomiaPage() {
     return Array.from(map.values());
   }, [resumen]);
 
+  // Flujo de caja agregado: suma mensual de todos los cultivos (ROI feria)
+  const flujoCajaAnual = useMemo(() => {
+    if (resumen.length === 0) return [];
+    const acumMensual = new Float64Array(60);
+    for (const r of resumen) {
+      const puntos = generarFlujoCajaMensual(r.roi);
+      for (const p of puntos) {
+        acumMensual[p.mes - 1] += p.acumulado;
+      }
+    }
+    return [
+      { año: 0, valor: -totalInversion },
+      { año: 1, valor: acumMensual[11] },
+      { año: 2, valor: acumMensual[23] },
+      { año: 3, valor: acumMensual[35] },
+      { año: 4, valor: acumMensual[47] },
+      { año: 5, valor: acumMensual[59] },
+    ];
+  }, [resumen, totalInversion]);
+
   const resumenHistMap = useMemo(() => {
     const map = new Map<string, ResumenPrecioHistorico>();
     for (const r of datosBaseHook.datosBase.resumenHistoricos) {
@@ -362,7 +391,7 @@ export default function EconomiaPage() {
 
   return (
     <PageLayout headerColor="emerald">
-      <main className="p-4 space-y-4 max-w-full mx-auto">
+      <main className="p-4 space-y-4 max-w-4xl mx-auto">
         <div className="bg-white rounded-lg shadow p-4">
           <h2 className="text-lg font-bold text-gray-900 mb-4">
             Proyeccion Economica (5 anos)
@@ -374,8 +403,8 @@ export default function EconomiaPage() {
               <div className="mb-4 p-3 rounded-lg text-sm bg-orange-50 text-orange-800 border border-orange-200">
                 <strong>Costo del agua no configurado.</strong> El ROI no
                 incluye gastos de agua. Configura el costo en{" "}
-                <a href="/agua" className="underline font-medium">
-                  Agua &rarr; Configurar Recarga
+                <a href="/app" className="underline font-medium">
+                  Mapa &rarr; Configurar Recarga
                 </a>{" "}
                 o usa el simulador abajo.
               </div>
@@ -388,7 +417,7 @@ export default function EconomiaPage() {
               </div>
               <div className="text-xs text-blue-600">Inversion Inicial</div>
               <div className="text-xs text-blue-400 mt-1">
-                Plantas: {formatCLP(totalCostoPlantas)} | Agua a1:{" "}
+                Plantas: {formatCLP(totalCostoPlantas)} | Agua (año 1):{" "}
                 {formatCLP(totalCostoAgua)}
               </div>
             </div>
@@ -439,8 +468,36 @@ export default function EconomiaPage() {
               <div
                 className={`text-xs ${roiGlobal > 0 ? "text-emerald-600" : "text-red-600"}`}
               >
-                ROI Global
+                <span
+                  className="cursor-help"
+                  title="ROI Bruto: incluye plantas y agua. No incluye mano de obra, insumos, transporte ni fertilizantes."
+                >
+                  ROI Bruto Global
+                </span>
               </div>
+              {resumen.length > 0 &&
+                (() => {
+                  const vanTotal = resumen.reduce(
+                    (s, r) => s + calcularVAN(r.roi),
+                    0,
+                  );
+                  return (
+                    <div
+                      className="text-[10px] text-gray-400 mt-1 cursor-help"
+                      title="Valor Actual Neto: cuanto valen hoy tus ganancias futuras, descontadas al 5% anual. Si es positivo, la inversion crea valor real."
+                    >
+                      VAN:{" "}
+                      <span
+                        className={
+                          vanTotal >= 0 ? "text-emerald-600" : "text-red-500"
+                        }
+                      >
+                        {vanTotal >= 0 ? "+" : ""}
+                        {formatCLP(Math.round(vanTotal))}
+                      </span>
+                    </div>
+                  );
+                })()}
             </div>
           </div>
 
@@ -495,6 +552,29 @@ export default function EconomiaPage() {
                     </button>
                   )}
                 </div>
+                {costoAguaM3Real > 0 && (
+                  <div className="flex items-center gap-1.5 mt-2">
+                    <span className="text-[10px] text-gray-400">Probar:</span>
+                    {[
+                      { label: "-50%", factor: 0.5 },
+                      { label: "-20%", factor: 0.8 },
+                      { label: "+20%", factor: 1.2 },
+                      { label: "+50%", factor: 1.5 },
+                    ].map((p) => (
+                      <button
+                        key={p.label}
+                        onClick={() =>
+                          setPrecioAguaSimulado(
+                            Math.round(costoAguaM3Real * p.factor),
+                          )
+                        }
+                        className="text-[10px] px-2 py-0.5 rounded bg-gray-200 text-gray-600 hover:bg-blue-100 hover:text-blue-700 transition-colors"
+                      >
+                        {p.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -572,14 +652,39 @@ export default function EconomiaPage() {
                         </div>
                       );
                     })}
-                    {usandoSimuladorVenta && (
-                      <button
-                        onClick={() => setPreciosVentaSimulados({})}
-                        className="text-xs text-gray-500 underline hover:text-gray-700"
-                      >
-                        Restaurar todos los precios
-                      </button>
-                    )}
+                    <div className="flex items-center gap-1.5 mt-1">
+                      <span className="text-[10px] text-gray-400">Todos:</span>
+                      {[
+                        { label: "-20%", factor: 0.8 },
+                        { label: "-10%", factor: 0.9 },
+                        { label: "+10%", factor: 1.1 },
+                        { label: "+20%", factor: 1.2 },
+                      ].map((p) => (
+                        <button
+                          key={p.label}
+                          onClick={() => {
+                            const next: Record<string, number> = {};
+                            for (const c of cultivosUnicos) {
+                              next[c.id] = Math.round(
+                                calcularPrecioKgPromedio(c) * p.factor,
+                              );
+                            }
+                            setPreciosVentaSimulados(next);
+                          }}
+                          className="text-[10px] px-2 py-0.5 rounded bg-gray-200 text-gray-600 hover:bg-blue-100 hover:text-blue-700 transition-colors"
+                        >
+                          {p.label}
+                        </button>
+                      ))}
+                      {usandoSimuladorVenta && (
+                        <button
+                          onClick={() => setPreciosVentaSimulados({})}
+                          className="text-[10px] px-2 py-0.5 rounded bg-red-100 text-red-600 hover:bg-red-200 transition-colors"
+                        >
+                          Restaurar
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               )}
@@ -649,18 +754,174 @@ export default function EconomiaPage() {
             </div>
           ) : (
             <div
-              className={`p-3 rounded-lg text-sm ${roiGlobal > 50 ? "bg-green-100 text-green-800" : roiGlobal > 0 ? "bg-yellow-100 text-yellow-800" : "bg-red-100 text-red-800"}`}
+              className={`p-3 rounded-lg text-sm space-y-1 ${roiGlobal > 50 ? "bg-green-50 text-green-800 border border-green-200" : roiGlobal > 0 ? "bg-yellow-50 text-yellow-800 border border-yellow-200" : "bg-red-50 text-red-800 border border-red-200"}`}
             >
-              {roiGlobal > 50
-                ? "Excelente rentabilidad proyectada"
-                : roiGlobal > 0
-                  ? "Rentabilidad ajustada - considera optimizar cultivos"
-                  : totalInversion > 0
-                    ? "No rentable en 5 anos con los cultivos actuales"
-                    : "Agrega cultivos desde el mapa para ver tu proyeccion economica."}
+              <div className="font-semibold">
+                {roiGlobal > 50
+                  ? "Excelente rentabilidad proyectada"
+                  : roiGlobal > 0
+                    ? "Rentabilidad ajustada"
+                    : "No rentable en 5 años"}
+              </div>
+              {(() => {
+                const mejorCultivo = [...resumen].sort(
+                  (a, b) => b.roi.roi_5_años_pct - a.roi.roi_5_años_pct,
+                )[0];
+                const tips: string[] = [];
+                if (mejorCultivo) {
+                  tips.push(
+                    `Tu cultivo mas rentable: ${mejorCultivo.cultivoNombre} (ROI ${mejorCultivo.roi.roi_5_años_pct}%)`,
+                  );
+                }
+                if (mejorCultivo?.roi.punto_equilibrio_meses != null) {
+                  tips.push(
+                    `Recuperas inversion en ${mejorCultivo.roi.punto_equilibrio_meses} meses`,
+                  );
+                }
+                if (costoAguaM3Efectivo > 0) {
+                  const pctAgua =
+                    totalInversion > 0
+                      ? Math.round((totalCostoAgua / totalInversion) * 100)
+                      : 0;
+                  if (pctAgua > 40) {
+                    tips.push(
+                      `Agua representa ${pctAgua}% de la inversion — busca reducir costo por m3`,
+                    );
+                  }
+                }
+                const cultivosFeria = resumen.filter(
+                  (r) =>
+                    r.roi.roi_5_años_pct > 0 &&
+                    r.roiMayorista.roi_5_años_pct <= 0,
+                );
+                if (cultivosFeria.length > 0) {
+                  tips.push(
+                    `${cultivosFeria.map((c) => c.cultivoNombre).join(", ")}: solo rentable vendiendo en feria`,
+                  );
+                }
+                return tips.length > 0 ? (
+                  <ul className="text-xs space-y-0.5">
+                    {tips.map((t, i) => (
+                      <li key={i}>• {t}</li>
+                    ))}
+                  </ul>
+                ) : null;
+              })()}
             </div>
           )}
         </div>
+
+        {/* Flujo de caja visual */}
+        {flujoCajaAnual.length > 0 && (
+          <div className="bg-white rounded-lg shadow p-4">
+            <h2 className="text-sm font-bold text-gray-700 mb-3">
+              Flujo de caja acumulado (5 años)
+            </h2>
+            {(() => {
+              const maxAbs = Math.max(
+                ...flujoCajaAnual.map((p) => Math.abs(p.valor)),
+                1,
+              );
+              return (
+                <div className="space-y-1.5">
+                  {flujoCajaAnual.map((p) => {
+                    const pct = Math.abs(p.valor) / maxAbs;
+                    const esNegativo = p.valor < 0;
+                    return (
+                      <div key={p.año} className="flex items-center gap-2">
+                        <span className="text-xs text-gray-500 w-12 text-right shrink-0">
+                          {p.año === 0 ? "Inicio" : `Año ${p.año}`}
+                        </span>
+                        <div className="flex-1 h-5 bg-gray-100 rounded relative overflow-hidden">
+                          <div
+                            className={`h-full rounded transition-all ${esNegativo ? "bg-red-400" : "bg-green-500"}`}
+                            style={{ width: `${Math.max(pct * 100, 2)}%` }}
+                          />
+                        </div>
+                        <span
+                          className={`text-xs font-medium w-24 text-right shrink-0 ${esNegativo ? "text-red-600" : "text-green-700"}`}
+                        >
+                          {esNegativo ? "-" : "+"}
+                          {formatCLP(Math.abs(Math.round(p.valor)))}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })()}
+            <p className="text-[10px] text-gray-400 mt-2">
+              Acumulado de todos los cultivos. Precio feria. Sin mano de obra ni
+              insumos.
+            </p>
+
+            {/* Estacionalidad: meses de cosecha por cultivo */}
+            {(() => {
+              const MESES = [
+                "E",
+                "F",
+                "M",
+                "A",
+                "M",
+                "J",
+                "J",
+                "A",
+                "S",
+                "O",
+                "N",
+                "D",
+              ];
+              const cultivosUniqCal = resumen.reduce<
+                { nombre: string; meses: number[] }[]
+              >((acc, r) => {
+                if (
+                  !acc.some((c) => c.nombre === r.cultivoNombre) &&
+                  r.cultivo.calendario?.meses_cosecha?.length > 0
+                ) {
+                  acc.push({
+                    nombre: r.cultivoNombre,
+                    meses: r.cultivo.calendario.meses_cosecha,
+                  });
+                }
+                return acc;
+              }, []);
+              if (cultivosUniqCal.length === 0) return null;
+              return (
+                <div className="mt-4">
+                  <h3 className="text-xs font-semibold text-gray-600 mb-2">
+                    Meses con ingreso (cosecha)
+                  </h3>
+                  <div className="space-y-1">
+                    {cultivosUniqCal.map((c) => (
+                      <div key={c.nombre} className="flex items-center gap-2">
+                        <span className="text-[10px] text-gray-500 w-20 truncate shrink-0 text-right">
+                          {c.nombre}
+                        </span>
+                        <div className="flex gap-0.5">
+                          {MESES.map((m, i) => {
+                            const activo = c.meses.includes(i + 1);
+                            return (
+                              <div
+                                key={i}
+                                className={`w-5 h-4 rounded-sm text-[9px] flex items-center justify-center ${activo ? "bg-green-500 text-white font-medium" : "bg-gray-100 text-gray-300"}`}
+                              >
+                                {m}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-[10px] text-gray-400 mt-1">
+                    Verde = meses donde entra ingreso. Meses sin cosecha son
+                    solo gasto (agua).
+                  </p>
+                </div>
+              );
+            })()}
+          </div>
+        )}
 
         {resumen.length === 0 ? (
           <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
@@ -682,7 +943,7 @@ export default function EconomiaPage() {
                       Cultivo
                     </th>
                     <th className="text-right p-2 font-medium text-gray-700 text-xs">
-                      Pl
+                      Plantas
                     </th>
                     <th className="text-right p-2 font-medium text-gray-700 whitespace-nowrap">
                       <span className="block text-xs">$/kg</span>
@@ -710,6 +971,12 @@ export default function EconomiaPage() {
                     </th>
                     <th className="text-right p-2 font-medium text-gray-700 whitespace-nowrap">
                       <span className="block text-xs">Recupera</span>
+                    </th>
+                    <th className="text-right p-2 font-medium text-gray-700 whitespace-nowrap">
+                      <span className="block text-xs">kg/m3</span>
+                      <span className="block text-[10px] font-normal text-gray-400">
+                        eficiencia
+                      </span>
                     </th>
                     <th className="text-right p-2 font-medium text-gray-700 whitespace-nowrap">
                       <span className="block text-xs">Agua max</span>
@@ -773,6 +1040,7 @@ export default function EconomiaPage() {
                               : "-";
                           })()}
                         </td>
+                        <td className="p-2" />
                         <td className="p-2" />
                         <td className="p-2" />
                       </tr>
@@ -903,6 +1171,13 @@ export default function EconomiaPage() {
                                 meses10={r.roi10?.punto_equilibrio_meses_10}
                               />
                             </td>
+                            <td className="p-2 text-right text-xs text-gray-700">
+                              {r.roi.agua_anual_m3 > 0 && r.roi.kg_año3 > 0
+                                ? Math.round(
+                                    (r.roi.kg_año3 / r.roi.agua_anual_m3) * 10,
+                                  ) / 10
+                                : "—"}
+                            </td>
                             <td className="p-2 text-right">
                               <BreakEvenAgua
                                 precio={r.roi.precio_agua_break_even}
@@ -915,9 +1190,62 @@ export default function EconomiaPage() {
                   ))}
                 </tbody>
               </table>
-              <div className="px-4 py-2 text-[10px] text-gray-400 border-t border-gray-100">
-                * No incluye mano de obra, insumos (fertilizantes, plaguicidas)
-                ni transporte. Es el margen bruto agricola estimado.
+              <div className="px-4 py-2 text-[10px] text-gray-400 border-t border-gray-100 space-y-1">
+                <p>
+                  * No incluye mano de obra, insumos (fertilizantes,
+                  plaguicidas) ni transporte. Es el margen bruto agricola
+                  estimado.
+                </p>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-0.5 pt-1">
+                  <span>
+                    <b className="text-gray-500">Inversion Inicial</b> — Plantas
+                    + agua ano 1
+                  </span>
+                  <span>
+                    <b className="text-gray-500">ROI Feria</b> — Venta directa
+                    (ODEPA x factor feria)
+                  </span>
+                  <span>
+                    <b className="text-gray-500">ROI Mayor.</b> — Venta a
+                    intermediario (precio ODEPA)
+                  </span>
+                  <span>
+                    <b className="text-gray-500">ROI 100%/10a</b> — Duplicaste
+                    inversion. 10a para perennes
+                  </span>
+                  <span>
+                    <b className="text-gray-500">Recupera</b> — Mes que
+                    recuperas inversion
+                  </span>
+                  <span>
+                    <b className="text-gray-500">kg/m3</b> — Kilos producidos
+                    por cada m3 de agua (ano 3)
+                  </span>
+                  <span>
+                    <b className="text-gray-500">Agua max</b> — CLP/m3 maximo
+                    para ser rentable
+                  </span>
+                  <span>
+                    <b className="text-gray-500">Costo real agua</b> — Proveedor
+                    + transporte por m3
+                  </span>
+                  <span>
+                    <b className="text-gray-500">Cosecha</b> — Meses hasta
+                    primera cosecha
+                  </span>
+                  <span>
+                    <b className="text-gray-500">Kr</b> — Coef. cobertura:
+                    plantas jovenes consumen menos agua
+                  </span>
+                  <span>
+                    <b className="text-gray-500">FL</b> — Fraccion lavado: agua
+                    extra para lavar sales
+                  </span>
+                  <span>
+                    <b className="text-gray-500">Viabilidad</b> —
+                    Viable/Riesgo/Inviable segun costo agua
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -925,92 +1253,45 @@ export default function EconomiaPage() {
 
         <div className="rounded-lg border border-gray-200 overflow-hidden">
           <button
-            onClick={() => setComoSeCalculaOpen(!comoSeCalculaOpen)}
-            className="w-full flex items-center justify-between px-4 py-3 text-sm text-gray-500 hover:bg-gray-50 transition-colors"
+            onClick={() => toggleSeccion("escenarios")}
+            className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
           >
-            <span>Como se calcula?</span>
-            <ChevronIcon open={comoSeCalculaOpen} />
+            <span>Comparar Cultivos</span>
+            <ChevronIcon open={seccionAbierta === "escenarios"} />
           </button>
-          {comoSeCalculaOpen && (
-            <div className="px-4 pb-4 pt-1">
-              <ul className="text-xs text-gray-500 space-y-2">
-                <li>
-                  <span className="font-medium text-gray-600">
-                    Inversion Inicial:
-                  </span>{" "}
-                  Desembolso del primer ano: costo de las plantas + agua del ano
-                  1.
-                </li>
-                <li>
-                  <span className="font-medium text-gray-600">
-                    ROI Feria (venta directa):
-                  </span>{" "}
-                  Retorno si vendes en feria local o directo al consumidor.
-                  Precio = mayorista ODEPA x factor feria. Es el escenario
-                  realista para agricultores que venden sin intermediario.
-                </li>
-                <li>
-                  <span className="font-medium text-gray-600">
-                    ROI Mayor. (intermediario):
-                  </span>{" "}
-                  Retorno si vendes a un acopiador o intermediario al precio
-                  mayorista ODEPA. Es el escenario conservador (precio mas
-                  bajo).
-                </li>
-                <li>
-                  <span className="font-medium text-gray-600">
-                    ROI 100% / 10a:
-                  </span>{" "}
-                  ROI 100% = duplicaste tu inversion. 10a se muestra para
-                  frutales perennes (vida util &gt;5 anos), donde anos 6-10 ya
-                  no amortizan plantas.
-                </li>
-                <li>
-                  <span className="font-medium text-gray-600">Recupera:</span>{" "}
-                  Mes en que recuperas la inversion. Verde &le;36m, amarillo
-                  &le;60m, naranjo &le;120m.
-                </li>
-                <li>
-                  <span className="font-medium text-gray-600">Agua max:</span>{" "}
-                  Precio maximo del agua (CLP/m3) donde el cultivo sigue siendo
-                  rentable en 5 anos. Si tu costo real es mayor, el cultivo
-                  pierde plata.
-                </li>
-                <li>
-                  <span className="font-medium text-gray-600">
-                    Costo real agua:
-                  </span>{" "}
-                  Incluye precio del proveedor + transporte por m3. Un aljibe de
-                  10m3 baja el costo vs bidones de 1.5m3.
-                </li>
-                <li>
-                  <span className="font-medium text-gray-600">Cosecha:</span>{" "}
-                  Meses desde que plantas hasta la primera cosecha. Cultivos con
-                  cosecha &gt;24m tienen 0 ingresos los primeros anos.
-                </li>
-                <li>
-                  <span className="font-medium text-gray-600">
-                    Kr (coef. cobertura):
-                  </span>{" "}
-                  Plantas jovenes consumen menos agua. Ano 1: 15%, ano 2: 40%,
-                  anos 3-4: 70%, ano 5+: 100% del consumo adulto (FAO/INIA).
-                  Reduce el costo de agua en los primeros anos.
-                </li>
-                <li>
-                  <span className="font-medium text-gray-600">
-                    FL (fraccion de lavado):
-                  </span>{" "}
-                  Agua extra para lavar sales del suelo. Cultivos tolerantes
-                  +2%, medios +4%, sensibles +7.5%. Basado en la tolerancia a
-                  salinidad del cultivo.
-                </li>
-                <li>
-                  <span className="font-medium text-gray-600">Viabilidad:</span>{" "}
-                  Con agua cara (&gt;$2.000/m3): Viable = break-even agua 50%
-                  sobre tu costo, Riesgo = break-even cerca del limite, Inviable
-                  = no cubre el costo del agua.
-                </li>
-              </ul>
+          {seccionAbierta === "escenarios" && (
+            <div className="p-4 border-t border-gray-200 bg-gray-50">
+              <SeccionEscenarios />
+            </div>
+          )}
+        </div>
+
+        <div className="rounded-lg border border-blue-200 overflow-hidden">
+          <button
+            onClick={() => toggleSeccion("capacidad")}
+            className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-blue-700 hover:bg-blue-50 transition-colors"
+          >
+            <span>Cuantas plantas soporta mi agua?</span>
+            <ChevronIcon open={seccionAbierta === "capacidad"} />
+          </button>
+          {seccionAbierta === "capacidad" && (
+            <div className="p-4 border-t border-blue-200 bg-blue-50/30">
+              <SeccionCalculadorInverso />
+            </div>
+          )}
+        </div>
+
+        <div className="rounded-lg border border-green-200 overflow-hidden">
+          <button
+            onClick={() => toggleSeccion("expansion")}
+            className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-green-700 hover:bg-green-50 transition-colors"
+          >
+            <span>Simular expansion</span>
+            <ChevronIcon open={seccionAbierta === "expansion"} />
+          </button>
+          {seccionAbierta === "expansion" && (
+            <div className="p-4 border-t border-green-200 bg-green-50/30">
+              <SeccionSimuladorExpansion />
             </div>
           )}
         </div>

@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { getTemporadaActual } from "@/lib/utils";
 import {
-  calcularConsumoTerreno,
+  calcularConsumoRealTerreno,
   determinarEstadoAgua,
   type OpcionesConsumoAgua,
 } from "@/lib/utils/agua";
@@ -47,7 +47,7 @@ export function useProjectDashboard(
       estanques.length > 0
         ? aguaEstanques
         : (terrenoActual.agua_actual_m3 ?? 0);
-    const aguaNecesaria = calcularConsumoTerreno(
+    const aguaNecesaria = calcularConsumoRealTerreno(
       zonas,
       plantas,
       catalogoCultivos,

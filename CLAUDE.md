@@ -36,7 +36,7 @@
 
 - Navegación primaria: solo acciones de uso diario. Todo lo demás en menú secundario.
 - Features nuevas: valor concreto al usuario, no satura interfaz, v1 mínima.
-- Componentes máx 400 líneas. Si supera → subcomponentes o hooks.
+- Componentes máx 1000 líneas. Si supera → subcomponentes o hooks.
 
 ## Ubicación de datos
 

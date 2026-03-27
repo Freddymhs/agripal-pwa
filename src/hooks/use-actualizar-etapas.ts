@@ -20,12 +20,12 @@ export function useActualizarEtapas(
   useEffect(() => {
     if (!plantas.length || !catalogoCultivos.length) return;
 
-    let cancelled = false;
+    const cancel = { current: false };
 
     async function actualizar() {
       const ahora = Date.now();
       if (ahora - ultimaActualizacion.current < 1000 * 60 * 5) return;
-      if (cancelled) return;
+      if (cancel.current) return;
 
       const timestamp = getCurrentTimestamp();
       const actualizaciones: Array<{ id: string; cambios: Partial<Planta> }> =
@@ -62,13 +62,13 @@ export function useActualizarEtapas(
         return;
       }
 
-      if (cancelled) return;
+      if (cancel.current) return;
       await ejecutarMutacion(
         () => transaccionesDAL.actualizarEtapasLote(actualizaciones),
         "actualizar etapas en lote",
         () => {
           ultimaActualizacion.current = ahora;
-          if (!cancelled) onRefetch();
+          if (!cancel.current) onRefetch();
         },
       );
     }
@@ -77,7 +77,7 @@ export function useActualizarEtapas(
     const interval = setInterval(actualizar, INTERVALO_ACTUALIZACION_MS);
 
     return () => {
-      cancelled = true;
+      cancel.current = true;
       clearInterval(interval);
     };
   }, [plantas, catalogoCultivos, onRefetch]);

@@ -95,9 +95,9 @@ function calcScoreAgua(
       mejoras: ["Asignar fuente de agua al estanque"],
     };
 
-  let score = 100;
   const problemas: string[] = [];
   const mejoras: string[] = [];
+  const penalizaciones: number[] = [];
 
   if (
     isValidNum(fuente.boro_ppm) &&
@@ -106,13 +106,13 @@ function calcScoreAgua(
   ) {
     const ratio = fuente.boro_ppm / cultivo.boro_tolerancia_ppm;
     if (ratio > RATIO_BORO_CRITICO) {
-      score -= PENALIZACION_BORO_CRITICO;
+      penalizaciones.push(PENALIZACION_BORO_CRITICO);
       problemas.push(
         `Boro ${fuente.boro_ppm} ppm muy alto (tol: ${cultivo.boro_tolerancia_ppm})`,
       );
       mejoras.push("Cambiar a fuente de agua con menor boro");
     } else if (ratio > 1) {
-      score -= PENALIZACION_BORO_MEDIO;
+      penalizaciones.push(PENALIZACION_BORO_MEDIO);
       problemas.push(`Boro ${fuente.boro_ppm} ppm excede tolerancia`);
       mejoras.push(
         "Considerar filtrado de agua o mezcla con agua de mejor calidad",
@@ -127,23 +127,24 @@ function calcScoreAgua(
   ) {
     const ratio = fuente.salinidad_dS_m / cultivo.salinidad_tolerancia_dS_m;
     if (ratio > RATIO_SALINIDAD_CRITICO) {
-      score -= PENALIZACION_SALINIDAD_CRITICA;
+      penalizaciones.push(PENALIZACION_SALINIDAD_CRITICA);
       problemas.push(`Salinidad ${fuente.salinidad_dS_m} dS/m alta`);
     } else if (ratio > 1) {
-      score -= PENALIZACION_SALINIDAD_MEDIA;
+      penalizaciones.push(PENALIZACION_SALINIDAD_MEDIA);
       problemas.push(`Salinidad ${fuente.salinidad_dS_m} dS/m en límite`);
     }
   }
 
   if (fuente.ph != null) {
     if (fuente.ph < cultivo.ph_min || fuente.ph > cultivo.ph_max) {
-      score -= PENALIZACION_PH_AGUA;
+      penalizaciones.push(PENALIZACION_PH_AGUA);
       problemas.push(
         `pH agua ${fuente.ph} fuera de rango ${cultivo.ph_min}-${cultivo.ph_max}`,
       );
     }
   }
 
+  const score = penalizaciones.reduce((acc, p) => acc - p, 100);
   return { score: clamp(score, 0, 100), problemas, mejoras };
 }
 

@@ -154,7 +154,6 @@ export function EditorZona({
       zona={zona}
       nombre={nombre}
       tipo={tipo}
-      color={color}
       notas={notas}
       x={x}
       y={y}
@@ -168,7 +167,6 @@ export function EditorZona({
       advertenciaEliminacion={advertenciaEliminacion}
       onNombreChange={setNombre}
       onTipoChange={handleTipoChange}
-      onColorChange={setColor}
       onNotasChange={setNotas}
       onXChange={setX}
       onYChange={setY}

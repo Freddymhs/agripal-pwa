@@ -143,8 +143,7 @@ export function renderTabla(
   doc.setFont("helvetica", "bold");
   doc.setTextColor(...COLOR.titulo);
 
-  let xPos = MARGEN;
-  for (let i = 0; i < headers.length; i++) {
+  headers.reduce((xPos, header, i) => {
     const align = colAligns?.[i] ?? "left";
     const textX =
       align === "right"
@@ -152,9 +151,9 @@ export function renderTabla(
         : align === "center"
           ? xPos + colWidths[i] / 2
           : xPos + 1;
-    doc.text(headers[i], textX, y, { align });
-    xPos += colWidths[i];
-  }
+    doc.text(header, textX, y, { align });
+    return xPos + colWidths[i];
+  }, MARGEN);
   y += 3;
   y = lineaSeparadora(doc, y);
 
@@ -162,9 +161,8 @@ export function renderTabla(
   doc.setFont("helvetica", "normal");
   doc.setFontSize(7.5);
 
-  for (let rowIdx = 0; rowIdx < rows.length; rowIdx++) {
+  rows.forEach((row, rowIdx) => {
     y = verificarPagina(doc, y, 5.5);
-    const row = rows[rowIdx];
 
     // Alternating row background
     if (rowIdx % 2 === 1) {
@@ -173,8 +171,7 @@ export function renderTabla(
     }
 
     doc.setTextColor(...COLOR.texto);
-    xPos = MARGEN;
-    for (let i = 0; i < row.length; i++) {
+    row.reduce((xPos, cell, i) => {
       const align = colAligns?.[i] ?? "left";
       const textX =
         align === "right"
@@ -182,12 +179,12 @@ export function renderTabla(
           : align === "center"
             ? xPos + colWidths[i] / 2
             : xPos + 1;
-      const cellText = (row[i] ?? "").slice(0, 30);
+      const cellText = (cell ?? "").slice(0, 30);
       doc.text(cellText, textX, y, { align });
-      xPos += colWidths[i];
-    }
+      return xPos + colWidths[i];
+    }, MARGEN);
     y += 4.5;
-  }
+  });
 
   return y + 2;
 }

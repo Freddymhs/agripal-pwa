@@ -61,7 +61,6 @@ function hasRuntimeDalImport(source: string): boolean {
 const KNOWN_CLIENT_DAL_VIOLATIONS = new Set([
   "components/mapa/zona-cultivo-panel.tsx",
   // pages que actúan como client components y llaman DAL sin hook intermedio:
-  "app/(app)/agua/page.tsx",
   "app/(app)/agua/configuracion/page.tsx",
   "app/(app)/datos/clima/page.tsx",
   "app/(app)/datos/insumos/page.tsx",

@@ -1,5 +1,5 @@
 /**
- * TC-015, TC-024, TC-034 — ROI, costos agua estanque, economía avanzada
+ * TC-015, TC-024 — ROI, costos agua estanque
  */
 import { test, expect } from "@playwright/test";
 import { mockSupabase } from "./helpers/supabase-mock";
@@ -68,26 +68,6 @@ test.describe("Economía — ROI y proyecciones", () => {
     await page.goto("/economia");
     await expect(page.locator("body")).toBeVisible();
     await expect(page).not.toHaveURL(/\/error/);
-  });
-
-  test("economía avanzada /economia/avanzado es accesible", async ({
-    page,
-  }) => {
-    await mockSupabase(page, defaultMock());
-    await page.goto("/economia/avanzado");
-
-    await expect(page.locator("body")).toBeVisible();
-    await expect(page).not.toHaveURL(/\/error/);
-  });
-
-  test("economía avanzada muestra payback o margen", async ({ page }) => {
-    await mockSupabase(page, defaultMock());
-    await page.goto("/economia/avanzado");
-
-    await expect(page.locator("body")).toContainText(
-      /payback|margen|break.?even|equilibrio/i,
-      { timeout: 10_000 },
-    );
   });
 
   test("TC-024: costo agua lee costo_por_m3 del estanque", async ({ page }) => {

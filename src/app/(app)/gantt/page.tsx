@@ -115,19 +115,19 @@ export default function GanttPage() {
 
   // Resumen de alineación cosecha vs temporada de mercado
   const resumenTemporada = useMemo(() => {
-    let enTemporada = 0;
-    let fueraTemporada = 0;
-    for (const f of filas) {
-      if (
-        !f.meses_cosecha_catalogo.length ||
-        !f.meses_cosecha_personales.length
-      )
-        continue;
-      const setCat = new Set(f.meses_cosecha_catalogo);
-      if (f.meses_cosecha_personales.some((m) => setCat.has(m))) enTemporada++;
-      else fueraTemporada++;
-    }
-    return { enTemporada, fueraTemporada };
+    const filasConDatos = filas.filter(
+      (f) =>
+        f.meses_cosecha_catalogo.length && f.meses_cosecha_personales.length,
+    );
+    return filasConDatos.reduce(
+      (acc, f) => {
+        const setCat = new Set(f.meses_cosecha_catalogo);
+        if (f.meses_cosecha_personales.some((m) => setCat.has(m)))
+          return { ...acc, enTemporada: acc.enTemporada + 1 };
+        return { ...acc, fueraTemporada: acc.fueraTemporada + 1 };
+      },
+      { enTemporada: 0, fueraTemporada: 0 },
+    );
   }, [filas]);
 
   if (loading) {
