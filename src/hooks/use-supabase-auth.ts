@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase/client";
+import { authDAL } from "@/lib/dal/auth";
 import { ROUTES } from "@/lib/constants/routes";
 import type { User } from "@supabase/supabase-js";
 import type { Usuario } from "@/types";
@@ -38,7 +38,7 @@ export function useSupabaseAuth(): UseSupabaseAuth {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    authDAL.getSession().then(({ data: { session } }) => {
       const currentUser = session?.user ?? null;
       setUser(currentUser);
       if (currentUser) setUsuario(userToUsuario(currentUser));
@@ -47,7 +47,7 @@ export function useSupabaseAuth(): UseSupabaseAuth {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = authDAL.onAuthStateChange((_event, session) => {
       const currentUser = session?.user ?? null;
       setUser(currentUser);
       setUsuario(currentUser ? userToUsuario(currentUser) : null);
@@ -59,10 +59,7 @@ export function useSupabaseAuth(): UseSupabaseAuth {
   }, []);
 
   const signIn = useCallback(async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const { error } = await authDAL.signInWithPassword(email, password);
     if (error) {
       const MSG: Record<string, string> = {
         "Email not confirmed":
@@ -81,11 +78,7 @@ export function useSupabaseAuth(): UseSupabaseAuth {
 
   const signUp = useCallback(
     async (email: string, password: string, nombre: string) => {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: { data: { nombre } },
-      });
+      const { error } = await authDAL.signUp(email, password, nombre);
       if (error) return { error: error.message };
       return {};
     },
@@ -93,7 +86,7 @@ export function useSupabaseAuth(): UseSupabaseAuth {
   );
 
   const signOut = useCallback(async () => {
-    await supabase.auth.signOut();
+    await authDAL.signOut();
     router.push(ROUTES.AUTH_LOGIN);
   }, [router]);
 

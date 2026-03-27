@@ -64,7 +64,6 @@ const KNOWN_CLIENT_DAL_VIOLATIONS = new Set([
   "app/(app)/agua/configuracion/page.tsx",
   "app/(app)/datos/clima/page.tsx",
   "app/(app)/datos/insumos/page.tsx",
-  "app/(app)/gantt/page.tsx",
   "app/(app)/terrenos/page.tsx",
 ]);
 

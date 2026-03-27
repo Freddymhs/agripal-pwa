@@ -180,6 +180,7 @@ export default function EconomiaPage() {
   const costoAguaM3Efectivo = precioAguaSimulado ?? costoAguaM3Real;
   const usandoSimuladorAgua = precioAguaSimulado !== null;
   const usandoSimuladorVenta = Object.keys(preciosVentaSimulados).length > 0;
+  const idSimulacionActiva = usandoSimuladorAgua ? "__agua__" : null;
 
   // Lookup: cultivo_base_id → PrecioMayorista (movido antes de resumen para calcular ROI feria/mayorista)
   const preciosMap = useMemo(() => {
@@ -935,8 +936,8 @@ export default function EconomiaPage() {
             <h2 className="text-lg font-bold text-gray-900 p-4 border-b">
               Detalle por Cultivo
             </h2>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+            <div className="overflow-x-auto relative w-full">
+              <table className="w-full text-sm min-w-max">
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="text-left p-2 font-medium text-gray-700 text-xs">
@@ -1049,18 +1050,28 @@ export default function EconomiaPage() {
                           r.cultivo.tiempo_produccion_meses ?? 12;
                         const precioSimulado =
                           preciosVentaSimulados[r.cultivoId];
+                        const isActiveScenario =
+                          idSimulacionActiva === "__agua__" ||
+                          precioSimulado !== undefined;
                         return (
                           <tr
                             key={`${r.zonaId}-${r.cultivoId}-${i}`}
-                            className="hover:bg-gray-50"
+                            className={`hover:bg-gray-50 ${isActiveScenario ? "bg-blue-50/60" : ""}`}
                           >
-                            <td className="p-2 pl-4">
+                            <td
+                              className={`p-2 pl-4 ${isActiveScenario ? "border-l-4 border-blue-500" : ""}`}
+                            >
                               <div className="font-medium text-gray-900 text-xs">
                                 {r.cultivoNombre}
                                 <ViabilidadBadge
                                   breakEvenAgua={r.roi.precio_agua_break_even}
                                   costoAgua={costoAguaM3Efectivo}
                                 />
+                                {isActiveScenario && (
+                                  <span className="ml-1 text-[10px] bg-blue-600 text-white px-1.5 py-0.5 rounded">
+                                    Activo
+                                  </span>
+                                )}
                                 {precioSimulado !== undefined && (
                                   <span className="ml-1 text-[10px] bg-blue-100 text-blue-600 px-1 py-0.5 rounded">
                                     ${precioSimulado}/kg

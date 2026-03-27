@@ -8,6 +8,7 @@ export { catalogoDAL } from "./catalogo";
 export { alertasDAL } from "./alertas";
 export { aguaDAL } from "./agua";
 export { cosechasDAL } from "./cosechas";
+export { tareasGanttDAL } from "./tareas-gantt";
 export { transaccionesDAL } from "./transactions";
 export { insumosDAL } from "./insumos";
 export { baseDataDAL } from "./base-data";

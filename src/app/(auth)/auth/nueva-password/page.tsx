@@ -2,45 +2,55 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase/client";
 import { ROUTES } from "@/lib/constants/routes";
+import { usePasswordRecovery } from "@/hooks/use-password-recovery";
 
 const MIN_PASSWORD_LENGTH = 6;
 
 export default function NuevaPasswordPage() {
   const router = useRouter();
+  const {
+    loading: recoveryLoading,
+    ready: recoveryReady,
+    error: recoveryError,
+    updatePassword,
+  } = usePasswordRecovery();
 
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [formError, setFormError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
+    setFormError("");
+    if (!recoveryReady) {
+      setFormError(
+        "Estamos validando tu enlace de recuperación. Espera unos segundos.",
+      );
+      return;
+    }
 
     if (newPassword.length < MIN_PASSWORD_LENGTH) {
-      setError(
+      setFormError(
         `La contraseña debe tener al menos ${MIN_PASSWORD_LENGTH} caracteres`,
       );
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      setError("Las contraseñas no coinciden");
+      setFormError("Las contraseñas no coinciden");
       return;
     }
 
     setLoading(true);
 
-    const { error: supabaseError } = await supabase.auth.updateUser({
-      password: newPassword,
-    });
+    const { error: updateError } = await updatePassword(newPassword);
 
     setLoading(false);
 
-    if (supabaseError) {
-      setError(supabaseError.message);
+    if (updateError) {
+      setFormError(updateError);
     } else {
       router.push(
         `${ROUTES.AUTH_LOGIN}?mensaje=Contraseña actualizada correctamente`,
@@ -66,9 +76,15 @@ export default function NuevaPasswordPage() {
             Establecer nueva contraseña
           </h2>
 
-          {error && (
+          {recoveryLoading && (
+            <div className="bg-gray-50 text-gray-600 p-3 rounded text-sm">
+              Validando enlace de recuperación...
+            </div>
+          )}
+
+          {(formError || recoveryError) && (
             <div className="bg-red-50 text-red-600 p-3 rounded text-sm">
-              {error}
+              {formError || recoveryError}
             </div>
           )}
 
@@ -107,9 +123,9 @@ export default function NuevaPasswordPage() {
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || recoveryLoading || !recoveryReady}
             className={`w-full py-3 rounded-lg font-medium text-white ${
-              loading
+              loading || recoveryLoading || !recoveryReady
                 ? "bg-gray-400 cursor-not-allowed"
                 : "bg-green-500 hover:bg-green-600"
             }`}

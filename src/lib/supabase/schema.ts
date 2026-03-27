@@ -55,6 +55,16 @@ export const COLUMNAS_EXPLICITAS: Record<string, string[]> = {
     "created_at",
     "updated_at",
   ],
+  tareas_gantt: [
+    "id",
+    "usuario_id",
+    "proyecto_id",
+    "terreno_id",
+    "titulo",
+    "fecha_inicio",
+    "fecha_fin",
+    "color",
+  ],
   precios_actual: [
     "id",
     "cultivo_id",

@@ -335,6 +335,22 @@ export interface SesionRiego {
   lastModified?: Timestamp;
 }
 
+export type TareaGanttColor = "emerald" | "sky" | "amber" | "violet" | "rose";
+
+export interface TareaGantt {
+  id: UUID;
+  usuario_id: UUID;
+  proyecto_id: UUID;
+  terreno_id: UUID;
+  titulo: string;
+  fecha_inicio: Timestamp;
+  fecha_fin: Timestamp;
+  color: TareaGanttColor;
+  created_at: Timestamp;
+  updated_at: Timestamp;
+  lastModified?: Timestamp;
+}
+
 export interface ConfiguracionGoteros {
   cantidad: number;
   caudal_lh_por_gotero: number;

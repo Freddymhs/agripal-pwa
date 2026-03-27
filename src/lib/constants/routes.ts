@@ -15,6 +15,7 @@ export const ROUTES = {
   AUTH_LOGIN: "/auth/login",
   AUTH_REGISTRO: "/auth/registro",
   AUTH_RECUPERAR: "/auth/recuperar",
+  AUTH_CALLBACK: "/auth/callback",
   AUTH_NUEVA_PASSWORD: "/auth/nueva-password",
 
   // Primary routes

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect, useCallback } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { PageLayout } from "@/components/layout";
 import { useProjectContext } from "@/contexts/project-context";
 import {
@@ -10,13 +10,16 @@ import {
 } from "@/lib/utils/calendario-gantt";
 import { filtrarEstanques } from "@/lib/utils/helpers-cultivo";
 import { obtenerCostoAguaPromedio } from "@/lib/utils/roi";
-import { cosechasDAL } from "@/lib/dal";
 import { TIPO_ZONA } from "@/lib/constants/entities";
 import { GanttFila } from "@/components/calendario/gantt-fila";
 import { GanttTotales } from "@/components/calendario/gantt-totales";
 import { GanttEsteMes } from "@/components/calendario/gantt-este-mes";
+import { GanttTareaModal } from "@/components/calendario/gantt-tarea-modal";
+import { GanttTareaFila } from "@/components/calendario/gantt-tarea-fila";
+import { useCosechas } from "@/hooks/use-cosechas";
+import { useTareasGantt } from "@/hooks/use-tareas-gantt";
 import { formatCLP } from "@/lib/utils";
-import type { Cosecha } from "@/types";
+import type { TareaGantt } from "@/types";
 import type { PrecioMayorista } from "@/lib/data/tipos-mercado";
 
 const AÑO_ACTUAL = new Date().getFullYear();
@@ -24,11 +27,13 @@ const AÑO_ACTUAL = new Date().getFullYear();
 export default function GanttPage() {
   const [año, setAño] = useState(AÑO_ACTUAL);
   const [tipoPrecio, setTipoPrecio] = useState<"feria" | "mayorista">("feria");
-  const [cosechas, setCosechas] = useState<Cosecha[]>([]);
+  const [tareaModalOpen, setTareaModalOpen] = useState(false);
+  const [tareaActiva, setTareaActiva] = useState<TareaGantt | null>(null);
 
   const {
     terrenoActual: terreno,
     proyectoActual,
+    usuario,
     zonas,
     plantas,
     catalogoCultivos,
@@ -37,6 +42,25 @@ export default function GanttPage() {
     datosBaseHook,
     alertasHook,
   } = useProjectContext();
+
+  const zonasCultivo = useMemo(
+    () => zonas.filter((z) => z.tipo === TIPO_ZONA.CULTIVO),
+    [zonas],
+  );
+
+  const noop = useCallback(() => undefined, []);
+  const { cosechas } = useCosechas(zonasCultivo, noop);
+
+  const {
+    tareas,
+    loading: tareasLoading,
+    crearTarea,
+    actualizarTarea,
+  } = useTareasGantt({
+    usuarioId: usuario?.id,
+    proyectoId: proyectoActual?.id,
+    terrenoId: terreno?.id,
+  });
 
   // Costo efectivo de agua
   const costoAguaM3 = useMemo(() => {
@@ -53,27 +77,6 @@ export default function GanttPage() {
     }
     return map;
   }, [datosBaseHook.datosBase.precios]);
-
-  // Cargar cosechas reales de todas las zonas
-  const cargarCosechas = useCallback(async () => {
-    const zonaIds = zonas
-      .filter((z) => z.tipo === TIPO_ZONA.CULTIVO)
-      .map((z) => z.id);
-    if (zonaIds.length === 0) return;
-    try {
-      const data = await cosechasDAL.getByZonaIds(zonaIds);
-      setCosechas(data);
-    } catch {
-      // cosechas reales son opcionales — el Gantt funciona sin ellas
-    }
-  }, [zonas]);
-
-  useEffect(() => {
-    if (!loading) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- cargarCosechas es estable vía useCallback
-      void cargarCosechas();
-    }
-  }, [loading, cargarCosechas]);
 
   // Construir filas del Gantt
   const climaBase = datosBaseHook.datosBase.clima[0] ?? null;
@@ -129,6 +132,44 @@ export default function GanttPage() {
       { enTemporada: 0, fueraTemporada: 0 },
     );
   }, [filas]);
+
+  const tareasVisibles = useMemo(() => {
+    const añoInicio = new Date(año, 0, 1);
+    const añoFin = new Date(año, 11, 31, 23, 59, 59);
+    return tareas.filter((t) => {
+      const inicio = new Date(t.fecha_inicio);
+      const fin = new Date(t.fecha_fin);
+      if (Number.isNaN(inicio.getTime()) || Number.isNaN(fin.getTime())) {
+        return false;
+      }
+      return !(fin < añoInicio || inicio > añoFin);
+    });
+  }, [tareas, año]);
+
+  const abrirNuevaTarea = useCallback(() => {
+    setTareaActiva(null);
+    setTareaModalOpen(true);
+  }, []);
+
+  const abrirEditarTarea = useCallback((tarea: TareaGantt) => {
+    setTareaActiva(tarea);
+    setTareaModalOpen(true);
+  }, []);
+
+  const guardarTarea = useCallback(
+    async (payload: {
+      titulo: string;
+      fecha_inicio: string;
+      fecha_fin: string;
+      color: TareaGantt["color"];
+    }) => {
+      if (tareaActiva) {
+        return actualizarTarea(tareaActiva.id, payload);
+      }
+      return crearTarea(payload);
+    },
+    [tareaActiva, actualizarTarea, crearTarea],
+  );
 
   if (loading) {
     return (
@@ -230,10 +271,20 @@ export default function GanttPage() {
             </span>
           )}
 
-          <span className="ml-auto text-xs text-gray-400">
-            Agua:{" "}
-            {costoAguaM3 > 0 ? formatCLP(costoAguaM3) + "/m³" : "sin proveedor"}
-          </span>
+          <div className="ml-auto flex items-center gap-2">
+            <button
+              onClick={abrirNuevaTarea}
+              className="px-2.5 py-1.5 text-[11px] font-semibold rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50"
+            >
+              + Nueva tarea
+            </button>
+            <span className="text-xs text-gray-400">
+              Agua:{" "}
+              {costoAguaM3 > 0
+                ? formatCLP(costoAguaM3) + "/m³"
+                : "sin proveedor"}
+            </span>
+          </div>
         </div>
 
         {/* Resumen económico del año */}
@@ -287,7 +338,7 @@ export default function GanttPage() {
         )}
 
         {/* Grid principal */}
-        {filas.length === 0 ? (
+        {filas.length === 0 && tareasVisibles.length === 0 && !tareasLoading ? (
           <div className="text-sm text-gray-400 py-6 text-center">
             No hay zonas con cultivos plantados en este terreno.
           </div>
@@ -315,7 +366,35 @@ export default function GanttPage() {
                 Total
               </div>
 
+              {/* Tareas manuales */}
+              {tareasLoading && (
+                <div className="col-span-3 py-2 text-[10px] text-gray-400">
+                  Cargando tareas...
+                </div>
+              )}
+
+              {!tareasLoading && tareasVisibles.length === 0 && (
+                <div className="col-span-3 py-2 text-[10px] text-gray-400">
+                  No hay tareas manuales. Usa &quot;Nueva tarea&quot;.
+                </div>
+              )}
+
+              {tareasVisibles.map((tarea) => (
+                <GanttTareaFila
+                  key={tarea.id}
+                  tarea={tarea}
+                  año={año}
+                  onSelect={abrirEditarTarea}
+                />
+              ))}
+
               {/* Filas */}
+              {filas.length === 0 && (
+                <div className="col-span-3 py-2 text-[10px] text-gray-400">
+                  No hay zonas con cultivos plantados en este terreno.
+                </div>
+              )}
+
               {filas.map((fila) => (
                 <GanttFila
                   key={`${fila.zona_id}-${fila.cultivo_id}`}
@@ -325,10 +404,12 @@ export default function GanttPage() {
               ))}
 
               {/* Totales */}
-              <GanttTotales
-                totalesPorMes={totalesPorMes}
-                totalAnual={totalAnual}
-              />
+              {filas.length > 0 && (
+                <GanttTotales
+                  totalesPorMes={totalesPorMes}
+                  totalAnual={totalAnual}
+                />
+              )}
             </div>
           </div>
         )}
@@ -357,6 +438,13 @@ export default function GanttPage() {
           </span>
         </div>
       </div>
+
+      <GanttTareaModal
+        open={tareaModalOpen}
+        tarea={tareaActiva}
+        onClose={() => setTareaModalOpen(false)}
+        onSave={guardarTarea}
+      />
     </PageLayout>
   );
 }
