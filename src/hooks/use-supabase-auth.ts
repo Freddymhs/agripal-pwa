@@ -48,9 +48,11 @@ export function useSupabaseAuth(): UseSupabaseAuth {
     const {
       data: { subscription },
     } = authDAL.onAuthStateChange((_event, session) => {
-      const currentUser = session?.user ?? null;
-      setUser(currentUser);
-      setUsuario(currentUser ? userToUsuario(currentUser) : null);
+      const next = session?.user ?? null;
+      setUser((prev) => (prev?.id === next?.id ? prev : next));
+      setUsuario((prev) =>
+        !next ? null : prev?.id === next.id ? prev : userToUsuario(next),
+      );
     });
 
     return () => {
