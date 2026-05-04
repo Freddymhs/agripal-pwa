@@ -81,8 +81,7 @@ function BreakEvenAgua({
   precio: number | null;
   costoAgua: number;
 }) {
-  if (precio === null)
-    return <span className="text-red-400 text-xs">N/A</span>;
+  if (!precio) return <span className="text-red-400 text-xs">N/A</span>;
 
   const sinCostoConfigurado = costoAgua <= 0;
   const dentroDelLimite = costoAgua <= precio;

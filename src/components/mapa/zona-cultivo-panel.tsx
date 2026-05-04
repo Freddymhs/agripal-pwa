@@ -18,7 +18,7 @@ import {
   calcularDiasRestantes,
   determinarEstadoAgua,
 } from "@/lib/utils/agua";
-import { calcularROI, obtenerCostoAguaPromedio } from "@/lib/utils/roi";
+import { calcularROI, obtenerCostoAguaM3 } from "@/lib/utils/roi";
 import { formatCLP } from "@/lib/utils";
 import {
   ESTADO_PLANTA,
@@ -192,9 +192,19 @@ export function ZonaCultivoPanel() {
       {/* 2. ROI Estimado por cultivo */}
       {plantasVivas.length > 0 &&
         (() => {
-          const costoAguaM3 = obtenerCostoAguaPromedio(
-            estanquesHook.estanques,
-            terrenoActual,
+          const estanqueZona = zonaSeleccionada.estanque_id
+            ? estanquesHook.estanques.find(
+                (e) => e.id === zonaSeleccionada.estanque_id,
+              )
+            : null;
+          const proveedorZona = estanqueZona?.estanque_config?.proveedor_id
+            ? (terrenoActual.agua_avanzada?.proveedores?.find(
+                (p) => p.id === estanqueZona.estanque_config!.proveedor_id,
+              ) ?? null)
+            : null;
+          const costoAguaM3 = obtenerCostoAguaM3(
+            proveedorZona,
+            estanqueZona?.estanque_config?.recarga,
           );
 
           const plantasPorTipo = plantasVivas.reduce(
@@ -433,7 +443,7 @@ export function ZonaCultivoPanel() {
           );
         })()}
 
-      {/* 4. Estanque de riego */}
+      {/* 5. Estanque de riego */}
       {estanquesHook.estanques.length >= 1 && (
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 space-y-2">
           <h4 className="text-xs font-bold text-blue-800">Estanque de riego</h4>
@@ -470,7 +480,7 @@ export function ZonaCultivoPanel() {
         </div>
       )}
 
-      {/* 5. Sistema de Riego */}
+      {/* 6. Sistema de Riego */}
       <ZonaRiegoSection
         zona={zonaSeleccionada}
         plantasVivas={plantasVivas}
@@ -519,7 +529,7 @@ export function ZonaCultivoPanel() {
         }}
       />
 
-      {/* 6. Plagas */}
+      {/* 7. Plagas */}
       {plantasZonaSeleccionada.length > 0 && (
         <div className="border border-amber-200 bg-amber-50/50 rounded-lg p-3 space-y-2">
           <h4 className="text-sm font-medium flex items-center gap-2">
@@ -537,7 +547,7 @@ export function ZonaCultivoPanel() {
         </div>
       )}
 
-      {/* 7. Cosechas + Insumos (colapsables) */}
+      {/* 8. Cosechas + Insumos (colapsables) */}
       {plantasZonaSeleccionada.length > 0 && (
         <div className="space-y-2">
           <CollapsibleSection
