@@ -18,6 +18,8 @@ import {
   calcularDiasRestantes,
   determinarEstadoAgua,
 } from "@/lib/utils/agua";
+import { calcularROI, obtenerCostoAguaPromedio } from "@/lib/utils/roi";
+import { formatCLP } from "@/lib/utils";
 import {
   ESTADO_PLANTA,
   ESTADO_AGUA,
@@ -187,7 +189,129 @@ export function ZonaCultivoPanel() {
           })()}
       </div>
 
-      {/* 2. Score de Calidad */}
+      {/* 2. ROI Estimado por cultivo */}
+      {plantasVivas.length > 0 &&
+        (() => {
+          const costoAguaM3 = obtenerCostoAguaPromedio(
+            estanquesHook.estanques,
+            terrenoActual,
+          );
+
+          const plantasPorTipo = plantasVivas.reduce(
+            (acc, p) => {
+              acc[p.tipo_cultivo_id] = (acc[p.tipo_cultivo_id] || 0) + 1;
+              return acc;
+            },
+            {} as Record<string, number>,
+          );
+
+          const items = Object.entries(plantasPorTipo)
+            .map(([cultivoId, count]) => {
+              const cultivo = catalogoCultivos.find((c) => c.id === cultivoId);
+              if (!cultivo) return null;
+              const plantasCultivo = plantasVivas.filter(
+                (p) => p.tipo_cultivo_id === cultivoId,
+              );
+              const consumoSemanal = calcularConsumoZona(
+                zonaSeleccionada,
+                plantasCultivo,
+                catalogoCultivos,
+                undefined,
+                opcionesConsumoAgua,
+              );
+              const roi = calcularROI(
+                cultivo,
+                zonaSeleccionada,
+                count,
+                costoAguaM3,
+                consumoSemanal,
+                proyectoActual?.suelo ?? null,
+              );
+              return { cultivo, count, roi };
+            })
+            .filter((x): x is NonNullable<typeof x> => x !== null);
+
+          if (items.length === 0) return null;
+
+          if (costoAguaM3 <= 0) {
+            return (
+              <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
+                <p className="text-xs text-orange-700 font-medium">
+                  ROI estimado no disponible
+                </p>
+                <p className="text-xs text-orange-600 mt-0.5">
+                  Configura el costo del agua en el estanque para ver
+                  proyecciones.
+                </p>
+              </div>
+            );
+          }
+
+          return (
+            <div className="space-y-2">
+              <h4 className="text-sm font-medium text-gray-900">
+                ROI estimado (5 años)
+              </h4>
+              {items.map(({ cultivo, roi }) => {
+                const positivo = roi.roi_5_años_pct > 0;
+                const dentroDelLimite =
+                  roi.precio_agua_break_even !== null &&
+                  costoAguaM3 <= roi.precio_agua_break_even;
+                return (
+                  <div
+                    key={cultivo.id}
+                    className={`rounded-lg p-3 text-xs border ${positivo ? "bg-green-50 border-green-200" : "bg-red-50 border-red-200"}`}
+                  >
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="font-medium text-gray-900">
+                        {cultivo.nombre}
+                      </span>
+                      <span
+                        className={`font-bold text-sm ${positivo ? "text-green-700" : "text-red-600"}`}
+                      >
+                        {roi.roi_5_años_pct}%
+                      </span>
+                    </div>
+                    <div className="space-y-0.5 text-gray-600">
+                      {roi.punto_equilibrio_meses !== null && (
+                        <div className="flex justify-between">
+                          <span>Recupera en</span>
+                          <span className="font-medium">
+                            {roi.punto_equilibrio_meses} meses
+                          </span>
+                        </div>
+                      )}
+                      {roi.precio_agua_break_even !== null && (
+                        <div className="flex justify-between">
+                          <span>Agua máx tolerable</span>
+                          <span
+                            className={`font-medium ${dentroDelLimite ? "text-green-700" : "text-red-600"}`}
+                            title={
+                              dentroDelLimite
+                                ? `Tu proveedor (${formatCLP(costoAguaM3)}/m³) está dentro del límite`
+                                : `Tu proveedor cobra ${formatCLP(costoAguaM3)}/m³ — sobre el límite tolerable`
+                            }
+                          >
+                            {formatCLP(roi.precio_agua_break_even)}/m³
+                            {!dentroDelLimite && (
+                              <span className="ml-1 text-red-500">✗</span>
+                            )}
+                          </span>
+                        </div>
+                      )}
+                      <div className="flex justify-between">
+                        <span>Inversión estimada</span>
+                        <span>{formatCLP(roi.inversion_total)}</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })()}
+
+      {/* 3. Score de Calidad */}
       {plantasZonaSeleccionada.length > 0 &&
         (() => {
           const consumoRiegoZona = calcularConsumoRiegoZona(zonaSeleccionada);
@@ -232,7 +356,7 @@ export function ZonaCultivoPanel() {
           );
         })()}
 
-      {/* 3. Consumo semanal estimado */}
+      {/* 4. Consumo semanal estimado */}
       {plantasZonaSeleccionada.length > 0 &&
         (() => {
           const consumoRecomendado = calcularConsumoZona(

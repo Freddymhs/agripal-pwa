@@ -45,3 +45,24 @@
 - Personalizable por usuario → tabla per-proyecto, copiada desde base global.
 - Sin tabla aún → carpeta pendiente, nunca importar en producción.
 - Componentes nunca importan datos de catálogo desde archivos locales.
+
+## Fuentes de datos — confirmado
+
+- `src/lib/data/` NO contiene datos de negocio. Solo tipos TypeScript + constantes agronómicas universales: coeficientes Kc FAO (`coeficientes-kc.ts`), duraciones de etapas (`calculos-etapas.ts`), umbrales físicos (`umbrales-agua.ts`, `umbrales-suelo.ts`). Correcto por diseño — no cambian por mercado.
+- Todo dato de negocio (precios, clima, ET0) viene de Supabase vía `baseDataDAL` → `useDatosBase()` → `ProjectContext`.
+- `/economia`, `/agua`, `/escenarios`, `/plagas`, `/gantt` leen datos reales de Supabase.
+
+## Balance hídrico y lluvia
+
+`src/lib/utils/agua.ts` ya descuenta `lluvia.anual_mm` del consumo semanal (promedio anual dividido en semanas).
+Mejora futura pendiente: usar precipitación diaria real desde `clima_actual` en lugar del promedio anual. Para Arica (23mm/año) el impacto es mínimo — no es urgente.
+
+## Gantt de labores — implementado
+
+`/gantt` está completamente implementado: `useTareasGantt` hook, persistencia en Supabase, componentes `GanttFila`, `GanttTotales`, `GanttEsteMes`, `GanttTareaModal`.
+
+## Features futuras documentadas
+
+- **Fenología calibrada (días-grado):** Actualmente las etapas usan días fijos. Para fenología real: `GDD = Σ((Tmax + Tmin)/2 - T_base)` desde fecha de siembra. La API ya guarda `temp_max`/`temp_min` diarios en `clima_actual`. Requiere: columna `t_base` en `catalogo_base` + función acumuladora en DAL.
+- **Exportación formato SAG/INDAP:** Técnicos y asesores necesitan reportes en formatos que acepten organismos oficiales. Hoy solo hay PDF. Agregar CSV/Excel estructurado según plantillas SAG.
+- **Balance hídrico diario real:** Ver sección lluvia arriba.

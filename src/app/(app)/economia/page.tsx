@@ -74,14 +74,48 @@ function RecuperaCell({
   );
 }
 
-function BreakEvenAgua({ precio }: { precio: number | null }) {
-  if (precio === null) return <span className="text-red-400 text-xs">N/A</span>;
+function BreakEvenAgua({
+  precio,
+  costoAgua,
+}: {
+  precio: number | null;
+  costoAgua: number;
+}) {
+  if (precio === null)
+    return <span className="text-red-400 text-xs">N/A</span>;
+
+  const sinCostoConfigurado = costoAgua <= 0;
+  const dentroDelLimite = costoAgua <= precio;
+  const pctSobre = dentroDelLimite
+    ? 0
+    : Math.round(((costoAgua - precio) / precio) * 100);
+
   return (
-    <span
-      className={`font-medium text-xs ${precio > 5000 ? "text-green-700" : precio > 2000 ? "text-yellow-600" : "text-red-600"}`}
-    >
-      {formatCLP(precio)}
-    </span>
+    <div className="text-right">
+      <span
+        className={`font-medium text-xs ${
+          sinCostoConfigurado
+            ? "text-gray-400"
+            : dentroDelLimite
+              ? "text-green-700"
+              : "text-red-600"
+        }`}
+        title={
+          sinCostoConfigurado
+            ? "Configura el costo del agua para ver si eres viable"
+            : dentroDelLimite
+              ? `Tu proveedor (${formatCLP(costoAgua)}/m3) está dentro del límite`
+              : `Tu proveedor cobra ${formatCLP(costoAgua)}/m3 — ${pctSobre}% sobre el límite tolerable`
+        }
+      >
+        {formatCLP(precio)}
+      </span>
+      {!sinCostoConfigurado && !dentroDelLimite && (
+        <div className="text-[10px] text-red-500 leading-tight">
+          tienes {formatCLP(costoAgua)}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -1218,6 +1252,7 @@ export default function EconomiaPage() {
                             <td className="p-2 text-right">
                               <BreakEvenAgua
                                 precio={r.roi.precio_agua_break_even}
+                                costoAgua={costoAguaM3Efectivo}
                               />
                             </td>
                           </tr>
