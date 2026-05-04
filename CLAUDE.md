@@ -18,6 +18,9 @@
 - **Prohibido mutar refs durante render**. Solo en effects o event handlers.
 - **Validar estado tras cambio de contexto**: si el usuario cambia de proyecto/entidad padre, verificar que IDs en estado local siguen existiendo en los nuevos datos. No asumir que un ID guardado sigue siendo válido tras refetch.
 - **Estabilizar refs en dependencias**: usar `useMemo(() => valor ?? default, [valor])` en lugar de `valor ?? default` inline en deps de otros hooks. Expresiones con fallback crean refs nuevas cada render.
+- **Granularidad del dato vinculado**: en componentes a nivel zona/entidad-hijo, resolver el dato vinculado vía la FK específica (ej. `zona.estanque_id` → estanque concreto), NO usar el agregador del padre (promedio del proyecto). Si el archivo ya tiene patrón establecido para resolver la entidad vinculada, seguirlo. El promedio engaña silenciosamente cuando la entidad hija tiene valor distinto del agregado.
+- **Alinear null/falsy checks con el patrón del archivo**: si varios componentes en el mismo archivo manejan un valor opcional, alinear el check al patrón ya usado. Si el archivo usa `!valor` (captura null y 0), no introducir `valor === null` aislado. Para valores derivados de `Math.round()` o cocientes, `0` puede ser un resultado real — tratarlo como `null` cuando representa "ausencia significativa".
+- **Numeración secuencial de secciones**: si un componente usa `{/* N. ... */}` para numerar secciones (convención del módulo `mapa/`), al insertar una sección nueva renumerar todas las posteriores. Sin saltos ni duplicados.
 
 ## Patrones de este proyecto
 
@@ -31,6 +34,8 @@
 - `IF NOT EXISTS` / `IF EXISTS` en todo DDL. Idempotencia obligatoria.
 - FK nueva → index. Trigger que copia base → proyecto → actualizar para incluir columna nueva.
 - Backfill de datos existentes → migración separada.
+- **Tablas nuevas requieren consumidor real**: antes de crear una tabla, verificar que tenga consumidor en código. Si la PWA leerá → DAL + tipos en `src/types/`. Si la API escribirá → `repository.ts` y/o `*.cron.ts` en `agriplan-api-nestjs`. Sin consumidor implementado, NO crear la tabla.
+- **Patrón de tablas escritas por la API** (mismo Supabase compartido): `UNIQUE` constraint para upsert, **sin** RLS habilitado, **sin** trigger `updated_at`. Ejemplos: `publicaciones_inia`, `clima_diario`, `precios_historico`.
 
 ## Decisiones de UI
 
