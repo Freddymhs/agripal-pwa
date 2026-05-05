@@ -15,13 +15,13 @@ import {
   PORTER_COSTO_EFECTIVO_M3,
   MARGEN_BORDE as MARGEN_PORTERO,
   MAX_PLANTAS_POR_ZONA as MAX_PORTERO,
-} from "./seed-proyecto-portero.mjs";
+} from "../seed/seed-proyecto-portero.mjs";
 
 import {
   TERRENOS as TERRENOS_EXPERTA,
   MARGEN_BORDE as MARGEN_EXPERTA,
   MAX_PLANTAS_POR_ZONA as MAX_EXPERTA,
-} from "./seed-terrenos-ia-experta.mjs";
+} from "../seed/seed-terrenos-ia-experta.mjs";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,

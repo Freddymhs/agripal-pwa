@@ -1,7 +1,7 @@
 /**
  * audit-roi.mts — Consulta BD y verifica cálculos ROI para auditoría.
  * Lee datos desde datos JSONB (la fuente real del catálogo).
- * Uso: npx tsx scripts/audit-roi.mts
+ * Uso: pnpm audit:roi
  */
 import { config } from "dotenv";
 config({ path: ".env.local" });

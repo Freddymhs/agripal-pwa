@@ -18,6 +18,23 @@ config({ path: ".env.local" });
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { readFileSync } from "fs";
 import { resolve } from "path";
+import { confirmDestructive } from "../lib/confirm-destructive";
+
+confirmDestructive({
+  scriptName: "seed:base",
+  envVar: "CONFIRM_SEED_BASE",
+  phrase: "SI-SOBRESCRIBIR-DATOS-GLOBALES",
+  summary:
+    "Sobrescribe (upsert) filas globales en Supabase. Pisa cualquier curación posterior. Sin rollback.",
+  affected: [
+    "catalogo_base — 25 cultivos pisados con valores del seed",
+    "precios_actual — precios curados por el cron ODEPA, perdidos",
+    "mercado_detalle — contexto de mercado editado a mano, perdido",
+    "variedades_base, insumos_base, enmiendas_base, tecnicas_base",
+    "fuentes_agua_base, clima_actual, planes",
+    "suscripciones — recrea suscripción del admin",
+  ],
+});
 
 // ─── Cliente ─────────────────────────────────────────────────────────────────
 

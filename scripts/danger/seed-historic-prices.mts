@@ -15,6 +15,23 @@
 
 import { createClient } from "@supabase/supabase-js";
 import * as fs from "node:fs";
+import { confirmDestructive } from "../lib/confirm-destructive";
+
+const DRY_RUN = process.argv.includes("--dry-run");
+const ALL_REGIONS = process.argv.includes("--all-regions");
+
+if (!DRY_RUN) {
+  confirmDestructive({
+    scriptName: "seed:historic-prices",
+    envVar: "CONFIRM_SEED_HISTORIC_PRICES",
+    phrase: "SI-INSERTAR-PRECIOS-HISTORICOS-ODEPA",
+    summary:
+      "Inserta cientos/miles de filas en precios_historico desde ODEPA 2025. Sin rollback.",
+    affected: [
+      "precios_historico — inserción masiva (ODEPA 2025)",
+    ],
+  });
+}
 
 // ─── Config ─────────────────────────────────────────────────────────
 const ODEPA_BASE = "https://datos.odepa.gob.cl/api/3/action";
@@ -22,9 +39,6 @@ const PACKAGE_ID = "precios-mayoristas-de-frutas-y-hortalizas";
 const PAGE_SIZE = 1000;
 const REGION_ARICA = "Región de Arica y Parinacota";
 const YEAR = 2025;
-
-const DRY_RUN = process.argv.includes("--dry-run");
-const ALL_REGIONS = process.argv.includes("--all-regions");
 
 // ─── ODEPA types ────────────────────────────────────────────────────
 interface OdepaCkanRecord {

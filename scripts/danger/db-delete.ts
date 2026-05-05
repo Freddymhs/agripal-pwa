@@ -1,8 +1,8 @@
 /**
- * db-reset.ts — Vacía TODAS las tablas + usuarios de auth. Solo para desarrollo.
+ * db-delete.ts — Vacía TODAS las tablas + usuarios de auth. Solo para desarrollo.
  *
  * Flujo limpio:
- *   1. pnpm db:reset       ← vacía tablas + borra usuarios auth
+ *   1. pnpm db:delete       ← vacía tablas + borra usuarios auth
  *   2. pnpm seed:base      ← puebla tablas _base
  *   3. Registrarse en la app ← trigger copia _base → _proyecto + crea trial
  *   4. pnpm seed            ← (opcional) crea proyecto piloto
@@ -15,6 +15,21 @@
 import { config } from "dotenv";
 config({ path: ".env.local" });
 import { createClient } from "@supabase/supabase-js";
+import { confirmDestructive } from "../lib/confirm-destructive";
+
+confirmDestructive({
+  scriptName: "db:delete",
+  envVar: "CONFIRM_DB_DELETE",
+  phrase: "BORRAR-TODAS-LAS-FILAS-Y-USUARIOS",
+  summary:
+    "Vacía TODAS las filas de las tablas no protegidas Y borra TODOS los usuarios de Supabase Auth. Sin rollback.",
+  affected: [
+    "Todas las tablas no protegidas (proyectos, terrenos, zonas, plantas, …)",
+    "Todos los usuarios de auth.users (incluye al admin)",
+    "Suscripciones, alertas, cosechas, sesiones de riego",
+    "Catálogos copiados per-usuario (catalogo_cultivos, etc.)",
+  ],
+});
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -121,7 +136,7 @@ async function resetUsuarios(): Promise<void> {
 }
 
 (async () => {
-  console.log("\n⚠️  db-reset: Reseteando AgriPlan por completo...\n");
+  console.log("\n⚠️  db-delete: Reseteando AgriPlan por completo...\n");
 
   await resetTablas();
   await resetUsuarios();

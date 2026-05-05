@@ -82,4 +82,7 @@ supabase/.temp/
 # MCP virtual env
 .venv-mcp/
 
+# audit reports (data potencialmente sensible — solo local)
+/scripts/safe/audit/reports/
+
 
