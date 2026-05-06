@@ -41,7 +41,7 @@ const sb = createClient(SUPABASE_URL, SERVICE_KEY, {
 
 const ODEPA_BASE   = 'https://datos.odepa.gob.cl/api/3/action';
 const PACKAGE_ID   = 'precios-mayoristas-de-frutas-y-hortalizas';
-const REGION_ARICA = 'Region de Arica y Parinacota';
+const REGION_ARICA = 'Región de Arica y Parinacota';
 
 // Rango realista por cultivo. Si no está en el mapa → se usa 'default'.
 // Actualizar si ODEPA reporta sistemáticamente valores fuera de este rango.
