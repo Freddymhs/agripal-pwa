@@ -35,6 +35,8 @@
     "audit:analisis-roi": "npx tsx scripts/safe/audit/analisis-roi.mts",
     "audit:compare-seed": "npx tsx scripts/safe/audit/compare-seed-vs-supabase.mts",
     "audit:verify-sync": "npx tsx scripts/safe/audit/verify-sync.ts",
+    "audit:precios": "npx tsx scripts/safe/audit/verify-precios-calidad.mts",
+    "audit:precios:compare": "npx tsx scripts/safe/audit/verify-precios-calidad.mts --compare",
     "db:migrate": "npx supabase db push"
   },
   "dependencies": {

@@ -48,7 +48,7 @@ interface OdepaCkanRecord {
   Producto: string;
   "Precio minimo": string;
   "Precio maximo": string;
-  "Precio promedio ponderado": string;
+  "Precio promedio": string | number;
   "Unidad de comercializacion": string;
 }
 
@@ -177,7 +177,7 @@ function transformRecords(
   return records.map((r) => {
     const unidad = r["Unidad de comercializacion"] || null;
     const kgPorUnidad = parseKgDesdeUnidad(unidad);
-    const precioPromedio = parseDecimal(r["Precio promedio ponderado"]);
+    const precioPromedio = parseDecimal(r["Precio promedio"]);
     const precioKg =
       kgPorUnidad && kgPorUnidad > 0
         ? Math.round(precioPromedio / kgPorUnidad)
