@@ -32,6 +32,7 @@
 - **Puente entre IDs**: las tablas per-proyecto tienen UUID propio + campo TEXT que preserva el ID global original. Para joins con tablas globales (precios, variedades, mercado) → usar el campo TEXT puente, nunca el UUID.
 - **Completitud de entidad**: una entidad necesita datos en múltiples tablas globales para estar "disponible". Existe un helper centralizado para validar esto — usarlo, no reimplementar inline.
 - **Seed data como cadena**: agregar una entidad nueva al seed requiere entradas en todos los archivos relacionados. Si falta uno, la entidad queda incompleta y no disponible.
+- **Supabase `select('*')` devuelve `any`**: castear siempre: `(data ?? []) as TipoEsperado[]`. Para `.single()` usar variable intermedia: `const res = await ...; return res.data as Tipo`.
 
 ## Migraciones SQL
 
@@ -69,9 +70,3 @@ Mejora futura pendiente: usar precipitación diaria real desde `clima_actual` en
 ## Gantt de labores — implementado
 
 `/gantt` está completamente implementado: `useTareasGantt` hook, persistencia en Supabase, componentes `GanttFila`, `GanttTotales`, `GanttEsteMes`, `GanttTareaModal`.
-
-## Features futuras documentadas
-
-- **Fenología calibrada (días-grado):** Actualmente las etapas usan días fijos. Para fenología real: `GDD = Σ((Tmax + Tmin)/2 - T_base)` desde fecha de siembra. La API ya guarda `temp_max`/`temp_min` diarios en `clima_actual`. Requiere: columna `t_base` en `catalogo_base` + función acumuladora en DAL.
-- **Exportación formato SAG/INDAP:** Técnicos y asesores necesitan reportes en formatos que acepten organismos oficiales. Hoy solo hay PDF. Agregar CSV/Excel estructurado según plantillas SAG.
-- **Balance hídrico diario real:** Ver sección lluvia arriba.

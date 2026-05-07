@@ -390,3 +390,11 @@ pnpm type-check   # TypeScript check
 4. ⏳ **PENDIENTE**: Checklist de Lanzamiento (FASE_LAUNCH)
 
 **Objetivo:** Convertir AgriPlan en un SaaS funcional con suscripciones mensuales de 9,990 CLP.
+
+---
+
+## Features técnicas futuras
+
+- **Fenología calibrada (días-grado):** Etapas usan días fijos hoy. Para fenología real: `GDD = Σ((Tmax + Tmin)/2 - T_base)` desde fecha de siembra. La API ya guarda `temp_max`/`temp_min` diarios en `clima_actual`. Requiere: columna `t_base` en `catalogo_base` + función acumuladora en DAL.
+- **Exportación formato SAG/INDAP:** Técnicos y asesores necesitan reportes en formatos que acepten organismos oficiales. Hoy solo hay PDF. Agregar CSV/Excel estructurado según plantillas SAG.
+- **Balance hídrico diario real:** `agua.ts` ya descuenta `lluvia.anual_mm` del consumo semanal (promedio anual). Mejora: usar precipitación diaria real desde `clima_actual`. Para Arica (23mm/año) el impacto es mínimo — no es urgente.
