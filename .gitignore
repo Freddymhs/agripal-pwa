@@ -44,6 +44,8 @@ next-env.d.ts
 # Herramientas AI/desarrollo
 .claude/
 .serena/
+.codegraph/
+.cursor/
 
 # IDEs
 .idea/
