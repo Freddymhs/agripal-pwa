@@ -57,6 +57,23 @@ const UPDATES = [
     precio_max_clp: 4500,
     fuente: "estimado",
   },
+  // Tomate Cherry — ODEPA no reporta cherry en ningún año/región (2024-2026: 0
+  // registros), solo "Tomate" genérico. nombre_odepa=null lo saca del scope del
+  // cron de la API (filtra nombre_odepa no nulo) para que no herede el precio del
+  // tomate regular (~639 CLP/kg). Mayorista estimado 2150 ≈ 3.4× el tomate regular
+  // (cherry es premium, rango típico 2-3x). Los factores que consume la PWA son las
+  // columnas top-level factor_precio_feria/retail (DEFAULT 2.0/3.0, migración
+  // 20260321200000) → feria 4300, retail 6450 ≈ retail Jumbo observado ~6500.
+  // Nota: factor_precio_feria/retail del JSON caen al JSONB `datos` (seed-base.ts)
+  // y NO los lee la PWA. Ver docs/backlog/BUG_TOMATE_CHERRY_MATCH.md (agriplan-api-nestjs).
+  {
+    id: "arica-tomate-cherry",
+    nombre_odepa: null,
+    precio_actual_clp: 2150,
+    precio_min_clp: 1900,
+    precio_max_clp: 2400,
+    fuente: "estimado",
+  },
 ] as const;
 
 async function main() {

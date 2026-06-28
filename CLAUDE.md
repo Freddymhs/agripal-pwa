@@ -32,6 +32,7 @@
 - **Puente entre IDs**: las tablas per-proyecto tienen UUID propio + campo TEXT que preserva el ID global original. Para joins con tablas globales (precios, variedades, mercado) → usar el campo TEXT puente, nunca el UUID.
 - **Completitud de entidad**: una entidad necesita datos en múltiples tablas globales para estar "disponible". Existe un helper centralizado para validar esto — usarlo, no reimplementar inline.
 - **Seed data como cadena**: agregar una entidad nueva al seed requiere entradas en todos los archivos relacionados. Si falta uno, la entidad queda incompleta y no disponible.
+- **Cultivos sin fuente ODEPA en `data/seed/precios.json` deben tener `nombre_odepa: null`**: si llevan un `nombre_odepa` genérico (ej. Tomate Cherry con `"Tomate"`), el cron de la API los matchea por nombre y sobrescribe su precio con el del producto genérico cada 6h. El cron solo procesa filas con `nombre_odepa` no nulo, así que `null` los excluye y preserva el estimado. Calibrar precios no-ODEPA en el script canónico `scripts/safe/seed/update-precios-no-odepa.mts` (un solo dueño — no duplicar en el repo del API). Ref: `BUG_TOMATE_CHERRY_MATCH.md` (agriplan-api-nestjs).
 - **Supabase `select('*')` devuelve `any`**: castear siempre: `(data ?? []) as TipoEsperado[]`. Para `.single()` usar variable intermedia: `const res = await ...; return res.data as Tipo`.
 
 ## Migraciones SQL
